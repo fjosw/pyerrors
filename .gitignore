@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+.ipynb_*
+examples/B1k2_pcac_plateau.p
+examples/Untitled.*
+core.*
+*.swp

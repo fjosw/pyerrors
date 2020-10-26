@@ -1137,7 +1137,8 @@ def plot_corrs(observables, **kwargs):
             y[i] = observables[j][i].value
             y_err[i] = observables[j][i].dvalue
 
-        plt.errorbar(x, y, yerr=y_err, ls='none', fmt='o', capsize=3, markersize=5, label=label[j])
+        plt.errorbar(x, y, yerr=y_err, ls='none', fmt='o', capsize=3,
+                        markersize=5, lw=1, label=label[j])
 
     if kwargs.get('logscale'):
         plt.yscale('log')

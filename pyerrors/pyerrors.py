@@ -852,12 +852,12 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
             r_length.append(len(obs1.deltas[r_name]))
 
-            gamma += np.sum(obs1.deltas[r_name] * obs2.deltas[r_name]) / len(obs1.deltas[r_name])
+            gamma += np.sum(obs1.deltas[r_name] * obs2.deltas[r_name])
 
         e_N = np.sum(r_length)
 
         tau_combined = (obs1.e_tauint[e_name] + obs2.e_tauint[e_name]) / 2
-        dvalue += gamma * (1 + 1 / e_N) / e_N * 2 * tau_combined
+        dvalue += gamma / e_N * (1 + 1 / e_N) / e_N * 2 * tau_combined
 
     if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
         dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
@@ -1137,7 +1137,8 @@ def plot_corrs(observables, **kwargs):
             y[i] = observables[j][i].value
             y_err[i] = observables[j][i].dvalue
 
-        plt.errorbar(x, y, yerr=y_err, ls='none', fmt='o', capsize=3, markersize=5, label=label[j])
+        plt.errorbar(x, y, yerr=y_err, ls='none', fmt='o', capsize=3,
+                        markersize=5, lw=1, label=label[j])
 
     if kwargs.get('logscale'):
         plt.yscale('log')

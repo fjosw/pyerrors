@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2020-11-03
+### Fixed
+- Bug in pyerrors.covariance fixed that appeared when working with several
+  replica of different length.
+
 ## [1.0.0] - 2020-10-13
 ### Added
 - Compatibility with the BDIO Native format outlined [here](https://ific.uv.es/~alramos/docs/ADerrors/tutorial/). Read and write function added to input.bdio

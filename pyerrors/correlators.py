@@ -17,6 +17,7 @@ class Corr:
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP 
     smearing matrix at every timeslice. Other dependency (eg. spacial) are not supported.
+    If you see this line, Github has synced.
     """
     
     def __init__(self, data_input,padding_front=0,padding_back=0):

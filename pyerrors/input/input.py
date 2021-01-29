@@ -109,16 +109,23 @@ def read_sfcf(path, prefix, name, **kwargs):
     return result
 
 
-def read_sfcf_c(path, prefix, name, **kwargs):
+def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwargs):
     """Read sfcf c format from given folder structure.
+
+    Arguments
+    -----------------
+    quarks -- Label of the quarks used in the sfcf input file
+    noffset -- Offset of the source (only relevant when wavefunctions are used)
+    wf -- ID of wave function
+    wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)
 
     Keyword arguments
     -----------------
     im -- if True, read imaginary instead of real part of the correlation function.
-    single -- if True, read a boundary-to-boundary correlation function with a single value
     b2b -- if True, read a time-dependent boundary-to-boundary correlation function
     names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length
     """
+    
     if kwargs.get('im'):
         im = 1
         part = 'imaginary'
@@ -126,15 +133,10 @@ def read_sfcf_c(path, prefix, name, **kwargs):
         im = 0
         part = 'real'
 
-    if kwargs.get('single'):
-        b2b = 1
-        single = 1
-    else:
-        b2b = 0
-        single = 0
-
     if kwargs.get('b2b'):
         b2b = 1
+    else:
+        b2b = 0
 
     read = 0
     T = 0
@@ -183,30 +185,21 @@ def read_sfcf_c(path, prefix, name, **kwargs):
         print(item, ':', no_cfg, 'evenly spaced configurations (', first_cfg, '-', last_cfg, ') ,', len(sub_ls) - no_cfg, 'configs omitted\n')
 
         if i == 0:
-            read = 0
-            found = 0
-            with open(path+'/'+item+'/'+sub_ls[0]) as fp:
-                for k, line in enumerate(fp):
-                    if 'quarks' in kwargs:
-                        if found == 0 and read == 1:
-                            if line.strip() == 'quarks    ' + kwargs.get('quarks'):
-                                found = 1
-                                print('found', kwargs.get('quarks'))
-                            else:
-                                read = 0
-                    if read == 1 and not line.strip():
-                        break
-                    if read == 1 and k >= start_read:
-                        T += 1
-                    if line.strip() == 'name      '+name:
-                        read = 1
-                        start_read = k + 5 + b2b
-            print('T =', T, ', starting to read in line', start_read)
+            pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
+            if b2b:
+                pattern += '\nwf_2      ' + str(wf2)
 
-            #TODO what to do if start_read was not found
-            if 'quarks' in kwargs:
-                if found == 0:
-                    raise Exception(kwargs.get('quarks') + ' not found')
+            with open(path+'/'+item+'/'+sub_ls[0], 'r') as file:
+                content = file.read()
+                match = re.search(pattern, content)
+                if match:
+                    start_read = content.count('\n', 0, match.start()) + 5 + b2b
+                    end_match = re.search('\n\s*\n', content[match.start():])
+                    T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
+                    assert T > 0
+                    print(T, 'entries, starting to read in line', start_read)
+                else:
+                    raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
 
             deltas = []
             for j in range(T):
@@ -224,7 +217,7 @@ def read_sfcf_c(path, prefix, name, **kwargs):
                             raise Exception('Wrong format', sub_ls[cfg])
                     if(k >= start_read and k < start_read + T):
                         floats = list(map(float, line.split()))
-                        deltas[k-start_read][i][cfg] = floats[1 + im - single]
+                        deltas[k-start_read][i][cfg] = floats[-2:][im]
 
     result = []
     for t in range(T):

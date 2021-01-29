@@ -3,3 +3,4 @@ from . import fits
 from . import linalg
 from . import misc
 from . import mpm
+from . import correlators

@@ -4,7 +4,7 @@ from .fits import standard_fit
 from matplotlib import pyplot as plt
 from matplotlib.ticker import NullFormatter  # useful for `logit` scale
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import PySimpleGUI as sg
+#import PySimpleGUI as sg
 import matplotlib
 
 class Corr:

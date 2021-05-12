@@ -222,7 +222,6 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
     result = []
     for t in range(T):
         result.append(Obs(deltas[t], new_names))
-
     return result
 
 
@@ -284,8 +283,56 @@ def read_qtop(path, prefix, **kwargs):
 
     return result
 
+def parse_array_openQCD2(d, n, size, wa, quadrupel=False):
+    arr = []
+    if d == 2:
+        tot = 0
+        for i in range(n[d-1]-1):
+            if quadrupel:
+                tmp = wa[tot:n[d-1]]
+                tmp2 = []
+                for i in range(len(tmp)):
+                    if i % 2 == 0:
+                        tmp2.append(tmp[i])
+                arr.append(tmp2)
+            else:
+                arr.append(np.asarray(wa[tot:n[d-1]]))
+    return arr
 
-def read_rwms(path, prefix, **kwargs):
+
+# mimic the read_array routine of openQCD-2.0. 
+# fp is the opened file handle
+# returns the dict array 
+# at this point we only parse a 2d array
+# d = 2
+# n = [nfct[irw], 2*nsrc[irw]]
+def read_array_openQCD2(fp):
+    t = fp.read(4)
+    d = struct.unpack('i', t)[0]
+    t = fp.read(4*d)
+    n = struct.unpack('%di' % (d), t)
+    t = fp.read(4)
+    size = struct.unpack('i', t)[0]
+    if size == 4:
+        types = 'i'
+    elif size == 8:
+        types = 'd'
+    elif size == 16:
+        types = 'dd'
+    else:
+        print('Type not known!')
+    m = n[0]
+    for i in range(1,d):
+        m *= n[i]
+
+    t = fp.read(m*size)
+    #print("struct.calc tmp = "+str(struct.calcsize('%d%s' % (m, types))))
+    tmp = struct.unpack('%d%s' % (m, types), t)
+    
+    arr = parse_array_openQCD2(d, n, size, tmp, quadrupel=True)
+    return {'d': d, 'n': n, 'size': size, 'arr': arr}
+
+def read_rwms(path, prefix, names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
     Keyword arguments
@@ -293,14 +340,25 @@ def read_rwms(path, prefix, **kwargs):
     new_format -- if True, the array of the associated numbers of Hasenbusch factors is extracted (v>=openQCD1.6)
     r_start -- list which contains the first config to be read for each replicum
     r_stop -- list which contains the last config to be read for each replicum
-
+    oqcd_ver_string -- openQCD version
+    postfix -- postfix of the file to read, e.g. '.ms1' for openQCD-files
     """
-
-    if kwargs.get('new_format'):
-        extract_nfct = 1
+    #oqcd versions implemented in this method
+    known_oqcd_versions = ['1.4','1.6','2.0']
+    if 'oqcd_ver_string' in kwargs:
+        ver_str = kwargs.get('oqcd_ver_string')
+        if not (ver_str in known_oqcd_versions):
+            raise Exception('Unknown openQCD version defined!')
+    else:     #Set defaults for openQCD Version to be version 1.4, emulate the old behaviour of this method
+        if 'new_format':
+            ver_str = '1.6'
+        else:
+            ver_str = '1.4'
+    print("Working with oQCD version:" + ver_str)
+    if 'postfix' in kwargs:
+        postfix = kwargs.get('postfix')
     else:
-        extract_nfct = 0
-
+        postfix = ''
     ls = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         ls.extend(filenames)
@@ -312,10 +370,12 @@ def read_rwms(path, prefix, **kwargs):
 
     # Exclude files with different names
     for exc in ls:
-        if not fnmatch.fnmatch(exc, prefix + '*.dat'):
+        if not fnmatch.fnmatch(exc, prefix + '*'+postfix+'.dat'):
             ls = list(set(ls) - set([exc]))
     if len(ls) > 1:
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+    #ls = fnames
+    #print(ls)
     replica = len(ls)
 
     if 'r_start' in kwargs:
@@ -351,23 +411,25 @@ def read_rwms(path, prefix, **kwargs):
             t = fp.read(4) # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
+                if ver_str == '2.0':
+                    nrw = int(nrw/2)
                 for k in range(nrw):
                     deltas.append([])
             else:
-                if nrw != struct.unpack('i', t)[0]:
+                if ((nrw != struct.unpack('i', t)[0] and (not ver_str == '2.0')) or (nrw != struct.unpack('i', t)[0]/2 and ver_str == '2.0')):#little weird if-clause due to the /2 operation needed...
                     print('Error: different number of reweighting factors for replicum', rep)
                     sys.exit()
 
             for k in range(nrw):
                 tmp_array.append([])
 
-            # This block is necessary for openQCD1.6 ms1 files
+            # This block is necessary for openQCD1.6 and openQCD2.0 ms1 files
             nfct = []
-            if extract_nfct == 1:
+            if ver_str in ['1.6','2.0']:
                 for i in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
-                print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
+                #print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
             else:
                 for i in range(nrw):
                     nfct.append(1)
@@ -376,6 +438,10 @@ def read_rwms(path, prefix, **kwargs):
             for i in range(nrw):
                 t = fp.read(4)
                 nsrc.append(struct.unpack('i', t)[0])
+            if (ver_str == '2.0'):
+                if not struct.unpack('i', fp.read(4))[0] == 0:
+                    print('something is wrong!')
+            print('nfct:', nfct, 'nsrc:', nsrc)
 
             #body
             while 0 < 1:
@@ -385,16 +451,28 @@ def read_rwms(path, prefix, **kwargs):
                 if print_err:
                     config_no = struct.unpack('i', t)
                 for i in range(nrw):
-                    tmp_nfct = 1.0
-                    for j in range(nfct[i]):
-                        t = fp.read(8 * nsrc[i])
-                        t = fp.read(8 * nsrc[i])
-                        tmp_rw = struct.unpack('d' * nsrc[i], t)
-                        tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw)))
-                        if print_err:
-                            print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw))), np.std(np.exp(-np.asarray(tmp_rw))))
-                            print('Sources:', np.exp(-np.asarray(tmp_rw)))
-                            print('Partial factor:', tmp_nfct)
+                    if(ver_str == '2.0'):
+                        tmpd = read_array_openQCD2(fp)
+                        tmpd = read_array_openQCD2(fp)
+                        tmp_rw = tmpd['arr']
+                        tmp_nfct = 1.0
+                        for j in range(tmpd['n'][0]):
+                            tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw[j])))
+                            if print_err:
+                                print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw[j]))), np.std(np.exp(-np.asarray(tmp_rw[j]))))
+                                print('Sources:', np.exp(-np.asarray(tmp_rw[j])))
+                                print('Partial factor:', tmp_nfct)
+                    elif(ver_str=='1.6' or ver_str=='1.4'):
+                        tmp_nfct = 1.0
+                        for j in range(nfct[i]):
+                            t = fp.read(8 * nsrc[i])
+                            t = fp.read(8 * nsrc[i])
+                            tmp_rw = struct.unpack('d' * nsrc[i], t)
+                            tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw)))
+                            if print_err:
+                                print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw))), np.std(np.exp(-np.asarray(tmp_rw))))
+                                print('Sources:', np.exp(-np.asarray(tmp_rw)))
+                                print('Partial factor:', tmp_nfct)
                     tmp_array[i].append(tmp_nfct)
 
             for k in range(nrw):
@@ -403,8 +481,11 @@ def read_rwms(path, prefix, **kwargs):
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
     for t in range(nrw):
-        result.append(Obs(deltas[t], [(w.split('.'))[0] for w in ls]))
-
+        if names == None:
+            result.append(Obs(deltas[t], [w.split(".")[0] for w in ls]))
+        else:
+            print(names)
+            result.append(Obs(deltas[t], names))
     return result
 
 

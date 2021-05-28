@@ -173,7 +173,7 @@ class Corr:
         sp_vec = sp_vec/np.sqrt(sp_vec@sp_vec)
         return sp_vec
 
-    def deriv(self, symmetric=False): #Defaults to forward derivative f'(t)=f(t+1)-f(t) 
+    def deriv(self, symmetric=True): #Defaults to forward symmetric derivative
         if not symmetric:
             newcontent = []
             for t in range(self.T - 1):
@@ -194,6 +194,19 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding_back=1, padding_front=1)
+
+
+    def second_deriv(self):
+        newcontent = []
+        for t in range(1, self.T-1):
+            if (self.content[t-1] is None) or (self.content[t+1] is None):
+                newcontent.append(None)
+            else:
+                newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
+        if(all([x is None for x in newcontent])):
+            raise Exception("Derivative is undefined at all timeslices")
+        return Corr(newcontent, padding_back=1, padding_front=1)
+
 
     #effective mass at every timeslice
     def m_eff(self, periodic=False):

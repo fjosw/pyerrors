@@ -20,14 +20,14 @@ class Corr:
 
     """
 
-    def __init__(self, data_input,padding_front=0,padding_back=0):
+    def __init__(self, data_input, padding_front=0, padding_back=0):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
-        if not (isinstance(data_input,list)):
+        if not (isinstance(data_input, list)):
             raise TypeError('Corr__init__ expects a list of timeslices.')
         # data_input can have multiple shapes. The simplest one is a list of Obs.
         #We check, if this is the case
-        if all([isinstance(item,Obs) for item in data_input]):
+        if all([isinstance(item, Obs) for item in data_input]):
             self.content=[np.asarray([item]) for item in data_input]
             #Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.
             self.N = 1 # number of smearings
@@ -70,7 +70,7 @@ class Corr:
     #The method can use one or two vectors.
     #If two are specified it returns v1@G@v2 (the order might be very important.)
     #By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
-    def projected(self,vector_l=None,vector_r=None):
+    def projected(self, vector_l=None, vector_r=None):
         if self.N == 1:
             raise Exception("Trying to project a Corr, that already has N=1.")
             #This Exception is in no way necessary. One could just return self
@@ -224,7 +224,7 @@ class Corr:
 
 
     #We want to apply a pe.standard_fit directly to the Corr using an arbitrary function and range.
-    def fit(self, function, fitrange=None):
+    def fit(self, function, fitrange=None, silent=False):
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 
@@ -233,7 +233,7 @@ class Corr:
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
-        result = standard_fit(xs, ys, function, silent=True)
+        result = standard_fit(xs, ys, function, silent=silent)
         [item.gamma_method() for item in result if isinstance(item,Obs)]
         return result
 
@@ -245,10 +245,10 @@ class Corr:
                 raise Exception("plateau is undefined at all timeslices in plateaurange.")
         if method == "fit":
             def const_func(a, t):
-                return a[0] + a[1] * 0 # At some point pe.standard fit had an issue with single parameter fits. Being careful does not hurt
+                return a[0] # At some point pe.standard fit had an issue with single parameter fits. Being careful does not hurt
             return self.fit(const_func,plateau_range)[0]
         elif method in ["avg","average","mean"]:
-            returnvalue= np.mean([item[0] for item in self.content if not item is None])
+            returnvalue= np.mean([item[0] for item in self.content[plateau_range[0]:plateau_range[1]+1] if not item is None])
             returnvalue.gamma_method()
             return returnvalue
 
@@ -258,28 +258,28 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self,xrange=None,logscale=False):
+    def show(self, x_range=None, logscale=False):
         if self.N!=1:
             raise Exception("Correlator must be projected before plotting")
-        if  xrange is None:
-            xrange=[0,self.T]
+        if  x_range is None:
+            x_range=[0, self.T]
 
         x,y,y_err=self.plottable()
         plt.errorbar(x,y,y_err)
         if logscale:
-            plt.yscale("log")
+            plt.yscale('log')
         else:
         # we generate ylim instead of using autoscaling.
-            y_min=min([ (x[0].value-x[0].dvalue)  for x in self.content[xrange[0]:xrange[1]] if(not x is None)])
-            y_max=max([ (x[0].value+x[0].dvalue)  for x in self.content[xrange[0]:xrange[1]] if(not x is None)])
-            plt.ylim([y_min-0.1*(y_max-y_min),y_max+0.1*(y_max-y_min)])
+            y_min=min([(x[0].value - x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
+            y_max=max([(x[0].value + x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
+            plt.ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
 
-        plt.xlabel(r"$an_t$")
-        plt.xlim([xrange[0] - 0.5, xrange[1] + 0.5])
-        plt.title("Quickplot")
+        plt.xlabel(r'$x_0 / a$')
+        plt.xlim([x_range[0] - 0.5, x_range[1] + 0.5])
+        #plt.title("Quickplot")
 
         plt.show()
-        plt.clf()
+        #plt.clf()
         return
 
     def dump(self,filename):

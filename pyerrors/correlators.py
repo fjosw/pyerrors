@@ -10,9 +10,9 @@ import matplotlib
 class Corr:
     """The class for a correlator (time dependent sequence of pe.Obs).
 
-    Everything, this class does, can be achieved using lists or arrays of Obs. 
-    But it is simply more convenient to have a dedicated object for correlators. 
-    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient 
+    Everything, this class does, can be achieved using lists or arrays of Obs.
+    But it is simply more convenient to have a dedicated object for correlators.
+    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient
     to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
@@ -23,7 +23,7 @@ class Corr:
     def __init__(self, data_input,padding_front=0,padding_back=0):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
-        if not isinstance(data_input,list):
+        if not (isinstance(data_input,list)):
             raise TypeError('Corr__init__ expects a list of timeslices.')
         # data_input can have multiple shapes. The simplest one is a list of Obs.
         #We check, if this is the case
@@ -173,7 +173,7 @@ class Corr:
         sp_vec = sp_vec/np.sqrt(sp_vec@sp_vec)
         return sp_vec
 
-    def deriv(self, symmetric=False): #Defaults to forward derivative f'(t)=f(t+1)-f(t) 
+    def deriv(self, symmetric=False): #Defaults to forward derivative f'(t)=f(t+1)-f(t)
         if not symmetric:
             newcontent = []
             for t in range(self.T - 1):
@@ -265,7 +265,7 @@ class Corr:
             xrange=[0,self.T]
 
         x,y,y_err=self.plottable()
-        plt.errorbar(x,y,y_err,fmt="o-")
+        plt.errorbar(x,y,y_err)
         if logscale:
             plt.yscale("log")
         else:
@@ -274,10 +274,9 @@ class Corr:
             y_max=max([ (x[0].value+x[0].dvalue)  for x in self.content[xrange[0]:xrange[1]] if(not x is None)])
             plt.ylim([y_min-0.1*(y_max-y_min),y_max+0.1*(y_max-y_min)])
 
-        plt.xlabel(r"$n_t$ [a]")
-        plt.xlim(xrange)
+        plt.xlabel(r"$an_t$")
+        plt.xlim([xrange[0] - 0.5, xrange[1] + 0.5])
         plt.title("Quickplot")
-        plt.grid()
 
         plt.show()
         plt.clf()

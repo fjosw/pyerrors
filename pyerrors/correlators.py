@@ -342,11 +342,25 @@ class Corr:
         dump_object(self,filename)
         return
 
+    def print(self, range=[0, None]):
+        print(self.__repr__(range))
 
-    def __repr__(self):
-        return("Corr[T="+str(self.T)+" , N="+str(self.N)+" , content="+str(self.content)+"]")
+    def __repr__(self, range=[0, None]):
+        if range[1]:
+            range[1] += 1
+        content_string = 'x0/a\tCorr(x0/a)\n------------------\n'
+        for i, sub_corr in enumerate(self.content[range[0]:range[1]]):
+            if sub_corr is None:
+                content_string += str(i + range[0]) + '\n'
+            else:
+                content_string += str(i + range[0])
+                for element in sub_corr:
+                    content_string += '\t' + element.__repr__()[4:-1]
+                content_string += '\n'
+        return content_string
     def __str__(self):
-        return ("Corr[T="+str(self.T)+" , N="+str(self.N)+" , content="+str(self.content)+"]")
+        return self.__repr__()
+        #return ("Corr[T="+str(self.T)+" , N="+str(self.N)+" , content="+str([o[0] for o in [o for o in self.content]])+"]")
 
     #We define the basic operations, that can be performed with correlators.
     #While */+- get defined here, they only work for Corr*Obs and not Obs*Corr.
@@ -462,7 +476,11 @@ class Corr:
         else:
             raise TypeError("type of exponent not supported")
 
-    #The numpy functions:
+    def __abs__(self):
+        newcontent=[None if (item is None) else np.abs(item) for item in self.content]
+        return Corr(newcontent)
+
+#The numpy functions:
     def sqrt(self):
         return self**0.5
 

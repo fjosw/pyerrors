@@ -4,3 +4,4 @@ from . import linalg
 from . import misc
 from . import mpm
 from . import correlators
+from . import roots

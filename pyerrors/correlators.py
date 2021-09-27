@@ -1,4 +1,5 @@
-import autograd.numpy as np
+import numpy as np
+import autograd.numpy as anp
 from .pyerrors import *
 from .fits import standard_fit
 from matplotlib import pyplot as plt
@@ -222,7 +223,7 @@ class Corr:
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        else: # This is usually not very stable. 
+        else: # This is usually not very stable.
             newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None)or (self.content[t - 1] is None):

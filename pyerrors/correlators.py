@@ -258,7 +258,7 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self, x_range=None, logscale=False):
+    def show(self, x_range=None, comp=None, logscale=False):
         if self.N!=1:
             raise Exception("Correlator must be projected before plotting")
         if  x_range is None:
@@ -273,6 +273,14 @@ class Corr:
             y_min=min([(x[0].value - x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
             y_max=max([(x[0].value + x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
             plt.ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
+
+        if comp:
+            if isinstance(comp, Corr) or isinstance(comp, list):
+                for corr in comp if isinstance(comp, list) else [comp]:
+                    x,y,y_err=corr.plottable()
+                    plt.errorbar(x,y,y_err)
+            else:
+                raise Exception('comp must be a correlator or a list of correlators.')
 
         plt.xlabel(r'$x_0 / a$')
         plt.xlim([x_range[0] - 0.5, x_range[1] + 0.5])

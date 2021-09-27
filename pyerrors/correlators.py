@@ -20,7 +20,7 @@ class Corr:
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0):
+    def __init__(self, data_input, padding_front=0, padding_back=0, tag=None):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
         if not (isinstance(data_input, list)):
@@ -43,10 +43,16 @@ class Corr:
                 raise Exception("Smearing matrices are not NxN")
             if  (not all([item.shape == noNull[0].shape for item in noNull])):
                 raise Exception("Items in data_input are not of identical shape." + str(noNull))
-
         else: # In case its a list of something else.
             raise Exception ("data_input contains item of wrong type")
 
+        if tag:
+            if isinstance(tag, str):
+                self.tag = tag
+            else:
+                raise Exception('Correlator tag has to be a string.')
+        else:
+            self.tag = None
         #We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.
         #An undefined timeslice is represented by the None object
         self.content = [None] * padding_front + self.content + [None] * padding_back
@@ -264,30 +270,34 @@ class Corr:
         if  x_range is None:
             x_range=[0, self.T]
 
+        fig = plt.figure()
+        ax1 = fig.add_subplot(111)
+
         x,y,y_err=self.plottable()
-        plt.errorbar(x,y,y_err)
+        ax1.errorbar(x, y, y_err, label=self.tag)
         if logscale:
-            plt.yscale('log')
+            ax1.set_yscale('log')
         else:
         # we generate ylim instead of using autoscaling.
             y_min=min([(x[0].value - x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
             y_max=max([(x[0].value + x[0].dvalue)  for x in self.content[x_range[0]:x_range[1]] if(not x is None)])
-            plt.ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
+            ax1.set_ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
 
         if comp:
             if isinstance(comp, Corr) or isinstance(comp, list):
                 for corr in comp if isinstance(comp, list) else [comp]:
                     x,y,y_err=corr.plottable()
-                    plt.errorbar(x,y,y_err)
+                    plt.errorbar(x, y, y_err, label=corr.tag)
             else:
                 raise Exception('comp must be a correlator or a list of correlators.')
 
-        plt.xlabel(r'$x_0 / a$')
-        plt.xlim([x_range[0] - 0.5, x_range[1] + 0.5])
-        #plt.title("Quickplot")
+        ax1.set_xlabel(r'$x_0 / a$')
+        ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])
 
+        handles, labels = ax1.get_legend_handles_labels()
+        if labels:
+            legend = ax1.legend()
         plt.show()
-        #plt.clf()
         return
 
     def dump(self,filename):

@@ -356,7 +356,7 @@ class Obs:
             plt.ylabel('tauint')
             length = int(len(self.e_n_tauint[e_name]))
             plt.errorbar(np.arange(length), self.e_n_tauint[e_name][:], yerr=self.e_n_dtauint[e_name][:], linewidth=1, capsize=2)
-            plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, marker=',')
+            plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, marker=',', ls='--')
             if self.tau_exp[e_name] > 0:
                 base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
                 x_help = np.arange(2 * self.tau_exp[e_name])
@@ -1180,11 +1180,11 @@ def plot_corrs(observables, **kwargs):
     if 'plateau' in kwargs:
         plateau = kwargs.get('plateau')
         if isinstance(plateau, Obs):
-            plt.axhline(y=plateau.value, linewidth=2, color='k', alpha=0.6, label='Plateau', marker=',')
+            plt.axhline(y=plateau.value, linewidth=2, color='k', alpha=0.6, label='Plateau', marker=',', ls='--')
             plt.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color='k')
         elif isinstance(plateau, list):
             for i in range(len(plateau)):
-                plt.axhline(y=plateau[i].value, linewidth=2, color='C' + str(i), alpha=0.6, label='Plateau' + str(i + 1), marker=',')
+                plt.axhline(y=plateau[i].value, linewidth=2, color='C' + str(i), alpha=0.6, label='Plateau' + str(i + 1), marker=',', ls='--')
                 plt.axhspan(plateau[i].value - plateau[i].dvalue, plateau[i].value + plateau[i].dvalue,
                             color='C' + str(i), alpha=0.25)
         else:

@@ -286,7 +286,7 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self, x_range=None, comp=None, logscale=False, save=None):
+    def show(self, x_range=None, comp=None, logscale=False, plateau=None, save=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
@@ -321,6 +321,13 @@ class Corr:
                     plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
                 raise Exception('comp must be a correlator or a list of correlators.')
+
+        if plateau:
+            if isinstance(plateau, Obs):
+                ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label='Plateau')
+                ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
+            else:
+                raise Exception('plateau must be an Obs')
 
         ax1.set_xlabel(r'$x_0 / a$')
         ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])

@@ -300,9 +300,9 @@ def parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     return arr
 
 
-# mimic the read_array routine of openQCD-2.0. 
+# mimic the read_array routine of openQCD-2.0.
 # fp is the opened file handle
-# returns the dict array 
+# returns the dict array
 # at this point we only parse a 2d array
 # d = 2
 # n = [nfct[irw], 2*nsrc[irw]]
@@ -326,9 +326,8 @@ def read_array_openQCD2(fp):
         m *= n[i]
 
     t = fp.read(m*size)
-    #print("struct.calc tmp = "+str(struct.calcsize('%d%s' % (m, types))))
     tmp = struct.unpack('%d%s' % (m, types), t)
-    
+
     arr = parse_array_openQCD2(d, n, size, tmp, quadrupel=True)
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
 
@@ -350,11 +349,12 @@ def read_rwms(path, prefix, names=None, **kwargs):
         if not (ver_str in known_oqcd_versions):
             raise Exception('Unknown openQCD version defined!')
     else:     #Set defaults for openQCD Version to be version 1.4, emulate the old behaviour of this method
+    # Deprecate this kwarg in version 2.0.
         if 'new_format':
             ver_str = '1.6'
         else:
             ver_str = '1.4'
-    print("Working with oQCD version:" + ver_str)
+    print("Working with openQCD version " + ver_str)
     if 'postfix' in kwargs:
         postfix = kwargs.get('postfix')
     else:
@@ -416,7 +416,7 @@ def read_rwms(path, prefix, names=None, **kwargs):
                 for k in range(nrw):
                     deltas.append([])
             else:
-                if ((nrw != struct.unpack('i', t)[0] and (not ver_str == '2.0')) or (nrw != struct.unpack('i', t)[0]/2 and ver_str == '2.0')):#little weird if-clause due to the /2 operation needed...
+                if ((nrw != struct.unpack('i', t)[0] and (not ver_str == '2.0')) or (nrw != struct.unpack('i', t)[0]/2 and ver_str == '2.0')):# little weird if-clause due to the /2 operation needed.
                     print('Error: different number of reweighting factors for replicum', rep)
                     sys.exit()
 
@@ -441,7 +441,6 @@ def read_rwms(path, prefix, names=None, **kwargs):
             if (ver_str == '2.0'):
                 if not struct.unpack('i', fp.read(4))[0] == 0:
                     print('something is wrong!')
-            print('nfct:', nfct, 'nsrc:', nsrc)
 
             #body
             while 0 < 1:

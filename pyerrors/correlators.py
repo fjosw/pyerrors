@@ -217,7 +217,7 @@ class Corr:
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        else: #This is usually not very stable. One could default back to periodic=False.
+        else: #This is usually not very stable. 
             newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None)or (self.content[t - 1] is None):
@@ -265,6 +265,14 @@ class Corr:
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
     def show(self, x_range=None, comp=None, logscale=False):
+        """Plots the correlator, uses tag as label if available.
+
+        Parameters
+        ----------
+        x_range -- list of two values, determining the range of the x-axis e.g. [4, 8]
+        comp -- Correlator or list of correlators which are plotted for comparison.
+        logscale -- Sets y-axis to logsclae
+        """
         if self.N!=1:
             raise Exception("Correlator must be projected before plotting")
         if  x_range is None:
@@ -287,7 +295,7 @@ class Corr:
             if isinstance(comp, Corr) or isinstance(comp, list):
                 for corr in comp if isinstance(comp, list) else [comp]:
                     x,y,y_err=corr.plottable()
-                    plt.errorbar(x, y, y_err, label=corr.tag)
+                    plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
                 raise Exception('comp must be a correlator or a list of correlators.')
 

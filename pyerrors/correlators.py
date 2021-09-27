@@ -198,13 +198,18 @@ class Corr:
                 else:
                     newcontent.append(0.5 * (self.content[t + 1] - self.content[t - 1]))
             if(all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding_back=1, padding_front=1)
 
-    #effective mass at every timeslice
     def m_eff(self, periodic=False):
+        """Returns the effective mass of the correlator as correlator object
+
+        Parameters
+        ----------
+        x_range -- if true the function uses arccosh( (C(t+1)+C(t-1)) / (2C(t) ) instead of the standard expression for the effective mass
+        """
         if self.N != 1:
-            raise Exception("Correlator must be projected before getting m_eff")
+            raise Exception('Correlator must be projected before getting m_eff')
         if not periodic:
             newcontent = []
             for t in range(self.T - 1):
@@ -213,11 +218,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] / self.content[t + 1])
             if(all([x is None for x in newcontent])):
-                raise Exception("m_eff is undefined at all timeslices")
+                raise Exception('m_eff is undefined at all timeslices')
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        else: #This is usually not very stable. 
+        else: # This is usually not very stable. 
             newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None)or (self.content[t - 1] is None):
@@ -225,8 +230,8 @@ class Corr:
                 else:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
             if(all([x is None for x in newcontent])):
-                raise Exception("m_eff is undefined at all timeslices")
-            return np.arccosh(Corr(newcontent,padding_back=1, padding_front=1))
+                raise Exception('m_eff is undefined at all timeslices')
+            return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
 
 
     #We want to apply a pe.standard_fit directly to the Corr using an arbitrary function and range.
@@ -264,14 +269,15 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self, x_range=None, comp=None, logscale=False):
+    def show(self, x_range=None, comp=None, logscale=False, save=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
         ----------
         x_range -- list of two values, determining the range of the x-axis e.g. [4, 8]
         comp -- Correlator or list of correlators which are plotted for comparison.
-        logscale -- Sets y-axis to logsclae
+        logscale -- Sets y-axis to logscale
+        save -- path to file in which the figure should be saved
         """
         if self.N!=1:
             raise Exception("Correlator must be projected before plotting")
@@ -306,6 +312,13 @@ class Corr:
         if labels:
             legend = ax1.legend()
         plt.show()
+
+        if save:
+            if isinstance(save, str):
+                fig.savefig(save)
+            else:
+                raise Exception('safe has to be a string.')
+
         return
 
     def dump(self,filename):

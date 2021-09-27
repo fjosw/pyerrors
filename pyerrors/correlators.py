@@ -2,6 +2,7 @@ import numpy as np
 import autograd.numpy as anp
 from .pyerrors import *
 from .fits import standard_fit
+from .roots import find_root
 from matplotlib import pyplot as plt
 from matplotlib.ticker import NullFormatter  # useful for `logit` scale
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -202,16 +203,18 @@ class Corr:
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding_back=1, padding_front=1)
 
-    def m_eff(self, periodic=False):
+    def m_eff(self, variant='log'):
         """Returns the effective mass of the correlator as correlator object
 
         Parameters
         ----------
-        x_range -- if true the function uses arccosh( (C(t+1)+C(t-1)) / (2C(t) ) instead of the standard expression for the effective mass
+        variant -- log: uses the standard effective mass log(C(t) / C(t+1))
+                   periodic : uses arccosh((C(t+1)+C(t-1)) / (2C(t))
+                   root : Solves C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m
         """
         if self.N != 1:
             raise Exception('Correlator must be projected before getting m_eff')
-        if not periodic:
+        if variant is 'log':
             newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
@@ -223,7 +226,7 @@ class Corr:
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        else: # This is usually not very stable.
+        elif variant is 'periodic': # This is usually not very stable.
             newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None)or (self.content[t - 1] is None):
@@ -233,7 +236,20 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
             return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
+        elif variant is 'root':
+            newcontent = []
+            for t in range(self.T - 1):
+                if (self.content[t] is None) or (self.content[t + 1] is None):
+                    newcontent.append(None)
+                else:
+                    func = lambda x, d : anp.cosh(x * (t - self.T / 2)) / anp.cosh(x * (t + 1 - self.T / 2)) - d
+                    newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], func)))
+            if(all([x is None for x in newcontent])):
+                raise Exception('m_eff is undefined at all timeslices')
 
+            return Corr(newcontent, padding_back=1)
+        else:
+            raise Exception('Unkown variant.')
 
     #We want to apply a pe.standard_fit directly to the Corr using an arbitrary function and range.
     def fit(self, function, fitrange=None, silent=False):

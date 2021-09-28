@@ -366,7 +366,7 @@ class Obs:
                 plt.errorbar([self.e_windowsize[e_name] + 2 * self.tau_exp[e_name]], [self.e_tauint[e_name]],
                              yerr=[self.e_dtauint[e_name]], fmt='k', linewidth=1, capsize=2)
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
-                plt.title('Tauint ' + e_name + ', tau_exp='+str(np.around(self.tau_exp[e_name], decimals=2)))
+                plt.title('Tauint ' + e_name + ', tau\_exp='+str(np.around(self.tau_exp[e_name], decimals=2)))
             else:
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
                 plt.title('Tauint ' + e_name + ', S='+str(np.around(self.S[e_name], decimals=2)))
@@ -383,12 +383,12 @@ class Obs:
             plt.ylabel('rho')
             length = int(len(self.e_drho[e_name]))
             plt.errorbar(np.arange(length), self.e_rho[e_name][:length], yerr=self.e_drho[e_name][:], linewidth=1, capsize=2)
-            plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25)
+            plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, ls='--', marker=',')
             if self.tau_exp[e_name] > 0:
                 plt.plot([self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name]],
                          [self.e_rho[e_name][self.e_windowsize[e_name] + 1], 0], 'k-', lw=1)
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
-                plt.title('Rho ' + e_name + ', tau_exp='+str(np.around(self.tau_exp[e_name], decimals=2)))
+                plt.title('Rho ' + e_name + ', tau\_exp=' + str(np.around(self.tau_exp[e_name], decimals=2)))
             else:
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
                 plt.title('Rho ' + e_name + ', S=' + str(np.around(self.S[e_name], decimals=2)))

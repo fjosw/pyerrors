@@ -22,7 +22,7 @@ class Corr:
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0, tag=None):
+    def __init__(self, data_input, padding_front=0, padding_back=0):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
         if not (isinstance(data_input, list)):
@@ -48,13 +48,8 @@ class Corr:
         else: # In case its a list of something else.
             raise Exception ("data_input contains item of wrong type")
 
-        if tag:
-            if isinstance(tag, str):
-                self.tag = tag
-            else:
-                raise Exception('Correlator tag has to be a string.')
-        else:
-            self.tag = None
+        self.tag = None
+
         #We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.
         #An undefined timeslice is represented by the None object
         self.content = [None] * padding_front + self.content + [None] * padding_back
@@ -203,7 +198,7 @@ class Corr:
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding_back=1, padding_front=1)
 
-    def m_eff(self, variant='log'):
+    def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
 
         Parameters
@@ -211,6 +206,7 @@ class Corr:
         variant -- log: uses the standard effective mass log(C(t) / C(t+1))
                    periodic : uses arccosh((C(t+1)+C(t-1)) / (2C(t))
                    root : Solves C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m
+        guess -- guess for the root finder, only relevant for the root variant
         """
         if self.N != 1:
             raise Exception('Correlator must be projected before getting m_eff')
@@ -243,7 +239,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     func = lambda x, d : anp.cosh(x * (t - self.T / 2)) / anp.cosh(x * (t + 1 - self.T / 2)) - d
-                    newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], func)))
+                    newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], func, guess=guess)))
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 

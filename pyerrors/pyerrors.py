@@ -501,8 +501,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self + o for o in y])
-            elif(y.__class__.__name__=="Corr"):
-                return NotImplemented 
+            elif y.__class__.__name__ == 'Corr':
+                return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
     def __radd__(self, y):
@@ -515,9 +515,9 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self * o for o in y])
-            elif(y.__class__.__name__=="Corr"):
-                return NotImplemented 
-                
+            elif y.__class__.__name__ == 'Corr':
+                return NotImplemented
+
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
@@ -531,9 +531,9 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self - o for o in y])
-            
-            elif(y.__class__.__name__=="Corr"):
-                return NotImplemented 
+
+            elif y.__class__.__name__ == 'Corr':
+                return NotImplemented
 
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
@@ -554,7 +554,7 @@ class Obs:
             if isinstance(y, np.ndarray):
                 return np.array([self / o for o in y])
 
-            elif(y.__class__.__name__=="Corr"):
+            elif y.__class__.__name__ == 'Corr':
                 return NotImplemented
 
             else:

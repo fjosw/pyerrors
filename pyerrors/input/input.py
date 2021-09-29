@@ -125,7 +125,7 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
     b2b -- if True, read a time-dependent boundary-to-boundary correlation function
     names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length
     """
-    
+
     if kwargs.get('im'):
         im = 1
         part = 'imaginary'

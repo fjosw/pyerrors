@@ -204,8 +204,7 @@ class Corr:
         Parameters
         ----------
         variant -- log: uses the standard effective mass log(C(t) / C(t+1))
-                   periodic : uses arccosh((C(t+1)+C(t-1)) / (2C(t))
-                   root : Solves C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m
+                   periodic : Solves C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m. See, e.g., arXiv:1205.5380
         guess -- guess for the root finder, only relevant for the root variant
         """
         if self.N != 1:
@@ -222,17 +221,7 @@ class Corr:
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        elif variant is 'periodic': # This is usually not very stable.
-            newcontent = []
-            for t in range(1, self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None)or (self.content[t - 1] is None):
-                    newcontent.append(None)
-                else:
-                    newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
-            if(all([x is None for x in newcontent])):
-                raise Exception('m_eff is undefined at all timeslices')
-            return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
-        elif variant is 'root':
+        elif variant is 'periodic':
             newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
@@ -248,7 +237,7 @@ class Corr:
             raise Exception('Unkown variant.')
 
     #We want to apply a pe.standard_fit directly to the Corr using an arbitrary function and range.
-    def fit(self, function, fitrange=None, silent=False):
+    def fit(self, function, fitrange=None, silent=False, **kwargs):
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 
@@ -257,8 +246,13 @@ class Corr:
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
-        result = standard_fit(xs, ys, function, silent=silent)
-        [item.gamma_method() for item in result if isinstance(item,Obs)]
+        result = standard_fit(xs, ys, function, silent=silent, **kwargs)
+        if isinstance(result, list):
+            [item.gamma_method() for item in result if isinstance(item,Obs)]
+        elif isinstance(result, dict):
+            [item.gamma_method() for item in result['fit_parameters'] if isinstance(item,Obs)]
+        else:
+            raise Exception('Unexpected fit result.')
         return result
 
     #we want to quickly get a plateau
@@ -282,7 +276,7 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self, x_range=None, comp=None, logscale=False, plateau=None, save=None):
+    def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
@@ -324,6 +318,12 @@ class Corr:
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception('plateau must be an Obs')
+
+        if fit_res:
+            x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
+            ax1.plot(x_samples,
+                    fit_res['fit_function']([o.value for o in fit_res['fit_parameters']], x_samples)
+                    , ls='-', marker=',', lw=2)
 
         ax1.set_xlabel(r'$x_0 / a$')
         ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])

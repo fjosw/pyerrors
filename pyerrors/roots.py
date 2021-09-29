@@ -11,11 +11,12 @@ def find_root(d, func, guess=1.0, **kwargs):
     Parameters
     -----------------
     d -- Obs passed to the function.
-    func -- Function to be minimized.
+    func -- Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper
     guess -- Initial guess for the minimization.
     """
     root = scipy.optimize.fsolve(func, guess, d.value)
 
+    # Error propagation as detailed in arXiv:1809.01289
     dx = jacobian(func)(root[0], d.value)
     da = jacobian(lambda u, v : func(v, u))(d.value, root[0])
     deriv = - da / dx

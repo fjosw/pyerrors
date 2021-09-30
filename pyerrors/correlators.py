@@ -176,7 +176,7 @@ class Corr:
         sp_vec = sp_vec/np.sqrt(sp_vec@sp_vec)
         return sp_vec
 
-    def deriv(self, symmetric=False): #Defaults to forward derivative f'(t)=f(t+1)-f(t)
+    def deriv(self, symmetric=True): #Defaults to symmetric derivative
         if not symmetric:
             newcontent = []
             for t in range(self.T - 1):
@@ -198,7 +198,20 @@ class Corr:
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding_back=1, padding_front=1)
 
-    def m_eff(self, variant='log', guess=1.0):
+
+    def second_deriv(self):
+        newcontent = []
+        for t in range(1, self.T-1):
+            if (self.content[t-1] is None) or (self.content[t+1] is None):
+                newcontent.append(None)
+            else:
+                newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
+        if(all([x is None for x in newcontent])):
+            raise Exception("Derivative is undefined at all timeslices")
+        return Corr(newcontent, padding_back=1, padding_front=1)
+
+
+def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
 
         Parameters
@@ -609,116 +622,3 @@ class Corr:
         return self * y
     def __radd__(self,y):
         return self + y
-
-
-
-##One of the most common tasks is to select a range for a plateau or a fit. This is best done visually.
-#def GUI_range_finder(corr, current_range=None):
-#    T=corr.T
-#    if corr.N!=1:
-#        raise Exception("The Corr needs to be projected to select a range.")
-#    #We need to define few helper functions for the Gui
-#    def get_figure(corr,values):
-#        fig = matplotlib.figure.Figure(figsize=(7, 4), dpi=100)
-#        fig.clf()
-#        x,y,err=corr.plottable()
-#        ax=fig.add_subplot(111,label="main")#.plot(t, 2 * np.sin(2 * np.pi * t))
-#        end=int(max(values["range_start"],values["range_end"]))
-#        start=int(min(values["range_start"],values["range_end"]))
-#        db=[0.1,0.2,0.8]
-#        ax.errorbar(x,y,err, fmt="-o",color=[0.4,0.6,0.8])
-#        ax.errorbar(x[start:end],y[start:end],err[start:end], fmt="-o",color=db)
-#        offset=int(0.3*(end-start))
-#        xrange=[max(min(start-1,int(start-offset)),0),min(max(int(end+offset),end+1),T-1)]
-#        ax.grid()
-#        if values["Plateau"]:
-#            plateau=corr.plateau([start,end])
-#            ax.hlines(plateau.value,0,T+1,lw=plateau.dvalue,color="red",alpha=0.5)
-#            ax.hlines(plateau.value,0,T+1,lw=1,color="red")
-#            ax.set_title(r"Current Plateau="+str(plateau)[4:-1])
-#        if(values["Crop X"]):
-#            ax.set_xlim(xrange)
-#        ax.set_xticks([x for x in ax.get_xticks() if (x-int(x)==0) and (0<=x<T)])
-#        if(values["Crop Y"]):
-#            y_min=min([ (x[0].value-x[0].dvalue)  for x in corr.content[xrange[0]:xrange[1]] if(not x is None)])
-#            y_max=max([ (x[0].value+x[0].dvalue)  for x in corr.content[xrange[0]:xrange[1]] if(not x is None)])
-#            ax.set_ylim([y_min-0.1*(y_max-y_min),y_max+0.1*(y_max-y_min)])
-#        else:
-#            y_min=min([ (x[0].value-x[0].dvalue)  for x in corr.content if(not x is None)])
-#            y_max=max([ (x[0].value+x[0].dvalue)  for x in corr.content if(not x is None)])
-#            ax.set_ylim([y_min-0.1*(y_max-y_min),y_max+0.1*(y_max-y_min)])
-#        ax.vlines(values["range_start"]-0.5,-2*abs(y_min),2*y_max,color=db)
-#        ax.vlines(values["range_end"]-0.5,-2*abs(y_min),2*y_max,color=db)
-#        return fig
-#
-#    def draw_figure(canvas, figure):
-#        #matplotlib.use('TkAgg')
-#        figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
-#        figure_canvas_agg.draw()
-#        figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
-#        return figure_canvas_agg
-#
-#    def delete_figure_agg(figure_agg):
-#        figure_agg.get_tk_widget().forget()
-#        plt.close('all')
-#
-#    #We change settings for mpl only inside the function
-#    #matplotlib.use('TkAgg')
-#
-#    #now we can call our gui
-#    # define window layout
-#    default_values={}
-#    default_values["Crop X"]=False
-#    default_values["Crop Y"]=False
-#    default_values["Plateau"]=False
-#    if current_range is None:
-#        default_values["range_start"]=1
-#        default_values["range_end"]=int(T/2)
-#    else:
-#        default_values["range_start"]=current_range[0]
-#        default_values["range_end"]=current_range[1]
-#
-#
-#    layout = [
-#            [sg.Canvas(key='-CANVAS-')],
-#            [sg.Slider(range=(0,T),default_value=default_values["range_start"],size=(40,15),orientation='horizontal',key="range_start",enable_events = True)],
-#            [sg.Slider(range=(0,T),default_value=default_values["range_end"],size=(40,15),orientation='horizontal',key="range_end",enable_events = True)],
-#            [sg.Checkbox('Crop X',key="Crop X",default=default_values["Crop X"],enable_events = True),sg.Checkbox('Crop Y',key="Crop Y",default=default_values["Crop Y"],enable_events = True),sg.Checkbox('Plateau', key="Plateau",default=default_values["Plateau"],enable_events = True),sg.Button('Return')]]
-#
-#    #Calling a theme after the layout is set, preserves default sliders and Buttons
-#
-#    window = sg.Window('Range Finder', layout, finalize=True, element_justification='center', font='Helvetica 18',return_keyboard_events=True)
-#
-#    # add the plot to the window
-#    fig = get_figure(corr,default_values)
-#    fig_canvas_agg =draw_figure(window['-CANVAS-'].TKCanvas, fig)
-#    while True:
-#        event, values = window.read()
-#        if event is None or event=="Return" or event=="\r":
-#            break
-#        else:
-#            if values["range_end"]<=values["range_start"]+2:
-#                if values["range_start"]+3<T:
-#                    window["range_end"].update(values["range_start"]+3)
-#                else:
-#                    window["range_start"].update(T-3)
-#                    window["range_end"].update(values["range_start"]+3)
-#            # we need a distance of 2 fo a plateau
-#            if values["range_end"]<=values["range_start"]+1:
-#                values["Plateau"]=False
-#                window["Plateau"].update(False)
-#            if fig_canvas_agg:
-#                delete_figure_agg(fig_canvas_agg)
-#            fig = get_figure(corr,values)
-#            fig_canvas_agg =draw_figure(window['-CANVAS-'].TKCanvas, fig)
-#
-#
-#    window.close()
-#    #It is easier to read the last event, that occurred
-#    if event=="Return" or event=="\r":
-#        end=int(max(values["range_start"],values["range_end"]))
-#        start=int(min(values["range_start"],values["range_end"]))
-#        window.close()
-#        return [start,end]
-#    else:
-#        return

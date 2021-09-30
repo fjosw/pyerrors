@@ -329,7 +329,7 @@ class Corr:
 
         if plateau:
             if isinstance(plateau, Obs):
-                ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label='Plateau')
+                ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=plateau.__repr__()[4:-1])
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception('plateau must be an Obs')

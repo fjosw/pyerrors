@@ -9,5 +9,5 @@ setup(name='pyerrors',
       author_email='fabian.joswig@wwu.de',
       packages=find_packages(),
       python_requires='>=3.5.0',
-      install_requires=['numpy>=1.16', 'autograd>=1.2', 'numdifftools', 'matplotlib', 'scipy']
+      install_requires=['numpy>=1.16', 'autograd>=1.2', 'numdifftools', 'matplotlib', 'scipy'] # readd iminuit at some point
      )

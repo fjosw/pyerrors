@@ -347,31 +347,38 @@ class Obs:
                     print(e_name, ':', self.e_content[e_name])
 
 
-    def plot_tauint(self):
+    def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
         if not self.e_names:
             raise Exception('Run the gamma method first.')
+
+        fig = plt.figure()
         for e, e_name in enumerate(self.e_names):
-            plt.xlabel('W')
-            plt.ylabel('tauint')
+            plt.xlabel(r'$W$')
+            plt.ylabel(r'$\tau_\mathrm{int}$')
             length = int(len(self.e_n_tauint[e_name]))
-            plt.errorbar(np.arange(length), self.e_n_tauint[e_name][:], yerr=self.e_n_dtauint[e_name][:], linewidth=1, capsize=2)
-            plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, marker=',', ls='--')
             if self.tau_exp[e_name] > 0:
                 base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
                 x_help = np.arange(2 * self.tau_exp[e_name])
                 y_help = (x_help + 1) * np.abs(self.e_rho[e_name][self.e_windowsize[e_name]+1]) * (1 - x_help / (2 * (2 * self.tau_exp[e_name] - 1))) + base
                 x_arr = np.arange(self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name])
-                plt.plot(x_arr, y_help, 'k', linewidth=1)
+                plt.plot(x_arr, y_help, 'C' + str(e), linewidth=1, ls='--', marker=',')
                 plt.errorbar([self.e_windowsize[e_name] + 2 * self.tau_exp[e_name]], [self.e_tauint[e_name]],
-                             yerr=[self.e_dtauint[e_name]], fmt='k', linewidth=1, capsize=2)
+                             yerr=[self.e_dtauint[e_name]], fmt='C' + str(e), linewidth=1, capsize=2, marker='o', mfc=plt.rcParams['axes.facecolor'])
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
-                plt.title('Tauint ' + e_name + ', tau\_exp='+str(np.around(self.tau_exp[e_name], decimals=2)))
+                label = e_name + r', $\tau_\mathrm{exp}$='+str(np.around(self.tau_exp[e_name], decimals=2))
             else:
+                label = e_name + ', S=' +str(np.around(self.S[e_name], decimals=2))
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
-                plt.title('Tauint ' + e_name + ', S='+str(np.around(self.S[e_name], decimals=2)))
+
+            plt.errorbar(np.arange(length), self.e_n_tauint[e_name][:], yerr=self.e_n_dtauint[e_name][:], linewidth=1, capsize=2, label=label)
+            plt.axvline(x=self.e_windowsize[e_name], color='C' + str(e), alpha=0.5, marker=',', ls='--')
+            plt.legend()
             plt.xlim(-0.5, xmax)
-            plt.show()
+            plt.ylim(bottom=0.0)
+            plt.draw()
+            if save:
+                fig.savefig(save)
 
 
     def plot_rho(self):
@@ -394,7 +401,7 @@ class Obs:
                 plt.title('Rho ' + e_name + ', S=' + str(np.around(self.S[e_name], decimals=2)))
             plt.plot([-0.5, xmax], [0, 0], 'k--', lw=1)
             plt.xlim(-0.5, xmax)
-            plt.show()
+            plt.draw()
 
 
     def plot_rep_dist(self):

@@ -211,7 +211,7 @@ class Corr:
         return Corr(newcontent, padding_back=1, padding_front=1)
 
 
-def m_eff(self, variant='log', guess=1.0):
+    def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
 
         Parameters

@@ -151,7 +151,6 @@ class Corr:
         return Corr(newcontent)
 
 
-
     #This method will symmetrice the matrices and therefore make them positive definit.
     def smearing_symmetric(self):
         if self.N > 1:
@@ -175,6 +174,11 @@ class Corr:
         sp_vec = sp_vec[:,np.argmax(sp_val)] #we only want the eigenvector belonging to the biggest eigenvalue.
         sp_vec = sp_vec/np.sqrt(sp_vec@sp_vec)
         return sp_vec
+
+
+    def roll(self, dt):
+        return Corr(list(np.roll(np.array(self.content, dtype=object), dt)))
+
 
     def deriv(self, symmetric=True): #Defaults to symmetric derivative
         if not symmetric:

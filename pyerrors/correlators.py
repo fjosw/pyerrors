@@ -1,5 +1,6 @@
 import numpy as np
 import autograd.numpy as anp
+#from scipy.special.orthogonal import _IntegerType
 from .pyerrors import *
 from .fits import standard_fit
 from .roots import find_root
@@ -22,7 +23,7 @@ class Corr:
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0):
+    def __init__(self, data_input, padding_front=0, padding_back=0,range=None):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
         if not (isinstance(data_input, list)):
@@ -55,6 +56,12 @@ class Corr:
         self.content = [None] * padding_front + self.content + [None] * padding_back
         self.T = len(self.content) #for convenience: will be used a lot
 
+
+        #The attribute "range" [start,end] marks a range of two timeslices. 
+        #This is useful for keeping track of plateaus and fitranges.
+        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant. 
+        if not range is None:
+            self.range=range
 
         self.gamma_method()
 
@@ -98,6 +105,8 @@ class Corr:
         newcontent = [None if (item is None) else np.asarray([vector_l.T@item@vector_r]) for item in self.content]
         return Corr(newcontent)
 
+    def sum(self):
+        return np.sqrt(self.N)*self.projected(np.ones(self.N))
     #For purposes of debugging and verification, one might want to see a single smearing level. smearing will return a Corr at the specified i,j. where both are integers 0<=i,j<N.
     def smearing(self, i, j):
         if self.N == 1:
@@ -133,7 +142,8 @@ class Corr:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
         if(all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
-        return Corr(newcontent)
+        
+        return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
 
     def anti_symmetric(self):
 
@@ -148,7 +158,7 @@ class Corr:
                 newcontent.append(0.5 * (self.content[t] - self.content[self.T - t]))
         if(all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
-        return Corr(newcontent)
+        return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
 
 
     #This method will symmetrice the matrices and therefore make them positive definit.
@@ -161,7 +171,7 @@ class Corr:
 
 
     #We also include a simple GEVP method based on Scipy.linalg
-    def GEVP(self, t0, ts):
+    def GEVP(self, t0, ts,state=1):
         if (self.content[t0] is None) or (self.content[ts] is None):
             raise Exception("Corr not defined at t0/ts")
         G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
@@ -171,7 +181,7 @@ class Corr:
                 Gt[i, j] = self.content[ts][i, j].value
 
         sp_val,sp_vec = scipy.linalg.eig(Gt, G0)
-        sp_vec = sp_vec[:,np.argmax(sp_val)] #we only want the eigenvector belonging to the biggest eigenvalue.
+        sp_vec=sp_vec[:,np.argsort(sp_val)[-state]] #we only want the eigenvector belonging to the selected state
         sp_vec = sp_vec/np.sqrt(sp_vec@sp_vec)
         return sp_vec
 
@@ -258,8 +268,17 @@ class Corr:
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 
+        #The default behaviour is:
+            #1 use explicit fitrange 
+            # if none is provided, use the range of the corr
+            # if this is also not set, use the whole length of the corr (This could come with a warning!)
+
+
         if fitrange is None:
-            fitrange=[0, self.T]
+            if hasattr(self,"range"):
+                fitrange=self.range
+            else:
+                fitrange=[0, self.T] 
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
@@ -273,7 +292,12 @@ class Corr:
         return result
 
     #we want to quickly get a plateau
-    def plateau(self, plateau_range, method="fit"):
+    def plateau(self, plateau_range=None, method="fit"):
+        if not plateau_range:
+            if hasattr(self,"range"):
+                plateau_range=self.range 
+            else: 
+                raise Exception("no plateau range provided")
         if self.N != 1:
             raise Exception("Correlator must be projected before getting a plateau.")
         if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1])])):
@@ -288,7 +312,26 @@ class Corr:
             return returnvalue
 
         else:
-            raise Exception("Unsupported plateau method: " + method)
+            raise Exception("Unsupported plateau method: " + method) 
+
+
+
+    def set_range(self,range): 
+        if not len(range)==2:
+            raise Exception("range must be a list or array with two values")
+        if not ((isinstance(range[0],int)) and (isinstance(range[1],int))):
+            raise Exception("start and end point must be integers")
+        if not (0<=range[0]<=self.T and 0<=range[1]<=self.T and range[0]<range[1]  ):
+            raise Exception("start and end point must define a range in the interval 0,T")
+
+        self.range=range 
+        return 
+
+
+
+
+
+
 
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
@@ -337,6 +380,9 @@ class Corr:
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception('plateau must be an Obs')
+        if hasattr(self,"range"):
+            ax1.axvline(self.range[0],0,1)
+            ax1.axvline(self.range[1],0,1)
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
@@ -366,6 +412,10 @@ class Corr:
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))
+
+
+
+    
 
     def __repr__(self, range=[0, None]):
         if range[1]:
@@ -408,7 +458,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]+y)
-            return Corr(newcontent)
+            return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
         else:
             raise TypeError("Corr + wrong type")
 
@@ -431,7 +481,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]*y)
-            return Corr(newcontent)
+            return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
         else:
             raise TypeError("Corr * wrong type")
 
@@ -469,7 +519,11 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]/y)
-            return Corr(newcontent)
+            if hasattr(self,"range"):
+                newrange=self.range
+            else:
+                newrange=None
+            return Corr(newcontent,range=newrange)
 
         elif isinstance(y, int) or isinstance(y,float):
             if y==0:
@@ -480,13 +534,17 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]/y)
-            return Corr(newcontent)
+            return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
         else:
             raise TypeError("Corr / wrong type")
 
     def __neg__(self):
         newcontent=[None if (item is None) else -1.*item for item in self.content]
-        return Corr(newcontent)
+        if hasattr(self,"range"):
+            newrange=self.range
+        else:
+            newrange=None
+        return Corr(newcontent,range=newrange)
 
     def __sub__(self,y):
         return self +(-y)
@@ -494,13 +552,13 @@ class Corr:
     def __pow__(self, y):
         if isinstance(y, Obs) or isinstance(y,int) or isinstance(y,float):
             newcontent=[None if (item is None) else item**y for item in self.content]
-            return Corr(newcontent)
+            return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
         else:
             raise TypeError("type of exponent not supported")
 
     def __abs__(self):
         newcontent=[None if (item is None) else np.abs(item) for item in self.content]
-        return Corr(newcontent)
+        return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
 
 #The numpy functions:
     def sqrt(self):
@@ -508,11 +566,11 @@ class Corr:
 
     def log(self):
         newcontent=[None if (item is None) else np.log(item) for item in self.content]
-        return Corr(newcontent)
+        return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
 
     def exp(self):
         newcontent=[None if (item is None) else np.exp(item) for item in self.content]
-        return Corr(newcontent)
+        return Corr(newcontent,range= self.range if hasattr(self,"range") else None)
 
     def sin(self):
         newcontent=[None if (item is None) else np.sin(item) for item in self.content]

@@ -293,7 +293,7 @@ class Corr:
     #quick and dirty plotting function to view Correlator inside Jupyter
     #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
     #This might be a bit more flexible later
-    def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None):
+    def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
@@ -345,6 +345,8 @@ class Corr:
                     , ls='-', marker=',', lw=2)
 
         ax1.set_xlabel(r'$x_0 / a$')
+        if ylabel:
+            ax1.set_ylabel(ylabel)
         ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])
 
         handles, labels = ax1.get_legend_handles_labels()

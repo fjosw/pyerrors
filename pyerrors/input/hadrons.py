@@ -7,7 +7,7 @@ import numpy as np
 from ..pyerrors import Obs
 from ..correlators import Corr
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0'):
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
@@ -28,6 +28,9 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0'):
         if l.startswith(filestem):
             files.append(l)
 
+    if not files:
+        raise Exception('No files starting with', filestem, 'in folder', path)
+
     # Sort according to configuration number
     get_cnfg_number = lambda x : int(x[len(filestem) + 1:-3])
     files.sort(key=get_cnfg_number)
@@ -44,7 +47,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0'):
     for hd5_file in files:
         file = h5py.File(path + '/' + hd5_file, "r")
 
-        raw_data = list(file['meson/' + meson + '/corr'])
+        raw_data = list(file[tree + '/' + meson + '/corr'])
         real_data = [o[0] for o in raw_data]
         corr_data.append(real_data)
     corr_data = np.array(corr_data)

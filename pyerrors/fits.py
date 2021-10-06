@@ -14,7 +14,7 @@ from autograd import elementwise_grad as egrad
 from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
 
 
-def standard_fit(x, y, func, silent=False, **kwargs):
+def standard_fit(x, y, func,n_parms="auto", silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     x has to be a list of floats.
@@ -68,15 +68,19 @@ def standard_fit(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
-    for i in range(25):
-        try:
-            func(np.arange(i), x.T[0])
-        except:
-            pass
-        else:
-            break
+    if n_parms=="auto":
+        for i in range(25):
+            try:
+                func(np.arange(i), x.T[0])
+            except:
+                pass
+            else:
+                break
+        
 
-    n_parms = i
+        n_parms = i
+
+        
     if not silent:
         print('Fit with', n_parms, 'parameters')
 

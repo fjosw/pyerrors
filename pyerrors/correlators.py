@@ -61,7 +61,7 @@ class Corr:
         #The attribute "range" [start,end] marks a range of two timeslices. 
         #This is useful for keeping track of plateaus and fitranges.
         #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant. 
-        if not range is None:
+        if not prange is None:
             self.prange=prange
 
         self.gamma_method()

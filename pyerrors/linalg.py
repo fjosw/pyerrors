@@ -6,15 +6,17 @@ import autograd.numpy as anp  # Thinly-wrapped numpy
 from .pyerrors import derived_observable
 
 
-### This code block is directly taken from the current master branch of autograd and remains
+# This code block is directly taken from the current master branch of autograd and remains
 # only until the new version is released on PyPi
 from functools import partial
 from autograd.extend import defvjp
 
 _dot = partial(anp.einsum, '...ij,...jk->...ik')
 # batched diag
-_diag = lambda a: anp.eye(a.shape[-1])*a
+_diag = lambda a: anp.eye(a.shape[-1]) * a
 # batched diagonal, similar to matrix_diag in tensorflow
+
+
 def _matrix_diag(a):
     reps = anp.array(a.shape)
     reps[:-1] = 1
@@ -24,14 +26,17 @@ def _matrix_diag(a):
 
 # https://arxiv.org/pdf/1701.00392.pdf Eq(4.77)
 # Note the formula from Sec3.1 in https://people.maths.ox.ac.uk/gilesm/files/NA-08-01.pdf is incomplete
+
+
 def grad_eig(ans, x):
     """Gradient of a general square (complex valued) matrix"""
-    e, u = ans # eigenvalues as 1d array, eigenvectors in columns
+    e, u = ans  # eigenvalues as 1d array, eigenvectors in columns
     n = e.shape[-1]
+
     def vjp(g):
         ge, gu = g
         ge = _matrix_diag(ge)
-        f = 1/(e[..., anp.newaxis, :] - e[..., :, anp.newaxis] + 1.e-20)
+        f = 1 / (e[..., anp.newaxis, :] - e[..., :, anp.newaxis] + 1.e-20)
         f -= _diag(f)
         ut = anp.swapaxes(u, -1, -2)
         r1 = f * _dot(ut, gu)
@@ -43,8 +48,10 @@ def grad_eig(ans, x):
             # but the derivative should be real in real input case when imaginary delta is forbidden
         return r
     return vjp
+
+
 defvjp(anp.linalg.eig, grad_eig)
-### End of the code block from autograd.master
+# End of the code block from autograd.master
 
 
 def scalar_mat_op(op, obs, **kwargs):
@@ -92,8 +99,8 @@ def eig(obs, **kwargs):
     """Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig."""
     if kwargs.get('num_grad') is True:
         return _num_diff_eig(obs, **kwargs)
-	# Note: Automatic differentiation of eig is implemented in the git of autograd
-	# but not yet released to PyPi (1.3)
+        # Note: Automatic differentiation of eig is implemented in the git of autograd
+        # but not yet released to PyPi (1.3)
     w = derived_observable(lambda x, **kwargs: anp.real(anp.linalg.eig(x)[0]), obs)
     return w
 
@@ -214,7 +221,6 @@ def _num_diff_eigh(obs, **kwargs):
     for i in range(dim):
         res_vec.append(derived_observable(_mat, raveled_obs, n=0, i=i, **kwargs))
 
-
     res_mat = []
     for i in range(dim):
         row = []
@@ -244,7 +250,7 @@ def _num_diff_eig(obs, **kwargs):
         res = np.linalg.eig(np.array(mat))[n]
 
         if n == 0:
-	    # Discard imaginary part of eigenvalue here
+            # Discard imaginary part of eigenvalue here
             return np.real(res[kwargs.get('i')])
         else:
             return res[kwargs.get('i')][kwargs.get('j')]
@@ -260,8 +266,8 @@ def _num_diff_eig(obs, **kwargs):
 
     res_vec = []
     for i in range(dim):
-	    # Note: Automatic differentiation of eig is implemented in the git of autograd
-	    # but not yet released to PyPi (1.3)
+        # Note: Automatic differentiation of eig is implemented in the git of autograd
+        # but not yet released to PyPi (1.3)
         res_vec.append(derived_observable(_mat, raveled_obs, n=0, i=i, **kwargs))
 
     return np.array(res_vec) @ np.identity(dim)

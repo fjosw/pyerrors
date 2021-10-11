@@ -69,11 +69,11 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         ruinfo = bdio_get_ruinfo(fbdio)
 
         if ruinfo == 7:
-            print('MD5sum found') # For now we just ignore these entries and do not perform any checks on them
+            print('MD5sum found')  # For now we just ignore these entries and do not perform any checks on them
             continue
 
         if ruinfo < 0:
-        # EOF reached
+            # EOF reached
             break
         rlen = bdio_get_rlen(fbdio)
 
@@ -225,9 +225,9 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
         keys = list(obs.e_content.keys())
         ids = []
         for key in keys:
-            try: # Try to convert key to integer
+            try:  # Try to convert key to integer
                 ids.append(int(key))
-            except: # If not possible construct a hash
+            except:  # If not possible construct a hash
                 ids.append(int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % 10 ** 8)
         print('ids', ids)
         nt = []
@@ -237,7 +237,7 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
             for r_name in obs.e_content[e_name]:
                 r_length.append(len(obs.deltas[r_name]))
 
-            #e_N = np.sum(r_length)
+            # e_N = np.sum(r_length)
             nt.append(max(r_length) // 2)
         print('nt', nt)
         zero = neid * [0.0]
@@ -347,15 +347,15 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     b_form = form.encode('utf-8')
 
     ensemble_name = ''
-    volume = [] # lattice volume
+    volume = []  # lattice volume
     boundary_conditions = []
-    corr_name = [] # Contains correlator names
-    corr_type = [] # Contains correlator data type (important for reading out numerical data)
-    corr_props = [] # Contanis propagator types (Component of corr_kappa)
-    d0 = 0 # tvals
-    d1 = 0 # nnoise
-    prop_kappa = [] # Contains propagator kappas (Component of corr_kappa)
-    prop_source = [] # Contains propagator source positions
+    corr_name = []  # Contains correlator names
+    corr_type = []  # Contains correlator data type (important for reading out numerical data)
+    corr_props = []  # Contanis propagator types (Component of corr_kappa)
+    d0 = 0  # tvals
+    d1 = 0  # nnoise
+    prop_kappa = []  # Contains propagator kappas (Component of corr_kappa)
+    prop_source = []  # Contains propagator source positions
     # Check noise type for multiple replica?
     cnfg_no = -1
     corr_no = -1
@@ -379,7 +379,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
             if corr_type[corr_no] == 'complex':
                 tmp_mean = np.mean(np.asarray(np.split(np.asarray(pd_buf[2 + 2 * d1:-2 * d1:2]), d0 - 2)), axis=1)
             else:
-                tmp_mean = np.mean(np.asarray(np.split(np.asarray(pd_buf[2 + d1:-d0 * d1  - d1]), d0 - 2)), axis=1)
+                tmp_mean = np.mean(np.asarray(np.split(np.asarray(pd_buf[2 + d1:-d0 * d1 - d1]), d0 - 2)), axis=1)
 
             data[corr_no].append(tmp_mean)
             corr_no += 1
@@ -447,7 +447,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     print('Number of corrs: ', len(corr_name))
     print('Number of configurations: ', cnfg_no + 1)
 
-    corr_kappa = [] # Contains kappa values for both propagators of given correlation function
+    corr_kappa = []  # Contains kappa values for both propagators of given correlation function
     corr_source = []
     for item in corr_props:
         corr_kappa.append([float(prop_kappa[int(item[0])]), float(prop_kappa[int(item[1])])])
@@ -524,14 +524,14 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     b_form = form.encode('utf-8')
 
     ensemble_name = ''
-    volume = [] # lattice volume
+    volume = []  # lattice volume
     boundary_conditions = []
-    corr_name = [] # Contains correlator names
-    corr_type = [] # Contains correlator data type (important for reading out numerical data)
-    corr_props = [] # Contains propagator types (Component of corr_kappa)
-    d0 = 0 # tvals
-    d1 = 0 # nnoise
-    prop_kappa = [] # Contains propagator kappas (Component of corr_kappa)
+    corr_name = []  # Contains correlator names
+    corr_type = []  # Contains correlator data type (important for reading out numerical data)
+    corr_props = []  # Contains propagator types (Component of corr_kappa)
+    d0 = 0  # tvals
+    d1 = 0  # nnoise
+    prop_kappa = []  # Contains propagator kappas (Component of corr_kappa)
     # Check noise type for multiple replica?
     cnfg_no = -1
     corr_no = -1
@@ -612,7 +612,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     print('Number of corrs: ', len(corr_name))
     print('Number of configurations: ', cnfg_no + 1)
 
-    corr_kappa = [] # Contains kappa values for both propagators of given correlation function
+    corr_kappa = []  # Contains kappa values for both propagators of given correlation function
     corr_source = []
     for item in corr_props:
         corr_kappa.append(float(prop_kappa[int(item)]))

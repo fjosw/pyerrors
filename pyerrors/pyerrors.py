@@ -91,7 +91,6 @@ class Obs:
         self.e_n_tauint = {}
         self.e_n_dtauint = {}
 
-
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.
 
@@ -249,7 +248,7 @@ class Obs:
 
             e_gamma[e_name] /= div[:w_max]
 
-            if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny: # Prevent division by zero
+            if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
                 self.e_tauint[e_name] = 0.5
                 self.e_dtauint[e_name] = 0.0
                 self.e_dvalue[e_name] = 0.0
@@ -262,15 +261,12 @@ class Obs:
             # Make sure no entry of tauint is smaller than 0.5
             self.e_n_tauint[e_name][self.e_n_tauint[e_name] < 0.5] = 0.500000000001
             # hep-lat/0306017 eq. (42)
-            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max)
-                                       + 0.5 - self.e_n_tauint[e_name]) / e_N)
+            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
             self.e_n_dtauint[e_name][0] = 0.0
 
-
             def _compute_drho(i):
-                tmp = self.e_rho[e_name][i+1:w_max] + np.concatenate([self.e_rho[e_name][i-1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
+                tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
                 self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
-
 
             _compute_drho(1)
             if self.tau_exp[e_name] > 0:
@@ -279,10 +275,9 @@ class Obs:
                     _compute_drho(n + 1)
                     if (self.e_rho[e_name][n] - self.N_sigma * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + self.tau_exp[e_name] * np.abs(self.e_rho[e_name][n + 1])
-                            # The absolute makes sure, that the tail contribution is always positive
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + self.tau_exp[e_name] * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
                         self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + self.tau_exp[e_name] ** 2 * self.e_drho[e_name][n + 1] ** 2)
-                            # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
+                        # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
                         self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
                         self.e_windowsize[e_name] = n
@@ -295,7 +290,7 @@ class Obs:
                     if n < w_max // 2 - 2:
                         _compute_drho(n + 1)
                     if g_w[n - 1] < 0 or n >= w_max - 1:
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) # Bias correction hep-lat/0306017 eq. (49)
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                         self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
                         self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
@@ -325,7 +320,6 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
         return 0
 
-
     def print(self, level=1):
         """Print basic properties of the Obs."""
         if level == 0:
@@ -338,14 +332,13 @@ class Obs:
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
                 if self.tau_exp[e_name] > 0:
-                    print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i'  % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                    print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
                 else:
                     print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
             if level > 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
                 for e_name in self.e_names:
                     print(e_name, ':', self.e_content[e_name])
-
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
@@ -360,15 +353,15 @@ class Obs:
             if self.tau_exp[e_name] > 0:
                 base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
                 x_help = np.arange(2 * self.tau_exp[e_name])
-                y_help = (x_help + 1) * np.abs(self.e_rho[e_name][self.e_windowsize[e_name]+1]) * (1 - x_help / (2 * (2 * self.tau_exp[e_name] - 1))) + base
+                y_help = (x_help + 1) * np.abs(self.e_rho[e_name][self.e_windowsize[e_name] + 1]) * (1 - x_help / (2 * (2 * self.tau_exp[e_name] - 1))) + base
                 x_arr = np.arange(self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name])
                 plt.plot(x_arr, y_help, 'C' + str(e), linewidth=1, ls='--', marker=',')
                 plt.errorbar([self.e_windowsize[e_name] + 2 * self.tau_exp[e_name]], [self.e_tauint[e_name]],
                              yerr=[self.e_dtauint[e_name]], fmt='C' + str(e), linewidth=1, capsize=2, marker='o', mfc=plt.rcParams['axes.facecolor'])
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
-                label = e_name + r', $\tau_\mathrm{exp}$='+str(np.around(self.tau_exp[e_name], decimals=2))
+                label = e_name + r', $\tau_\mathrm{exp}$=' + str(np.around(self.tau_exp[e_name], decimals=2))
             else:
-                label = e_name + ', S=' +str(np.around(self.S[e_name], decimals=2))
+                label = e_name + ', S=' + str(np.around(self.S[e_name], decimals=2))
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
 
             plt.errorbar(np.arange(length), self.e_n_tauint[e_name][:], yerr=self.e_n_dtauint[e_name][:], linewidth=1, capsize=2, label=label)
@@ -379,7 +372,6 @@ class Obs:
             plt.draw()
             if save:
                 fig.savefig(save)
-
 
     def plot_rho(self):
         """Plot normalized autocorrelation function time for each ensemble."""
@@ -395,14 +387,13 @@ class Obs:
                 plt.plot([self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name]],
                          [self.e_rho[e_name][self.e_windowsize[e_name] + 1], 0], 'k-', lw=1)
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
-                plt.title('Rho ' + e_name + ', tau\_exp=' + str(np.around(self.tau_exp[e_name], decimals=2)))
+                plt.title('Rho ' + e_name + r', tau\_exp=' + str(np.around(self.tau_exp[e_name], decimals=2)))
             else:
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
                 plt.title('Rho ' + e_name + ', S=' + str(np.around(self.S[e_name], decimals=2)))
             plt.plot([-0.5, xmax], [0, 0], 'k--', lw=1)
             plt.xlim(-0.5, xmax)
             plt.draw()
-
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
@@ -423,9 +414,8 @@ class Obs:
             for r, r_name in enumerate(self.e_content[e_name]):
                 arr[r] = (self.r_values[r_name] - sub_r_mean) / (self.e_dvalue[e_name] * np.sqrt(e_N / self.shape[r_name] - 1))
             plt.hist(arr, rwidth=0.8, bins=len(self.e_content[e_name]))
-            plt.title('Replica distribution' + e_name + ' (mean=0, var=1), Q='+str(np.around(self.e_Q[e_name], decimals=2)))
+            plt.title('Replica distribution' + e_name + ' (mean=0, var=1), Q=' + str(np.around(self.e_Q[e_name], decimals=2)))
             plt.show()
-
 
     def plot_history(self):
         """Plot derived Monte Carlo history for each ensemble."""
@@ -433,22 +423,20 @@ class Obs:
             raise Exception('Run the gamma method first.')
 
         for e, e_name in enumerate(self.e_names):
-            f = plt.figure()
+            plt.figure()
             r_length = []
-            sub_r_mean = 0
             for r, r_name in enumerate(self.e_content[e_name]):
                 r_length.append(len(self.deltas[r_name]))
             e_N = np.sum(r_length)
             x = np.arange(e_N)
             tmp = []
             for r, r_name in enumerate(self.e_content[e_name]):
-                tmp.append(self.deltas[r_name]+self.r_values[r_name])
+                tmp.append(self.deltas[r_name] + self.r_values[r_name])
             y = np.concatenate(tmp, axis=0)
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
             plt.title(e_name)
             plt.show()
-
 
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
@@ -480,18 +468,16 @@ class Obs:
         with open(file_name, 'wb') as fb:
             pickle.dump(self, fb)
 
-
     def __repr__(self):
         if self.dvalue == 0.0:
-            return 'Obs['+str(self.value)+']'
+            return 'Obs[' + str(self.value) + ']'
         fexp = np.floor(np.log10(self.dvalue))
         if fexp < 0.0:
-            return 'Obs[{:{form}}({:2.0f})]'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.'+str(-int(fexp) + 1) + 'f')
+            return 'Obs[{:{form}}({:2.0f})]'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
         elif fexp == 0.0:
             return 'Obs[{:.1f}({:1.1f})]'.format(self.value, self.dvalue)
         else:
             return 'Obs[{:.0f}({:2.0f})]'.format(self.value, self.dvalue)
-
 
     # Overload comparisons
     def __lt__(self, other):
@@ -499,7 +485,6 @@ class Obs:
 
     def __gt__(self, other):
         return self.value > other
-
 
     # Overload math operations
     def __add__(self, y):
@@ -512,9 +497,9 @@ class Obs:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
+
     def __radd__(self, y):
         return self + y
-
 
     def __mul__(self, y):
         if isinstance(y, Obs):
@@ -531,7 +516,6 @@ class Obs:
     def __rmul__(self, y):
         return self * y
 
-
     def __sub__(self, y):
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] - x[1], [self, y], man_grad=[1, -1])
@@ -545,14 +529,11 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
-
     def __rsub__(self, y):
         return -1 * (self - y)
 
-
     def __neg__(self):
         return -1 * self
-
 
     def __truediv__(self, y):
         if isinstance(y, Obs):
@@ -567,7 +548,6 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
 
-
     def __rtruediv__(self, y):
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [y, self], man_grad=[1 / self.value, - y.value / self.value ** 2])
@@ -577,13 +557,11 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
 
-
     def __pow__(self, y):
         if isinstance(y, Obs):
             return derived_observable(lambda x: x[0] ** x[1], [self, y])
         else:
             return derived_observable(lambda x: x[0] ** y, [self])
-
 
     def __rpow__(self, y):
         if isinstance(y, Obs):
@@ -591,71 +569,54 @@ class Obs:
         else:
             return derived_observable(lambda x: y ** x[0], [self])
 
-
     def __abs__(self):
         return derived_observable(lambda x: anp.abs(x[0]), [self])
-
 
     # Overload numpy functions
     def sqrt(self):
         return derived_observable(lambda x, **kwargs: np.sqrt(x[0]), [self], man_grad=[1 / 2 / np.sqrt(self.value)])
 
-
     def log(self):
         return derived_observable(lambda x, **kwargs: np.log(x[0]), [self], man_grad=[1 / self.value])
-
 
     def exp(self):
         return derived_observable(lambda x, **kwargs: np.exp(x[0]), [self], man_grad=[np.exp(self.value)])
 
-
     def sin(self):
         return derived_observable(lambda x, **kwargs: np.sin(x[0]), [self], man_grad=[np.cos(self.value)])
-
 
     def cos(self):
         return derived_observable(lambda x, **kwargs: np.cos(x[0]), [self], man_grad=[-np.sin(self.value)])
 
-
     def tan(self):
         return derived_observable(lambda x, **kwargs: np.tan(x[0]), [self], man_grad=[1 / np.cos(self.value) ** 2])
-
 
     def arcsin(self):
         return derived_observable(lambda x: anp.arcsin(x[0]), [self])
 
-
     def arccos(self):
         return derived_observable(lambda x: anp.arccos(x[0]), [self])
-
 
     def arctan(self):
         return derived_observable(lambda x: anp.arctan(x[0]), [self])
 
-
     def sinh(self):
         return derived_observable(lambda x, **kwargs: np.sinh(x[0]), [self], man_grad=[np.cosh(self.value)])
-
 
     def cosh(self):
         return derived_observable(lambda x, **kwargs: np.cosh(x[0]), [self], man_grad=[np.sinh(self.value)])
 
-
     def tanh(self):
         return derived_observable(lambda x, **kwargs: np.tanh(x[0]), [self], man_grad=[1 / np.cosh(self.value) ** 2])
-
 
     def arcsinh(self):
         return derived_observable(lambda x: anp.arcsinh(x[0]), [self])
 
-
     def arccosh(self):
         return derived_observable(lambda x: anp.arccosh(x[0]), [self])
 
-
     def arctanh(self):
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
-
 
     def sinc(self):
         return derived_observable(lambda x: anp.sinc(x[0]), [self])
@@ -751,7 +712,7 @@ def derived_observable(func, data, **kwargs):
             kwarg = kwargs.get(key)
             if kwarg is not None:
                 options[key] = kwarg
-        tmp_df = nd.Gradient(func, order=4, **{k:v for k, v in options.items() if v is not None})(values, **kwargs)
+        tmp_df = nd.Gradient(func, order=4, **{k: v for k, v in options.items() if v is not None})(values, **kwargs)
         if tmp_df.size == 1:
             deriv = np.array([tmp_df.real])
         else:
@@ -933,8 +894,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
             max_gamma = min(obs1.shape[r_name], w_max)
             # The padding for the fft has to be even
             padding = obs1.shape[r_name] + max_gamma + (obs1.shape[r_name] + max_gamma) % 2
-            e_gamma[e_name][:max_gamma] += (np.fft.irfft(np.fft.rfft(obs1.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs2.deltas[r_name], padding)))[:max_gamma]
-                                           + np.fft.irfft(np.fft.rfft(obs2.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs1.deltas[r_name], padding)))[:max_gamma]) / 2.0
+            e_gamma[e_name][:max_gamma] += (np.fft.irfft(np.fft.rfft(obs1.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs2.deltas[r_name], padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(obs2.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs1.deltas[r_name], padding)))[:max_gamma]) / 2.0
 
         if np.all(e_gamma[e_name]) == 0.0:
             continue
@@ -963,7 +923,6 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
         # Make sure no entry of tauint is smaller than 0.5
         e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
-
 
         window = max(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
@@ -1105,7 +1064,6 @@ def load_object(path):
     with open(path, 'rb') as file:
         return pickle.load(file)
 
-
 def merge_obs(list_of_obs):
     """Combine all observables in list_of_obs into one new observable
 
@@ -1113,10 +1071,10 @@ def merge_obs(list_of_obs):
     """
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
-        raise Exception('list_of_obs contains duplicate replica: %s' %(str(replist)))
+        raise Exception('list_of_obs contains duplicate replica: %s' % (str(replist)))
     new_dict = {}
     for o in list_of_obs:
         new_dict.update({key: o.deltas.get(key, 0) + o.r_values.get(key, 0)
-                  for key in set(o.deltas) | set(o.r_values)})
+                        for key in set(o.deltas) | set(o.r_values)})
 
     return Obs(list(new_dict.values()), list(new_dict.keys()))

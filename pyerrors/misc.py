@@ -81,4 +81,3 @@ def ks_test(obs=None):
     plt.show()
 
     print(scipy.stats.kstest(Qs, 'uniform'))
-

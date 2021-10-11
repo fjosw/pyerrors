@@ -142,6 +142,7 @@ class Corr:
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
+
     def anti_symmetric(self):
 
         if self.T%2 != 0:
@@ -341,19 +342,18 @@ class Corr:
         else:
             raise Exception("Unsupported plateau method: " + method)
 
-
     def set_prange(self, prange):
         if not len(prange)==2:
-            raise Exception("range must be a list or array with two values")
+            raise Exception("prange must be a list or array with two values")
         if not ((isinstance(prange[0],int)) and (isinstance(prange[1],int))):
-            raise Exception("start and end point must be integers")
+            raise Exception("Start and end point must be integers")
         if not (0<=prange[0]<=self.T and 0<=prange[1]<=self.T and prange[0]<prange[1]  ):
-            raise Exception("start and end point must define a range in the interval 0,T")
+            raise Exception("Start and end point must define a range in the interval 0,T")
 
         self.prange = prange
         return
 
-    # plotting function to view Correlator
+    # Plotting routine for correlator
     def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
@@ -432,10 +432,6 @@ class Corr:
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))
-
-
-
-    
 
     def __repr__(self, range=[0, None]):
         if range[1]:

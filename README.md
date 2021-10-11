@@ -10,7 +10,7 @@ It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/he
 * implementation of the matrix-pencil-method [IEEE Trans. Acoust. 38, 814-824 (1990)](https://ieeexplore.ieee.org/document/56027) for the extraction of energy levels, especially suited for noisy data and excited states
 
 There exist similar implementations of gamma method error analysis suites in
-- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors).
+- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)
 - [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)
 - [Python 3](https://github.com/mbruno46/pyobs)
 
@@ -33,15 +33,15 @@ The basic objects of a pyerrors analysis are instances of the class `Obs`. They 
 import numpy as np
 import pyerrors as pe
 
-observable1 = pe.Obs([samples1], ['ensemble1'])
-observable1.gamma_method()
-observable1.print()
+obs1 = pe.Obs([samples1], ['ensemble1'])
+obs1.gamma_method()
+obs1.print()
 ```
 Often one is interested in secondary observables which can be arbitrary functions of primary observables. `pyerrors` overloads most basic math operations and numpy functions such that the user can work with `Obs` objects as if they were floats
 ```python
-observable3 = 12.0 / observable1 ** 2 - np.exp(-1.0 / observable2)
-observable3.gamma_method()
-observable3.print()
+obs3 = 12.0 / obs1 ** 2 - np.exp(-1.0 / obs2)
+obs3.gamma_method()
+obs3.print()
 ```
 
 More detailed examples can be found in  the `/examples` folder:

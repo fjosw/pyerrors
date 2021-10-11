@@ -134,9 +134,7 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
     else:
         b2b = 0
 
-    read = 0
     T = 0
-    start = 0
     ls = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         ls.extend(dirnames)
@@ -189,7 +187,7 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
                 match = re.search(pattern, content)
                 if match:
                     start_read = content.count('\n', 0, match.start()) + 5 + b2b
-                    end_match = re.search('\n\s*\n', content[match.start():])
+                    end_match = re.search(r'\n\s*\n', content[match.start():])
                     T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
                     assert T > 0
                     print(T, 'entries, starting to read in line', start_read)

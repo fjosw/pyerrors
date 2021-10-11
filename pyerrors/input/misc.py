@@ -53,7 +53,7 @@ def read_pbp(path, prefix, **kwargs):
     else:
         r_stop = [None] * replica
 
-    print('Read <bar{psi}\psi> from', prefix[:-1], ',', replica, 'replica', end='')
+    print(r'Read <bar{psi}\psi> from', prefix[:-1], ',', replica, 'replica', end='')
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -64,10 +64,10 @@ def read_pbp(path, prefix, **kwargs):
 
     for rep in range(replica):
         tmp_array = []
-        with open(path+ '/' + ls[rep], 'rb') as fp:
+        with open(path + '/' + ls[rep], 'rb') as fp:
 
-            #header
-            t = fp.read(4) # number of reweighting factors
+            # header
+            t = fp.read(4)  # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
                 for k in range(nrw):
@@ -85,7 +85,7 @@ def read_pbp(path, prefix, **kwargs):
                 for i in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
-                print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
+                print('nfct: ', nfct)  # Hasenbusch factor, 1 for rat reweighting
             else:
                 for i in range(nrw):
                     nfct.append(1)
@@ -95,7 +95,7 @@ def read_pbp(path, prefix, **kwargs):
                 t = fp.read(4)
                 nsrc.append(struct.unpack('i', t)[0])
 
-            #body
+            # body
             while 0 < 1:
                 t = fp.read(4)
                 if len(t) < 4:
@@ -118,7 +118,7 @@ def read_pbp(path, prefix, **kwargs):
             for k in range(nrw):
                 deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]])
 
-    print(',', nrw, '<bar{psi}\psi> with', nsrc, 'sources')
+    print(',', nrw, r'<bar{psi}\psi> with', nsrc, 'sources')
     result = []
     for t in range(nrw):
         result.append(Obs(deltas[t], [(w.split('.'))[0] for w in ls]))

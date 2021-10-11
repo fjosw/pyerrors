@@ -23,8 +23,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     r_stop -- list which contains the last config to be read for each replicum
     postfix -- postfix of the file to read, e.g. '.ms1' for openQCD-files
     """
-    #oqcd versions implemented in this method
-    known_oqcd_versions = ['1.4','1.6','2.0']
+    known_oqcd_versions = ['1.4', '1.6', '2.0']
     if not (version in known_oqcd_versions):
         raise Exception('Unknown openQCD version defined!')
     print("Working with openQCD version " + version)
@@ -42,12 +41,10 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     # Exclude files with different names
     for exc in ls:
-        if not fnmatch.fnmatch(exc, prefix + '*'+postfix+'.dat'):
+        if not fnmatch.fnmatch(exc, prefix + '*' + postfix + '.dat'):
             ls = list(set(ls) - set([exc]))
     if len(ls) > 1:
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
-    #ls = fnames
-    #print(ls)
     replica = len(ls)
 
     if 'r_start' in kwargs:
@@ -77,18 +74,18 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     for rep in range(replica):
         tmp_array = []
-        with open(path+ '/' + ls[rep], 'rb') as fp:
+        with open(path + '/' + ls[rep], 'rb') as fp:
 
-            #header
-            t = fp.read(4) # number of reweighting factors
+            # header
+            t = fp.read(4)  # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
                 if version == '2.0':
-                    nrw = int(nrw/2)
+                    nrw = int(nrw / 2)
                 for k in range(nrw):
                     deltas.append([])
             else:
-                if ((nrw != struct.unpack('i', t)[0] and (not verion == '2.0')) or (nrw != struct.unpack('i', t)[0]/2 and version == '2.0')):# little weird if-clause due to the /2 operation needed.
+                if ((nrw != struct.unpack('i', t)[0] and (not version == '2.0')) or (nrw != struct.unpack('i', t)[0] / 2 and version == '2.0')):  # little weird if-clause due to the /2 operation needed.
                     raise Exception('Error: different number of reweighting factors for replicum', rep)
 
             for k in range(nrw):
@@ -96,11 +93,11 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
             # This block is necessary for openQCD1.6 and openQCD2.0 ms1 files
             nfct = []
-            if version in ['1.6','2.0']:
+            if version in ['1.6', '2.0']:
                 for i in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
-                #print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
+                # print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
             else:
                 for i in range(nrw):
                     nfct.append(1)
@@ -109,11 +106,11 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             for i in range(nrw):
                 t = fp.read(4)
                 nsrc.append(struct.unpack('i', t)[0])
-            if version is '2.0':
+            if version == '2.0':
                 if not struct.unpack('i', fp.read(4))[0] == 0:
                     print('something is wrong!')
 
-            #body
+            # body
             while 0 < 1:
                 t = fp.read(4)
                 if len(t) < 4:
@@ -132,7 +129,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                                 print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw[j]))), np.std(np.exp(-np.asarray(tmp_rw[j]))))
                                 print('Sources:', np.exp(-np.asarray(tmp_rw[j])))
                                 print('Partial factor:', tmp_nfct)
-                    elif version is '1.6' or version is '1.4':
+                    elif version == '1.6' or version == '1.4':
                         tmp_nfct = 1.0
                         for j in range(nfct[i]):
                             t = fp.read(8 * nsrc[i])
@@ -151,14 +148,12 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
     for t in range(nrw):
-        if names == None:
+        if names is None:
             result.append(Obs(deltas[t], [w.split(".")[0] for w in ls]))
         else:
             print(names)
             result.append(Obs(deltas[t], names))
     return result
-
-
 
 
 def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwargs):
@@ -290,16 +285,16 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     arr = []
     if d == 2:
         tot = 0
-        for i in range(n[d-1]-1):
+        for i in range(n[d - 1] - 1):
             if quadrupel:
-                tmp = wa[tot:n[d-1]]
+                tmp = wa[tot:n[d - 1]]
                 tmp2 = []
                 for i in range(len(tmp)):
                     if i % 2 == 0:
                         tmp2.append(tmp[i])
                 arr.append(tmp2)
             else:
-                arr.append(np.asarray(wa[tot:n[d-1]]))
+                arr.append(np.asarray(wa[tot:n[d - 1]]))
     return arr
 
 
@@ -312,7 +307,7 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
 def _read_array_openQCD2(fp):
     t = fp.read(4)
     d = struct.unpack('i', t)[0]
-    t = fp.read(4*d)
+    t = fp.read(4 * d)
     n = struct.unpack('%di' % (d), t)
     t = fp.read(4)
     size = struct.unpack('i', t)[0]
@@ -325,10 +320,10 @@ def _read_array_openQCD2(fp):
     else:
         print('Type not known!')
     m = n[0]
-    for i in range(1,d):
+    for i in range(1, d):
         m *= n[i]
 
-    t = fp.read(m*size)
+    t = fp.read(m * size)
     tmp = struct.unpack('%d%s' % (m, types), t)
 
     arr = _parse_array_openQCD2(d, n, size, tmp, quadrupel=True)

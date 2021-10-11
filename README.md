@@ -47,9 +47,10 @@ obs3.print()
 More detailed examples can be found in  the `/examples` folder:
 
 * [01_basic_example](examples/01_basic_example.ipynb)
-* [02_pcac_example](examples/02_pcac_example.ipynb)
-* [03_fit_example](examples/03_fit_example.ipynb)
-* [04_matrix_operations](examples/04_matrix_operations.ipynb)
+* [02_correlators](examples/02_correlators.ipynb)
+* [03_pcac_example](examples/03_pcac_example.ipynb)
+* [04_fit_example](examples/04_fit_example.ipynb)
+* [05_matrix_operations](examples/05_matrix_operations.ipynb)
 
 
 ## License

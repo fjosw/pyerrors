@@ -58,9 +58,9 @@ class Corr:
         self.T = len(self.content) #for convenience: will be used a lot
 
 
-        #The attribute "range" [start,end] marks a range of two timeslices.
+        #The attribute "prange" [start,end] marks a range of two timeslices.
         #This is useful for keeping track of plateaus and fitranges.
-        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.
+        #The prange can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.
         if not prange is None:
             self.prange=prange
 
@@ -346,15 +346,15 @@ class Corr:
 
 
 
-    def set_prange(self,prange):
+    def set_prange(self, prange):
         if not len(prange)==2:
-            raise Exception("range must be a list or array with two values")
+            raise Exception("prange must be a list or array with two values")
         if not ((isinstance(prange[0],int)) and (isinstance(prange[1],int))):
-            raise Exception("start and end point must be integers")
+            raise Exception("Start and end point must be integers")
         if not (0<=prange[0]<=self.T and 0<=prange[1]<=self.T and prange[0]<prange[1]  ):
-            raise Exception("start and end point must define a range in the interval 0,T")
+            raise Exception("Start and end point must define a range in the interval 0,T")
 
-        self.prange=prange
+        self.prange = prange
         return
 
     # Plotting routine for correlator
@@ -403,8 +403,8 @@ class Corr:
             else:
                 raise Exception('plateau must be an Obs')
         if hasattr(self,"prange"):
-            ax1.axvline(self.prange[0],0,1)
-            ax1.axvline(self.prange[1],0,1)
+            ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
+            ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)

@@ -6,8 +6,8 @@ setup(name='pyerrors',
       version='1.1.0',
       description='Error analysis for lattice QCD',
       author='Fabian Joswig',
-      author_email='fabian.joswig@wwu.de',
+      author_email='fabian.joswig@ed.ac.uk',
       packages=find_packages(),
       python_requires='>=3.5.0',
-      install_requires=['numpy>=1.16', 'autograd>=1.2', 'numdifftools', 'matplotlib', 'scipy'] # readd iminuit at some point
+      install_requires=['numpy>=1.16', 'autograd>=1.2', 'numdifftools', 'matplotlib', 'scipy', 'iminuit<2']
      )

@@ -1,0 +1,30 @@
+# Base mplstyle, Fabian Joswig, 2021
+font.size:    12
+
+lines.marker : o
+lines.markersize : 6
+lines.linewidth : 1.0
+lines.linestyle : none
+
+font.family: serif
+
+axes.labelsize : 14
+
+xtick.labelsize : 12
+
+ytick.labelsize : 12
+
+figure.dpi : 100
+figure.figsize : 6.4, 3.9555    # figure size in inches, golden ratio
+figure.subplot.left :   0.125  # the left side of the subplots of the figure
+figure.subplot.right :  0.95    # the right side of the subplots of the figure
+figure.subplot.bottom : 0.125   # the bottom of the subplots of the figure
+figure.subplot.top :    0.95   # the top of the subplots of the figure
+
+errorbar.capsize : 3.4641016 # sqrt(markersize * 2)
+
+legend.fontsize : 12
+legend.frameon : False
+
+savefig.transparent : True
+savefig.dpi : 300

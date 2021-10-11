@@ -575,7 +575,7 @@ def residual_plot(x, y, func, fit_res):
     gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
     ax0 = plt.subplot(gs[0])
     ax0.errorbar(x, [o.value for o in y], yerr=[o.dvalue for o in y], ls='none', fmt='o', capsize=3, markersize=5, label='Data')
-    ax0.plot(x_samples, func([o.value for o in fit_res], x_samples), label='Fit', zorder=10)
+    ax0.plot(x_samples, func([o.value for o in fit_res], x_samples), label='Fit', zorder=10, ls='-', ms=0)
     ax0.set_xticklabels([])
     ax0.set_xlim([xstart, xstop])
     ax0.set_xticklabels([])

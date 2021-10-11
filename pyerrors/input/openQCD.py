@@ -27,8 +27,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     known_oqcd_versions = ['1.4','1.6','2.0']
     if not (version in known_oqcd_versions):
         raise Exception('Unknown openQCD version defined!')
-    else:     #Set defaults for openQCD Version to be version 1.4, emulate the old behaviour of this method
-    # Deprecate this kwarg in version 2.0.
     print("Working with openQCD version " + version)
     if 'postfix' in kwargs:
         postfix = kwargs.get('postfix')

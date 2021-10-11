@@ -24,7 +24,7 @@ class Corr:
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0,prange=None):
+    def __init__(self, data_input, padding_front=0, padding_back=0, prange=None):
         #All data_input should be a list of things at different timeslices. This needs to be verified
 
         if not (isinstance(data_input, list)):
@@ -57,15 +57,12 @@ class Corr:
         self.content = [None] * padding_front + self.content + [None] * padding_back
         self.T = len(self.content) #for convenience: will be used a lot
 
-
-        #The attribute "range" [start,end] marks a range of two timeslices. 
+        #The attribute "range" [start,end] marks a range of two timeslices.
         #This is useful for keeping track of plateaus and fitranges.
-        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant. 
-        if not prange is None:
-            self.prange=prange
+        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.
+        self.prange = prange
 
         self.gamma_method()
-
 
     def gamma_method(self):
         for item in self.content:
@@ -143,8 +140,7 @@ class Corr:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
         if(all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
-        
-        return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+        return Corr(newcontent, prange=self.prange)
 
     def anti_symmetric(self):
 
@@ -159,7 +155,7 @@ class Corr:
                 newcontent.append(0.5 * (self.content[t] - self.content[self.T - t]))
         if(all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
-        return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+        return Corr(newcontent, prange=self.prange)
 
 
     #This method will symmetrice the matrices and therefore make them positive definit.
@@ -192,25 +188,17 @@ class Corr:
         G0=G.content[t0]
         L = mat_mat_op(anp.linalg.cholesky, G0)
         Li = mat_mat_op(anp.linalg.inv, L)
-        LT=L.T 
+        LT=L.T
         LTi=mat_mat_op(anp.linalg.inv, LT)
         newcontent=[]
         for t in range(self.T):
             Gt=G.content[t]
-            M=Li@Gt@LTi 
+            M=Li@Gt@LTi
             eigenvalues = eigh(M)[0]
             #print(eigenvalues)
             eigenvalue=eigenvalues[-state]
             newcontent.append(eigenvalue)
         return Corr(newcontent)
-
-
-
-            
-
-
-    
-
 
 
     def roll(self, dt):
@@ -307,16 +295,16 @@ class Corr:
             raise Exception("Correlator must be projected before fitting")
 
         #The default behaviour is:
-            #1 use explicit fitrange 
+            #1 use explicit fitrange
             # if none is provided, use the range of the corr
             # if this is also not set, use the whole length of the corr (This could come with a warning!)
 
 
         if fitrange is None:
-            if hasattr(self,"prange"):
-                fitrange=self.prange
+            if self.prange:
+                fitrange = self.prange
             else:
-                fitrange=[0, self.T] 
+                fitrange = [0, self.T]
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
@@ -329,12 +317,13 @@ class Corr:
             raise Exception('Unexpected fit result.')
         return result
 
+
     #we want to quickly get a plateau
     def plateau(self, plateau_range=None, method="fit"):
         if not plateau_range:
-            if hasattr(self,"prange"):
-                plateau_range=self.prange 
-            else: 
+            if self.prange:
+                plateau_range = self.prange
+            else:
                 raise Exception("no plateau range provided")
         if self.N != 1:
             raise Exception("Correlator must be projected before getting a plateau.")
@@ -350,11 +339,10 @@ class Corr:
             return returnvalue
 
         else:
-            raise Exception("Unsupported plateau method: " + method) 
+            raise Exception("Unsupported plateau method: " + method)
 
 
-
-    def set_prange(self,prange): 
+    def set_prange(self, prange):
         if not len(prange)==2:
             raise Exception("range must be a list or array with two values")
         if not ((isinstance(prange[0],int)) and (isinstance(prange[1],int))):
@@ -362,18 +350,10 @@ class Corr:
         if not (0<=prange[0]<=self.T and 0<=prange[1]<=self.T and prange[0]<prange[1]  ):
             raise Exception("start and end point must define a range in the interval 0,T")
 
-        self.prange=prange 
-        return 
+        self.prange = prange
+        return
 
-
-
-
-
-
-
-    #quick and dirty plotting function to view Correlator inside Jupyter
-    #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
-    #This might be a bit more flexible later
+    # plotting function to view Correlator
     def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
@@ -418,9 +398,9 @@ class Corr:
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception('plateau must be an Obs')
-        if hasattr(self,"prange"):
-            ax1.axvline(self.prange[0],0,1)
-            ax1.axvline(self.prange[1],0,1)
+        if self.prange:
+            ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
+            ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
@@ -498,7 +478,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]+y)
-            return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+            return Corr(newcontent, prange=self.prange)
         else:
             raise TypeError("Corr + wrong type")
 
@@ -521,7 +501,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]*y)
-            return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+            return Corr(newcontent, prange=self.prange)
         else:
             raise TypeError("Corr * wrong type")
 
@@ -559,11 +539,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t]/y)
-            if hasattr(self,"prange"):
-                newrange=self.prange
-            else:
-                newrange=None
-            return Corr(newcontent,prange=newrange)
+            return Corr(newcontent, prange=self.prange)
 
         elif isinstance(y, int) or isinstance(y,float):
             if y==0:
@@ -580,11 +556,7 @@ class Corr:
 
     def __neg__(self):
         newcontent=[None if (item is None) else -1.*item for item in self.content]
-        if hasattr(self,"prange"):
-            newrange=self.prange
-        else:
-            newrange=None
-        return Corr(newcontent,prange=newrange)
+        return Corr(newcontent,prange=self.prange)
 
     def __sub__(self,y):
         return self +(-y)
@@ -592,7 +564,7 @@ class Corr:
     def __pow__(self, y):
         if isinstance(y, Obs) or isinstance(y,int) or isinstance(y,float):
             newcontent=[None if (item is None) else item**y for item in self.content]
-            return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+            return Corr(newcontent,prange=self.prange)
         else:
             raise TypeError("type of exponent not supported")
 

@@ -1,3 +1,4 @@
+[![flake8 Lint](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml)
 # pyerrors
 pyerrors is a python package for error computation and propagation of Markov Chain Monte Carlo data.
 It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:

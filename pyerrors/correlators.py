@@ -58,9 +58,9 @@ class Corr:
         self.T = len(self.content) #for convenience: will be used a lot
 
 
-        #The attribute "range" [start,end] marks a range of two timeslices. 
+        #The attribute "range" [start,end] marks a range of two timeslices.
         #This is useful for keeping track of plateaus and fitranges.
-        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant. 
+        #The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.
         if not prange is None:
             self.prange=prange
 
@@ -143,8 +143,8 @@ class Corr:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
         if(all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
-        
-        return Corr(newcontent,prange= self.prange if hasattr(self,"prange") else None)
+
+        return Corr(newcontent, prange=self.prange if hasattr(self,"prange") else None)
 
     def anti_symmetric(self):
 
@@ -192,25 +192,17 @@ class Corr:
         G0=G.content[t0]
         L = mat_mat_op(anp.linalg.cholesky, G0)
         Li = mat_mat_op(anp.linalg.inv, L)
-        LT=L.T 
+        LT=L.T
         LTi=mat_mat_op(anp.linalg.inv, LT)
         newcontent=[]
         for t in range(self.T):
             Gt=G.content[t]
-            M=Li@Gt@LTi 
+            M=Li@Gt@LTi
             eigenvalues = eigh(M)[0]
             #print(eigenvalues)
             eigenvalue=eigenvalues[-state]
             newcontent.append(eigenvalue)
         return Corr(newcontent)
-
-
-
-            
-
-
-    
-
 
 
     def roll(self, dt):
@@ -307,7 +299,7 @@ class Corr:
             raise Exception("Correlator must be projected before fitting")
 
         #The default behaviour is:
-            #1 use explicit fitrange 
+            #1 use explicit fitrange
             # if none is provided, use the range of the corr
             # if this is also not set, use the whole length of the corr (This could come with a warning!)
 
@@ -316,7 +308,7 @@ class Corr:
             if hasattr(self,"prange"):
                 fitrange=self.prange
             else:
-                fitrange=[0, self.T] 
+                fitrange=[0, self.T]
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
@@ -333,8 +325,8 @@ class Corr:
     def plateau(self, plateau_range=None, method="fit"):
         if not plateau_range:
             if hasattr(self,"prange"):
-                plateau_range=self.prange 
-            else: 
+                plateau_range=self.prange
+            else:
                 raise Exception("no plateau range provided")
         if self.N != 1:
             raise Exception("Correlator must be projected before getting a plateau.")
@@ -350,11 +342,11 @@ class Corr:
             return returnvalue
 
         else:
-            raise Exception("Unsupported plateau method: " + method) 
+            raise Exception("Unsupported plateau method: " + method)
 
 
 
-    def set_prange(self,prange): 
+    def set_prange(self,prange):
         if not len(prange)==2:
             raise Exception("range must be a list or array with two values")
         if not ((isinstance(prange[0],int)) and (isinstance(prange[1],int))):
@@ -362,18 +354,10 @@ class Corr:
         if not (0<=prange[0]<=self.T and 0<=prange[1]<=self.T and prange[0]<prange[1]  ):
             raise Exception("start and end point must define a range in the interval 0,T")
 
-        self.prange=prange 
-        return 
+        self.prange=prange
+        return
 
-
-
-
-
-
-
-    #quick and dirty plotting function to view Correlator inside Jupyter
-    #If one would not want to import pyplot, this could easily be replaced by a call to pe.plot_corrs
-    #This might be a bit more flexible later
+    # Plotting routine for correlator
     def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
@@ -452,10 +436,6 @@ class Corr:
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))
-
-
-
-    
 
     def __repr__(self, range=[0, None]):
         if range[1]:

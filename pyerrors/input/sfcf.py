@@ -61,7 +61,7 @@ def read_sfcf(path, prefix, name, **kwargs):
     for i, item in enumerate(ls):
         print(item)
         sub_ls = []
-        for (dirpath, dirnames, filenames) in os.walk(path+'/'+item):
+        for (dirpath, dirnames, filenames) in os.walk(path + '/' + item):
             sub_ls.extend(dirnames)
             break
         for exc in sub_ls:
@@ -92,11 +92,11 @@ def read_sfcf(path, prefix, name, **kwargs):
             deltas[j].append(np.zeros(sublength))
 
         for cnfg, subitem in enumerate(sub_ls):
-            with open(path + '/' + item + '/' + subitem + '/'+name) as fp:
+            with open(path + '/' + item + '/' + subitem + '/' + name) as fp:
                 for k, line in enumerate(fp):
                     if(k >= start and k < start + T):
                         floats = list(map(float, line.split()))
-                        deltas[k-start][i][cnfg] = floats[1 + im - single]
+                        deltas[k - start][i][cnfg] = floats[1 + im - single]
 
     result = []
     for t in range(T):
@@ -143,7 +143,7 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
         raise Exception('Error, directory not found')
     # Exclude folders with different names
     for exc in ls:
-        if not fnmatch.fnmatch(exc, prefix+'*'):
+        if not fnmatch.fnmatch(exc, prefix + '*'):
             ls = list(set(ls) - set([exc]))
     if len(ls) > 1:
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))  # New version, to cope with ids, etc.
@@ -157,11 +157,11 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
     print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
     for i, item in enumerate(ls):
         sub_ls = []
-        for (dirpath, dirnames, filenames) in os.walk(path+'/'+item):
+        for (dirpath, dirnames, filenames) in os.walk(path + '/' + item):
             sub_ls.extend(filenames)
             break
         for exc in sub_ls:
-            if not fnmatch.fnmatch(exc, prefix+'*'):
+            if not fnmatch.fnmatch(exc, prefix + '*'):
                 sub_ls = list(set(sub_ls) - set([exc]))
         sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
 
@@ -182,7 +182,7 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
             if b2b:
                 pattern += '\nwf_2      ' + str(wf2)
 
-            with open(path+'/'+item+'/'+sub_ls[0], 'r') as file:
+            with open(path + '/' + item + '/' + sub_ls[0], 'r') as file:
                 content = file.read()
                 match = re.search(pattern, content)
                 if match:
@@ -203,14 +203,14 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
             deltas[j].append(np.zeros(sublength))
 
         for cfg in range(no_cfg):
-            with open(path+'/'+item+'/'+sub_ls[cfg]) as fp:
+            with open(path + '/' + item + '/' + sub_ls[cfg]) as fp:
                 for k, line in enumerate(fp):
                     if k == start_read - 5 - b2b:
                         if line.strip() != 'name      ' + name:
                             raise Exception('Wrong format', sub_ls[cfg])
                     if(k >= start_read and k < start_read + T):
                         floats = list(map(float, line.split()))
-                        deltas[k-start_read][i][cfg] = floats[-2:][im]
+                        deltas[k - start_read][i][cfg] = floats[-2:][im]
 
     result = []
     for t in range(T):
@@ -247,7 +247,7 @@ def read_qtop(path, prefix, **kwargs):
 
     # Exclude files with different names
     for exc in ls:
-        if not fnmatch.fnmatch(exc, prefix+'*'):
+        if not fnmatch.fnmatch(exc, prefix + '*'):
             ls = list(set(ls) - set([exc]))
     if len(ls) > 1:
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))  # New version, to cope with ids, etc.
@@ -258,7 +258,7 @@ def read_qtop(path, prefix, **kwargs):
 
     for rep in range(replica):
         tmp = []
-        with open(path+'/'+ls[rep]) as fp:
+        with open(path + '/' + ls[rep]) as fp:
             for k, line in enumerate(fp):
                 floats = list(map(float, line.split()))
                 if full == 1:

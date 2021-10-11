@@ -32,8 +32,10 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     if not files:
         raise Exception('No files starting with', filestem, 'in folder', path)
 
+    def get_cnfg_number(n):
+        return int(n[len(filestem) + 1:-3])
+
     # Sort according to configuration number
-    get_cnfg_number = lambda x: int(x[len(filestem) + 1:-3])
     files.sort(key=get_cnfg_number)
 
     # Check that configurations are evenly spaced

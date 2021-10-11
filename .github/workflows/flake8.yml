@@ -18,4 +18,5 @@ jobs:
         with:
           ignore: "E501"
           exclude: "pyerrors/__init__.py"
+          exclude: "pyerrors/input/__init__.py"
           path: "pyerrors"

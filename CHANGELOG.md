@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0] - 2021-09-29
+## [1.1.0] - 2021-10-11
 ### Added
-- Corr class added
+- `Corr` class added
 - roots module added which can find the roots of a function that depends on Monte Carlo data via pyerrors Obs
 - input/hadrons module added which can read hdf5 files written by [Hadrons](https://github.com/aportelli/Hadrons)
 - read_rwms can now read reweighting factors in the format used by openQCD-2.0 
@@ -39,7 +39,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.8.1] - 2020-06-09
 ### Fixed
-- Bug in fits.standard_fit fixed which occurred when attempting a fit with zero
+- Bug in `fits.standard_fit` fixed which occurred when attempting a fit with zero
   degrees of freedom.
 
 ## [0.8.0] - 2020-06-05

@@ -44,7 +44,7 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
     # Construct the hankel matrices
     matrix = []
     for n in range(data_sets):
-        matrix.append(scipy.linalg.hankel(data[n][:n_data-p], data[n][n_data-p-1:]))
+        matrix.append(scipy.linalg.hankel(data[n][:n_data - p], data[n][n_data - p - 1:]))
     matrix = np.array(matrix)
     # Construct y1 and y2
     y1 = np.concatenate(matrix[:, :, :p])
@@ -60,7 +60,7 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
 
 def matrix_pencil_method_old(data, p, noise_level=None, verbose=1, **kwargs):
     """ Older impleentation of the matrix pencil method with pencil p on given data to
-	extract energy levels.
+        extract energy levels.
 
     Parameters
     ----------
@@ -79,7 +79,7 @@ def matrix_pencil_method_old(data, p, noise_level=None, verbose=1, **kwargs):
     if n_data <= p:
         raise Exception('The pencil p has to be smaller than the number of data samples.')
 
-    matrix = scipy.linalg.hankel(data[:n_data-p], data[n_data-p-1:]) @ np.identity(p + 1)
+    matrix = scipy.linalg.hankel(data[:n_data - p], data[n_data - p - 1:]) @ np.identity(p + 1)
 
     if noise_level is not None:
         u, s, vh = svd(matrix)

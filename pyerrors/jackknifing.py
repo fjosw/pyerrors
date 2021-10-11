@@ -22,9 +22,8 @@ class Jack:
         self.jacks = jacks
         self.N = list(map(np.size, self.jacks))
         self.max_binsize = len(self.N)
-        self.value = value #list(map(np.mean, self.jacks))
+        self.value = value  # list(map(np.mean, self.jacks))
         self.dvalue = list(map(_jack_error, self.jacks))
-
 
     def print(self, **kwargs):
         """Print basic properties of the Jack."""
@@ -42,18 +41,15 @@ class Jack:
 
         print('Result:\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue[b], self.dvalue[b] * np.sqrt(2 * b / self.N[0]), np.abs(self.dvalue[b] / self.value * 100)))
 
-
     def plot_tauint(self):
         plt.xlabel('binsize')
         plt.ylabel('tauint')
         length = self.max_binsize
         x = np.arange(length) + 1
-        plt.errorbar(x[:], (self.dvalue[:] / self.dvalue[0]) ** 2 / 2, yerr=np.sqrt(((2 * (self.dvalue[:] / self.dvalue[0]) ** 2 * np.sqrt(2 * x[:] / self.N[0])) / 2) ** 2
-                                                                                    + ((2 * (self.dvalue[:] / self.dvalue[0]) ** 2 * np.sqrt(2 / self.N[0])) / 2) ** 2), linewidth=1, capsize=2)
+        plt.errorbar(x[:], (self.dvalue[:] / self.dvalue[0]) ** 2 / 2, yerr=np.sqrt(((2 * (self.dvalue[:] / self.dvalue[0]) ** 2 * np.sqrt(2 * x[:] / self.N[0])) / 2) ** 2 + ((2 * (self.dvalue[:] / self.dvalue[0]) ** 2 * np.sqrt(2 / self.N[0])) / 2) ** 2), linewidth=1, capsize=2)
         plt.xlim(0.5, length + 0.5)
         plt.title('Tauint')
         plt.show()
-
 
     def plot_history(self):
         N = self.N
@@ -61,7 +57,7 @@ class Jack:
         tmp = []
         for i in range(self.replicas):
             tmp.append(self.deltas[i] + self.r_values[i])
-        y = np.concatenate(tmp, axis=0) # Think about including kwarg to look only at some replica
+        y = np.concatenate(tmp, axis=0)  # Think about including kwarg to look only at some replica
         plt.errorbar(x, y, fmt='.', markersize=3)
         plt.xlim(-0.5, N - 0.5)
         plt.show()
@@ -97,7 +93,7 @@ def generate_jack(obs, **kwargs):
         max_b = 1
 
     for b in range(max_b):
-        #binning if necessary
+        # binning if necessary
         if b > 0:
             n = full_data.size // (b + 1)
             binned_data = np.zeros(n)
@@ -108,10 +104,9 @@ def generate_jack(obs, **kwargs):
         else:
             binned_data = full_data
             n = binned_data.size
-        #generate jacks from data
+        # generate jacks from data
         mean = np.mean(binned_data)
         tmp_jacks = np.zeros(n)
-        #print(binned_data)
         for i in range(n):
             tmp_jacks[i] = (n * mean - binned_data[i]) / (n - 1)
         jacks.append(tmp_jacks)

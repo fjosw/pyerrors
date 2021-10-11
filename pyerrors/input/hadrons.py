@@ -7,6 +7,7 @@ import numpy as np
 from ..pyerrors import Obs
 from ..correlators import Corr
 
+
 def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
@@ -24,23 +25,23 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
 
     # Clean up file list
     files = []
-    for l in ls:
-        if l.startswith(filestem):
-            files.append(l)
+    for line in ls:
+        if line.startswith(filestem):
+            files.append(line)
 
     if not files:
         raise Exception('No files starting with', filestem, 'in folder', path)
 
     # Sort according to configuration number
-    get_cnfg_number = lambda x : int(x[len(filestem) + 1:-3])
+    get_cnfg_number = lambda x: int(x[len(filestem) + 1:-3])
     files.sort(key=get_cnfg_number)
 
     # Check that configurations are evenly spaced
     cnfg_numbers = []
-    for l in files:
-        cnfg_numbers.append(get_cnfg_number(l))
+    for line in files:
+        cnfg_numbers.append(get_cnfg_number(line))
 
-    if not all(np.diff(cnfg_numbers)==np.diff(cnfg_numbers)[0]):
+    if not all(np.diff(cnfg_numbers) == np.diff(cnfg_numbers)[0]):
         raise Exception('Configurations are not evenly spaced.')
 
     corr_data = []

@@ -293,7 +293,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
         old_jac = jacobian(func)(output.beta, output.xplus)
         fused_row1 = np.concatenate((old_jac, np.concatenate((number_of_x_parameters * [np.zeros(old_jac.shape)]), axis=0)))
-        fused_row2 = np.concatenate((jacobian(lambda x, y : func(y, x))(output.xplus, output.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters *  old_jac.shape[0])))
+        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(output.xplus, output.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
@@ -329,7 +329,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(output.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i])  + list(deriv_y[i])))
+        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(output.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i]) + list(deriv_y[i])))
 
     result_dict['fit_parameters'] = result
 
@@ -534,8 +534,8 @@ def fit_exp(data, **kwargs):
         tmp_log = np.log(np.abs(data[i - shift]))
         ysum += tmp_log
         xysum += i * tmp_log
-    res0 = -(length * xysum - xsum * ysum) / (length * xsum2 - xsum * xsum) # mass
-    res1 = np.exp((xsum2 * ysum - xsum * xysum) / (length * xsum2 - xsum * xsum)) # matrix element
+    res0 = -(length * xysum - xsum * ysum) / (length * xsum2 - xsum * xsum)  # mass
+    res1 = np.exp((xsum2 * ysum - xsum * xysum) / (length * xsum2 - xsum * xsum))  # matrix element
     return [res0, res1]
 
 
@@ -551,7 +551,7 @@ def qqplot(x, o_y, func, p):
     my_y = [o.value for o in residuals]
     probplot = scipy.stats.probplot(my_y)
     my_x = probplot[0][0]
-    fig = plt.figure(figsize=(8, 8 / 1.618))
+    plt.figure(figsize=(8, 8 / 1.618))
     plt.errorbar(my_x, my_y, fmt='o')
     fit_start = my_x[0]
     fit_stop = my_x[-1]

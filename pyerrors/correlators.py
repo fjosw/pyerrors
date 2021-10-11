@@ -358,7 +358,7 @@ class Corr:
         return
 
     # Plotting routine for correlator
-    def show(self, x_range=None, comp=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
@@ -371,7 +371,7 @@ class Corr:
         if self.N!=1:
             raise Exception("Correlator must be projected before plotting")
         if  x_range is None:
-            x_range=[0, self.T]
+            x_range = [0, self.T]
 
         fig = plt.figure()
         ax1 = fig.add_subplot(111)
@@ -382,12 +382,15 @@ class Corr:
             ax1.set_yscale('log')
         else:
             # we generate ylim instead of using autoscaling.
-            try:
-                y_min=min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]:x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
-                y_max=max([(x[0].value + x[0].dvalue) for x in self.content[x_range[0]:x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
-                ax1.set_ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
-            except:
-                pass
+            if y_range is None:
+                try:
+                    y_min=min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]:x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
+                    y_max=max([(x[0].value + x[0].dvalue) for x in self.content[x_range[0]:x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
+                    ax1.set_ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
+                except:
+                    pass
+            else:
+                ax1.set_ylim(y_range)
         if comp:
             if isinstance(comp, Corr) or isinstance(comp, list):
                 for corr in comp if isinstance(comp, list) else [comp]:

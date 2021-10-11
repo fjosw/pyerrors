@@ -17,7 +17,5 @@ jobs:
         uses: py-actions/flake8@v1
         with:
           ignore: "E501"
-          exclude:
-           - "pyerrors/__init__.py"
-           - "pyerrors/input/__init__.py"
+          exclude: '["pyerrors/__init__.py", "pyerrors/input/__init__.py"]'
           path: "pyerrors"

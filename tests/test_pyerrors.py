@@ -59,10 +59,10 @@ def test_covariance_is_variance():
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
     test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float).eps
+    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
     test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
     test_obs.gamma_method(e_tag=0)
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float).eps
+    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
 
 
 def test_fft():
@@ -72,8 +72,8 @@ def test_fft():
     test_obs2 = copy.deepcopy(test_obs1)
     test_obs1.gamma_method()
     test_obs2.gamma_method(fft=False)
-    assert max(np.abs(test_obs1.e_rho[''] - test_obs2.e_rho[''])) <= 10 * np.finfo(np.float).eps
-    assert np.abs(test_obs1.dvalue - test_obs2.dvalue) <= 10 * max(test_obs1.dvalue, test_obs2.dvalue) * np.finfo(np.float).eps
+    assert max(np.abs(test_obs1.e_rho[''] - test_obs2.e_rho[''])) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(test_obs1.dvalue - test_obs2.dvalue) <= 10 * max(test_obs1.dvalue, test_obs2.dvalue) * np.finfo(np.float64).eps
 
 
 def test_covariance_symmetry():
@@ -87,8 +87,8 @@ def test_covariance_symmetry():
     test_obs2.gamma_method()
     cov_ab = pe.covariance(test_obs1, test_obs2)
     cov_ba = pe.covariance(test_obs2, test_obs1)
-    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float).eps
-    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float).eps)
+    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
 def test_gamma_method():
@@ -115,16 +115,16 @@ def test_derived_observables():
     d_Obs_fd.gamma_method()
 
     assert d_Obs_ad.value == d_Obs_fd.value
-    assert np.abs(4.0 * np.sin(4.0) - d_Obs_ad.value) < 1000 * np.finfo(np.float).eps * np.abs(d_Obs_ad.value)
-    assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float).eps * d_Obs_ad.dvalue
+    assert np.abs(4.0 * np.sin(4.0) - d_Obs_ad.value) < 1000 * np.finfo(np.float64).eps * np.abs(d_Obs_ad.value)
+    assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float64).eps * d_Obs_ad.dvalue
 
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
     i_am_one.gamma_method(e_tag=1)
 
     assert i_am_one.value == 1.0
-    assert i_am_one.dvalue < 2 * np.finfo(np.float).eps
-    assert i_am_one.e_dvalue['t'] <= 2 * np.finfo(np.float).eps
-    assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float).eps
+    assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
+    assert i_am_one.e_dvalue['t'] <= 2 * np.finfo(np.float64).eps
+    assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float64).eps
 
 
 def test_multi_ens_system():

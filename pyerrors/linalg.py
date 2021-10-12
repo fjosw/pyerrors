@@ -12,11 +12,14 @@ from functools import partial
 from autograd.extend import defvjp
 
 _dot = partial(anp.einsum, '...ij,...jk->...ik')
+
+
 # batched diag
-_diag = lambda a: anp.eye(a.shape[-1]) * a
+def _diag(a):
+    return anp.eye(a.shape[-1]) * a
+
+
 # batched diagonal, similar to matrix_diag in tensorflow
-
-
 def _matrix_diag(a):
     reps = anp.array(a.shape)
     reps[:-1] = 1

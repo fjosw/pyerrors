@@ -65,7 +65,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
 
     print('Reading of bdio file started')
     while 1 > 0:
-        record = bdio_seek_record(fbdio)
+        bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
 
         if ruinfo == 7:
@@ -75,13 +75,13 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         if ruinfo < 0:
             # EOF reached
             break
-        rlen = bdio_get_rlen(fbdio)
+        bdio_get_rlen(fbdio)
 
         def read_c_double():
             d_buf = ctypes.c_double
             pd_buf = d_buf()
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iread = bdio_read_f64(ppd_buf, ctypes.c_size_t(8), ctypes.c_void_p(fbdio))
+            bdio_read_f64(ppd_buf, ctypes.c_size_t(8), ctypes.c_void_p(fbdio))
             return pd_buf.value
 
         mean = read_c_double()
@@ -91,7 +91,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
             d_buf = ctypes.c_size_t
             pd_buf = d_buf()
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iread = bdio_read_int32(ppd_buf, ctypes.c_size_t(4), ctypes.c_void_p(fbdio))
+            bdio_read_int32(ppd_buf, ctypes.c_size_t(4), ctypes.c_void_p(fbdio))
             return pd_buf.value
 
         neid = read_c_size_t()
@@ -137,7 +137,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         d_buf = ctypes.c_double * np.sum(ndata)
         pd_buf = d_buf()
         ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-        iread = bdio_read_f64(ppd_buf, ctypes.c_size_t(8 * np.sum(ndata)), ctypes.c_void_p(fbdio))
+        bdio_read_f64(ppd_buf, ctypes.c_size_t(8 * np.sum(ndata)), ctypes.c_void_p(fbdio))
         delta = pd_buf[:]
 
         samples = np.split(np.asarray(delta) + mean, np.cumsum([a for su in vrep for a in su])[:-1])
@@ -212,8 +212,7 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
     fbdio = bdio_open(ctypes.c_char_p(b_path), ctypes.c_char_p(b_write), b_form)
 
     for obs in obs_list:
-
-        mean = obs.value
+        # mean = obs.value
         neid = len(obs.e_names)
         vrep = [[obs.shape[o] for o in sl] for sl in list(obs.e_content.values())]
         vrep_write = [item for sublist in vrep for item in sublist]
@@ -251,12 +250,12 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
         def write_c_double(double):
             pd_buf = ctypes.c_double(double)
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iwrite = bdio_write_f64(ppd_buf, ctypes.c_size_t(8), ctypes.c_void_p(fbdio))
+            bdio_write_f64(ppd_buf, ctypes.c_size_t(8), ctypes.c_void_p(fbdio))
 
         def write_c_size_t(int32):
             pd_buf = ctypes.c_size_t(int32)
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iwrite = bdio_write_int32(ppd_buf, ctypes.c_size_t(4), ctypes.c_void_p(fbdio))
+            bdio_write_int32(ppd_buf, ctypes.c_size_t(4), ctypes.c_void_p(fbdio))
 
         write_c_double(obs.value)
         write_c_size_t(neid)
@@ -365,7 +364,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
 
     print('Reading of bdio file started')
     while 1 > 0:
-        record = bdio_seek_record(fbdio)
+        bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
         if ruinfo < 0:
             # EOF reached
@@ -530,7 +529,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     corr_type = []  # Contains correlator data type (important for reading out numerical data)
     corr_props = []  # Contains propagator types (Component of corr_kappa)
     d0 = 0  # tvals
-    d1 = 0  # nnoise
+    # d1 = 0  # nnoise
     prop_kappa = []  # Contains propagator kappas (Component of corr_kappa)
     # Check noise type for multiple replica?
     cnfg_no = -1
@@ -541,7 +540,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
 
     print('Reading of bdio file started')
     while 1 > 0:
-        record = bdio_seek_record(fbdio)
+        bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
         if ruinfo < 0:
             # EOF reached
@@ -613,7 +612,6 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     print('Number of configurations: ', cnfg_no + 1)
 
     corr_kappa = []  # Contains kappa values for both propagators of given correlation function
-    corr_source = []
     for item in corr_props:
         corr_kappa.append(float(prop_kappa[int(item)]))
 

@@ -252,14 +252,21 @@ class Corr:
 
             return np.log(Corr(newcontent, padding_back=1))
 
-        elif variant == 'periodic':
+        elif variant in ['periodic', 'cosh', 'sinh']:
+            if variant in ['periodic', 'cosh']:
+                func = anp.cosh
+            else:
+                func = anp.sinh
+
+            def root_function(x, d):
+                return func(x * (t - self.T / 2)) / func(x * (t + 1 - self.T / 2)) - d
+
             newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
                 else:
-                    func = lambda x, d: anp.cosh(x * (t - self.T / 2)) / anp.cosh(x * (t + 1 - self.T / 2)) - d
-                    newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], func, guess=guess)))
+                    newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], root_function, guess=guess)))
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 

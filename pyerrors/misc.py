@@ -71,7 +71,7 @@ def ks_test(obs=None):
     plt.ylabel('Cumulative probability')
     plt.title(str(bins) + ' Q values')
 
-    n = np.arange(1, bins + 1) / np.float(bins)
+    n = np.arange(1, bins + 1) / np.float64(bins)
     Xs = np.sort(Qs)
     plt.step(Xs, n)
     diffs = n - Xs

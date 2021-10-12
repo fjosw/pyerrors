@@ -297,7 +297,7 @@ class Obs:
                         self.e_windowsize[e_name] = n
                         break
 
-            if len(self.e_content[e_name]) > 1 and self.e_dvalue[e_name] > np.finfo(np.float).eps:
+            if len(self.e_content[e_name]) > 1 and self.e_dvalue[e_name] > np.finfo(np.float64).eps:
                 e_mean = 0
                 for r_name in self.e_content[e_name]:
                     e_mean += self.shape[r_name] * self.r_values[r_name]

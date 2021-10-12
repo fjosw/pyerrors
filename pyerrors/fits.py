@@ -256,7 +256,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     data = RealData(x_f, y_f, sx=dx_f, sy=dy_f)
     model = Model(func)
-    odr = ODR(data, model, x0, partol=np.finfo(np.float).eps)
+    odr = ODR(data, model, x0, partol=np.finfo(np.float64).eps)
     odr.set_job(fit_type=0, deriv=1)
     output = odr.run()
 
@@ -610,7 +610,7 @@ def covariance_matrix(y):
 def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
     cov = covariance_matrix(beta)
-    if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float).eps):
+    if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         print('Warning, Covariance matrix is not symmetric within floating point precision')
         print('cov - cov.T:')
         print(cov - cov.T)
@@ -716,7 +716,7 @@ def fit_general(x, y, func, silent=False, **kwargs):
 
         model = Model(func)
 
-        odr = ODR(data, model, beta0, partol=np.finfo(np.float).eps)
+        odr = ODR(data, model, beta0, partol=np.finfo(np.float64).eps)
         odr.set_job(fit_type=fit_type, deriv=1)
         output = odr.run()
         if print_output and not silent:

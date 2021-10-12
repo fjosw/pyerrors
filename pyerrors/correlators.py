@@ -1,11 +1,11 @@
 import numpy as np
 import autograd.numpy as anp
+import matplotlib.pyplot as plt
 import scipy.linalg
 from .pyerrors import Obs, dump_object
 from .fits import standard_fit
 from .linalg import eigh, mat_mat_op
 from .roots import find_root
-import matplotlib.pyplot as plt
 
 
 class Corr:
@@ -24,7 +24,7 @@ class Corr:
     def __init__(self, data_input, padding_front=0, padding_back=0, prange=None):
         # All data_input should be a list of things at different timeslices. This needs to be verified
 
-        if not (isinstance(data_input, list)):
+        if not isinstance(data_input, list):
             raise TypeError('Corr__init__ expects a list of timeslices.')
         # data_input can have multiple shapes. The simplest one is a list of Obs.
         # We check, if this is the case
@@ -115,9 +115,9 @@ class Corr:
     def plottable(self):
         if self.N != 1:
             raise Exception("Can only make Corr[N=1] plottable")  # We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.
-        x_list = [x for x in range(self.T) if (not self.content[x] is None)]
-        y_list = [y[0].value for y in self.content if (y is not None)]
-        y_err_list = [y[0].dvalue for y in self.content if (y is not None)]
+        x_list = [x for x in range(self.T) if not self.content[x] is None]
+        y_list = [y[0].value for y in self.content if y is not None]
+        y_err_list = [y[0].dvalue for y in self.content if y is not None]
 
         return x_list, y_list, y_err_list
 

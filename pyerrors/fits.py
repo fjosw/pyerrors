@@ -146,7 +146,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
         result_dict['chisquare/expected_chisquare'] = chisquare / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
-                result_dict['chisquare/expected_chisquare'])
+                  result_dict['chisquare/expected_chisquare'])
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fit_result.x))
 
@@ -305,7 +305,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
         result_dict['chisquare/expected_chisquare'] = odr_chisquare(np.concatenate((output.beta, output.xplus.ravel()))) / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
-                result_dict['chisquare/expected_chisquare'])
+                  result_dict['chisquare/expected_chisquare'])
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((output.beta, output.xplus.ravel()))))
 

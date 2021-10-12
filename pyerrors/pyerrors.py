@@ -1064,6 +1064,7 @@ def load_object(path):
     with open(path, 'rb') as file:
         return pickle.load(file)
 
+
 def merge_obs(list_of_obs):
     """Combine all observables in list_of_obs into one new observable
 

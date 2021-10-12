@@ -21,17 +21,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Display Python version numbers
+      - name: Display Python version number
         run: |
           python -c "import sys; print(sys.version)"
-          python -c "import numpy; print(numpy.__version__)"
-          python -c "import matplotlib; print(matplotlib.__version__)"
 
       - name: Install
         run: |
           python -m pip install --upgrade pip
           pip install -e .
           pip install pytest
+          python -c "import numpy; print(numpy.__version__)"
+          python -c "import matplotlib; print(matplotlib.__version__)"
 
       - name: Run tests
         run: pytest

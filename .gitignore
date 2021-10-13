@@ -1,6 +1,8 @@
 __pycache__
 *.pyc
 .ipynb_*
+.coverage
+.cache
 examples/B1k2_pcac_plateau.p
 examples/Untitled.*
 core.*

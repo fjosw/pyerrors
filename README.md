@@ -1,4 +1,4 @@
-[![flake8 Lint](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml) [![CI](https://github.com/fjosw/pyerrors/actions/workflows/CI.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/CI.yml)
+[![flake8 Lint](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml) [![CI](https://github.com/fjosw/pyerrors/actions/workflows/CI.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/CI.yml)[![](https://img.shields.io/badge/python-3.4+-blue.svg)]
 # pyerrors
 pyerrors is a python package for error computation and propagation of Markov Chain Monte Carlo data.
 It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:
@@ -16,16 +16,9 @@ There exist similar implementations of gamma method error analysis suites in
 - [Python 3](https://github.com/mbruno46/pyobs)
 
 ## Installation
-pyerrors requires python versions >= 3.5.0
-
 Install the package for the local user:
 ```bash
 pip install . --user
-```
-
-Run tests to verify the installation:
-```bash
-pytest .
 ```
 
 ## Usage

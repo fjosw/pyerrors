@@ -171,3 +171,17 @@ def test_overloaded_functions():
         assert np.max((ad_obs.deltas['t'] - fd_obs.deltas['t']) / ad_obs.deltas['t']) < 1e-8, item.__name__
         assert np.abs((ad_obs.value - item(val)) / ad_obs.value) < 1e-10, item.__name__
         assert np.abs(ad_obs.dvalue - dval * np.abs(deriv[i](val))) < 1e-6, item.__name__
+
+def test_utils():
+    my_obs = pe.pseudo_Obs(1.0, 0.5, 't')
+    my_obs.print(0)
+    my_obs.print(1)
+    my_obs.print(2)
+    assert not my_obs.zero_within_error()
+    my_obs.plot_tauint()
+    my_obs.plot_rho()
+    my_obs.plot_rep_dist()
+    my_obs.plot_history()
+    my_obs.plot_piechart()
+    assert my_obs > (my_obs - 1)
+    assert my_obs < (my_obs + 1)

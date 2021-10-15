@@ -419,7 +419,7 @@ class Obs:
                 arr[r] = (self.r_values[r_name] - sub_r_mean) / (self.e_dvalue[e_name] * np.sqrt(e_N / self.shape[r_name] - 1))
             plt.hist(arr, rwidth=0.8, bins=len(self.e_content[e_name]))
             plt.title('Replica distribution' + e_name + ' (mean=0, var=1), Q=' + str(np.around(self.e_Q[e_name], decimals=2)))
-            plt.show()
+            plt.draw()
 
     def plot_history(self):
         """Plot derived Monte Carlo history for each ensemble."""
@@ -440,7 +440,7 @@ class Obs:
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
             plt.title(e_name)
-            plt.show()
+            plt.draw()
 
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
@@ -454,7 +454,7 @@ class Obs:
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
-        plt.show()
+        plt.draw()
 
         return dict(zip(self.e_names, sizes))
 

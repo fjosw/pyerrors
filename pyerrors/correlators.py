@@ -242,7 +242,9 @@ class Corr:
         Parameters
         ----------
         variant -- log: uses the standard effective mass log(C(t) / C(t+1))
-                   periodic : Solves C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m. See, e.g., arXiv:1205.5380
+                   cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+                   sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
+                   See, e.g., arXiv:1205.5380
         guess -- guess for the root finder, only relevant for the root variant
         """
         if self.N != 1:

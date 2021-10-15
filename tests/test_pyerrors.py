@@ -35,7 +35,7 @@ def test_function_overloading():
     fs = [lambda x: x[0] + x[1], lambda x: x[1] + x[0], lambda x: x[0] - x[1], lambda x: x[1] - x[0],
           lambda x: x[0] * x[1], lambda x: x[1] * x[0], lambda x: x[0] / x[1], lambda x: x[1] / x[0],
           lambda x: np.exp(x[0]), lambda x: np.sin(x[0]), lambda x: np.cos(x[0]), lambda x: np.tan(x[0]),
-          lambda x: np.log(x[0]), lambda x: np.sqrt(x[0]),
+          lambda x: np.log(x[0]), lambda x: np.sqrt(np.abs(x[0])),
           lambda x: np.sinh(x[0]), lambda x: np.cosh(x[0]), lambda x: np.tanh(x[0])]
 
     for i, f in enumerate(fs):
@@ -47,8 +47,17 @@ def test_function_overloading():
 
 
 def test_overloading_vectorization():
-    a = np.random.randint(0, 100, 10)
-    b = pe.pseudo_Obs(4, 0.8, 'e1')
+    a = np.random.randint(1, 100, 10)
+    b = pe.pseudo_Obs(4, 0.8, 't')
+
+    assert [o.value for o in a * b] == [o.value for o in b * a]
+    assert [o.value for o in a + b] == [o.value for o in b + a]
+    assert [o.value for o in a - b] == [-1 * o.value for o in b - a]
+    assert [o.value for o in a / b] == [o.value for o in [p / b for p in a]]
+    assert [o.value for o in b / a] == [o.value for o in [b / p for p in a]]
+
+    a = np.random.normal(0.0, 1e10, 10)
+    b = pe.pseudo_Obs(4, 0.8, 't')
 
     assert [o.value for o in a * b] == [o.value for o in b * a]
     assert [o.value for o in a + b] == [o.value for o in b + a]

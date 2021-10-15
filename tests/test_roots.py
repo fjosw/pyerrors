@@ -16,4 +16,4 @@ def test_root_linear():
 
     assert np.isclose(my_root.value, value)
     difference = my_obs - my_root
-    assert all(np.isclose(0.0, difference.deltas['t']))
+    assert np.allclose(0.0, difference.deltas['t'])

@@ -379,7 +379,7 @@ def prior_fit(x, y, func, priors, silent=False, **kwargs):
     result_dict['fit_function'] = func
 
     if Obs.e_tag_global < 4:
-        print('WARNING: e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors')
+        warnings.warn("e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors", RuntimeWarning)
 
     x = np.asarray(x)
 
@@ -629,7 +629,6 @@ def error_band(x, func, beta):
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
-    WARNING: In the current version the fits are performed with numerical derivatives.
     Plausibility of the results should be checked. To control the numerical differentiation
     the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.
 
@@ -650,9 +649,7 @@ def fit_general(x, y, func, silent=False, **kwargs):
                      with many parameters.
     """
 
-    if not silent:
-        print('WARNING: This function is deprecated and will be removed in future versions.')
-        print('New fit functions with exact error propagation are now available as alternative.')
+    warnings.warn("New fit functions with exact error propagation are now available as alternative.", DeprecationWarning)
 
     if not callable(func):
         raise TypeError('func has to be a function.')

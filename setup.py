@@ -8,6 +8,6 @@ setup(name='pyerrors',
       author='Fabian Joswig',
       author_email='fabian.joswig@ed.ac.uk',
       packages=find_packages(),
-      python_requires='>=3.5.0',
+      python_requires='>=3.6.0',
       install_requires=['numpy>=1.16', 'autograd>=1.2', 'numdifftools', 'matplotlib', 'scipy', 'iminuit<2']
      )

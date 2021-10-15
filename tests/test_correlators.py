@@ -49,9 +49,10 @@ def test_modify_correlator():
     corr.second_deriv()
 
 def test_m_eff():
-    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't')])
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(8, 0.1, 't'), pe.pseudo_Obs(7, 0.05, 't')])
     my_corr.m_eff('log')
     my_corr.m_eff('cosh')
+    my_corr.m_eff('sinh')
 
 def test_utility():
     corr_content = []

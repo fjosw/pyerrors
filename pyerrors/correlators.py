@@ -274,6 +274,9 @@ class Corr:
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
+                # Fill the two timeslices in the middle of the lattice with their predecessors
+                elif variant == 'sinh' and t in [self.T / 2, self.T / 2 - 1]:
+                    newcontent.append(newcontent[-1])
                 else:
                     newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], root_function, guess=guess)))
             if(all([x is None for x in newcontent])):

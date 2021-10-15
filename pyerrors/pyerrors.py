@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import warnings
 import pickle
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
@@ -784,9 +785,9 @@ def correlate(obs_a, obs_b):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if obs_a.reweighted == 1:
-        print('Warning: The first observable is already reweighted.')
+        warnings.warn("The first observable is already reweighted.", RuntimeWarning)
     if obs_b.reweighted == 1:
-        print('Warning: The second observable is already reweighted.')
+        warnings.warn("The second observable is already reweighted.", RuntimeWarning)
 
     new_samples = []
     for name in sorted(obs_a.names):

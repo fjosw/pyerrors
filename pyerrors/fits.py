@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import warnings
 import numpy as np
 import autograd.numpy as anp
 import scipy.optimize
@@ -300,7 +301,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
         P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
-            print('Warning, negative expected_chisquare.')
+            warnings.warn("Negative expected_chisquare.", RuntimeWarning)
             expected_chisquare = np.abs(expected_chisquare)
         result_dict['chisquare/expected_chisquare'] = odr_chisquare(np.concatenate((output.beta, output.xplus.ravel()))) / expected_chisquare
         if not silent:
@@ -611,9 +612,7 @@ def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
     cov = covariance_matrix(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
-        print('Warning, Covariance matrix is not symmetric within floating point precision')
-        print('cov - cov.T:')
-        print(cov - cov.T)
+        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 
     deriv = []
     for i, item in enumerate(x):

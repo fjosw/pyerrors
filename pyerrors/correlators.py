@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
@@ -130,7 +131,7 @@ class Corr:
             raise Exception("Can not symmetrize odd T")
 
         if np.argmax(np.abs(self.content)) != 0:
-            print('Warning: correlator does not seem to be symmetric around x0=0.')
+            warnings.warn("Correlator does not seem to be symmetric around x0=0.", RuntimeWarning)
 
         newcontent = [self.content[0]]
         for t in range(1, self.T):
@@ -148,7 +149,7 @@ class Corr:
             raise Exception("Can not symmetrize odd T")
 
         if not all([o.zero_within_error() for o in self.content[0]]):
-            print('Warning: correlator does not seem to be anti-symmetric around x0=0.')
+            warnings.warn("Correlator does not seem to be anti-symmetric around x0=0.", RuntimeWarning)
 
         newcontent = [self.content[0]]
         for t in range(1, self.T):

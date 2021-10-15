@@ -6,6 +6,8 @@ import copy
 import pyerrors as pe
 import pytest
 
+np.random.seed(0)
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

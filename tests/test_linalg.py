@@ -11,6 +11,8 @@ from scipy.odr import ODR, Model, Data, RealData
 import pyerrors as pe
 import pytest
 
+np.random.seed(0)
+
 def test_matrix_functions():
     dim = 3 + int(4 * np.random.rand())
     print(dim)

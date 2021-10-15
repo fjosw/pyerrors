@@ -9,6 +9,8 @@ from scipy.odr import ODR, Model, Data, RealData
 import pyerrors as pe
 import pytest
 
+np.random.seed(0)
+
 def test_standard_fit():
     dim = 10 + int(30 * np.random.rand())
     x = np.arange(dim)

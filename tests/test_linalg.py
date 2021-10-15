@@ -1,17 +1,10 @@
-import sys
-sys.path.append('..')
 import autograd.numpy as np
-import os
-import random
 import math
-import string
-import copy
-import scipy.optimize
-from scipy.odr import ODR, Model, Data, RealData
 import pyerrors as pe
 import pytest
 
 np.random.seed(0)
+
 
 def test_matrix_functions():
     dim = 3 + int(4 * np.random.rand())
@@ -55,4 +48,3 @@ def test_matrix_functions():
             tmp[j].gamma_method()
             assert math.isclose(tmp[j].value, 0.0, abs_tol=1e-9), 'value ' + str(i) + ',' + str(j)
             assert math.isclose(tmp[j].dvalue, 0.0, abs_tol=1e-9), 'dvalue ' + str(i) + ',' + str(j)
-

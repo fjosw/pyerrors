@@ -4,6 +4,7 @@ import pytest
 
 np.random.seed(0)
 
+
 def test_root_linear():
 
     def root_function(x, d):
@@ -16,4 +17,3 @@ def test_root_linear():
     assert np.isclose(my_root.value, value)
     difference = my_obs - my_root
     assert all(np.isclose(0.0, difference.deltas['t']))
-

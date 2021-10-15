@@ -8,6 +8,7 @@ import pytest
 
 np.random.seed(0)
 
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -38,8 +39,8 @@ def test_function_overloading():
           lambda x: np.sinh(x[0]), lambda x: np.cosh(x[0]), lambda x: np.tanh(x[0])]
 
     for i, f in enumerate(fs):
-        t1 = f([a,b])
-        t2 = pe.derived_observable(f, [a,b])
+        t1 = f([a, b])
+        t2 = pe.derived_observable(f, [a, b])
         c = t2 - t1
         assert c.value == 0.0, str(i)
         assert np.all(np.abs(c.deltas['e1']) < 1e-14), str(i)

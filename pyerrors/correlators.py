@@ -129,6 +129,9 @@ class Corr:
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
+        if np.argmax(np.abs(self.content)) != 0:
+            print('Warning: correlator does not seem to be symmetric around x0=0.')
+
         newcontent = [self.content[0]]
         for t in range(1, self.T):
             if (self.content[t] is None) or (self.content[self.T - t] is None):
@@ -143,6 +146,9 @@ class Corr:
 
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
+
+        if not all([o.zero_within_error() for o in self.content[0]]):
+            print('Warning: correlator does not seem to be anti-symmetric around x0=0.')
 
         newcontent = [self.content[0]]
         for t in range(1, self.T):

@@ -340,6 +340,9 @@ class Obs:
                 for e_name in self.e_names:
                     print(e_name, ':', self.e_content[e_name])
 
+    def zero_within_error(self):
+        return np.abs(self.value) <= self.dvalue
+
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
         if not self.e_names:

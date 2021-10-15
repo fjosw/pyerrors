@@ -427,7 +427,7 @@ class Corr:
             if isinstance(save, str):
                 fig.savefig(save)
             else:
-                raise Exception('safe has to be a string.')
+                raise Exception("Safe has to be a string.")
 
         return
 

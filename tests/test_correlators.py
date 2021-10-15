@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pyerrors as pe
 import pytest
@@ -46,3 +47,27 @@ def test_modify_correlator():
     corr.deriv(symmetric=True)
     corr.deriv(symmetric=False)
     corr.second_deriv()
+
+def test_m_eff():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't')])
+    my_corr.m_eff('log')
+    my_corr.m_eff('cosh')
+
+def test_utility():
+    corr_content = []
+    for t in range(8):
+        exponent = np.random.normal(3, 5)
+        corr_content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
+
+    corr = pe.correlators.Corr(corr_content)
+    corr.print()
+    corr.print([2, 4])
+    corr.show()
+
+    corr.dump('test_dump')
+    new_corr = pe.load_object('test_dump.p')
+    os.remove('test_dump.p')
+    for o_a, o_b in zip(corr.content, new_corr.content):
+        assert np.isclose(o_a[0].value, o_b[0].value)
+        assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
+        assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])

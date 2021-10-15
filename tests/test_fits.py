@@ -67,7 +67,7 @@ def test_odr_fit():
 
     data = RealData([o.value for o in ox], [o.value for o in oy], sx=[o.dvalue for o in ox], sy=[o.dvalue for o in oy])
     model = Model(func)
-    odr = ODR(data, model, [0,0], partol=np.finfo(np.float).eps)
+    odr = ODR(data, model, [0,0], partol=np.finfo(np.float64).eps)
     odr.set_job(fit_type=0, deriv=1)
     output = odr.run()
 

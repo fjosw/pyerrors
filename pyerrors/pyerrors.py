@@ -473,6 +473,9 @@ class Obs:
             pickle.dump(self, fb)
 
     def __repr__(self):
+        return 'Obs[' + str(self) + ']'
+
+    def __str__(self):
         if self.dvalue == 0.0:
             return str(self.value)
         fexp = np.floor(np.log10(self.dvalue))
@@ -482,9 +485,6 @@ class Obs:
             return '{:.1f}({:1.1f})'.format(self.value, self.dvalue)
         else:
             return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
-
-    def __str__(self):
-        return 'Obs[' + self.__repr__() + ']'
 
     # Overload comparisons
     def __lt__(self, other):

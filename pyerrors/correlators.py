@@ -402,7 +402,7 @@ class Corr:
 
         if plateau:
             if isinstance(plateau, Obs):
-                ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=plateau.__repr__())
+                ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=str(plateau))
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception('plateau must be an Obs')
@@ -451,7 +451,7 @@ class Corr:
             else:
                 content_string += str(i + range[0])
                 for element in sub_corr:
-                    content_string += '\t' + element.__repr__()
+                    content_string += '\t' + str(element)
                 content_string += '\n'
         return content_string
 

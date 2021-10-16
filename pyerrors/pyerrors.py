@@ -484,7 +484,7 @@ class Obs:
             return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
 
     def __str__(self):
-        return 'Obs[' + str(self) + ']'
+        return 'Obs[' + self.__repr__() + ']'
 
     # Overload comparisons
     def __lt__(self, other):

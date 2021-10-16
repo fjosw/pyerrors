@@ -632,6 +632,67 @@ class Obs:
         return derived_observable(lambda x: anp.sinc(x[0]), [self])
 
 
+class CObs:
+    def __init__(self, real, imag=0.0):
+        self.real = real
+        self.imag = imag
+
+    def gamma_method(self, **kwargs):
+        self.real.gamma_method(**kwargs)
+        self.imag.gamma_method(**kwargs)
+
+    def __add__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real + other.real,
+                        self.imag + other.imag)
+        else:
+            return CObs(self.real + other, self.imag)
+
+    def __radd__(self, y):
+        return self + y
+
+    def __sub__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real - other.real, self.imag - other.imag)
+        else:
+            return CObs(self.real - other, self.imag)
+
+    def __rsub__(self, other):
+        return -1 * (self - other)
+
+    def __mul__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real * other.real - self.imag * other.imag,
+                        self.imag * other.real + self.real * other.imag)
+        else:
+            return CObs(self.real * other, self.imag * other)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            r = other.real ** 2 + other.imag ** 2
+            return CObs((self.real * other.real + self.imag * other.imag) / r, (self.imag * other.real - self.real * other.imag) / r)
+        else:
+            return CObs(self.real / other, self.imag / other)
+
+    def __abs__(self):
+        return np.sqrt(self.real**2 + self.imag**2)
+
+    def __neg__(other):
+        return -1 * other
+
+    def __eq__(self, other):
+        return self.real == other.real and self.imag == other.imag
+
+    def __str__(self):
+        return '(' + str(self.real) + int(self.imag > - np.finfo(np.float64).eps) * '+' + str(self.imag) + 'j)'
+
+    def __repr__(self):
+        return 'CObs[' + str(self) + ']'
+
+
 def derived_observable(func, data, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 

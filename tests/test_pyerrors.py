@@ -185,3 +185,31 @@ def test_utils():
     my_obs.plot_piechart()
     assert my_obs > (my_obs - 1)
     assert my_obs < (my_obs + 1)
+
+def test_cobs():
+    obs1 = pe.pseudo_Obs(1.0, 0.1, 't')
+    obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
+
+    my_cobs = pe.CObs(obs1, obs2)
+    np.abs(my_cobs)
+    fs = [[lambda x: x[0] + x[1], lambda x: x[1] + x[0]],
+          [lambda x: x[0] * x[1], lambda x: x[1] * x[0]]]
+    for other in [1, 1.1, (1.1-0.2j), pe.CObs(obs1), pe.CObs(obs1, obs2)]:
+        for funcs in fs:
+            ta = funcs[0]([my_cobs, other])
+            tb = funcs[1]([my_cobs, other])
+            diff = ta - tb
+            assert np.isclose(0.0, float(diff.real))
+            assert np.isclose(0.0, float(diff.imag))
+            assert np.allclose(0.0, diff.real.deltas['t'])
+            assert np.allclose(0.0, diff.imag.deltas['t'])
+
+        ta = my_cobs - other
+        tb = other - my_cobs
+        diff = ta + tb
+        assert np.isclose(0.0, float(diff.real))
+        assert np.isclose(0.0, float(diff.imag))
+        assert np.allclose(0.0, diff.real.deltas['t'])
+        assert np.allclose(0.0, diff.imag.deltas['t'])
+
+        div = my_cobs / other

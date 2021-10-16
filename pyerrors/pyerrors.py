@@ -472,6 +472,9 @@ class Obs:
         with open(file_name, 'wb') as fb:
             pickle.dump(self, fb)
 
+    def __float__(self):
+        return self.value
+
     def __repr__(self):
         return 'Obs[' + str(self) + ']'
 

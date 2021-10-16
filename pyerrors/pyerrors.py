@@ -474,14 +474,17 @@ class Obs:
 
     def __repr__(self):
         if self.dvalue == 0.0:
-            return 'Obs[' + str(self.value) + ']'
+            return str(self.value)
         fexp = np.floor(np.log10(self.dvalue))
         if fexp < 0.0:
-            return 'Obs[{:{form}}({:2.0f})]'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+            return '{:{form}}({:2.0f})'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
         elif fexp == 0.0:
-            return 'Obs[{:.1f}({:1.1f})]'.format(self.value, self.dvalue)
+            return '{:.1f}({:1.1f})'.format(self.value, self.dvalue)
         else:
-            return 'Obs[{:.0f}({:2.0f})]'.format(self.value, self.dvalue)
+            return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
+
+    def __str__(self):
+        return 'Obs[' + str(self) + ']'
 
     # Overload comparisons
     def __lt__(self, other):

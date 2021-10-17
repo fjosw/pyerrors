@@ -638,8 +638,10 @@ class CObs:
         self.imag = imag
 
     def gamma_method(self, **kwargs):
-        self.real.gamma_method(**kwargs)
-        self.imag.gamma_method(**kwargs)
+        if isinstance(self.real, Obs):
+            self.real.gamma_method(**kwargs)
+        if isinstance(self.imag, Obs):
+            self.imag.gamma_method(**kwargs)
 
     def __add__(self, other):
         if hasattr(other, 'real') and hasattr(other, 'imag'):

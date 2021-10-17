@@ -6,6 +6,18 @@ import pytest
 np.random.seed(0)
 
 
+def test_matrix_inverse():
+    content = []
+    for t in range(9):
+        exponent = np.random.normal(3, 5)
+        content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
+
+    content.append(1.0) # Add 1.0 as a float
+    matrix = np.diag(content)
+    inverse_matrix = pe.linalg.mat_mat_op(np.linalg.inv, matrix)
+    assert all([o.is_zero() for o in np.diag(matrix) * np.diag(inverse_matrix) - 1])
+
+
 def test_matrix_functions():
     dim = 3 + int(4 * np.random.rand())
     print(dim)

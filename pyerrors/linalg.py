@@ -3,7 +3,7 @@
 
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .pyerrors import derived_observable
+from .pyerrors import derived_observable, CObs
 
 
 # This code block is directly taken from the current master branch of autograd and remains
@@ -84,9 +84,30 @@ def scalar_mat_op(op, obs, **kwargs):
 
 def mat_mat_op(op, obs, **kwargs):
     """Computes the matrix to matrix operation op to a given matrix of Obs."""
-    if kwargs.get('num_grad') is True:
-        return _num_diff_mat_mat_op(op, obs, **kwargs)
-    return derived_observable(lambda x, **kwargs: op(x), obs)
+    # Use real representation to calculate matrix operations for complex matrices
+    if isinstance(obs.ravel()[0], CObs):
+        A = np.empty_like(obs)
+        B = np.empty_like(obs)
+        for (n, m), entry in np.ndenumerate(obs):
+            if hasattr(entry, 'real') and hasattr(entry, 'imag'):
+                A[n, m] = entry.real
+                B[n, m] = entry.imag
+            else:
+                A[n, m] = entry
+                B[n, m] = 0.0
+        big_matrix = np.bmat([[A, -B], [B, A]])
+        if kwargs.get('num_grad') is True:
+            op_big_matrix = _num_diff_mat_mat_op(op, big_matrix, **kwargs)
+        else:
+            op_big_matrix = derived_observable(lambda x, **kwargs: op(x), big_matrix)
+        dim = op_big_matrix.shape[0]
+        op_A = op_big_matrix[0: dim // 2, 0: dim // 2]
+        op_B = op_big_matrix[dim // 2:, 0: dim // 2]
+        return (1 + 0j) * op_A + 1j * op_B
+    else:
+        if kwargs.get('num_grad') is True:
+            return _num_diff_mat_mat_op(op, obs, **kwargs)
+        return derived_observable(lambda x, **kwargs: op(x), obs)
 
 
 def eigh(obs, **kwargs):

@@ -148,7 +148,7 @@ class Corr:
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
-        if not all([o.zero_within_error() for o in self.content[0]]):
+        if not all([o.is_zero_within_error() for o in self.content[0]]):
             warnings.warn("Correlator does not seem to be anti-symmetric around x0=0.", RuntimeWarning)
 
         newcontent = [self.content[0]]

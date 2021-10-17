@@ -177,7 +177,7 @@ def test_utils():
     my_obs.print(0)
     my_obs.print(1)
     my_obs.print(2)
-    assert not my_obs.zero_within_error()
+    assert not my_obs.is_zero_within_error()
     my_obs.plot_tauint()
     my_obs.plot_rho()
     my_obs.plot_rep_dist()

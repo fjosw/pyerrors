@@ -6,7 +6,7 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 * **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)
 * coherent **error propagation** for data from **different Markov chains**
 * **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289]
-* **matrix valued operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
+* **real and complex matrix operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
 
 There exist similar implementations of gamma method error analysis suites in
 - [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)

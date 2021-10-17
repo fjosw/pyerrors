@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2021-??-??
+## Added
+- `CObs` class added which can handle complex valued observables
+- Matrix to matrix operations like the matrix inverse now also work for complex matrices and matrices containing entries that are not `Obs` but `float` or `int`
+- `Obs` objects now have methods `is_zero` and `is_zero_within_error`
+
 ## [1.1.0] - 2021-10-11
 ### Added
 - `Corr` class added

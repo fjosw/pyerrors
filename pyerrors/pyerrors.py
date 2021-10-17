@@ -517,9 +517,10 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self * o for o in y])
+            elif isinstance(y, complex):
+                return CObs(self * y.real, self * y.imag)
             elif y.__class__.__name__ == 'Corr':
                 return NotImplemented
-
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
@@ -728,6 +729,17 @@ def derived_observable(func, data, **kwargs):
 
     data = np.asarray(data)
     raveled_data = data.ravel()
+
+    # Workaround for matrix operations containing non Obs data
+    for i_data in raveled_data:
+        if isinstance(i_data, Obs):
+            first_name = i_data.names[0]
+            first_shape = i_data.shape[first_name]
+            break
+
+    for i in range(len(raveled_data)):
+        if isinstance(raveled_data[i], (int, float)):
+            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name])
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))

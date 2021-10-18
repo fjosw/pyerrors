@@ -751,7 +751,6 @@ def derived_observable(func, data, **kwargs):
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
-    replicas = len(new_names)
 
     new_shape = {}
     for i_data in raveled_data:

@@ -655,6 +655,9 @@ class CObs:
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
+    def conjugate(self):
+        return CObs(self.real, -self.imag)
+
     def __add__(self, other):
         if hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs(self.real + other.real,
@@ -701,7 +704,7 @@ class CObs:
         return self.real == other.real and self.imag == other.imag
 
     def __str__(self):
-        return '(' + str(self.real) + int(self.imag > - np.finfo(np.float64).eps) * '+' + str(self.imag) + 'j)'
+        return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
 
     def __repr__(self):
         return 'CObs[' + str(self) + ']'

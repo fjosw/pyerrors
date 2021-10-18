@@ -199,6 +199,10 @@ def test_cobs():
     obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
 
     my_cobs = pe.CObs(obs1, obs2)
+    assert not (my_cobs + my_cobs.conjugate()).real.is_zero()
+    assert (my_cobs + my_cobs.conjugate()).imag.is_zero()
+    assert (my_cobs - my_cobs.conjugate()).real.is_zero()
+    assert not (my_cobs - my_cobs.conjugate()).imag.is_zero()
     np.abs(my_cobs)
     fs = [[lambda x: x[0] + x[1], lambda x: x[1] + x[0]],
           [lambda x: x[0] * x[1], lambda x: x[1] * x[0]]]

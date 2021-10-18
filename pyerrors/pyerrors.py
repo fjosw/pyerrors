@@ -726,9 +726,6 @@ def derived_observable(func, data, **kwargs):
     man_grad -- manually supply a list or an array which contains the jacobian
                 of func. Use cautiously, supplying the wrong derivative will
                 not be intercepted.
-    bias_correction -- if True, the bias correction specified in
-                       hep-lat/0306017 eq. (19) is performed, not recommended.
-                       (Only applicable for more than 1 replicum)
 
     Notes
     -----
@@ -831,12 +828,7 @@ def derived_observable(func, data, **kwargs):
             new_samples.append(new_deltas[name] + new_r_values[name][i_val])
 
         final_result[i_val] = Obs(new_samples, new_names)
-
-        # Bias correction
-        if replicas > 1 and kwargs.get('bias_correction'):
-            final_result[i_val].value = (replicas * new_val - final_result[i_val].value) / (replicas - 1)
-        else:
-            final_result[i_val].value = new_val
+        final_result[i_val].value = new_val
 
     if multi == 0:
         final_result = final_result.item()

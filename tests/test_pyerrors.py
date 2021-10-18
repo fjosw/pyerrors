@@ -204,6 +204,10 @@ def test_cobs():
     assert (my_cobs - my_cobs.conjugate()).real.is_zero()
     assert not (my_cobs - my_cobs.conjugate()).imag.is_zero()
     np.abs(my_cobs)
+
+    assert (my_cobs * my_cobs / my_cobs - my_cobs).is_zero()
+    assert (my_cobs + my_cobs - 2 * my_cobs).is_zero()
+
     fs = [[lambda x: x[0] + x[1], lambda x: x[1] + x[0]],
           [lambda x: x[0] * x[1], lambda x: x[1] * x[0]]]
     for other in [1, 1.1, (1.1-0.2j), pe.CObs(obs1), pe.CObs(obs1, obs2)]:

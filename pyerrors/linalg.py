@@ -95,7 +95,7 @@ def mat_mat_op(op, obs, **kwargs):
             else:
                 A[n, m] = entry
                 B[n, m] = 0.0
-        big_matrix = np.bmat([[A, -B], [B, A]])
+        big_matrix = np.block([[A, -B], [B, A]])
         if kwargs.get('num_grad') is True:
             op_big_matrix = _num_diff_mat_mat_op(op, big_matrix, **kwargs)
         else:

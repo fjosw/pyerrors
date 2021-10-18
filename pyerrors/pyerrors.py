@@ -758,8 +758,10 @@ def derived_observable(func, data, **kwargs):
                 else:
                     if new_shape[name] != tmp:
                         raise Exception('Shapes of ensemble', name, 'do not match.')
-
-    values = np.vectorize(lambda x: x.value)(data)
+    if data.ndim == 1:
+        values = np.array([o.value for o in data])
+    else:
+        values = np.vectorize(lambda x: x.value)(data)
 
     new_values = func(values, **kwargs)
 

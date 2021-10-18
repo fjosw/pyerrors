@@ -28,8 +28,12 @@ def test_comparison():
     assert (value1 < value2) == (test_obs1 < test_obs2)
     assert (value1 >= value2) == (test_obs1 >= test_obs2)
     assert (value1 <= value2) == (test_obs1 <= test_obs2)
+    assert test_obs1 >= test_obs1
+    assert test_obs2 <= test_obs2
     assert test_obs1 == test_obs1
+    assert test_obs2 == test_obs2
     assert test_obs1 != test_obs2
+    assert test_obs2 != test_obs1
 
 
 def test_function_overloading():

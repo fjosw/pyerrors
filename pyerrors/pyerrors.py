@@ -37,7 +37,8 @@ class Obs:
     __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
                  'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint']
+                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+                 'tag']
 
     e_tag_global = 0
     S_global = 2.0
@@ -93,6 +94,8 @@ class Obs:
         self.e_drho = {}
         self.e_n_tauint = {}
         self.e_n_dtauint = {}
+
+        self.tag = None
 
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.

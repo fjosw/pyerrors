@@ -485,8 +485,20 @@ class Obs:
     def __lt__(self, other):
         return self.value < other
 
+    def __le__(self, other):
+        return self.value <= other
+
     def __gt__(self, other):
         return self.value > other
+
+    def __ge__(self, other):
+        return self.value >= other
+
+    def __eq__(self, other):
+        return (self - other).is_zero()
+
+    def __ne__(self, other):
+        return not (self - other).is_zero()
 
     # Overload math operations
     def __add__(self, y):

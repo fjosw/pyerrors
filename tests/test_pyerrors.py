@@ -26,6 +26,10 @@ def test_comparison():
     test_obs2 = pe.pseudo_Obs(value2, 0.1, 't')
     assert (value1 > value2) == (test_obs1 > test_obs2)
     assert (value1 < value2) == (test_obs1 < test_obs2)
+    assert (value1 >= value2) == (test_obs1 >= test_obs2)
+    assert (value1 <= value2) == (test_obs1 <= test_obs2)
+    assert test_obs1 == test_obs1
+    assert test_obs1 != test_obs2
 
 
 def test_function_overloading():

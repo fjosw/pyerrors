@@ -641,9 +641,11 @@ class Obs:
 
 
 class CObs:
+    __slots__ = ['real', 'imag', 'tag']
     def __init__(self, real, imag=0.0):
         self.real = real
         self.imag = imag
+        self.tag = None
 
     def gamma_method(self, **kwargs):
         if isinstance(self.real, Obs):

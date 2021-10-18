@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - `Obs` objects now have methods `is_zero` and `is_zero_within_error`
 
 ### Changed
+- Additional attributes can no longer be added to existing Obs. This makes it no longer possible to import Obs created with previous versions of pyerrors
 - The default value for Corr.prange is now `None`
 - The `input` module was restructured to contain one submodule per data source
 

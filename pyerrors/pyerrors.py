@@ -8,7 +8,6 @@ import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
 import numdifftools as nd
-import scipy.special
 
 
 class Obs:

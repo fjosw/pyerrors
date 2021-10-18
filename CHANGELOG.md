@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### Deprecated
 - The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`
+- Obs no longer have an attribute e_Q
 
 ## [1.1.0] - 2021-10-11
 ### Added

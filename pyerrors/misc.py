@@ -56,6 +56,7 @@ def ks_test(obs=None):
     else:
         obs_list = obs
 
+    # TODO: Rework to apply to Q-values of all fits in memory
     Qs = []
     for obs_i in obs_list:
         for ens in obs_i.e_names:

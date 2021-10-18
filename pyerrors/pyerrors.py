@@ -86,7 +86,6 @@ class Obs:
         self.e_tauint = {}
         self.e_dtauint = {}
         self.e_windowsize = {}
-        self.e_Q = {}
         self.e_rho = {}
         self.e_drho = {}
         self.e_n_tauint = {}
@@ -298,19 +297,6 @@ class Obs:
                         self.e_windowsize[e_name] = n
                         break
 
-            if len(self.e_content[e_name]) > 1 and self.e_dvalue[e_name] > np.finfo(np.float64).eps:
-                e_mean = 0
-                for r_name in self.e_content[e_name]:
-                    e_mean += self.shape[r_name] * self.r_values[r_name]
-                e_mean /= e_N
-                xi2 = 0
-                for r_name in self.e_content[e_name]:
-                    xi2 += self.shape[r_name] * (self.r_values[r_name] - e_mean) ** 2
-                xi2 /= self.e_dvalue[e_name] ** 2 * e_N
-                self.e_Q[e_name] = 1 - scipy.special.gammainc((len(self.e_content[e_name]) - 1.0) / 2.0, xi2 / 2.0)
-            else:
-                self.e_Q[e_name] = None
-
             self.dvalue += self.e_dvalue[e_name] ** 2
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
@@ -421,7 +407,7 @@ class Obs:
             for r, r_name in enumerate(self.e_content[e_name]):
                 arr[r] = (self.r_values[r_name] - sub_r_mean) / (self.e_dvalue[e_name] * np.sqrt(e_N / self.shape[r_name] - 1))
             plt.hist(arr, rwidth=0.8, bins=len(self.e_content[e_name]))
-            plt.title('Replica distribution' + e_name + ' (mean=0, var=1), Q=' + str(np.around(self.e_Q[e_name], decimals=2)))
+            plt.title('Replica distribution' + e_name + ' (mean=0, var=1)')
             plt.draw()
 
     def plot_history(self):

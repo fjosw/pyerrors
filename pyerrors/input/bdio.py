@@ -3,7 +3,7 @@
 
 import ctypes
 import hashlib
-import autograd.numpy as np  # Thinly-wrapped numpy
+import jax.numpy as np  # Thinly-wrapped numpy
 from ..pyerrors import Obs
 
 

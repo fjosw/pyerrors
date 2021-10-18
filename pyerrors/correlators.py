@@ -1,6 +1,6 @@
 import warnings
 import numpy as np
-import autograd.numpy as anp
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import scipy.linalg
 from .pyerrors import Obs, dump_object
@@ -187,10 +187,10 @@ class Corr:
     def Eigenvalue(self, t0, state=1):
         G = self.smearing_symmetric()
         G0 = G.content[t0]
-        L = mat_mat_op(anp.linalg.cholesky, G0)
-        Li = mat_mat_op(anp.linalg.inv, L)
+        L = mat_mat_op(jnp.linalg.cholesky, G0)
+        Li = mat_mat_op(jnp.linalg.inv, L)
         LT = L.T
-        LTi = mat_mat_op(anp.linalg.inv, LT)
+        LTi = mat_mat_op(jnp.linalg.inv, LT)
         newcontent = []
         for t in range(self.T):
             Gt = G.content[t]
@@ -263,9 +263,9 @@ class Corr:
 
         elif variant in ['periodic', 'cosh', 'sinh']:
             if variant in ['periodic', 'cosh']:
-                func = anp.cosh
+                func = jnp.cosh
             else:
-                func = anp.sinh
+                func = jnp.sinh
 
             def root_function(x, d):
                 return func(x * (t - self.T / 2)) / func(x * (t + 1 - self.T / 2)) - d

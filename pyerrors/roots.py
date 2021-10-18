@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import scipy.optimize
-from autograd import jacobian
+from jax import jacobian
 from .pyerrors import derived_observable, pseudo_Obs
 
 

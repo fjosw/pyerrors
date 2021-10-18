@@ -3,15 +3,15 @@
 
 import warnings
 import numpy as np
-import autograd.numpy as anp
+import jax.numpy as jnp
 import scipy.optimize
 import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
 import iminuit
-from autograd import jacobian
-from autograd import elementwise_grad as egrad
+from jax import jacobian
+#from jax import elementwise_grad as egrad
 from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
 
 
@@ -24,7 +24,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
     func has to be of the form
 
     def func(a, x):
-        return a[0] + a[1] * x + a[2] * anp.sinh(x)
+        return a[0] + a[1] * x + a[2] * jnp.sinh(x)
 
     For multiple x values func can be of the form
 
@@ -82,10 +82,10 @@ def standard_fit(x, y, func, silent=False, **kwargs):
     if not silent:
         print('Fit with', n_parms, 'parameters')
 
-    y_f = [o.value for o in y]
-    dy_f = [o.dvalue for o in y]
+    y_f = np.array([o.value for o in y])
+    dy_f = np.array([o.dvalue for o in y])
 
-    if np.any(np.asarray(dy_f) <= 0.0):
+    if np.any(dy_f <= 0.0):
         raise Exception('No y errors available, run the gamma method first.')
 
     if 'initial_guess' in kwargs:
@@ -97,7 +97,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
 
     def chisqfunc(p):
         model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+        chisq = jnp.sum(((y_f - model) / dy_f) ** 2)
         return chisq
 
     if 'method' in kwargs:
@@ -153,7 +153,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
 
     def chisqfunc_compact(d):
         model = func(d[:n_parms], x)
-        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
+        chisq = jnp.sum(((d[n_parms:] - model) / dy_f) ** 2)
         return chisq
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fit_result.x, y_f)))
@@ -188,7 +188,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
     func has to be of the form
 
     def func(a, x):
-        y = a[0] + a[1] * x + a[2] * anp.sinh(x)
+        y = a[0] + a[1] * x + a[2] * jnp.sinh(x)
         return y
 
     For multiple x values func can be of the form
@@ -279,7 +279,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     def odr_chisquare(p):
         model = func(p[:n_parms], p[n_parms:].reshape(x_shape))
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((x_f - p[n_parms:].reshape(x_shape)) / dx_f) ** 2)
+        chisq = jnp.sum(((y_f - model) / dy_f) ** 2) + jnp.sum(((x_f - p[n_parms:].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
     if kwargs.get('expected_chisquare') is True:
@@ -312,7 +312,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
+        chisq = jnp.sum(((y_f - model) / dy_f) ** 2) + jnp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
     jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((output.beta, output.xplus.ravel(), x_f.ravel())))
@@ -321,7 +321,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     def odr_chisquare_compact_y(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
-        chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
+        chisq = jnp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + jnp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
     jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((output.beta, output.xplus.ravel(), y_f)))
@@ -349,7 +349,7 @@ def prior_fit(x, y, func, priors, silent=False, **kwargs):
     func has to be of the form
 
     def func(a, x):
-        y = a[0] + a[1] * x + a[2] * anp.sinh(x)
+        y = a[0] + a[1] * x + a[2] * jnp.sinh(x)
         return y
 
     It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
@@ -441,7 +441,7 @@ def prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     def chisqfunc(p):
         model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((p_f - p) / dp_f) ** 2)
+        chisq = jnp.sum(((y_f - model) / dy_f) ** 2) + jnp.sum(((p_f - p) / dp_f) ** 2)
         return chisq
 
     if not silent:
@@ -469,7 +469,7 @@ def prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     def chisqfunc_compact(d):
         model = func(d[:n_parms], x)
-        chisq = anp.sum(((d[n_parms: n_parms + len(x)] - model) / dy_f) ** 2) + anp.sum(((d[n_parms + len(x):] - d[:n_parms]) / dp_f) ** 2)
+        chisq = jnp.sum(((d[n_parms: n_parms + len(x)] - model) / dy_f) ** 2) + jnp.sum(((d[n_parms + len(x):] - d[:n_parms]) / dp_f) ** 2)
         return chisq
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((params, y_f, p_f)))

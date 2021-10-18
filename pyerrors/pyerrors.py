@@ -4,10 +4,12 @@
 import warnings
 import pickle
 import numpy as np
-import autograd.numpy as anp  # Thinly-wrapped numpy
-from autograd import jacobian
+import jax.numpy as jnp  # Thinly-wrapped numpy
+from jax import jacobian
 import matplotlib.pyplot as plt
 import numdifftools as nd
+from jax.config import config
+config.update("jax_enable_x64", True)
 
 
 class Obs:
@@ -573,7 +575,7 @@ class Obs:
             return derived_observable(lambda x: y ** x[0], [self])
 
     def __abs__(self):
-        return derived_observable(lambda x: anp.abs(x[0]), [self])
+        return derived_observable(lambda x: jnp.abs(x[0]), [self])
 
     # Overload numpy functions
     def sqrt(self):
@@ -595,13 +597,13 @@ class Obs:
         return derived_observable(lambda x, **kwargs: np.tan(x[0]), [self], man_grad=[1 / np.cos(self.value) ** 2])
 
     def arcsin(self):
-        return derived_observable(lambda x: anp.arcsin(x[0]), [self])
+        return derived_observable(lambda x: jnp.arcsin(x[0]), [self])
 
     def arccos(self):
-        return derived_observable(lambda x: anp.arccos(x[0]), [self])
+        return derived_observable(lambda x: jnp.arccos(x[0]), [self])
 
     def arctan(self):
-        return derived_observable(lambda x: anp.arctan(x[0]), [self])
+        return derived_observable(lambda x: jnp.arctan(x[0]), [self])
 
     def sinh(self):
         return derived_observable(lambda x, **kwargs: np.sinh(x[0]), [self], man_grad=[np.cosh(self.value)])
@@ -613,16 +615,16 @@ class Obs:
         return derived_observable(lambda x, **kwargs: np.tanh(x[0]), [self], man_grad=[1 / np.cosh(self.value) ** 2])
 
     def arcsinh(self):
-        return derived_observable(lambda x: anp.arcsinh(x[0]), [self])
+        return derived_observable(lambda x: jnp.arcsinh(x[0]), [self])
 
     def arccosh(self):
-        return derived_observable(lambda x: anp.arccosh(x[0]), [self])
+        return derived_observable(lambda x: jnp.arccosh(x[0]), [self])
 
     def arctanh(self):
-        return derived_observable(lambda x: anp.arctanh(x[0]), [self])
+        return derived_observable(lambda x: jnp.arctanh(x[0]), [self])
 
     def sinc(self):
-        return derived_observable(lambda x: anp.sinc(x[0]), [self])
+        return derived_observable(lambda x: jnp.sinc(x[0]), [self])
 
 
 class CObs:
@@ -695,7 +697,7 @@ def derived_observable(func, data, **kwargs):
     ----------
     func -- arbitrary function of the form func(data, **kwargs). For the
             automatic differentiation to work, all numpy functions have to have
-            the autograd wrapper (use 'import autograd.numpy as anp').
+            the autograd wrapper (use 'import autograd.numpy as jnp').
     data -- list of Obs, e.g. [obs1, obs2, obs3].
 
     Keyword arguments
@@ -748,9 +750,9 @@ def derived_observable(func, data, **kwargs):
                     if new_shape[name] != tmp:
                         raise Exception('Shapes of ensemble', name, 'do not match.')
     if data.ndim == 1:
-        values = np.array([o.value for o in data])
+        values = jnp.array([o.value for o in data])
     else:
-        values = np.vectorize(lambda x: x.value)(data)
+        values = jnp.array(np.vectorize(lambda x: x.value)(data))
 
     new_values = func(values, **kwargs)
 

@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 from ..pyerrors import Obs, CObs
 from ..correlators import Corr
-from ..npr import Propagator
+from ..npr import Npr_matrix
 
 
 def _get_files(path, filestem):
@@ -103,4 +103,4 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
         matrix[si, sj, ci, cj] = CObs(real, imag)
         matrix[si, sj, ci, cj].gamma_method()
 
-    return Propagator(matrix.reshape((12,12), order=order), mom)
+    return Npr_matrix(matrix.reshape((12,12), order=order), mom_in=mom)

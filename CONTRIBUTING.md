@@ -24,8 +24,8 @@ For all pull requests to the `develop` branch tests are executed for the most re
 ```
 pytest -v
 ```
-and `flake8` is executed with the command
+and the linter `flake8` is executed with the command
 ```
 flake8 --ignore=E501,E722 --exclude=__init__.py pyerrors
 ```
-Please make sure that all tests are passed for a new pull request.
+Please make sure that all tests are passed for a new pull requests.

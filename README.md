@@ -22,21 +22,21 @@ pip install git+https://github.com/fjosw/pyerrors.git
 ## Usage
 The basic objects of a pyerrors analysis are instances of the class `Obs`. They can be initialized with an array of Monte Carlo data (e.g. `samples1`) and a name for the given ensemble (e.g. `'ensemble1'`). The `gamma_method` can then be used to compute the statistical error, taking into account autocorrelations. The `print` method  outputs a human readable result.
 ```python
-import numpy as np
 import pyerrors as pe
 
 obs1 = pe.Obs([samples1], ['ensemble1'])
 obs1.gamma_method()
 obs1.print()
 ```
-Often one is interested in secondary observables which can be arbitrary functions of primary observables. `pyerrors` overloads most basic math operations and numpy functions such that the user can work with `Obs` objects as if they were floats
+Often one is interested in secondary observables which can be arbitrary functions of primary observables. `pyerrors` overloads most basic math operations and `numpy` functions such that the user can work with `Obs` objects as if they were floats
 ```python
+import numpy as np
 obs3 = 12.0 / obs1 ** 2 - np.exp(-1.0 / obs2)
 obs3.gamma_method()
 obs3.print()
 ```
 
-More detailed examples can be found in  the `/examples` folder:
+More detailed examples can be found in  the `examples` folder:
 
 * [01_basic_example](examples/01_basic_example.ipynb)
 * [02_correlators](examples/02_correlators.ipynb)

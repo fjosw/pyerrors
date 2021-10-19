@@ -265,7 +265,7 @@ class Obs:
             self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
             self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
             # Make sure no entry of tauint is smaller than 0.5
-            self.e_n_tauint[e_name][self.e_n_tauint[e_name] < 0.5] = 0.500000000001
+            self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
             # hep-lat/0306017 eq. (42)
             self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
             self.e_n_dtauint[e_name][0] = 0.0

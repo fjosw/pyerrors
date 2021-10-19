@@ -32,6 +32,10 @@ def test_comparison():
     assert test_obs2 <= test_obs2
     assert test_obs1 == test_obs1
     assert test_obs2 == test_obs2
+    assert test_obs1 - test_obs1 == 0.0
+    assert test_obs1 / test_obs1 == 1.0
+    assert test_obs1 != value1
+    assert test_obs2 != value2
     assert test_obs1 != test_obs2
     assert test_obs2 != test_obs1
 

@@ -4,20 +4,11 @@
 import os
 import h5py
 import numpy as np
-from ..pyerrors import Obs
+from ..pyerrors import Obs, CObs
 from ..correlators import Corr
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
-    """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
-
-    Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
-    meson -- label of the meson to be extracted, standard value meson_0 which corresponds to the pseudoscalar pseudoscalar two-point function.
-    """
+def _get_files(path, filestem):
     ls = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         ls.extend(filenames)
@@ -46,6 +37,22 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     if not all(np.diff(cnfg_numbers) == np.diff(cnfg_numbers)[0]):
         raise Exception('Configurations are not evenly spaced.')
 
+    return files
+
+
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
+    """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
+
+    Parameters
+    -----------------
+    path -- path to the files to read
+    filestem -- namestem of the files to read
+    ens_id -- name of the ensemble, required for internal bookkeeping
+    meson -- label of the meson to be extracted, standard value meson_0 which corresponds to the pseudoscalar pseudoscalar two-point function.
+    """
+
+    files = _get_files(path, filestem)
+
     corr_data = []
     for hd5_file in files:
         file = h5py.File(path + '/' + hd5_file, "r")
@@ -60,3 +67,34 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
         l_obs.append(Obs([c], [ens_id]))
 
     return Corr(l_obs)
+
+
+def read_ExternalLeg_hd5(path, filestem, ens_id):
+    """Read hadrons ExternalLeg hdf5 file and output an array of CObs
+
+    Parameters
+    -----------------
+    path -- path to the files to read
+    filestem -- namestem of the files to read
+    ens_id -- name of the ensemble, required for internal bookkeeping
+    """
+
+    files = _get_files(path, filestem)
+
+    corr_data = []
+    for hd5_file in files:
+        file = h5py.File(path + '/' + hd5_file, "r")
+        raw_data = file['ExternalLeg/corr'][0][0].view('complex')
+        corr_data.append(raw_data)
+    corr_data = np.array(corr_data)
+
+    rolled_array = np.rollaxis(corr_data, 0, 5)
+
+    matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
+    for si, sj, ci, cj in np.ndindex(rolled_array.shape[:-1]):
+        real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id])
+        imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id])
+        matrix[si, sj, ci, cj] = CObs(real, imag)
+        matrix[si, sj, ci, cj].gamma_method()
+
+    return matrix

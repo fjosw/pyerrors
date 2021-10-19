@@ -78,6 +78,19 @@ def test_overloading_vectorization():
     assert [o.value for o in b / a] == [o.value for o in [b / p for p in a]]
 
 
+def test_gamma_method():
+    for data in [np.tile([1, -1], 1000),
+                 np.random.rand(100001),
+                 np.zeros(1195),
+                 np.sin(np.sqrt(2) * np.pi * np.arange(1812))]:
+        test_obs = pe.Obs([data], ['t'])
+        test_obs.gamma_method()
+        assert test_obs.dvalue - test_obs.ddvalue <= np.std(data, ddof=1) / np.sqrt(len(data))
+        assert test_obs.e_tauint['t'] - 0.5 <= test_obs.e_dtauint['t']
+        test_obs.gamma_method(tau_exp=10)
+        assert test_obs.e_tauint['t'] - 10.5 <= test_obs.e_dtauint['t']
+
+
 def test_covariance_is_variance():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

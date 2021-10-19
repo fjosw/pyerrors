@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import warnings
 import pickle
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
 import numdifftools as nd
-import scipy.special
 
 
 class Obs:
@@ -34,6 +34,11 @@ class Obs:
                     ensemble.
     N_sigma_global -- Standard value for N_sigma (default 1.0)
     """
+    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
+                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
+                 'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+                 'tag']
 
     e_tag_global = 0
     S_global = 2.0
@@ -85,11 +90,12 @@ class Obs:
         self.e_tauint = {}
         self.e_dtauint = {}
         self.e_windowsize = {}
-        self.e_Q = {}
         self.e_rho = {}
         self.e_drho = {}
         self.e_n_tauint = {}
         self.e_n_dtauint = {}
+
+        self.tag = None
 
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.
@@ -297,19 +303,6 @@ class Obs:
                         self.e_windowsize[e_name] = n
                         break
 
-            if len(self.e_content[e_name]) > 1 and self.e_dvalue[e_name] > np.finfo(np.float).eps:
-                e_mean = 0
-                for r_name in self.e_content[e_name]:
-                    e_mean += self.shape[r_name] * self.r_values[r_name]
-                e_mean /= e_N
-                xi2 = 0
-                for r_name in self.e_content[e_name]:
-                    xi2 += self.shape[r_name] * (self.r_values[r_name] - e_mean) ** 2
-                xi2 /= self.e_dvalue[e_name] ** 2 * e_N
-                self.e_Q[e_name] = 1 - scipy.special.gammainc((len(self.e_content[e_name]) - 1.0) / 2.0, xi2 / 2.0)
-            else:
-                self.e_Q[e_name] = None
-
             self.dvalue += self.e_dvalue[e_name] ** 2
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
@@ -339,6 +332,12 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
                 for e_name in self.e_names:
                     print(e_name, ':', self.e_content[e_name])
+
+    def is_zero_within_error(self):
+        return np.abs(self.value) <= self.dvalue
+
+    def is_zero(self):
+        return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
@@ -414,8 +413,8 @@ class Obs:
             for r, r_name in enumerate(self.e_content[e_name]):
                 arr[r] = (self.r_values[r_name] - sub_r_mean) / (self.e_dvalue[e_name] * np.sqrt(e_N / self.shape[r_name] - 1))
             plt.hist(arr, rwidth=0.8, bins=len(self.e_content[e_name]))
-            plt.title('Replica distribution' + e_name + ' (mean=0, var=1), Q=' + str(np.around(self.e_Q[e_name], decimals=2)))
-            plt.show()
+            plt.title('Replica distribution' + e_name + ' (mean=0, var=1)')
+            plt.draw()
 
     def plot_history(self):
         """Plot derived Monte Carlo history for each ensemble."""
@@ -436,7 +435,7 @@ class Obs:
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
             plt.title(e_name)
-            plt.show()
+            plt.draw()
 
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
@@ -450,7 +449,7 @@ class Obs:
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
-        plt.show()
+        plt.draw()
 
         return dict(zip(self.e_names, sizes))
 
@@ -468,23 +467,41 @@ class Obs:
         with open(file_name, 'wb') as fb:
             pickle.dump(self, fb)
 
+    def __float__(self):
+        return float(self.value)
+
     def __repr__(self):
+        return 'Obs[' + str(self) + ']'
+
+    def __str__(self):
         if self.dvalue == 0.0:
-            return 'Obs[' + str(self.value) + ']'
+            return str(self.value)
         fexp = np.floor(np.log10(self.dvalue))
         if fexp < 0.0:
-            return 'Obs[{:{form}}({:2.0f})]'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+            return '{:{form}}({:2.0f})'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
         elif fexp == 0.0:
-            return 'Obs[{:.1f}({:1.1f})]'.format(self.value, self.dvalue)
+            return '{:.1f}({:1.1f})'.format(self.value, self.dvalue)
         else:
-            return 'Obs[{:.0f}({:2.0f})]'.format(self.value, self.dvalue)
+            return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
 
     # Overload comparisons
     def __lt__(self, other):
         return self.value < other
 
+    def __le__(self, other):
+        return self.value <= other
+
     def __gt__(self, other):
         return self.value > other
+
+    def __ge__(self, other):
+        return self.value >= other
+
+    def __eq__(self, other):
+        return (self - other).is_zero()
+
+    def __ne__(self, other):
+        return not (self - other).is_zero()
 
     # Overload math operations
     def __add__(self, y):
@@ -507,9 +524,10 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self * o for o in y])
+            elif isinstance(y, complex):
+                return CObs(self * y.real, self * y.imag)
             elif y.__class__.__name__ == 'Corr':
                 return NotImplemented
-
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
@@ -622,6 +640,86 @@ class Obs:
         return derived_observable(lambda x: anp.sinc(x[0]), [self])
 
 
+class CObs:
+    """Class for a complex valued observable."""
+    __slots__ = ['real', 'imag', 'tag']
+
+    def __init__(self, real, imag=0.0):
+        self.real = real
+        self.imag = imag
+        self.tag = None
+
+    def gamma_method(self, **kwargs):
+        if isinstance(self.real, Obs):
+            self.real.gamma_method(**kwargs)
+        if isinstance(self.imag, Obs):
+            self.imag.gamma_method(**kwargs)
+
+    def is_zero(self):
+        return self.real == 0.0 and self.imag == 0.0
+
+    def conjugate(self):
+        return CObs(self.real, -self.imag)
+
+    def __add__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real + other.real,
+                        self.imag + other.imag)
+        else:
+            return CObs(self.real + other, self.imag)
+
+    def __radd__(self, y):
+        return self + y
+
+    def __sub__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real - other.real, self.imag - other.imag)
+        else:
+            return CObs(self.real - other, self.imag)
+
+    def __rsub__(self, other):
+        return -1 * (self - other)
+
+    def __mul__(self, other):
+        if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
+            return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
+                                           [self.real, other.real, self.imag, other.imag],
+                                           man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
+                        derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
+                                           [self.real, other.real, self.imag, other.imag],
+                                           man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs(self.real * other.real - self.imag * other.imag,
+                        self.imag * other.real + self.real * other.imag)
+        else:
+            return CObs(self.real * other, self.imag * other)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            r = other.real ** 2 + other.imag ** 2
+            return CObs((self.real * other.real + self.imag * other.imag) / r, (self.imag * other.real - self.real * other.imag) / r)
+        else:
+            return CObs(self.real / other, self.imag / other)
+
+    def __abs__(self):
+        return np.sqrt(self.real**2 + self.imag**2)
+
+    def __neg__(other):
+        return -1 * other
+
+    def __eq__(self, other):
+        return self.real == other.real and self.imag == other.imag
+
+    def __str__(self):
+        return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
+
+    def __repr__(self):
+        return 'CObs[' + str(self) + ']'
+
+
 def derived_observable(func, data, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
@@ -641,9 +739,6 @@ def derived_observable(func, data, **kwargs):
     man_grad -- manually supply a list or an array which contains the jacobian
                 of func. Use cautiously, supplying the wrong derivative will
                 not be intercepted.
-    bias_correction -- if True, the bias correction specified in
-                       hep-lat/0306017 eq. (19) is performed, not recommended.
-                       (Only applicable for more than 1 replicum)
 
     Notes
     -----
@@ -656,9 +751,19 @@ def derived_observable(func, data, **kwargs):
     data = np.asarray(data)
     raveled_data = data.ravel()
 
+    # Workaround for matrix operations containing non Obs data
+    for i_data in raveled_data:
+        if isinstance(i_data, Obs):
+            first_name = i_data.names[0]
+            first_shape = i_data.shape[first_name]
+            break
+
+    for i in range(len(raveled_data)):
+        if isinstance(raveled_data[i], (int, float)):
+            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name])
+
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
-    replicas = len(new_names)
 
     new_shape = {}
     for i_data in raveled_data:
@@ -670,8 +775,10 @@ def derived_observable(func, data, **kwargs):
                 else:
                     if new_shape[name] != tmp:
                         raise Exception('Shapes of ensemble', name, 'do not match.')
-
-    values = np.vectorize(lambda x: x.value)(data)
+    if data.ndim == 1:
+        values = np.array([o.value for o in data])
+    else:
+        values = np.vectorize(lambda x: x.value)(data)
 
     new_values = func(values, **kwargs)
 
@@ -733,12 +840,7 @@ def derived_observable(func, data, **kwargs):
             new_samples.append(new_deltas[name] + new_r_values[name][i_val])
 
         final_result[i_val] = Obs(new_samples, new_names)
-
-        # Bias correction
-        if replicas > 1 and kwargs.get('bias_correction'):
-            final_result[i_val].value = (replicas * new_val - final_result[i_val].value) / (replicas - 1)
-        else:
-            final_result[i_val].value = new_val
+        final_result[i_val].value = new_val
 
     if multi == 0:
         final_result = final_result.item()
@@ -781,9 +883,9 @@ def correlate(obs_a, obs_b):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if obs_a.reweighted == 1:
-        print('Warning: The first observable is already reweighted.')
+        warnings.warn("The first observable is already reweighted.", RuntimeWarning)
     if obs_b.reweighted == 1:
-        print('Warning: The second observable is already reweighted.')
+        warnings.warn("The second observable is already reweighted.", RuntimeWarning)
 
     new_samples = []
     for name in sorted(obs_a.names):
@@ -1063,122 +1165,6 @@ def load_object(path):
     """Load object from pickle file. """
     with open(path, 'rb') as file:
         return pickle.load(file)
-
-
-def plot_corrs(observables, **kwargs):
-    """Plot lists of Obs.
-
-    Parameters
-    ----------
-    observables -- list of lists of Obs, where the nth entry is considered to be the
-                   correlation function
-    at x0=n e.g. [[f_A_0,f_A_1],[f_P_0,f_P_1]] or [f_A,f_P], where f_A and f_P are lists of Obs.
-
-    Keyword arguments
-    -----------------
-    xrange -- list of two values, determining the range of the x-axis e.g. [4, 8]
-    yrange -- list of two values, determining the range of the y-axis e.g. [0.2, 1.1]
-    prange -- list of two values, visualizing the width of the plateau e.g. [10, 15]
-    reference -- float valued variable which is shown as horizontal line for reference
-    plateau -- Obs which is shown as horizontal line with errorbar for reference
-    shift -- shift x by given value
-    label -- list of labels, has to have the same length as observables
-    exp -- plot exponential from fitting routine
-    """
-
-    if 'shift' in kwargs:
-        shift = kwargs.get('shift')
-    else:
-        shift = 0
-
-    if 'label' in kwargs:
-        label = kwargs.get('label')
-        if len(label) != len(observables):
-            raise Exception('label has to be a list with exactly one entry per entry of observables.')
-    else:
-        label = []
-        for j in range(len(observables)):
-            label.append(str(j + 1))
-
-    f = plt.figure()
-    for j in range(len(observables)):
-        T = len(observables[j])
-
-        x = np.arange(T) + shift
-        y = np.zeros(T)
-        y_err = np.zeros(T)
-
-        for i in range(T):
-            y[i] = observables[j][i].value
-            y_err[i] = observables[j][i].dvalue
-
-        plt.errorbar(x, y, yerr=y_err, ls='none', fmt='o', capsize=3,
-                     markersize=5, lw=1, label=label[j])
-
-    if kwargs.get('logscale'):
-        plt.yscale('log')
-
-    if 'xrange' in kwargs:
-        xrange = kwargs.get('xrange')
-        plt.xlim(xrange[0], xrange[1])
-        visible_y = y[int(xrange[0] + 0.5):int(xrange[1] + 0.5)]
-        visible_y_err = y_err[int(xrange[0] + 0.5):int(xrange[1] + 0.5)]
-        y_start = np.min(visible_y - visible_y_err)
-        y_stop = np.max(visible_y + visible_y_err)
-        span = y_stop - y_start
-        if np.isfinite(y_start) and np.isfinite(y_stop):
-            plt.ylim(y_start - 0.1 * span, y_stop + 0.1 * span)
-
-    if 'yrange' in kwargs:
-        yrange = kwargs.get('yrange')
-        plt.ylim(yrange[0], yrange[1])
-
-    if 'reference' in kwargs:
-        y_value = kwargs.get('reference')
-        plt.axhline(y=y_value, linewidth=2, color='k', alpha=0.25)
-
-    if 'prange' in kwargs:
-        prange = kwargs.get('prange')
-        plt.axvline(x=prange[0] - 0.5, ls='--', c='k', lw=1, alpha=0.5, marker=',')
-        plt.axvline(x=prange[1] + 0.5, ls='--', c='k', lw=1, alpha=0.5, marker=',')
-
-    if 'plateau' in kwargs:
-        plateau = kwargs.get('plateau')
-        if isinstance(plateau, Obs):
-            plt.axhline(y=plateau.value, linewidth=2, color='k', alpha=0.6, label='Plateau', marker=',', ls='--')
-            plt.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color='k')
-        elif isinstance(plateau, list):
-            for i in range(len(plateau)):
-                plt.axhline(y=plateau[i].value, linewidth=2, color='C' + str(i), alpha=0.6, label='Plateau' + str(i + 1), marker=',', ls='--')
-                plt.axhspan(plateau[i].value - plateau[i].dvalue, plateau[i].value + plateau[i].dvalue,
-                            color='C' + str(i), alpha=0.25)
-        else:
-            raise Exception('Improper input for plateau.')
-
-    if kwargs.get('exp'):
-        fit_result = kwargs.get('exp')
-        y_fit = fit_result[1].value * np.exp(-fit_result[0].value * x)
-        plt.plot(x, y_fit, color='k')
-        if not (fit_result[0].e_names == {} and fit_result[1].e_names == {}):
-            y_fit_err = np.sqrt((y_fit * fit_result[0].dvalue) ** 2 + 2 * covariance(fit_result[0], fit_result[1]) * y_fit * np.exp(-fit_result[0].value * x) + (np.exp(-fit_result[0].value * x) * fit_result[1].dvalue) ** 2)
-            plt.fill_between(x, y_fit + y_fit_err, y_fit - y_fit_err, color='k', alpha=0.1)
-
-    plt.xlabel('$x_0/a$')
-
-    if 'ylabel' in kwargs:
-        plt.ylabel(kwargs.get('ylabel'))
-
-    if 'save' in kwargs:
-        lgd = plt.legend(loc=0)
-    else:
-        lgd = plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left')
-    plt.show()
-
-    if 'save' in kwargs:
-        save = kwargs.get('save')
-        if not isinstance(save, str):
-            raise Exception('save has to be a string.')
-        f.savefig(save + '.pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 
 def merge_obs(list_of_obs):

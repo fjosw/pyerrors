@@ -2,16 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2021-??-??
+### Added
+- `CObs` class added which can handle complex valued Markov chain Monte Carlo data and the corresponding error propagation
+- Matrix to matrix operations like the matrix inverse now also work for complex matrices and matrices containing entries that are not `Obs` but `float` or `int`
+- `Obs` objects now have methods `is_zero` and `is_zero_within_error`
+
+### Changed
+- Additional attributes can no longer be added to existing `Obs`. This makes it no longer possible to import `Obs` created with previous versions of pyerrors
+- The default value for `Corr.prange` is now `None`
+- The `input` module was restructured to contain one submodule per data source
+
+### Deprecated
+- The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`
+- The kwarg `bias_correction` in `derived_observable` was removed
+- Obs no longer have an attribute `e_Q`
+
 ## [1.1.0] - 2021-10-11
 ### Added
 - `Corr` class added
-- roots module added which can find the roots of a function that depends on Monte Carlo data via pyerrors Obs
-- input/hadrons module added which can read hdf5 files written by [Hadrons](https://github.com/aportelli/Hadrons)
-- read_rwms can now read reweighting factors in the format used by openQCD-2.0 
+- `roots` module added which can find the roots of a function that depends on Monte Carlo data via pyerrors `Obs`
+- `input/hadrons` module added which can read hdf5 files written by [Hadrons](https://github.com/aportelli/Hadrons)
+- `read_rwms` can now read reweighting factors in the format used by openQCD-2.0 
 
 ## [1.0.1] - 2020-11-03
 ### Fixed
-- Bug in pyerrors.covariance fixed that appeared when working with several
+- Bug in `pyerrors.covariance` fixed that appeared when working with several
   replica of different length.
 
 ## [1.0.0] - 2020-10-13

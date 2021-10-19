@@ -56,6 +56,7 @@ def ks_test(obs=None):
     else:
         obs_list = obs
 
+    # TODO: Rework to apply to Q-values of all fits in memory
     Qs = []
     for obs_i in obs_list:
         for ens in obs_i.e_names:
@@ -71,7 +72,7 @@ def ks_test(obs=None):
     plt.ylabel('Cumulative probability')
     plt.title(str(bins) + ' Q values')
 
-    n = np.arange(1, bins + 1) / np.float(bins)
+    n = np.arange(1, bins + 1) / np.float64(bins)
     Xs = np.sort(Qs)
     plt.step(Xs, n)
     diffs = n - Xs

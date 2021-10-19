@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import warnings
 import numpy as np
 import autograd.numpy as anp
 import scipy.optimize
@@ -146,7 +147,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
         result_dict['chisquare/expected_chisquare'] = chisquare / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
-                result_dict['chisquare/expected_chisquare'])
+                  result_dict['chisquare/expected_chisquare'])
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fit_result.x))
 
@@ -256,7 +257,7 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     data = RealData(x_f, y_f, sx=dx_f, sy=dy_f)
     model = Model(func)
-    odr = ODR(data, model, x0, partol=np.finfo(np.float).eps)
+    odr = ODR(data, model, x0, partol=np.finfo(np.float64).eps)
     odr.set_job(fit_type=0, deriv=1)
     output = odr.run()
 
@@ -300,12 +301,12 @@ def odr_fit(x, y, func, silent=False, **kwargs):
         P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
-            print('Warning, negative expected_chisquare.')
+            warnings.warn("Negative expected_chisquare.", RuntimeWarning)
             expected_chisquare = np.abs(expected_chisquare)
         result_dict['chisquare/expected_chisquare'] = odr_chisquare(np.concatenate((output.beta, output.xplus.ravel()))) / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
-                result_dict['chisquare/expected_chisquare'])
+                  result_dict['chisquare/expected_chisquare'])
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((output.beta, output.xplus.ravel()))))
 
@@ -378,7 +379,7 @@ def prior_fit(x, y, func, priors, silent=False, **kwargs):
     result_dict['fit_function'] = func
 
     if Obs.e_tag_global < 4:
-        print('WARNING: e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors')
+        warnings.warn("e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors", RuntimeWarning)
 
     x = np.asarray(x)
 
@@ -610,10 +611,8 @@ def covariance_matrix(y):
 def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
     cov = covariance_matrix(beta)
-    if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float).eps):
-        print('Warning, Covariance matrix is not symmetric within floating point precision')
-        print('cov - cov.T:')
-        print(cov - cov.T)
+    if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
+        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 
     deriv = []
     for i, item in enumerate(x):
@@ -630,7 +629,6 @@ def error_band(x, func, beta):
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
-    WARNING: In the current version the fits are performed with numerical derivatives.
     Plausibility of the results should be checked. To control the numerical differentiation
     the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.
 
@@ -651,9 +649,7 @@ def fit_general(x, y, func, silent=False, **kwargs):
                      with many parameters.
     """
 
-    if not silent:
-        print('WARNING: This function is deprecated and will be removed in future versions.')
-        print('New fit functions with exact error propagation are now available as alternative.')
+    warnings.warn("New fit functions with exact error propagation are now available as alternative.", DeprecationWarning)
 
     if not callable(func):
         raise TypeError('func has to be a function.')
@@ -716,7 +712,7 @@ def fit_general(x, y, func, silent=False, **kwargs):
 
         model = Model(func)
 
-        odr = ODR(data, model, beta0, partol=np.finfo(np.float).eps)
+        odr = ODR(data, model, beta0, partol=np.finfo(np.float64).eps)
         odr.set_job(fit_type=fit_type, deriv=1)
         output = odr.run()
         if print_output and not silent:

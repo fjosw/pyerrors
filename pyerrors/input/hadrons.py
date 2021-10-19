@@ -6,6 +6,7 @@ import h5py
 import numpy as np
 from ..pyerrors import Obs, CObs
 from ..correlators import Corr
+from ..npr import Propagator
 
 
 def _get_files(path, filestem):
@@ -69,7 +70,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     return Corr(l_obs)
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id):
+def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
@@ -77,6 +78,9 @@ def read_ExternalLeg_hd5(path, filestem, ens_id):
     path -- path to the files to read
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
+    order -- order in which the array is to be reshaped,
+             'C' for the last index changing fastest,
+             'F' for the first index changing fastest.
     """
 
     files = _get_files(path, filestem)
@@ -88,6 +92,8 @@ def read_ExternalLeg_hd5(path, filestem, ens_id):
         corr_data.append(raw_data)
     corr_data = np.array(corr_data)
 
+    mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+
     rolled_array = np.rollaxis(corr_data, 0, 5)
 
     matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
@@ -97,4 +103,4 @@ def read_ExternalLeg_hd5(path, filestem, ens_id):
         matrix[si, sj, ci, cj] = CObs(real, imag)
         matrix[si, sj, ci, cj].gamma_method()
 
-    return matrix
+    return Propagator(matrix.reshape((12,12), order=order), mom)

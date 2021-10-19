@@ -14,7 +14,7 @@ There exist similar implementations of gamma method error analysis suites in
 - [Python 3](https://github.com/mbruno46/pyobs)
 
 ## Installation
-To install the current `develop` version of `pyerrors` run
+To install the most recent release of `pyerrors` run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git 
 ```

@@ -318,7 +318,11 @@ class Obs:
         if level == 0:
             print(self)
         else:
-            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, np.abs(self.dvalue / self.value) * 100))
+            if self.value == 0.0:
+                percentage = np.nan
+            else:
+                percentage = np.abs(self.dvalue / self.value) * 100
+            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
             for e_name in self.e_names:

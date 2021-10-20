@@ -134,10 +134,7 @@ def Zq(prop, fermion='Wilson'):
     sin_mom = np.sin(2 * np.pi / L * mom)
 
     if fermion == 'Wilson':
-        p_slash = -1j * (sin_mom[0] * gamma[0]
-                   + sin_mom[1] * gamma[1]
-                   + sin_mom[2] * gamma[2]
-                   + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
+        p_slash = -1j * (sin_mom[0] * gamma[0] + sin_mom[1] * gamma[1] + sin_mom[2] * gamma[2] + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
     else:
         raise Exception("Fermion type '" + fermion + "' not implemented")
 

@@ -1,5 +1,11 @@
+import warnings
 import numpy as np
+import autograd.numpy as anp
+from .linalg import mat_mat_op
 
+
+L = None
+T = None
 
 gammaX = np.array(
     [[0, 0, 0, 1j], [0, 0, 1j, 0], [0, -1j, 0, 0], [-1j, 0, 0, 0]],
@@ -103,3 +109,35 @@ class Npr_matrix(np.ndarray):
             return
         self.mom_in = getattr(obj, 'mom_in', None)
         self.mom_out = getattr(obj, 'mom_out', None)
+
+
+def _invert_propagator(prop):
+    return Npr_matrix(mat_mat_op(anp.linalg.inv, prop), prop.mom_in)
+
+
+def Zq(prop, fermion='Wilson'):
+    if L is None:
+        raise Exception("Spatial extent 'L' not set.")
+    if T is None:
+        raise Exception("Spatial extent 'T' not set.")
+    mom = prop.mom_in
+    mom[3] /= T / L
+    sin_mom = np.sin(2 * np.pi / L * mom)
+
+    if fermion == 'Wilson':
+        p_slash = -1j * (sin_mom[0] * gamma[0]
+                   + sin_mom[1] * gamma[1]
+                   + sin_mom[2] * gamma[2]
+                   + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
+    else:
+        raise Exception("Fermion type '" + fermion + "' not implemented")
+
+    inv_prop = _invert_propagator(prop)
+
+    res = 1 / 12. * np.trace(inv_prop @ np.kron(np.eye(3, dtype=int), p_slash))
+    res.gamma_method()
+
+    if not res.imag.is_zero_within_error(5):
+        warnings.warn("Imaginary part of Zq is not zero within 5 sigma")
+        return res
+    return res.real

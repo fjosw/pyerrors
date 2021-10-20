@@ -1,64 +1,65 @@
 import numpy as np
 
 
-_gamma = ['gammas', 0, 0, 0, 0, 0]
-_gamma[1] = np.array(
+gamma = [0, 0, 0, 0]
+gamma[0] = np.array(
     [[0, 0, 0, 1j], [0, 0, 1j, 0], [0, -1j, 0, 0], [-1j, 0, 0, 0]],
     dtype=complex)
-_gamma[2] = np.array(
+gamma[1] = np.array(
     [[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]],
     dtype=complex)
-_gamma[3] = np.array(
+gamma[2] = np.array(
     [[0, 0, 1j, 0], [0, 0, 0, -1j], [-1j, 0, 0, 0], [0, 1j, 0, 0]],
     dtype=complex)
-_gamma[4] = np.array(
+gamma[3] = np.array(
     [[0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 1, 0, 0]],
     dtype=complex)
-_gamma[5] = np.array(
+gamma5 = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]],
     dtype=complex)
-_imat = np.array(
+imat = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
     dtype=complex)
 
 
-def gamma_matrix(gamma_tag):
+def Grid_gamma(gamma_tag):
     """Returns gamma matrix in Grid labeling."""
     if gamma_tag == 'Identity':
-        g = _imat
+        g = imat
     elif gamma_tag == 'Gamma5':
-        g = _gamma[5]
+        g = gamma5
     elif gamma_tag == 'GammaX':
-        g = _gamma[1]
+        g = gamma[0]
     elif gamma_tag == 'GammaY':
-        g = _gamma[2]
+        g = gamma[1]
     elif gamma_tag == 'GammaZ':
-        g = _gamma[3]
+        g = gamma[2]
     elif gamma_tag == 'GammaT':
-        g = _gamma[4]
+        g = gamma[3]
     elif gamma_tag == 'GammaXGamma5':
-        g = _gamma[1] @ _gamma[5]
+        g = gamma[0] @ gamma5
     elif gamma_tag == 'GammaYGamma5':
-        g = _gamma[2] @ _gamma[5]
+        g = gamma[1] @ gamma5
     elif gamma_tag == 'GammaZGamma5':
-        g = _gamma[3] @ _gamma[5]
+        g = gamma[2] @ gamma5
     elif gamma_tag == 'GammaTGamma5':
-        g = _gamma[4] @ _gamma[5]
+        g = gamma[3] @ gamma5
     elif gamma_tag == 'SigmaXT':
-        g = 0.5 * (_gamma[1] @ _gamma[4] - _gamma[4] @ _gamma[1])
+        g = 0.5 * (gamma[0] @ gamma[3] - gamma[3] @ gamma[0])
     elif gamma_tag == 'SigmaXY':
-        g = 0.5 * (_gamma[1] @ _gamma[2] - _gamma[2] @ _gamma[1])
+        g = 0.5 * (gamma[0] @ gamma[1] - gamma[1] @ gamma[0])
     elif gamma_tag == 'SigmaXZ':
-        g = 0.5 * (_gamma[1] @ _gamma[3] - _gamma[3] @ _gamma[1])
+        g = 0.5 * (gamma[0] @ gamma[2] - gamma[2] @ gamma[0])
     elif gamma_tag == 'SigmaYT':
-        g = 0.5 * (_gamma[2] @ _gamma[4] - _gamma[4] @ _gamma[2])
+        g = 0.5 * (gamma[1] @ gamma[3] - gamma[3] @ gamma[1])
     elif gamma_tag == 'SigmaYZ':
-        g = 0.5 * (_gamma[2] @ _gamma[3] - _gamma[3] @ _gamma[2])
+        g = 0.5 * (gamma[1] @ gamma[2] - gamma[2] @ gamma[1])
     elif gamma_tag == 'SigmaZT':
-        g = 0.5 * (_gamma[3] @ _gamma[4] - _gamma[4] @ _gamma[3])
+        g = 0.5 * (gamma[2] @ gamma[3] - gamma[3] @ gamma[2])
     else:
         raise Exception('Unkown gamma structure', gamma_tag)
     return g
+
 
 class Npr_matrix(np.ndarray):
 
@@ -90,7 +91,7 @@ class Npr_matrix(np.ndarray):
         s_mom = getattr(self, name, None)
         o_mom = getattr(other, name, None)
         if s_mom != o_mom and s_mom and o_mom:
-                raise Exception(name + ' does not match.')
+            raise Exception(name + ' does not match.')
         return o_mom if o_mom else s_mom
 
     def __matmul__(self, other):
@@ -100,6 +101,7 @@ class Npr_matrix(np.ndarray):
                             self._propagate_mom(other, 'mom_out'))
 
     def __array_finalize__(self, obj):
-        if obj is None: return
+        if obj is None:
+            return
         self.mom_in = getattr(obj, 'mom_in', None)
         self.mom_out = getattr(obj, 'mom_out', None)

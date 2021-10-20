@@ -73,27 +73,31 @@ class Npr_matrix(np.ndarray):
 
     @property
     def g5H(self):
-        new_matrix = Npr_matrix.g5 @ self.conj().T @ Npr_matrix.g5
+        """Gamma_5 hermitean conjugate
+
+        Returns gamma_5 @ M.T.conj() @ gamma_5 and exchanges in and out going
+        momenta. Works only for 12x12 matrices.
+        """
+        if self.shape != (12, 12):
+            raise Exception('g5H only works for 12x12 matrices.')
+        extended_g5 = np.kron(np.eye(3, dtype=int), Npr_matrix.g5)
+        new_matrix = extended_g5 @ self.conj().T @ extended_g5
         new_matrix.mom_in = self.mom_out
         new_matrix.mom_out = self.mom_in
         return new_matrix
 
+    def _propagate_mom(self, other, name):
+        s_mom = getattr(self, name, None)
+        o_mom = getattr(other, name, None)
+        if s_mom != o_mom and s_mom and o_mom:
+                raise Exception(name + ' does not match.')
+        return o_mom if o_mom else s_mom
+
     def __matmul__(self, other):
-        if hasattr(other, 'mom_in'):
-            if self.mom_in != other.mom_in and self.mom_in and other.mom_in:
-                    raise Exception('mom_in does not match.')
-            mom_in = self.mom_in if self.mom_in else other.mom_in
-        else:
-            mom_in = self.mom_in
-
-        if hasattr(other, 'mom_out'):
-            if self.mom_out != other.mom_out and self.mom_out and other.mom_out:
-                    raise Exception('mom_out does not match.')
-            mom_out = self.mom_out if self.mom_out else other.mom_out
-        else:
-            mom_out = self.mom_out
-
-        return self.__new__(Npr_matrix, super().__matmul__(other), mom_in, mom_out)
+        return self.__new__(Npr_matrix,
+                            super().__matmul__(other),
+                            self._propagate_mom(other, 'mom_in'),
+                            self._propagate_mom(other, 'mom_out'))
 
     def __array_finalize__(self, obj):
         if obj is None: return

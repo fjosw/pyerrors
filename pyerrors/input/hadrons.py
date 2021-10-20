@@ -57,10 +57,10 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     corr_data = []
     for hd5_file in files:
         file = h5py.File(path + '/' + hd5_file, "r")
-
         raw_data = list(file[tree + '/' + meson + '/corr'])
         real_data = [o[0] for o in raw_data]
         corr_data.append(real_data)
+        file.close()
     corr_data = np.array(corr_data)
 
     l_obs = []
@@ -90,6 +90,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
         file = h5py.File(path + '/' + hd5_file, "r")
         raw_data = file['ExternalLeg/corr'][0][0].view('complex')
         corr_data.append(raw_data)
+        file.close()
     corr_data = np.array(corr_data)
 
     mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
@@ -103,4 +104,4 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
         matrix[si, sj, ci, cj] = CObs(real, imag)
         matrix[si, sj, ci, cj].gamma_method()
 
-    return Npr_matrix(matrix.reshape((12,12), order=order), mom_in=mom)
+    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12,12), order=order), mom_in=mom)

@@ -129,7 +129,7 @@ def _invert_propagator(prop):
 
 def Zq(prop, fermion='Wilson'):
     _check_geometry()
-    mom = prop.mom_in
+    mom = np.copy(prop.mom_in)
     mom[3] /= T / L
     sin_mom = np.sin(2 * np.pi / L * mom)
 

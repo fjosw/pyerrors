@@ -70,7 +70,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     return Corr(l_obs)
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
+def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
@@ -79,8 +79,8 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='C'):
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
     order -- order in which the array is to be reshaped,
-             'C' for the last index changing fastest,
-             'F' for the first index changing fastest.
+             'F' for the first index changing fastest (9 4x4 matrices) default.
+             'C' for the last index changing fastest (16 3x3 matrices),
     """
 
     files = _get_files(path, filestem)

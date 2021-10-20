@@ -1,23 +1,23 @@
 import numpy as np
 
 
-gamma = [0, 0, 0, 0]
-gamma[0] = np.array(
+gammaX = np.array(
     [[0, 0, 0, 1j], [0, 0, 1j, 0], [0, -1j, 0, 0], [-1j, 0, 0, 0]],
     dtype=complex)
-gamma[1] = np.array(
+gammaY = np.array(
     [[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]],
     dtype=complex)
-gamma[2] = np.array(
+gammaZ = np.array(
     [[0, 0, 1j, 0], [0, 0, 0, -1j], [-1j, 0, 0, 0], [0, 1j, 0, 0]],
     dtype=complex)
-gamma[3] = np.array(
+gammaT = np.array(
     [[0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 1, 0, 0]],
     dtype=complex)
+gamma = np.array([gammaX, gammaY, gammaZ, gammaT])
 gamma5 = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]],
     dtype=complex)
-imat = np.array(
+identity = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
     dtype=complex)
 
@@ -25,7 +25,7 @@ imat = np.array(
 def Grid_gamma(gamma_tag):
     """Returns gamma matrix in Grid labeling."""
     if gamma_tag == 'Identity':
-        g = imat
+        g = identity
     elif gamma_tag == 'Gamma5':
         g = gamma5
     elif gamma_tag == 'GammaX':
@@ -87,7 +87,7 @@ class Npr_matrix(np.ndarray):
     def _propagate_mom(self, other, name):
         s_mom = getattr(self, name, None)
         o_mom = getattr(other, name, None)
-        if s_mom and o_mom:
+        if s_mom is not None and o_mom is not None:
             if not np.allclose(s_mom, o_mom):
                 raise Exception(name + ' does not match.')
         return o_mom if o_mom else s_mom

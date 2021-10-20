@@ -111,15 +111,24 @@ class Npr_matrix(np.ndarray):
         self.mom_out = getattr(obj, 'mom_out', None)
 
 
+def _check_geometry():
+    if L is None:
+        raise Exception("Spatial extent 'L' not set.")
+    else:
+        if not isinstance(L, int):
+            raise Exception("Spatial extent 'L' must be an integer.")
+    if T is None:
+        raise Exception("Temporal extent 'T' not set.")
+        if not isinstance(T, int):
+            raise Exception("Temporal extent 'T' must be an integer.")
+
+
 def _invert_propagator(prop):
     return Npr_matrix(mat_mat_op(anp.linalg.inv, prop), prop.mom_in)
 
 
 def Zq(prop, fermion='Wilson'):
-    if L is None:
-        raise Exception("Spatial extent 'L' not set.")
-    if T is None:
-        raise Exception("Spatial extent 'T' not set.")
+    _check_geometry()
     mom = prop.mom_in
     mom[3] /= T / L
     sin_mom = np.sin(2 * np.pi / L * mom)

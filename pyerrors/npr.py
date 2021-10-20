@@ -63,9 +63,6 @@ def Grid_gamma(gamma_tag):
 
 class Npr_matrix(np.ndarray):
 
-    g5 = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]],
-                  dtype=complex)
-
     def __new__(cls, input_array, mom_in=None, mom_out=None):
         obj = np.asarray(input_array).view(cls)
         obj.mom_in = mom_in
@@ -81,7 +78,7 @@ class Npr_matrix(np.ndarray):
         """
         if self.shape != (12, 12):
             raise Exception('g5H only works for 12x12 matrices.')
-        extended_g5 = np.kron(np.eye(3, dtype=int), Npr_matrix.g5)
+        extended_g5 = np.kron(np.eye(3, dtype=int), gamma5)
         new_matrix = extended_g5 @ self.conj().T @ extended_g5
         new_matrix.mom_in = self.mom_out
         new_matrix.mom_out = self.mom_in
@@ -90,8 +87,9 @@ class Npr_matrix(np.ndarray):
     def _propagate_mom(self, other, name):
         s_mom = getattr(self, name, None)
         o_mom = getattr(other, name, None)
-        if s_mom != o_mom and s_mom and o_mom:
-            raise Exception(name + ' does not match.')
+        if s_mom and o_mom:
+            if not np.allclose(s_mom, o_mom):
+                raise Exception(name + ' does not match.')
         return o_mom if o_mom else s_mom
 
     def __matmul__(self, other):

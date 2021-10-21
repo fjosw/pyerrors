@@ -1,5 +1,6 @@
 from .pyerrors import *
 from . import correlators
+from . import dirac
 from . import fits
 from . import linalg
 from . import misc

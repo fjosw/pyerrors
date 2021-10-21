@@ -49,14 +49,15 @@ class Obs:
 
     def __init__(self, samples, names, **kwargs):
 
-        if len(samples) != len(names):
-            raise Exception('Length of samples and names incompatible.')
-        if len(names) != len(set(names)):
-            raise Exception('Names are not unique.')
-        if not all(isinstance(x, str) for x in names):
-            raise TypeError('All names have to be strings.')
-        if min(len(x) for x in samples) <= 4:
-            raise Exception('Samples have to have at least 4 entries.')
+        if 'means' not in kwargs:
+            if len(samples) != len(names):
+                raise Exception('Length of samples and names incompatible.')
+            if len(names) != len(set(names)):
+                raise Exception('Names are not unique.')
+            if not all(isinstance(x, str) for x in names):
+                raise TypeError('All names have to be strings.')
+            if min(len(x) for x in samples) <= 4:
+                raise Exception('Samples have to have at least 4 entries.')
 
         self.names = sorted(names)
         self.shape = {}
@@ -64,8 +65,6 @@ class Obs:
         self.deltas = {}
 
         if 'means' in kwargs:
-            if len(samples) != len(kwargs.get('means')):
-                raise Exception('Length of samples and means incompatible.')
             for name, sample, mean in sorted(zip(names, samples, kwargs.get('means'))):
                 self.shape[name] = np.size(sample)
                 self.r_values[name] = mean
@@ -79,9 +78,10 @@ class Obs:
         self.N = sum(map(np.size, list(self.deltas.values())))
 
         self.value = 0
-        for name in self.names:
-            self.value += self.shape[name] * self.r_values[name]
-        self.value /= self.N
+        if 'means' not in kwargs:
+            for name in self.names:
+                self.value += self.shape[name] * self.r_values[name]
+            self.value /= self.N
 
         self.dvalue = 0.0
         self.ddvalue = 0.0

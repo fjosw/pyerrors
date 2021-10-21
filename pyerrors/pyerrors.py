@@ -704,11 +704,11 @@ class CObs:
                         derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
                                            [self.real, other.real, self.imag, other.imag],
                                            man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
-        elif hasattr(other, 'real') and hasattr(other, 'imag'):
+        elif hasattr(other, 'real') and getattr(other, 'imag', 0) != 0:
             return CObs(self.real * other.real - self.imag * other.imag,
                         self.imag * other.real + self.real * other.imag)
         else:
-            return CObs(self.real * other, self.imag * other)
+            return CObs(self.real * np.real(other), self.imag * np.real(other))
 
     def __rmul__(self, other):
         return self * other

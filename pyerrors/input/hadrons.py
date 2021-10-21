@@ -99,7 +99,6 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         file.close()
     corr_data = np.array(corr_data)
 
-
     rolled_array = np.rollaxis(corr_data, 0, 5)
 
     matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
@@ -109,4 +108,4 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         matrix[si, sj, ci, cj] = CObs(real, imag)
         matrix[si, sj, ci, cj].gamma_method()
 
-    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12,12), order=order), mom_in=mom)
+    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)

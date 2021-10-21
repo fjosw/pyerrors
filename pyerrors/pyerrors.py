@@ -34,11 +34,11 @@ class Obs:
                     ensemble.
     N_sigma_global -- Standard value for N_sigma (default 1.0)
     """
-    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
-                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
-                 'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'tag']
+    # __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
+    #              'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
+    #              'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+    #              'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+    #              'tag']
 
     e_tag_global = 0
     S_global = 2.0

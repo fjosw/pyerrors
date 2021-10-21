@@ -77,13 +77,13 @@ class Obs:
 
         self.N = sum(map(np.size, list(self.deltas.values())))
 
-        self.value = 0
+        self._value = 0
         if 'means' not in kwargs:
             for name in self.names:
-                self.value += self.shape[name] * self.r_values[name]
-            self.value /= self.N
+                self._value += self.shape[name] * self.r_values[name]
+            self._value /= self.N
 
-        self.dvalue = 0.0
+        self._dvalue = 0.0
         self.ddvalue = 0.0
         self.reweighted = 0
 
@@ -105,6 +105,14 @@ class Obs:
         self.e_n_dtauint = {}
 
         self.tag = None
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def dvalue(self):
+        return self._dvalue
 
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.
@@ -143,8 +151,8 @@ class Obs:
         e_gamma = {}
         self.e_rho = {}
         self.e_drho = {}
-        self.dvalue = 0
-        self.ddvalue = 0
+        self._dvalue = 0
+        self._ddvalue = 0
 
         self.S = {}
         self.tau_exp = {}
@@ -312,10 +320,10 @@ class Obs:
                         self.e_windowsize[e_name] = n
                         break
 
-            self.dvalue += self.e_dvalue[e_name] ** 2
+            self._dvalue += self.e_dvalue[e_name] ** 2
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
-        self.dvalue = np.sqrt(self.dvalue)
+        self._dvalue = np.sqrt(self.dvalue)
         if self.dvalue == 0.0:
             self.ddvalue = 0.0
         else:
@@ -867,7 +875,7 @@ def derived_observable(func, data, **kwargs):
             new_means.append(new_r_values[name][i_val])
 
         final_result[i_val] = Obs(new_samples, new_names, means=new_means)
-        final_result[i_val].value = new_val
+        final_result[i_val]._value = new_val
 
     if multi == 0:
         final_result = final_result.item()
@@ -1168,7 +1176,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
             if abs(res.dvalue - dvalue) < 1e-10 * dvalue:
                 break
 
-        res.value = float(value)
+        res._value = float(value)
 
         return res
 

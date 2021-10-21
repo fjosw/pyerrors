@@ -66,7 +66,7 @@ class Obs:
         if 'means' in kwargs:
             if len(samples) != len(kwargs.get('means')):
                 raise Exception('Length of samples and means incompatible.')
-            for name, sample, mean  in sorted(zip(names, samples, kwargs.get('means'))):
+            for name, sample, mean in sorted(zip(names, samples, kwargs.get('means'))):
                 self.shape[name] = np.size(sample)
                 self.r_values[name] = mean
                 self.deltas[name] = sample

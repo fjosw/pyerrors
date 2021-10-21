@@ -47,7 +47,7 @@ class Obs:
     tau_exp_dict = {}
     N_sigma_global = 1.0
 
-    def __init__(self, samples, names):
+    def __init__(self, samples, names, **kwargs):
 
         if len(samples) != len(names):
             raise Exception('Length of samples and names incompatible.')
@@ -62,10 +62,19 @@ class Obs:
         self.shape = {}
         self.r_values = {}
         self.deltas = {}
-        for name, sample in sorted(zip(names, samples)):
-            self.shape[name] = np.size(sample)
-            self.r_values[name] = np.mean(sample)
-            self.deltas[name] = sample - self.r_values[name]
+
+        if 'means' in kwargs:
+            if len(samples) != len(kwargs.get('means')):
+                raise Exception('Length of samples and means incompatible.')
+            for name, sample, mean  in sorted(zip(names, samples, kwargs.get('means'))):
+                self.shape[name] = np.size(sample)
+                self.r_values[name] = mean
+                self.deltas[name] = sample
+        else:
+            for name, sample in sorted(zip(names, samples)):
+                self.shape[name] = np.size(sample)
+                self.r_values[name] = np.mean(sample)
+                self.deltas[name] = sample - self.r_values[name]
 
         self.N = sum(map(np.size, list(self.deltas.values())))
 
@@ -852,10 +861,12 @@ def derived_observable(func, data, **kwargs):
                 new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * obs.deltas[name]
 
         new_samples = []
+        new_means = []
         for name in new_names:
-            new_samples.append(new_deltas[name] + new_r_values[name][i_val])
+            new_samples.append(new_deltas[name])
+            new_means.append(new_r_values[name][i_val])
 
-        final_result[i_val] = Obs(new_samples, new_names)
+        final_result[i_val] = Obs(new_samples, new_names, means=new_means)
         final_result[i_val].value = new_val
 
     if multi == 0:

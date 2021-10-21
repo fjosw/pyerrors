@@ -38,7 +38,7 @@ class Npr_matrix(np.ndarray):
         if s_mom is not None and o_mom is not None:
             if not np.allclose(s_mom, o_mom):
                 raise Exception(name + ' does not match.')
-        return o_mom if o_mom else s_mom
+        return o_mom if o_mom is not None else s_mom
 
     def __matmul__(self, other):
         return self.__new__(Npr_matrix,
@@ -65,13 +65,23 @@ def _check_geometry():
             raise Exception("Temporal extent 'T' must be an integer.")
 
 
-def _invert_propagator(prop):
+def inv_propagator(prop):
+    """ Inverts a 12x12 quark propagator"""
+    if prop.shape != (12, 12):
+        raise Exception("Only 12x12 propagators can be inverted.")
     return Npr_matrix(mat_mat_op(anp.linalg.inv, prop), prop.mom_in)
 
 
-def Zq(prop, fermion='Wilson'):
+def Zq(inv_prop, fermion='Wilson'):
+    """ Calculates the quark field renormalization constant Zq
+
+        Attributes:
+        inv_prop -- Inverted 12x12 quark propagator
+        fermion -- Fermion type for which the tree-level propagator is used
+                   in the calculation of Zq. Default Wilson.
+    """
     _check_geometry()
-    mom = np.copy(prop.mom_in)
+    mom = np.copy(inv_prop.mom_in)
     mom[3] /= T / L
     sin_mom = np.sin(2 * np.pi / L * mom)
 
@@ -79,8 +89,6 @@ def Zq(prop, fermion='Wilson'):
         p_slash = -1j * (sin_mom[0] * gamma[0] + sin_mom[1] * gamma[1] + sin_mom[2] * gamma[2] + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
     else:
         raise Exception("Fermion type '" + fermion + "' not implemented")
-
-    inv_prop = _invert_propagator(prop)
 
     res = 1 / 12. * np.trace(inv_prop @ np.kron(np.eye(3, dtype=int), p_slash))
     res.gamma_method()

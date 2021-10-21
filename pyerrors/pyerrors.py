@@ -650,12 +650,20 @@ class Obs:
 
 class CObs:
     """Class for a complex valued observable."""
-    __slots__ = ['real', 'imag', 'tag']
+    __slots__ = ['_real', '_imag', 'tag']
 
     def __init__(self, real, imag=0.0):
-        self.real = real
-        self.imag = imag
+        self._real = real
+        self._imag = imag
         self.tag = None
+
+    @property
+    def real(self):
+        return self._real
+
+    @property
+    def imag(self):
+        return self._imag
 
     def gamma_method(self, **kwargs):
         if isinstance(self.real, Obs):

@@ -512,34 +512,6 @@ def fit_lin(x, y, **kwargs):
         raise Exception('Unsupported types for x')
 
 
-def fit_exp(data, **kwargs):
-    """Fit a single exponential to a discrete time series of Obs without errors.
-
-    Keyword arguments
-    -----------------
-    shift -- specifies the absolute timeslice value of the first entry of data (default 0.0)
-             only important if one is interested in the matrix element, for the mass this is irrelevant.
-    """
-    if 'shift' in kwargs:
-        shift = kwargs.get("shift")
-    else:
-        shift = 0
-    length = len(data)
-    xsum = 0
-    xsum2 = 0
-    ysum = 0
-    xysum = 0
-    for i in range(shift, length + shift):
-        xsum += i
-        xsum2 += i ** 2
-        tmp_log = np.log(np.abs(data[i - shift]))
-        ysum += tmp_log
-        xysum += i * tmp_log
-    res0 = -(length * xysum - xsum * ysum) / (length * xsum2 - xsum * xsum)  # mass
-    res1 = np.exp((xsum2 * ysum - xsum * xysum) / (length * xsum2 - xsum * xsum))  # matrix element
-    return [res0, res1]
-
-
 def qqplot(x, o_y, func, p):
     """ Generates a quantile-quantile plot of the fit result which can be used to
         check if the residuals of the fit are gaussian distributed.

@@ -1,7 +1,6 @@
 import warnings
 import numpy as np
-import autograd.numpy as anp
-from .linalg import mat_mat_op
+from .linalg import inv, matmul
 from .dirac import gamma, gamma5
 
 
@@ -69,7 +68,7 @@ def inv_propagator(prop):
     """ Inverts a 12x12 quark propagator"""
     if prop.shape != (12, 12):
         raise Exception("Only 12x12 propagators can be inverted.")
-    return Npr_matrix(mat_mat_op(anp.linalg.inv, prop), prop.mom_in)
+    return Npr_matrix(inv(prop), prop.mom_in)
 
 
 def Zq(inv_prop, fermion='Wilson'):
@@ -90,7 +89,7 @@ def Zq(inv_prop, fermion='Wilson'):
     else:
         raise Exception("Fermion type '" + fermion + "' not implemented")
 
-    res = 1 / 12. * np.trace(inv_prop @ np.kron(np.eye(3, dtype=int), p_slash))
+    res = 1 / 12. * np.trace(matmul(inv_prop, np.kron(np.eye(3, dtype=int), p_slash)))
     res.gamma_method()
 
     if not res.imag.is_zero_within_error(5):

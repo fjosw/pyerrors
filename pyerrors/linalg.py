@@ -130,7 +130,10 @@ def matmul(x1, x2):
         Rr, Ri = np.vectorize(lambda x: (np.real(x), np.imag(x)))(x2)
         Nr = derived_array(lambda x: x[0] @ x[2] - x[1] @ x[3], [Lr, Li, Rr, Ri])
         Ni = derived_array(lambda x: x[0] @ x[3] + x[1] @ x[2], [Lr, Li, Rr, Ri])
-        return (1 + 0j) * Nr + 1j * Ni
+        res = np.empty_like(Nr)
+        for (n, m), entry in np.ndenumerate(Nr):
+            res[n, m] = CObs(Nr[n, m], Ni[n, m])
+        return res
     else:
         return derived_array(lambda x: x[0] @ x[1], [x1, x2])
 
@@ -185,11 +188,14 @@ def mat_mat_op(op, obs, **kwargs):
         if kwargs.get('num_grad') is True:
             op_big_matrix = _num_diff_mat_mat_op(op, big_matrix, **kwargs)
         else:
-            op_big_matrix = derived_observable(lambda x, **kwargs: op(x), big_matrix)
+            op_big_matrix = derived_array(lambda x, **kwargs: op(x), [big_matrix])[0]
         dim = op_big_matrix.shape[0]
         op_A = op_big_matrix[0: dim // 2, 0: dim // 2]
         op_B = op_big_matrix[dim // 2:, 0: dim // 2]
-        return (1 + 0j) * op_A + 1j * op_B
+        res = np.empty_like(op_A)
+        for (n, m), entry in np.ndenumerate(op_A):
+            res[n, m] = CObs(op_A[n, m], op_B[n, m])
+        return res
     else:
         if kwargs.get('num_grad') is True:
             return _num_diff_mat_mat_op(op, obs, **kwargs)

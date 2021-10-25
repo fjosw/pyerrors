@@ -245,4 +245,4 @@ def test_cobs():
         assert np.allclose(0.0, diff.real.deltas['t'])
         assert np.allclose(0.0, diff.imag.deltas['t'])
 
-        div = my_cobs / other
+        assert (my_cobs / other * other - my_cobs).is_zero()

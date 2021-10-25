@@ -94,15 +94,11 @@ def test_matrix_functions():
 
     for (i, j), entry in np.ndenumerate(check):
         diff = entry - sym[i, j]
-        diff.gamma_method()
-        assert math.isclose(diff.value, 0.0, abs_tol=1e-9), 'value ' + str(i) + ',' + str(j)
-        assert math.isclose(diff.dvalue, 0.0, abs_tol=1e-9), 'dvalue ' + str(i) + ',' + str(j)
+        assert diff.is_zero()
 
     # Check eigh
     e, v = pe.linalg.eigh(sym)
     for i in range(dim):
         tmp = sym @ v[:, i] - v[:, i] * e[i]
         for j in range(dim):
-            tmp[j].gamma_method()
-            assert math.isclose(tmp[j].value, 0.0, abs_tol=1e-9), 'value ' + str(i) + ',' + str(j)
-            assert math.isclose(tmp[j].dvalue, 0.0, abs_tol=1e-9), 'dvalue ' + str(i) + ',' + str(j)
+            assert tmp[j].is_zero()

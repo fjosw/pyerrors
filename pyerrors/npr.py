@@ -92,10 +92,7 @@ def Zq(inv_prop, fermion='Wilson'):
     res = 1 / 12. * np.trace(matmul(inv_prop, np.kron(np.eye(3, dtype=int), p_slash)))
     res.gamma_method()
 
-    if not res.imag.is_zero_within_error(5):
+    if not res.imag.is_zero() and not res.imag.is_zero_within_error(5):
         warnings.warn("Imaginary part of Zq is not zero within 5 sigma")
-        return res
-    if not np.abs(res.imag.value) <= 1e-6:
-        warnings.warn("Imaginary part of Zq is not smaller than 1e-6")
         return res
     return res.real

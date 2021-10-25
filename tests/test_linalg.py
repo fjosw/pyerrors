@@ -29,6 +29,28 @@ def test_matmul():
             assert e.is_zero(), t
 
 
+def test_multi_dot():
+    for dim in [4, 8]:
+        my_list = []
+        length = 1000 + np.random.randint(200)
+        for i in range(dim ** 2):
+            my_list.append(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']))
+        my_array = np.array(my_list).reshape((dim, dim))
+        tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
+        for t, e in np.ndenumerate(tt):
+            assert e.is_zero(), t
+
+        my_list = []
+        length = 1000 + np.random.randint(200)
+        for i in range(dim ** 2):
+            my_list.append(pe.CObs(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']),
+                                   pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2'])))
+        my_array = np.array(my_list).reshape((dim, dim))
+        tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
+        for t, e in np.ndenumerate(tt):
+            assert e.is_zero(), t
+
+
 def test_matrix_inverse():
     content = []
     for t in range(9):

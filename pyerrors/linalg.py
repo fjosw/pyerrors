@@ -171,11 +171,11 @@ def matmul(*operands):
 
 
 def inv(x):
-    return mat_mat_op(anp.linalg.inv, x)
+    return _mat_mat_op(anp.linalg.inv, x)
 
 
 def cholesky(x):
-    return mat_mat_op(anp.linalg.cholesky, x)
+    return _mat_mat_op(anp.linalg.cholesky, x)
 
 
 def scalar_mat_op(op, obs, **kwargs):
@@ -203,7 +203,7 @@ def scalar_mat_op(op, obs, **kwargs):
     return derived_observable(_mat, raveled_obs, **kwargs)
 
 
-def mat_mat_op(op, obs, **kwargs):
+def _mat_mat_op(op, obs, **kwargs):
     """Computes the matrix to matrix operation op to a given matrix of Obs."""
     # Use real representation to calculate matrix operations for complex matrices
     if isinstance(obs.ravel()[0], CObs):

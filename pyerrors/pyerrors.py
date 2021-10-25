@@ -740,6 +740,13 @@ class CObs:
         else:
             return CObs(self.real / other, self.imag / other)
 
+    def __rtruediv__(self, other):
+        r = self.real ** 2 + self.imag ** 2
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs((self.real * other.real + self.imag * other.imag) / r, (self.real * other.imag - self.imag * other.real) / r)
+        else:
+            return CObs(self.real * other / r, -self.imag * other / r)
+
     def __abs__(self):
         return np.sqrt(self.real**2 + self.imag**2)
 

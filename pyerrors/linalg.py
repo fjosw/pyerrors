@@ -6,15 +6,13 @@ from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from .pyerrors import derived_observable, CObs, Obs
 
-
-# This code block is directly taken from the current master branch of autograd and remains
-# only until the new version is released on PyPi
 from functools import partial
 from autograd.extend import defvjp
 
 
 def derived_array(func, data, **kwargs):
-    """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
+    """Construct a derived Obs according to func(data, **kwargs) of matrix value data
+    using automatic differentiation.
 
     Parameters
     ----------
@@ -25,20 +23,9 @@ def derived_array(func, data, **kwargs):
 
     Keyword arguments
     -----------------
-    num_grad -- if True, numerical derivatives are used instead of autograd
-                (default False). To control the numerical differentiation the
-                kwargs of numdifftools.step_generators.MaxStepGenerator
-                can be used.
     man_grad -- manually supply a list or an array which contains the jacobian
                 of func. Use cautiously, supplying the wrong derivative will
                 not be intercepted.
-
-    Notes
-    -----
-    For simple mathematical operations it can be practical to use anonymous
-    functions. For the ratio of two observables one can e.g. use
-
-    new_obs = derived_observable(lambda x: x[0] / x[1], [obs1, obs2])
     """
 
     data = np.asarray(data)
@@ -125,6 +112,11 @@ def derived_array(func, data, **kwargs):
 
 
 def matmul(*operands):
+    """Matrix multiply all operands.
+
+       Supports real and complex valued matrices and is faster compared to
+       standard multiplication via the @ operator.
+    """
     if any(isinstance(o[0, 0], CObs) for o in operands):
         extended_operands = []
         for op in operands:
@@ -171,10 +163,12 @@ def matmul(*operands):
 
 
 def inv(x):
+    """Inverse of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.inv, x)
 
 
 def cholesky(x):
+    """Cholesky decompostion of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 
@@ -270,7 +264,7 @@ def svd(obs, **kwargs):
     return (u, s, vh)
 
 
-def slog_det(obs, **kwargs):
+def slogdet(obs, **kwargs):
     """Computes the determinant of a matrix of Obs via np.linalg.slogdet."""
     def _mat(x):
         dim = int(np.sqrt(len(x)))
@@ -501,6 +495,8 @@ def _num_diff_svd(obs, **kwargs):
     return (np.array(res_mat0) @ np.identity(mid_index), np.array(res_mat1) @ np.identity(mid_index), np.array(res_mat2) @ np.identity(shape[1]))
 
 
+# This code block is directly taken from the current master branch of autograd and remains
+# only until the new version is released on PyPi
 _dot = partial(anp.einsum, '...ij,...jk->...ik')
 
 

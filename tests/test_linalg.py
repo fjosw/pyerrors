@@ -87,8 +87,7 @@ def test_complex_matrix_inverse():
 
 
 def test_matrix_functions():
-    dim = 3 + int(4 * np.random.rand())
-    print(dim)
+    dim = 4
     matrix = []
     for i in range(dim):
         row = []
@@ -124,6 +123,13 @@ def test_matrix_functions():
         tmp = sym @ v[:, i] - v[:, i] * e[i]
         for j in range(dim):
             assert tmp[j].is_zero()
+
+    # Check svd
+    u, v, vh = pe.linalg.svd(sym)
+    diff = sym - u @ np.diag(v) @ vh
+
+    for (i, j), entry in np.ndenumerate(diff):
+        assert entry.is_zero()
 
 
 def test_complex_matrix_operations():

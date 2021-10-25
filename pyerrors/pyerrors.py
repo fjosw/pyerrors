@@ -34,7 +34,7 @@ class Obs:
                     ensemble.
     N_sigma_global -- Standard value for N_sigma (default 1.0)
     """
-    # __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
+    # __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
     #              'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
     #              'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
     #              'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
@@ -152,7 +152,7 @@ class Obs:
         self.e_rho = {}
         self.e_drho = {}
         self._dvalue = 0
-        self._ddvalue = 0
+        self.ddvalue = 0
 
         self.S = {}
         self.tau_exp = {}

@@ -143,9 +143,9 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
             else:
                 mom_in = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
             if mom_out is not None:
-                assert np.allclose(mom_out, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int))
+                assert np.allclose(mom_out, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int))
             else:
-                mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+                mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
 
         file.close()
 

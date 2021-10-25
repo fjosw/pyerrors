@@ -26,10 +26,9 @@ class Npr_matrix(np.ndarray):
         if self.shape != (12, 12):
             raise Exception('g5H only works for 12x12 matrices.')
         extended_g5 = np.kron(np.eye(3, dtype=int), gamma5)
-        new_matrix = extended_g5 @ self.conj().T @ extended_g5
-        new_matrix.mom_in = self.mom_out
-        new_matrix.mom_out = self.mom_in
-        return new_matrix
+        return Npr_matrix(matmul(extended_g5, self.conj().T, extended_g5),
+                                mom_in=self.mom_out,
+                                mom_out=self.mom_in)
 
     def _propagate_mom(self, other, name):
         s_mom = getattr(self, name, None)

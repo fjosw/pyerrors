@@ -95,6 +95,28 @@ def test_gamma_method():
         assert test_obs.e_tauint['t'] - 10.5 <= test_obs.e_dtauint['t']
 
 
+def test_gamma_method_persistance():
+    my_obs = pe.Obs([np.random.rand(730)], ['t'])
+    my_obs.gamma_method()
+    value = my_obs.value
+    dvalue = my_obs.dvalue
+    ddvalue = my_obs.ddvalue
+    my_obs = 1.0 * my_obs
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
+    my_obs.gamma_method(S=3.7)
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
+
+
 def test_covariance_is_variance():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

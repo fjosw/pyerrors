@@ -124,3 +124,35 @@ def test_matrix_functions():
         tmp = sym @ v[:, i] - v[:, i] * e[i]
         for j in range(dim):
             assert tmp[j].is_zero()
+
+
+def test_complex_matrix_operations():
+    dimension = 4
+    base_matrix = np.empty((dimension, dimension), dtype=object)
+    for (n, m), entry in np.ndenumerate(base_matrix):
+        exponent_real = np.random.normal(3, 5)
+        exponent_imag = np.random.normal(3, 5)
+        base_matrix[n, m] = pe.CObs(pe.pseudo_Obs(2 + 10 ** exponent_real, 10 ** (exponent_real - 1), 't'),
+                                    pe.pseudo_Obs(2 + 10 ** exponent_imag, 10 ** (exponent_imag - 1), 't'))
+
+    for other in [2, 2.3, (1 - 0.1j), (0 + 2.1j)]:
+        ta = base_matrix * other
+        tb = other * base_matrix
+        diff = ta - tb
+        for (i, j), entry in np.ndenumerate(diff):
+            assert entry.is_zero()
+        ta = base_matrix + other
+        tb = other + base_matrix
+        diff = ta - tb
+        for (i, j), entry in np.ndenumerate(diff):
+            assert entry.is_zero()
+        ta = base_matrix - other
+        tb = other - base_matrix
+        diff = ta + tb
+        for (i, j), entry in np.ndenumerate(diff):
+            assert entry.is_zero()
+        ta = base_matrix / other
+        tb = other / base_matrix
+        diff = ta * tb - 1
+        for (i, j), entry in np.ndenumerate(diff):
+            assert entry.is_zero()

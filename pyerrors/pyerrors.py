@@ -695,7 +695,9 @@ class CObs:
         return CObs(self.real, -self.imag)
 
     def __add__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return other + self
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs(self.real + other.real,
                         self.imag + other.imag)
         else:
@@ -705,7 +707,9 @@ class CObs:
         return self + y
 
     def __sub__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return -1 * (other - self)
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs(self.real - other.real, self.imag - other.imag)
         else:
             return CObs(self.real - other, self.imag)
@@ -714,7 +718,9 @@ class CObs:
         return -1 * (self - other)
 
     def __mul__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return other * self
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
                 return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
                                                [self.real, other.real, self.imag, other.imag],
@@ -734,7 +740,9 @@ class CObs:
         return self * other
 
     def __truediv__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return 1 / (other / self)
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             r = other.real ** 2 + other.imag ** 2
             return CObs((self.real * other.real + self.imag * other.imag) / r, (self.imag * other.real - self.real * other.imag) / r)
         else:

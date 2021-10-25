@@ -714,7 +714,7 @@ class CObs:
         return -1 * (self - other)
 
     def __mul__(self, other):
-        if hasattr(other, 'real') and getattr(other, 'imag', 0) != 0:
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
             if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
                 return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
                                                [self.real, other.real, self.imag, other.imag],
@@ -722,11 +722,13 @@ class CObs:
                             derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
                                                [self.real, other.real, self.imag, other.imag],
                                                man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
-            else:
+            elif getattr(other, 'imag', 0) != 0:
                 return CObs(self.real * other.real - self.imag * other.imag,
                             self.imag * other.real + self.real * other.imag)
+            else:
+                return CObs(self.real * other.real, self.imag * other.real)
         else:
-            return CObs(self.real * np.real(other), self.imag * np.real(other))
+            return CObs(self.real * other, self.imag * other)
 
     def __rmul__(self, other):
         return self * other

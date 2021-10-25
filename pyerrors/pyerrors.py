@@ -714,16 +714,17 @@ class CObs:
         return -1 * (self - other)
 
     def __mul__(self, other):
-        if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
-            return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
-                                           [self.real, other.real, self.imag, other.imag],
-                                           man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
-                        derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
-                                           [self.real, other.real, self.imag, other.imag],
-                                           man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
-        elif hasattr(other, 'real') and getattr(other, 'imag', 0) != 0:
-            return CObs(self.real * other.real - self.imag * other.imag,
-                        self.imag * other.real + self.real * other.imag)
+        if hasattr(other, 'real') and getattr(other, 'imag', 0) != 0:
+            if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
+                return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
+                                               [self.real, other.real, self.imag, other.imag],
+                                               man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
+                            derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
+                                               [self.real, other.real, self.imag, other.imag],
+                                               man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
+            else:
+                return CObs(self.real * other.real - self.imag * other.imag,
+                            self.imag * other.real + self.real * other.imag)
         else:
             return CObs(self.real * np.real(other), self.imag * np.real(other))
 

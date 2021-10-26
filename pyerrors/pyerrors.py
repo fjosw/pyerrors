@@ -355,11 +355,11 @@ class Obs:
                     print(e_name, ':', self.e_content[e_name])
 
     def is_zero_within_error(self, sigma=1):
-        """ Checks whether the observable is zero within 'sigma' standard errors.
+        """Checks whether the observable is zero within 'sigma' standard errors.
 
         Works only properly when the gamma method was run.
         """
-        return np.abs(self.value) <= sigma * self.dvalue
+        return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
 
     def is_zero(self):
         return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())

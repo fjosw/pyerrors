@@ -668,12 +668,14 @@ class CObs:
         return self._imag
 
     def gamma_method(self, **kwargs):
+        """Executes the gamma_method for the real and the imaginary part."""
         if isinstance(self.real, Obs):
             self.real.gamma_method(**kwargs)
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
     def is_zero(self):
+        """Checks whether both real and imaginary part are zero within machine precision."""
         return self.real == 0.0 and self.imag == 0.0
 
     def conjugate(self):

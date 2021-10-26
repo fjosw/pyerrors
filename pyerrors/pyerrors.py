@@ -87,23 +87,6 @@ class Obs:
         self.ddvalue = 0.0
         self.reweighted = 0
 
-        self.S = {}
-        self.tau_exp = {}
-        self.N_sigma = 0
-
-        self.e_names = {}
-        self.e_content = {}
-
-        self.e_dvalue = {}
-        self.e_ddvalue = {}
-        self.e_tauint = {}
-        self.e_dtauint = {}
-        self.e_windowsize = {}
-        self.e_rho = {}
-        self.e_drho = {}
-        self.e_n_tauint = {}
-        self.e_n_dtauint = {}
-
         self.tag = None
 
     @property
@@ -340,19 +323,20 @@ class Obs:
             else:
                 percentage = np.abs(self.dvalue / self.value) * 100
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
-            if len(self.e_names) > 1:
-                print(' Ensemble errors:')
-            for e_name in self.e_names:
+            if hasattr(self, 'e_names'):
                 if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                if self.tau_exp[e_name] > 0:
-                    print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
-                else:
-                    print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-            if level > 1:
-                print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+                    print(' Ensemble errors:')
                 for e_name in self.e_names:
-                    print(e_name, ':', self.e_content[e_name])
+                    if len(self.e_names) > 1:
+                        print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                    if self.tau_exp[e_name] > 0:
+                        print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                    else:
+                        print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+                if level > 1:
+                    print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+                    for e_name in self.e_names:
+                        print(e_name, ':', self.e_content[e_name])
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
@@ -362,11 +346,12 @@ class Obs:
         return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
 
     def is_zero(self):
+        """Checks whether the observable is zero within machine precision."""
         return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
         fig = plt.figure()
@@ -399,7 +384,7 @@ class Obs:
 
     def plot_rho(self):
         """Plot normalized autocorrelation function time for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             plt.xlabel('W')
@@ -421,7 +406,7 @@ class Obs:
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             if len(self.e_content[e_name]) == 1:
@@ -443,7 +428,7 @@ class Obs:
 
     def plot_history(self):
         """Plot derived Monte Carlo history for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
         for e, e_name in enumerate(self.e_names):
@@ -465,7 +450,7 @@ class Obs:
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         if self.dvalue == 0.0:
             raise Exception('Error is 0.0')
@@ -967,7 +952,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1021,7 +1006,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1117,7 +1102,7 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     tau_exp = []

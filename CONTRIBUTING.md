@@ -23,8 +23,9 @@ When implementing a new feature or fixing a bug please add meaningful tests to t
 ### Continous integration
 For all pull requests tests are executed for the most recent python releases via
 ```
-pytest -v
+pytest --cov=pyerrors -v
 ```
+requiring `pytest`, `pytest-cov` and `pytest-benchmark`
 and the linter `flake8` is executed with the command
 ```
 flake8 --ignore=E501,E722 --exclude=__init__.py pyerrors

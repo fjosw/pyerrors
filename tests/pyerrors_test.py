@@ -290,6 +290,7 @@ def test_gamma_method_irregular():
 
     afull.gamma_method()
     a.gamma_method()
+    ad = a.dvalue
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
@@ -299,6 +300,7 @@ def test_gamma_method_irregular():
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
+    assert np.abs(a.dvalue - ad) <= 10 * max(a.dvalue, ad) * np.finfo(np.float64).eps
 
     afull.gamma_method(tau_exp=.00001)
     a.gamma_method(tau_exp=.00001)
@@ -331,13 +333,13 @@ def test_gamma_method_irregular():
     arr = np.random.normal(1, .2, size=N)
     carr = gen_autocorrelated_array(arr, .346)
     a = pe.Obs([carr], ['a'])
-    a.gamma_method()
+    a.gamma_method(e_tag=1)
     
     ae = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 0]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 0]])
-    ae.gamma_method()
+    ae.gamma_method(e_tag=1)
     
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
-    ao.gamma_method()
+    ao.gamma_method(e_tag=1)
 
     assert(ae.e_tauint['a'] < a.e_tauint['a'])
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))

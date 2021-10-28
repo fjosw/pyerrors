@@ -1149,8 +1149,9 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     """
 
     for name in sorted(set(obs1.names + obs2.names)):
-        if ((obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None)
-                or (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]])))):
+        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
+            raise Exception('Shapes of ensemble', name, 'do not fit')
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
@@ -1328,8 +1329,9 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
     """
 
     for name in sorted(set(obs1.names + obs2.names)):
-        if ((obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None)
-                or (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]])))):
+        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
+            raise Exception('Shapes of ensemble', name, 'do not fit')
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):

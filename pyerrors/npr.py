@@ -85,6 +85,9 @@ def Zq(inv_prop, fermion='Wilson'):
 
     if fermion == 'Wilson':
         p_slash = -1j * (sin_mom[0] * gamma[0] + sin_mom[1] * gamma[1] + sin_mom[2] * gamma[2] + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
+    elif fermion == 'Continuum':
+        p_mom = 2 * np.pi / L * mom
+        p_slash = -1j * (p_mom[0] * gamma[0] + p_mom[1] * gamma[1] + p_mom[2] * gamma[2] + p_mom[3] * gamma[3]) / np.sum(p_mom ** 2)
     elif fermion == 'DWF':
         W = np.sum(1 - np.cos(2 * np.pi / L * mom))
         s2 = np.sum(sin_mom ** 2)

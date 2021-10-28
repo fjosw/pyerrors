@@ -274,3 +274,103 @@ def test_cobs():
 
         assert (my_cobs / other * other - my_cobs).is_zero()
         assert (other / my_cobs * my_cobs - other).is_zero()
+
+
+def test_gamma_method_irregular():
+    N = 20000
+    arr = np.random.normal(1, .2, size=N)
+    afull = pe.Obs([arr], ['a'])
+
+    configs = np.ones_like(arr)
+    for i in np.random.uniform(0, len(arr), size=int(.8 * N)):
+        configs[int(i)] = 0
+    zero_arr = [arr[i] for i in range(len(arr)) if not configs[i] == 0]
+    idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
+    a = pe.Obs([zero_arr], ['a'], idl=[idx])
+
+    afull.gamma_method()
+    a.gamma_method()
+
+    expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
+    assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
+
+    afull.gamma_method(fft=False)
+    a.gamma_method(fft=False)
+
+    expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
+    assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
+
+    afull.gamma_method(tau_exp=.00001)
+    a.gamma_method(tau_exp=.00001)
+
+    expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
+    assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
+    
+    arr2 = np.random.normal(1, .2, size=N)
+    afull = pe.Obs([arr, arr2], ['a1', 'a2'])
+
+    configs = np.ones_like(arr2)
+    for i in np.random.uniform(0, len(arr2), size=int(.8*N)):
+        configs[int(i)] = 0
+    zero_arr2 = [arr2[i] for i in range(len(arr2)) if not configs[i] == 0]
+    idx2 = [i + 1 for i in range(len(configs)) if configs[i] == 1]
+    a = pe.Obs([zero_arr, zero_arr2], ['a1', 'a2'], idl=[idx, idx2])
+
+    afull.gamma_method(e_tag=1)
+    a.gamma_method(e_tag=1)
+
+    expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
+    assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
+        
+    def gen_autocorrelated_array(inarr, rho):
+        outarr = np.copy(inarr)
+        for i in range(1, len(outarr)):
+            outarr[i] = rho * outarr[i - 1] + np.sqrt(1 - rho**2) * outarr[i]
+        return outarr
+    
+    arr = np.random.normal(1, .2, size=N)
+    carr = gen_autocorrelated_array(arr, .346)
+    a = pe.Obs([carr], ['a'])
+    a.gamma_method()
+    
+    ae = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 0]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 0]])
+    ae.gamma_method()
+    
+    ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
+    ao.gamma_method()
+
+    assert(ae.e_tauint['a'] < a.e_tauint['a'])
+    assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
+    assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
+
+
+def test_covariance2_symmetry():
+    value1 = np.random.normal(5, 10)
+    dvalue1 = np.abs(np.random.normal(0, 1))
+    test_obs1 = pe.pseudo_Obs(value1, dvalue1, 't')
+    test_obs1.gamma_method()
+    value2 = np.random.normal(5, 10)
+    dvalue2 = np.abs(np.random.normal(0, 1))
+    test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
+    test_obs2.gamma_method()
+    cov_ab = pe.covariance2(test_obs1, test_obs2)
+    cov_ba = pe.covariance2(test_obs2, test_obs1)
+    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+    
+    N = 100
+    arr = np.random.normal(1, .2, size=N)
+    configs = np.ones_like(arr)
+    for i in np.random.uniform(0, len(arr), size=int(.8 * N)):
+        configs[int(i)] = 0
+    zero_arr = [arr[i] for i in range(len(arr)) if not configs[i] == 0]
+    idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
+    a = pe.Obs([zero_arr], ['t'], idl=[idx])
+    a.gamma_method()
+    assert np.isclose(a.dvalue**2, pe.covariance2(a, a), atol=100, rtol=1e-4)
+    
+    cov_ab = pe.covariance2(test_obs1, a)
+    cov_ba = pe.covariance2(a, test_obs1)
+    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+    

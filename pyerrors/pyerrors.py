@@ -1254,12 +1254,17 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         idl_d = {}
         r_length = []
         for r_name in obs1.e_content[e_name]:
+            if r_name not in obs2.e_content[e_name]:
+                continue
             idl_d[r_name] = merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
             if idl_d[r_name] is range:
                 r_length.append(len(idl_d[r_name]))
             else:
                 r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
 
+        if not r_length:
+            return 0.
+            
         w_max = max(r_length) // 2
         e_gamma[e_name] = np.zeros(w_max)
 

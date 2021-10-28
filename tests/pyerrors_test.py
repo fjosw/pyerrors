@@ -54,8 +54,12 @@ def test_function_overloading():
         t1 = f([a, b])
         t2 = pe.derived_observable(f, [a, b])
         c = t2 - t1
-        assert c.value == 0.0, str(i)
-        assert np.all(np.abs(c.deltas['e1']) < 1e-14), str(i)
+        assert c.is_zero()
+
+    assert np.log(np.exp(b)) == b
+    assert np.exp(np.log(b)) == b
+    assert np.sqrt(b ** 2) == b
+    assert np.sqrt(b) ** 2 == b
 
 
 def test_overloading_vectorization():
@@ -89,6 +93,28 @@ def test_gamma_method():
         assert test_obs.e_tauint['t'] - 0.5 <= test_obs.e_dtauint['t']
         test_obs.gamma_method(tau_exp=10)
         assert test_obs.e_tauint['t'] - 10.5 <= test_obs.e_dtauint['t']
+
+
+def test_gamma_method_persistance():
+    my_obs = pe.Obs([np.random.rand(730)], ['t'])
+    my_obs.gamma_method()
+    value = my_obs.value
+    dvalue = my_obs.dvalue
+    ddvalue = my_obs.ddvalue
+    my_obs = 1.0 * my_obs
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
+    my_obs.gamma_method(S=3.7)
+    my_obs.gamma_method()
+    assert value == my_obs.value
+    assert dvalue == my_obs.dvalue
+    assert ddvalue == my_obs.ddvalue
 
 
 def test_covariance_is_variance():
@@ -197,6 +223,7 @@ def test_overloaded_functions():
         assert np.abs((ad_obs.value - item(val)) / ad_obs.value) < 1e-10, item.__name__
         assert np.abs(ad_obs.dvalue - dval * np.abs(deriv[i](val))) < 1e-6, item.__name__
 
+
 def test_utils():
     my_obs = pe.pseudo_Obs(1.0, 0.5, 't')
     my_obs.print(0)
@@ -210,6 +237,7 @@ def test_utils():
     my_obs.plot_piechart()
     assert my_obs > (my_obs - 1)
     assert my_obs < (my_obs + 1)
+
 
 def test_cobs():
     obs1 = pe.pseudo_Obs(1.0, 0.1, 't')
@@ -227,22 +255,22 @@ def test_cobs():
 
     fs = [[lambda x: x[0] + x[1], lambda x: x[1] + x[0]],
           [lambda x: x[0] * x[1], lambda x: x[1] * x[0]]]
-    for other in [1, 1.1, (1.1-0.2j), pe.CObs(obs1), pe.CObs(obs1, obs2)]:
+    for other in [3, 1.1, (1.1 - 0.2j), (2.3 + 0j), (0.0 + 7.7j), pe.CObs(obs1), pe.CObs(obs1, obs2)]:
         for funcs in fs:
             ta = funcs[0]([my_cobs, other])
             tb = funcs[1]([my_cobs, other])
             diff = ta - tb
-            assert np.isclose(0.0, float(diff.real))
-            assert np.isclose(0.0, float(diff.imag))
-            assert np.allclose(0.0, diff.real.deltas['t'])
-            assert np.allclose(0.0, diff.imag.deltas['t'])
+            assert diff.is_zero()
 
         ta = my_cobs - other
         tb = other - my_cobs
         diff = ta + tb
-        assert np.isclose(0.0, float(diff.real))
-        assert np.isclose(0.0, float(diff.imag))
-        assert np.allclose(0.0, diff.real.deltas['t'])
-        assert np.allclose(0.0, diff.imag.deltas['t'])
+        assert diff.is_zero()
 
-        div = my_cobs / other
+        ta = my_cobs / other
+        tb = other / my_cobs
+        diff = ta * tb - 1
+        assert diff.is_zero()
+
+        assert (my_cobs / other * other - my_cobs).is_zero()
+        assert (other / my_cobs * my_cobs - other).is_zero()

@@ -1,7 +1,6 @@
 import warnings
 import numpy as np
-import autograd.numpy as anp
-from .linalg import mat_mat_op
+from .linalg import inv, matmul
 from .dirac import gamma, gamma5
 
 
@@ -27,10 +26,9 @@ class Npr_matrix(np.ndarray):
         if self.shape != (12, 12):
             raise Exception('g5H only works for 12x12 matrices.')
         extended_g5 = np.kron(np.eye(3, dtype=int), gamma5)
-        new_matrix = extended_g5 @ self.conj().T @ extended_g5
-        new_matrix.mom_in = self.mom_out
-        new_matrix.mom_out = self.mom_in
-        return new_matrix
+        return Npr_matrix(matmul(extended_g5, self.conj().T, extended_g5),
+                          mom_in=self.mom_out,
+                          mom_out=self.mom_in)
 
     def _propagate_mom(self, other, name):
         s_mom = getattr(self, name, None)
@@ -69,7 +67,7 @@ def inv_propagator(prop):
     """ Inverts a 12x12 quark propagator"""
     if prop.shape != (12, 12):
         raise Exception("Only 12x12 propagators can be inverted.")
-    return Npr_matrix(mat_mat_op(anp.linalg.inv, prop), prop.mom_in)
+    return Npr_matrix(inv(prop), prop.mom_in)
 
 
 def Zq(inv_prop, fermion='Wilson'):
@@ -87,10 +85,18 @@ def Zq(inv_prop, fermion='Wilson'):
 
     if fermion == 'Wilson':
         p_slash = -1j * (sin_mom[0] * gamma[0] + sin_mom[1] * gamma[1] + sin_mom[2] * gamma[2] + sin_mom[3] * gamma[3]) / np.sum(sin_mom ** 2)
+    elif fermion == 'Continuum':
+        p_mom = 2 * np.pi / L * mom
+        p_slash = -1j * (p_mom[0] * gamma[0] + p_mom[1] * gamma[1] + p_mom[2] * gamma[2] + p_mom[3] * gamma[3]) / np.sum(p_mom ** 2)
+    elif fermion == 'DWF':
+        W = np.sum(1 - np.cos(2 * np.pi / L * mom))
+        s2 = np.sum(sin_mom ** 2)
+        p_slash = -1j * (sin_mom[0] * gamma[0] + sin_mom[1] * gamma[1] + sin_mom[2] * gamma[2] + sin_mom[3] * gamma[3])
+        p_slash /= 2 * (W - 1 + np.sqrt((1 - W) ** 2 + s2))
     else:
         raise Exception("Fermion type '" + fermion + "' not implemented")
 
-    res = 1 / 12. * np.trace(inv_prop @ np.kron(np.eye(3, dtype=int), p_slash))
+    res = 1 / 12. * np.trace(matmul(inv_prop, np.kron(np.eye(3, dtype=int), p_slash)))
     res.gamma_method()
 
     if not res.imag.is_zero_within_error(5):

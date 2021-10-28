@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy.linalg
 from .pyerrors import Obs, dump_object
 from .fits import standard_fit
-from .linalg import eigh, mat_mat_op
+from .linalg import eigh, inv, cholesky
 from .roots import find_root
 
 
@@ -187,10 +187,10 @@ class Corr:
     def Eigenvalue(self, t0, state=1):
         G = self.smearing_symmetric()
         G0 = G.content[t0]
-        L = mat_mat_op(anp.linalg.cholesky, G0)
-        Li = mat_mat_op(anp.linalg.inv, L)
+        L = cholesky(G0)
+        Li = inv(L)
         LT = L.T
-        LTi = mat_mat_op(anp.linalg.inv, LT)
+        LTi = inv(LT)
         newcontent = []
         for t in range(self.T):
             Gt = G.content[t]

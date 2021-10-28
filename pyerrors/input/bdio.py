@@ -175,7 +175,7 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
     """
 
     for obs in obs_list:
-        if not obs.e_names:
+        if not hasattr(obs, 'e_names'):
             raise Exception('Run the gamma method first for all obs.')
 
     bdio = ctypes.cdll.LoadLibrary(bdio_path)

@@ -34,11 +34,11 @@ class Obs:
                     ensemble.
     N_sigma_global -- Standard value for N_sigma (default 1.0)
     """
-    # __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', 'value', 'dvalue',
-    #              'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
-    #              'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-    #              'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-    #              'tag']
+    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
+                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
+                 'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+                 'tag', '__dict__']
 
     e_tag_global = 0
     S_global = 2.0
@@ -110,23 +110,6 @@ class Obs:
         self._dvalue = 0.0
         self.ddvalue = 0.0
         self.reweighted = 0
-
-        self.S = {}
-        self.tau_exp = {}
-        self.N_sigma = 0
-
-        self.e_names = {}
-        self.e_content = {}
-
-        self.e_dvalue = {}
-        self.e_ddvalue = {}
-        self.e_tauint = {}
-        self.e_dtauint = {}
-        self.e_windowsize = {}
-        self.e_rho = {}
-        self.e_drho = {}
-        self.e_n_tauint = {}
-        self.e_n_dtauint = {}
 
         self.tag = None
 
@@ -392,33 +375,35 @@ class Obs:
             else:
                 percentage = np.abs(self.dvalue / self.value) * 100
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
-            if len(self.e_names) > 1:
-                print(' Ensemble errors:')
-            for e_name in self.e_names:
+            if hasattr(self, 'e_names'):
                 if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                if self.tau_exp[e_name] > 0:
-                    print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
-                else:
-                    print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-            if level > 1:
-                print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+                    print(' Ensemble errors:')
                 for e_name in self.e_names:
-                    print(e_name, ':', self.e_content[e_name])
+                    if len(self.e_names) > 1:
+                        print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                    if self.tau_exp[e_name] > 0:
+                        print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                    else:
+                        print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+                if level > 1:
+                    print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+                    for e_name in self.e_names:
+                        print(e_name, ':', self.e_content[e_name])
 
     def is_zero_within_error(self, sigma=1):
-        """ Checks whether the observable is zero within 'sigma' standard errors.
+        """Checks whether the observable is zero within 'sigma' standard errors.
 
         Works only properly when the gamma method was run.
         """
-        return np.abs(self.value) <= sigma * self.dvalue
+        return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
 
     def is_zero(self):
+        """Checks whether the observable is zero within machine precision."""
         return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
         fig = plt.figure()
@@ -451,7 +436,7 @@ class Obs:
 
     def plot_rho(self):
         """Plot normalized autocorrelation function time for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             plt.xlabel('W')
@@ -473,7 +458,7 @@ class Obs:
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             if len(self.e_content[e_name]) == 1:
@@ -495,7 +480,7 @@ class Obs:
 
     def plot_history(self, expand=True):
         """Plot derived Monte Carlo history for each ensemble."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
         for e, e_name in enumerate(self.e_names):
@@ -519,7 +504,7 @@ class Obs:
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions."""
-        if not self.e_names:
+        if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
         if self.dvalue == 0.0:
             raise Exception('Error is 0.0')
@@ -737,19 +722,23 @@ class CObs:
         return self._imag
 
     def gamma_method(self, **kwargs):
+        """Executes the gamma_method for the real and the imaginary part."""
         if isinstance(self.real, Obs):
             self.real.gamma_method(**kwargs)
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
     def is_zero(self):
+        """Checks whether both real and imaginary part are zero within machine precision."""
         return self.real == 0.0 and self.imag == 0.0
 
     def conjugate(self):
         return CObs(self.real, -self.imag)
 
     def __add__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return other + self
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs(self.real + other.real,
                         self.imag + other.imag)
         else:
@@ -759,7 +748,9 @@ class CObs:
         return self + y
 
     def __sub__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return -1 * (other - self)
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs(self.real - other.real, self.imag - other.imag)
         else:
             return CObs(self.real - other, self.imag)
@@ -768,28 +759,42 @@ class CObs:
         return -1 * (self - other)
 
     def __mul__(self, other):
-        if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
-            return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
-                                           [self.real, other.real, self.imag, other.imag],
-                                           man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
-                        derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
-                                           [self.real, other.real, self.imag, other.imag],
-                                           man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
-        elif hasattr(other, 'real') and getattr(other, 'imag', 0) != 0:
-            return CObs(self.real * other.real - self.imag * other.imag,
-                        self.imag * other.real + self.real * other.imag)
+        if isinstance(other, np.ndarray):
+            return other * self
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
+            if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
+                return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
+                                               [self.real, other.real, self.imag, other.imag],
+                                               man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
+                            derived_observable(lambda x, **kwargs: x[2] * x[1] + x[0] * x[3],
+                                               [self.real, other.real, self.imag, other.imag],
+                                               man_grad=[other.imag.value, self.imag.value, other.real.value, self.real.value]))
+            elif getattr(other, 'imag', 0) != 0:
+                return CObs(self.real * other.real - self.imag * other.imag,
+                            self.imag * other.real + self.real * other.imag)
+            else:
+                return CObs(self.real * other.real, self.imag * other.real)
         else:
-            return CObs(self.real * np.real(other), self.imag * np.real(other))
+            return CObs(self.real * other, self.imag * other)
 
     def __rmul__(self, other):
         return self * other
 
     def __truediv__(self, other):
-        if hasattr(other, 'real') and hasattr(other, 'imag'):
+        if isinstance(other, np.ndarray):
+            return 1 / (other / self)
+        elif hasattr(other, 'real') and hasattr(other, 'imag'):
             r = other.real ** 2 + other.imag ** 2
             return CObs((self.real * other.real + self.imag * other.imag) / r, (self.imag * other.real - self.real * other.imag) / r)
         else:
             return CObs(self.real / other, self.imag / other)
+
+    def __rtruediv__(self, other):
+        r = self.real ** 2 + self.imag ** 2
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return CObs((self.real * other.real + self.imag * other.imag) / r, (self.real * other.imag - self.imag * other.real) / r)
+        else:
+            return CObs(self.real * other / r, -self.imag * other / r)
 
     def __abs__(self):
         return np.sqrt(self.real**2 + self.imag**2)
@@ -1148,7 +1153,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
                 (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]])))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1232,7 +1237,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
 
         return gamma
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1322,7 +1327,7 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
                 (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]])))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if obs1.e_names == {} or obs2.e_names == {}:
+    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     tau_exp = []

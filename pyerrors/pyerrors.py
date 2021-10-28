@@ -122,7 +122,7 @@ class Obs:
         return self._dvalue
 
     def expand_deltas(self, deltas, idx, shape):
-        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0. 
+        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
            If idx is of type range, the deltas are not changed
 
         Parameters
@@ -1264,7 +1264,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
 
         if not r_length:
             return 0.
-            
+
         w_max = max(r_length) // 2
         e_gamma[e_name] = np.zeros(w_max)
 

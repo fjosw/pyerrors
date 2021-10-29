@@ -8,6 +8,7 @@ import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
 import numdifftools as nd
+from itertools import groupby
 
 
 class Obs:
@@ -819,6 +820,12 @@ def merge_idx(idl):
     ----------
     idl  -- List of lists or ranges.
     """
+
+    # Use groupby to efficiently check whether all elements of idl are identical
+    g = groupby(idl)
+    if next(g, True) and not next(g, False):
+        return idl[0]
+
     if np.all([type(idx) is range for idx in idl]):
         if len(set([idx[0] for idx in idl])) == 1:
             idstart = min([idx.start for idx in idl])

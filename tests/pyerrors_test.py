@@ -280,6 +280,15 @@ def test_irregular_error_propagation():
     regular_obs = pe.Obs([np.random.rand(1000)], ['t'])
     irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[range(1, 1000, 2)])
     assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
+    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
+
+    irregular_obs = pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]])
+    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
+    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
+
+    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[list(range(1, 251)) + list(range(500, 1000, 2))])
+    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
+    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
 
 
 def test_gamma_method_irregular():

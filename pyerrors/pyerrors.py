@@ -933,7 +933,7 @@ def derived_observable(func, data, **kwargs):
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
 
-    is_merged = np.any([o.is_merged for o in raveled_data])
+    is_merged = len(list(filter(lambda o: o.is_merged is True, raveled_data))) > 1
     reweighted = np.max([o.reweighted for o in raveled_data])
     new_idl_d = {}
     for name in new_names:

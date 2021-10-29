@@ -290,7 +290,7 @@ def test_merge_obs():
     my_obs2 = pe.Obs([np.random.rand(100)], ['q'], idl=[range(1, 200, 2)])
     merged = pe.merge_obs([my_obs1, my_obs2])
     diff = merged - my_obs2 - my_obs1
-    assert diff == diff.value
+    assert diff == -(my_obs1.value + my_obs2.value) / 2
 
 
 def test_irregular_error_propagation():

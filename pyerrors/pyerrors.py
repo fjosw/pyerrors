@@ -69,7 +69,9 @@ class Obs:
         self.idl = {}
         if 'idl' in kwargs:
             for name, idx in sorted(zip(names, kwargs.get('idl'))):
-                if isinstance(idx, (list, np.ndarray)):
+                if isinstance(idx, range):
+                    self.idl[name] = idx
+                elif isinstance(idx, (list, np.ndarray)):
                     dc = np.unique(np.diff(idx))
                     if np.any(dc < 0):
                         raise Exception("Unsorted idx for idl[%s]" % (name))
@@ -77,8 +79,6 @@ class Obs:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
                         self.idl[name] = list(idx)
-                elif type(idx) is range:
-                    self.idl[name] = idx
                 else:
                     raise Exception('incompatible type for idl[%s].' % (name))
         else:

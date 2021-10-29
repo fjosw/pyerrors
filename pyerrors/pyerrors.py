@@ -78,7 +78,7 @@ class Obs:
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
-                        self.idl[name] = list(idx)
+                        self.idl[name] = np.array(idx)
                 else:
                     raise Exception('incompatible type for idl[%s].' % (name))
         else:

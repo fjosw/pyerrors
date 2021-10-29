@@ -276,6 +276,12 @@ def test_cobs():
         assert (other / my_cobs * my_cobs - other).is_zero()
 
 
+def test_irregular_error_propagation():
+    regular_obs = pe.Obs([np.random.rand(1000)], ['t'])
+    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[range(1, 1000, 2)])
+    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
+
+
 def test_gamma_method_irregular():
     N = 20000
     arr = np.random.normal(1, .2, size=N)
@@ -307,7 +313,7 @@ def test_gamma_method_irregular():
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
-    
+
     arr2 = np.random.normal(1, .2, size=N)
     afull = pe.Obs([arr, arr2], ['a1', 'a2'])
 
@@ -323,21 +329,21 @@ def test_gamma_method_irregular():
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
-        
+
     def gen_autocorrelated_array(inarr, rho):
         outarr = np.copy(inarr)
         for i in range(1, len(outarr)):
             outarr[i] = rho * outarr[i - 1] + np.sqrt(1 - rho**2) * outarr[i]
         return outarr
-    
+
     arr = np.random.normal(1, .2, size=N)
     carr = gen_autocorrelated_array(arr, .346)
     a = pe.Obs([carr], ['a'])
     a.gamma_method(e_tag=1)
-    
+
     ae = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 0]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 0]])
     ae.gamma_method(e_tag=1)
-    
+
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
     ao.gamma_method(e_tag=1)
 
@@ -359,7 +365,7 @@ def test_covariance2_symmetry():
     cov_ba = pe.covariance2(test_obs2, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
-    
+
     N = 100
     arr = np.random.normal(1, .2, size=N)
     configs = np.ones_like(arr)
@@ -370,9 +376,8 @@ def test_covariance2_symmetry():
     a = pe.Obs([zero_arr], ['t'], idl=[idx])
     a.gamma_method()
     assert np.isclose(a.dvalue**2, pe.covariance2(a, a), atol=100, rtol=1e-4)
-    
+
     cov_ab = pe.covariance2(test_obs1, a)
     cov_ba = pe.covariance2(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
-    

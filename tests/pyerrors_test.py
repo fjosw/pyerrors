@@ -282,6 +282,10 @@ def test_irregular_error_propagation():
     assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
     assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
 
+    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[np.arange(1, 1000, 2)])
+    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
+    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
+
     irregular_obs = pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]])
     assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
     assert regular_obs == (regular_obs + irregular_obs) - irregular_obs

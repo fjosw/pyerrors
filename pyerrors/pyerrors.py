@@ -49,9 +49,9 @@ class Obs:
     N_sigma_global = 1.0
     filter_eps = 1e-10
 
-    def __init__(self, samples, names, **kwargs):
+    def __init__(self, samples, names, idl=None, means=None, **kwargs):
 
-        if 'means' not in kwargs:
+        if means is None:
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if len(names) != len(set(names)):
@@ -67,8 +67,8 @@ class Obs:
         self.deltas = {}
 
         self.idl = {}
-        if 'idl' in kwargs:
-            for name, idx in zip(names, kwargs.get('idl')):
+        if idl is not None:
+            for name, idx in zip(names, idl):
                 if isinstance(idx, range):
                     self.idl[name] = idx
                 elif isinstance(idx, (list, np.ndarray)):
@@ -85,8 +85,8 @@ class Obs:
             for name, sample in zip(names, samples):
                 self.idl[name] = range(1, len(sample) + 1)
 
-        if 'means' in kwargs:
-            for name, sample, mean in zip(names, samples, kwargs.get('means')):
+        if means is not None:
+            for name, sample, mean in zip(names, samples, means):
                 self.shape[name] = len(self.idl[name])
                 if len(sample) != self.shape[name]:
                     raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
@@ -103,7 +103,7 @@ class Obs:
         self.N = sum(list(self.shape.values()))
 
         self._value = 0
-        if 'means' not in kwargs:
+        if means is None:
             for name in self.names:
                 self._value += self.shape[name] * self.r_values[name]
             self._value /= self.N

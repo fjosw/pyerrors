@@ -276,6 +276,15 @@ def test_cobs():
         assert (other / my_cobs * my_cobs - other).is_zero()
 
 
+def test_reweighting():
+    my_obs = pe.Obs([np.random.rand(1000)], ['t'])
+    assert not my_obs.reweighted
+    r_obs = pe.reweight(my_obs, [my_obs])
+    assert r_obs[0].reweighted
+    r_obs2 = r_obs[0] * my_obs
+    assert r_obs2.reweighted
+
+
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),

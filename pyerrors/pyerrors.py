@@ -1468,6 +1468,7 @@ def merge_obs(list_of_obs):
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
 
+
 def _type_chooser(n):
     for dtype in [np.uint8, np.uint16, np.uint32, np.uint64]:
         if n <= dtype(-1):

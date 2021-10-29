@@ -285,6 +285,14 @@ def test_reweighting():
     assert r_obs2.reweighted
 
 
+def test_merge_obs():
+    my_obs1 = pe.Obs([np.random.rand(100)], ['t'])
+    my_obs2 = pe.Obs([np.random.rand(100)], ['q'], idl=[range(1, 200, 2)])
+    merged = pe.merge_obs([my_obs1, my_obs2])
+    diff = merged - my_obs2 - my_obs1
+    assert diff == diff.value
+
+
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),

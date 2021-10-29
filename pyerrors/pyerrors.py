@@ -78,7 +78,7 @@ class Obs:
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
-                        self.idl[name] = list(idx)
+                        self.idl[name] = np.array(idx, dtype=_type_chooser(len(idx)))
                 else:
                     raise Exception('incompatible type for idl[%s].' % (name))
         else:
@@ -822,9 +822,12 @@ def merge_idx(idl):
     """
 
     # Use groupby to efficiently check whether all elements of idl are identical
-    g = groupby(idl)
-    if next(g, True) and not next(g, False):
-        return idl[0]
+    try:
+        g = groupby(idl)
+        if next(g, True) and not next(g, False):
+            return idl[0]
+    except:
+        pass
 
     if np.all([type(idx) is range for idx in idl]):
         if len(set([idx[0] for idx in idl])) == 1:
@@ -1464,3 +1467,9 @@ def merge_obs(list_of_obs):
     o.is_merged = np.any([oi.is_merged for oi in list_of_obs])
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
+
+def _type_chooser(n):
+    for dtype in [np.uint8, np.uint16, np.uint32, np.uint64]:
+        if n <= dtype(-1):
+            return dtype
+    raise Exception('{} is really big!'.format(n))

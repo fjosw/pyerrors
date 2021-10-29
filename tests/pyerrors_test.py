@@ -277,22 +277,18 @@ def test_cobs():
 
 
 def test_irregular_error_propagation():
-    regular_obs = pe.Obs([np.random.rand(1000)], ['t'])
-    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[range(1, 1000, 2)])
-    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
-    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
-
-    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[np.arange(1, 1000, 2)])
-    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
-    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
-
-    irregular_obs = pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]])
-    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
-    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
-
-    irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[list(range(1, 251)) + list(range(500, 1000, 2))])
-    assert regular_obs == (regular_obs / irregular_obs) * irregular_obs
-    assert regular_obs == (regular_obs + irregular_obs) - irregular_obs
+    obs_list = [pe.Obs([np.random.rand(100)], ['t']),
+                pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),
+                pe.Obs([np.random.rand(50)], ['t'], idl=[np.arange(1, 100, 2)]),
+                pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]]),
+                pe.Obs([np.random.rand(50)], ['t'], idl=[list(range(1, 26)) + list(range(50, 100, 2))])]
+    for obs1 in obs_list:
+        for obs2 in obs_list:
+            assert obs1 == (obs1 / obs2) * obs2
+            assert obs1 == (obs1 * obs2) / obs2
+            assert obs1 == obs1 * (obs2 / obs2)
+            assert obs1 == (obs1 + obs2) - obs2
+            assert obs1 == obs1 + (obs2 - obs2)
 
 
 def test_gamma_method_irregular():

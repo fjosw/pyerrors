@@ -68,7 +68,7 @@ class Obs:
 
         self.idl = {}
         if 'idl' in kwargs:
-            for name, idx in sorted(zip(names, kwargs.get('idl'))):
+            for name, idx in zip(names, kwargs.get('idl')):
                 if isinstance(idx, range):
                     self.idl[name] = idx
                 elif isinstance(idx, (list, np.ndarray)):
@@ -82,18 +82,18 @@ class Obs:
                 else:
                     raise Exception('incompatible type for idl[%s].' % (name))
         else:
-            for name, sample in sorted(zip(names, samples)):
+            for name, sample in zip(names, samples):
                 self.idl[name] = range(1, len(sample) + 1)
 
         if 'means' in kwargs:
-            for name, sample, mean in sorted(zip(names, samples, kwargs.get('means'))):
+            for name, sample, mean in zip(names, samples, kwargs.get('means')):
                 self.shape[name] = len(self.idl[name])
                 if len(sample) != self.shape[name]:
                     raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                 self.r_values[name] = mean
                 self.deltas[name] = sample
         else:
-            for name, sample in sorted(zip(names, samples)):
+            for name, sample in zip(names, samples):
                 self.shape[name] = len(self.idl[name])
                 if len(sample) != self.shape[name]:
                     raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))

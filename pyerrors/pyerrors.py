@@ -38,7 +38,7 @@ class Obs:
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
                  'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'tag', '__dict__']
+                 'idl', 'is_merged', 'tag', '__dict__']
 
     e_tag_global = 0
     S_global = 2.0

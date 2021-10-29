@@ -46,6 +46,7 @@ class Obs:
     tau_exp_global = 0.0
     tau_exp_dict = {}
     N_sigma_global = 1.0
+    filter_eps = 1e-10
 
     def __init__(self, samples, names, **kwargs):
 
@@ -64,18 +65,41 @@ class Obs:
         self.r_values = {}
         self.deltas = {}
 
+        self.idl = {}
+        if 'idl' in kwargs:
+            for name, idx in sorted(zip(names, kwargs.get('idl'))):
+                if isinstance(idx, (list, np.ndarray)):
+                    dc = np.unique(np.diff(idx))
+                    if np.any(dc < 0):
+                        raise Exception("Unsorted idx for idl[%s]" % (name))
+                    if len(dc) == 1:
+                        self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
+                    else:
+                        self.idl[name] = list(idx)
+                elif type(idx) is range:
+                    self.idl[name] = idx
+                else:
+                    raise Exception('incompatible type for idl[%s].' % (name))
+        else:
+            for name, sample in sorted(zip(names, samples)):
+                self.idl[name] = range(1, len(sample) + 1)
+
         if 'means' in kwargs:
             for name, sample, mean in sorted(zip(names, samples, kwargs.get('means'))):
-                self.shape[name] = np.size(sample)
+                self.shape[name] = len(self.idl[name])
+                if len(sample) != self.shape[name]:
+                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                 self.r_values[name] = mean
                 self.deltas[name] = sample
         else:
             for name, sample in sorted(zip(names, samples)):
-                self.shape[name] = np.size(sample)
+                self.shape[name] = len(self.idl[name])
+                if len(sample) != self.shape[name]:
+                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                 self.r_values[name] = np.mean(sample)
                 self.deltas[name] = sample - self.r_values[name]
-
-        self.N = sum(map(np.size, list(self.deltas.values())))
+        self.is_merged = False
+        self.N = sum(list(self.shape.values()))
 
         self._value = 0
         if 'means' not in kwargs:
@@ -96,6 +120,52 @@ class Obs:
     @property
     def dvalue(self):
         return self._dvalue
+
+    def expand_deltas(self, deltas, idx, shape):
+        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
+           If idx is of type range, the deltas are not changed
+
+        Parameters
+        ----------
+        deltas  -- List of fluctuations
+        idx     -- List or range of configs on which the deltas are defined.
+        shape   -- Number of configs in idx.
+        """
+        if type(idx) is range:
+            return deltas
+        else:
+            ret = np.zeros(idx[-1] - idx[0] + 1)
+            for i in range(shape):
+                ret[idx[i] - idx[0]] = deltas[i]
+            return ret
+
+    def calc_gamma(self, deltas, idx, shape, w_max, fft):
+        """Calculate Gamma_{AA} from the deltas, which are defined on idx.
+           idx is assumed to be a contiguous range (possibly with a stepsize != 1)
+
+        Parameters
+        ----------
+        deltas  -- List of fluctuations
+        idx     -- List or range of configs on which the deltas are defined.
+        shape   -- Number of configs in idx.
+        w_max   -- Upper bound for the summation window
+        fft     -- boolean, which determines whether the fft algorithm is used for
+                   the computation of the autocorrelation function
+        """
+        gamma = np.zeros(w_max)
+        deltas = self.expand_deltas(deltas, idx, shape)
+        new_shape = len(deltas)
+        if fft:
+            max_gamma = min(new_shape, w_max)
+            # The padding for the fft has to be even
+            padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
+            gamma[:max_gamma] += np.fft.irfft(np.abs(np.fft.rfft(deltas, padding)) ** 2)[:max_gamma]
+        else:
+            for n in range(w_max):
+                if new_shape - n >= 0:
+                    gamma[n] += deltas[0:new_shape - n].dot(deltas[n:new_shape])
+
+        return gamma
 
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.
@@ -214,45 +284,24 @@ class Obs:
 
             r_length = []
             for r_name in self.e_content[e_name]:
-                r_length.append(len(self.deltas[r_name]))
+                if self.idl[r_name] is range:
+                    r_length.append(len(self.idl[r_name]))
+                else:
+                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
 
-            e_N = np.sum(r_length)
+            e_N = np.sum([self.shape[r_name] for r_name in self.e_content[e_name]])
             w_max = max(r_length) // 2
             e_gamma[e_name] = np.zeros(w_max)
             self.e_rho[e_name] = np.zeros(w_max)
             self.e_drho[e_name] = np.zeros(w_max)
 
-            if fft:
-                for r_name in self.e_content[e_name]:
-                    max_gamma = min(self.shape[r_name], w_max)
-                    # The padding for the fft has to be even
-                    padding = self.shape[r_name] + max_gamma + (self.shape[r_name] + max_gamma) % 2
-                    e_gamma[e_name][:max_gamma] += np.fft.irfft(np.abs(np.fft.rfft(self.deltas[r_name], padding)) ** 2)[:max_gamma]
-            else:
-                for n in range(w_max):
-                    for r_name in self.e_content[e_name]:
-                        if self.shape[r_name] - n >= 0:
-                            e_gamma[e_name][n] += self.deltas[r_name][0:self.shape[r_name] - n].dot(self.deltas[r_name][n:self.shape[r_name]])
-
-            e_shapes = []
             for r_name in self.e_content[e_name]:
-                e_shapes.append(self.shape[r_name])
+                e_gamma[e_name] += self.calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
-            div = np.array([])
-            mul = np.array([])
-            sorted_shapes = sorted(e_shapes)
-            for i, item in enumerate(sorted_shapes):
-                if len(div) > w_max:
-                    break
-                if i == 0:
-                    samples = item
-                else:
-                    samples = item - sorted_shapes[i - 1]
-                div = np.append(div, np.repeat(np.sum(sorted_shapes[i:]), samples))
-                mul = np.append(mul, np.repeat(len(sorted_shapes) - i, samples))
-            div = div - np.arange(len(div)) * mul
-
-            e_gamma[e_name] /= div[:w_max]
+            gamma_div = np.zeros(w_max)
+            for r_name in self.e_content[e_name]:
+                gamma_div += self.calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+            e_gamma[e_name] /= gamma_div[:w_max]
 
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
                 self.e_tauint[e_name] = 0.5
@@ -276,13 +325,16 @@ class Obs:
 
             _compute_drho(1)
             if self.tau_exp[e_name] > 0:
+                texp = self.tau_exp[e_name]
+                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
+                #    texp /= self.idl[e_name].step
                 # Critical slowing down analysis
                 for n in range(1, w_max // 2):
                     _compute_drho(n + 1)
                     if (self.e_rho[e_name][n] - self.N_sigma * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + self.tau_exp[e_name] * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
-                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + self.tau_exp[e_name] ** 2 * self.e_drho[e_name][n + 1] ** 2)
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
+                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
                         # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
                         self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
@@ -426,7 +478,7 @@ class Obs:
             plt.title('Replica distribution' + e_name + ' (mean=0, var=1)')
             plt.draw()
 
-    def plot_history(self):
+    def plot_history(self, expand=True):
         """Plot derived Monte Carlo history for each ensemble."""
         if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
@@ -434,13 +486,15 @@ class Obs:
         for e, e_name in enumerate(self.e_names):
             plt.figure()
             r_length = []
-            for r, r_name in enumerate(self.e_content[e_name]):
-                r_length.append(len(self.deltas[r_name]))
-            e_N = np.sum(r_length)
-            x = np.arange(e_N)
             tmp = []
             for r, r_name in enumerate(self.e_content[e_name]):
-                tmp.append(self.deltas[r_name] + self.r_values[r_name])
+                if expand:
+                    tmp.append(self.expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
+                else:
+                    tmp.append(self.deltas[r_name] + self.r_values[r_name])
+                r_length.append(len(tmp[-1]))
+            e_N = np.sum(r_length)
+            x = np.arange(e_N)
             y = np.concatenate(tmp, axis=0)
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
@@ -758,6 +812,82 @@ class CObs:
         return 'CObs[' + str(self) + ']'
 
 
+def merge_idx(idl):
+    """Returns the union of all lists in idl
+
+    Parameters
+    ----------
+    idl  -- List of lists or ranges.
+    """
+    if np.all([type(idx) is range for idx in idl]):
+        if len(set([idx[0] for idx in idl])) == 1:
+            idstart = min([idx.start for idx in idl])
+            idstop = max([idx.stop for idx in idl])
+            idstep = min([idx.step for idx in idl])
+            return range(idstart, idstop, idstep)
+
+    return list(set().union(*idl))
+
+
+def expand_deltas_for_merge(deltas, idx, shape, new_idx):
+    """Expand deltas defined on idx to the list of configs that is defined by new_idx.
+       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
+       common divisor of the step sizes is used as new step size.
+
+    Parameters
+    ----------
+    deltas  -- List of fluctuations
+    idx     -- List or range of configs on which the deltas are defined.
+               Has to be a subset of new_idx.
+    shape   -- Number of configs in idx.
+    new_idx -- List of configs that defines the new range.
+    """
+
+    if type(idx) is range and type(new_idx) is range:
+        if idx == new_idx:
+            return deltas
+    ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
+    for i in range(shape):
+        ret[idx[i] - new_idx[0]] = deltas[i]
+    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
+
+
+def filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
+    """Filter out all configurations with vanishing fluctuation such that they do not
+       contribute to the error estimate anymore. Returns the new names, deltas and
+       idl according to the filtering.
+       A fluctuation is considered to be vanishing, if it is smaller than eps times
+       the mean of the absolute values of all deltas in one list.
+
+    Parameters
+    ----------
+    names  -- List of names
+    deltas -- Dict lists of fluctuations
+    idx    -- Dict of lists or ranges of configs on which the deltas are defined.
+               Has to be a subset of new_idx.
+
+    Optional parameters
+    ----------
+    eps    -- Prefactor that enters the filter criterion.
+    """
+    new_names = []
+    new_deltas = {}
+    new_idl = {}
+    for name in names:
+        nd = []
+        ni = []
+        maxd = np.mean(np.fabs(deltas[name]))
+        for i in range(len(deltas[name])):
+            if not np.isclose(0.0, deltas[name][i], atol=eps * maxd):
+                nd.append(deltas[name][i])
+                ni.append(idl[name][i])
+        if nd:
+            new_names.append(name)
+            new_deltas[name] = np.array(nd)
+            new_idl[name] = ni
+    return (new_names, new_deltas, new_idl)
+
+
 def derived_observable(func, data, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
@@ -803,16 +933,19 @@ def derived_observable(func, data, **kwargs):
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
 
-    new_shape = {}
-    for i_data in raveled_data:
-        for name in new_names:
-            tmp = i_data.shape.get(name)
+    is_merged = np.any([o.is_merged for o in raveled_data])
+    reweighted = np.max([o.reweighted for o in raveled_data])
+    new_idl_d = {}
+    for name in new_names:
+        idl = []
+        for i_data in raveled_data:
+            tmp = i_data.idl.get(name)
             if tmp is not None:
-                if new_shape.get(name) is None:
-                    new_shape[name] = tmp
-                else:
-                    if new_shape[name] != tmp:
-                        raise Exception('Shapes of ensemble', name, 'do not match.')
+                idl.append(tmp)
+        new_idl_d[name] = merge_idx(idl)
+        if not is_merged:
+            is_merged = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
+
     if data.ndim == 1:
         values = np.array([o.value for o in data])
     else:
@@ -871,16 +1004,25 @@ def derived_observable(func, data, **kwargs):
         new_deltas = {}
         for j_obs, obs in np.ndenumerate(data):
             for name in obs.names:
-                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * obs.deltas[name]
+                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 
         new_samples = []
         new_means = []
-        for name in new_names:
-            new_samples.append(new_deltas[name])
+        new_idl = []
+        if is_merged:
+            filtered_names, filtered_deltas, filtered_idl_d = filter_zeroes(new_names, new_deltas, new_idl_d)
+        else:
+            filtered_names = new_names
+            filtered_deltas = new_deltas
+            filtered_idl_d = new_idl_d
+        for name in filtered_names:
+            new_samples.append(filtered_deltas[name])
             new_means.append(new_r_values[name][i_val])
-
-        final_result[i_val] = Obs(new_samples, new_names, means=new_means)
+            new_idl.append(filtered_idl_d[name])
+        final_result[i_val] = Obs(new_samples, filtered_names, means=new_means, idl=new_idl)
         final_result[i_val]._value = new_val
+        final_result[i_val].is_merged = is_merged
+        final_result[i_val].reweighted = reweighted
 
     if multi == 0:
         final_result = final_result.item()
@@ -888,22 +1030,75 @@ def derived_observable(func, data, **kwargs):
     return final_result
 
 
+def reduce_deltas(deltas, idx_old, idx_new):
+    """Extract deltas defined on idx_old on all configs of idx_new.
+
+    Parameters
+    ----------
+    deltas  -- List of fluctuations
+    idx_old -- List or range of configs on which the deltas are defined
+    idx_new -- List of configs for which we want to extract the deltas.
+               Has to be a subset of idx_old.
+    """
+    if not len(deltas) == len(idx_old):
+        raise Exception('Lenght of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
+    if type(idx_old) is range and type(idx_new) is range:
+        if idx_old == idx_new:
+            return deltas
+    shape = len(idx_new)
+    ret = np.zeros(shape)
+    oldpos = 0
+    for i in range(shape):
+        if oldpos == idx_old[i]:
+            raise Exception('idx_old and idx_new do not match!')
+        pos = -1
+        for j in range(oldpos, len(idx_old)):
+            if idx_old[j] == idx_new[i]:
+                pos = j
+                break
+        if pos < 0:
+            raise Exception('Error in reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
+        ret[i] = deltas[j]
+    return np.array(ret)
+
+
 def reweight(weight, obs, **kwargs):
-    """Reweight a list of observables."""
+    """Reweight a list of observables.
+
+    Parameters
+    ----------
+    weight -- Reweighting factor. An Observable that has to be defined on a superset of the
+              configurations in obs[i].idl for all i.
+    obs    -- list of Obs, e.g. [obs1, obs2, obs3].
+
+    Keyword arguments
+    -----------------
+    all_configs -- if True, the reweighted observables are normalized by the average of
+                   the reweighting factor on all configurations in weight.idl and not
+                   on the configurations in obs[i].idl.
+    """
     result = []
     for i in range(len(obs)):
         if sorted(weight.names) != sorted(obs[i].names):
             raise Exception('Error: Ensembles do not fit')
         for name in weight.names:
-            if weight.shape[name] != obs[i].shape[name]:
-                raise Exception('Error: Shapes of ensemble', name, 'do not fit')
+            if not set(obs[i].idl[name]).issubset(weight.idl[name]):
+                raise Exception('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
         new_samples = []
+        w_deltas = {}
         for name in sorted(weight.names):
-            new_samples.append((weight.deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
-        tmp_obs = Obs(new_samples, sorted(weight.names))
+            w_deltas[name] = reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
+            new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
+        tmp_obs = Obs(new_samples, sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
 
-        result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, weight], **kwargs))
+        if kwargs.get('all_configs'):
+            new_weight = weight
+        else:
+            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(weight.names)], sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+
+        result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, new_weight], **kwargs))
         result[-1].reweighted = 1
+        result[-1].is_merged = obs[i].is_merged
 
     return result
 
@@ -931,7 +1126,10 @@ def correlate(obs_a, obs_b):
     for name in sorted(obs_a.names):
         new_samples.append((obs_a.deltas[name] + obs_a.r_values[name]) * (obs_b.deltas[name] + obs_b.r_values[name]))
 
-    return Obs(new_samples, sorted(obs_a.names))
+    o = Obs(new_samples, sorted(obs_a.names))
+    o.is_merged = obs_a.is_merged or obs_b.is_merged
+    o.reweighted = np.max([obs_a.reweighted, obs_b.reweighted])
+    return o
 
 
 def covariance(obs1, obs2, correlation=False, **kwargs):
@@ -952,6 +1150,8 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
     for name in sorted(set(obs1.names + obs2.names)):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
+            raise Exception('Shapes of ensemble', name, 'do not fit')
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
@@ -1004,9 +1204,39 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
                    returned (default False)
     """
 
-    for name in sorted(set(obs1.names + obs2.names)):
-        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
+    def expand_deltas(deltas, idx, shape, new_idx):
+        """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
+           New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
+           common divisor of the step sizes is used as new step size.
+
+        Parameters
+        ----------
+        deltas  -- List of fluctuations
+        idx     -- List or range of configs on which the deltas are defined.
+                   Has to be a subset of new_idx.
+        shape   -- Number of configs in idx.
+        new_idx -- List of configs that defines the new range.
+        """
+
+        if type(idx) is range and type(new_idx) is range:
+            if idx == new_idx:
+                return deltas
+        ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
+        for i in range(shape):
+            ret[idx[i] - new_idx[0]] = deltas[i]
+        return ret
+
+    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx, w_max):
+        gamma = np.zeros(w_max)
+        deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
+        deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
+        new_shape = len(deltas1)
+        max_gamma = min(new_shape, w_max)
+        # The padding for the fft has to be even
+        padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
+        gamma[:max_gamma] += (np.fft.irfft(np.fft.rfft(deltas1, padding) * np.conjugate(np.fft.rfft(deltas2, padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(deltas2, padding) * np.conjugate(np.fft.rfft(deltas1, padding)))[:max_gamma]) / 2.0
+
+        return gamma
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')
@@ -1022,44 +1252,42 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         if e_name not in obs2.e_names:
             continue
 
+        idl_d = {}
         r_length = []
         for r_name in obs1.e_content[e_name]:
-            r_length.append(len(obs1.deltas[r_name]))
+            if r_name not in obs2.e_content[e_name]:
+                continue
+            idl_d[r_name] = merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
+            if idl_d[r_name] is range:
+                r_length.append(len(idl_d[r_name]))
+            else:
+                r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
 
-        e_N = np.sum(r_length)
+        if not r_length:
+            return 0.
+
         w_max = max(r_length) // 2
         e_gamma[e_name] = np.zeros(w_max)
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            max_gamma = min(obs1.shape[r_name], w_max)
-            # The padding for the fft has to be even
-            padding = obs1.shape[r_name] + max_gamma + (obs1.shape[r_name] + max_gamma) % 2
-            e_gamma[e_name][:max_gamma] += (np.fft.irfft(np.fft.rfft(obs1.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs2.deltas[r_name], padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(obs2.deltas[r_name], padding) * np.conjugate(np.fft.rfft(obs1.deltas[r_name], padding)))[:max_gamma]) / 2.0
+            e_gamma[e_name] += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
 
-        if np.all(e_gamma[e_name]) == 0.0:
+        if np.all(e_gamma[e_name] == 0.0):
             continue
 
         e_shapes = []
         for r_name in obs1.e_content[e_name]:
             e_shapes.append(obs1.shape[r_name])
-
-        div = np.array([])
-        mul = np.array([])
-        sorted_shapes = sorted(e_shapes)
-        for i, item in enumerate(sorted_shapes):
-            if len(div) > w_max:
-                break
-            if i == 0:
-                samples = item
-            else:
-                samples = item - sorted_shapes[i - 1]
-            div = np.append(div, np.repeat(np.sum(sorted_shapes[i:]), samples))
-            mul = np.append(mul, np.repeat(len(sorted_shapes) - i, samples))
-        div = div - np.arange(len(div)) * mul
-
-        e_gamma[e_name] /= div[:w_max]
+        gamma_div = np.zeros(w_max)
+        e_N = 0
+        for r_name in obs1.e_content[e_name]:
+            if r_name not in obs2.e_content[e_name]:
+                continue
+            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            e_N += np.sum(np.ones_like(idl_d[r_name]))
+        e_gamma[e_name] /= gamma_div[:w_max]
 
         e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
         e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
@@ -1102,6 +1330,8 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
 
     for name in sorted(set(obs1.names + obs2.names)):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
+            raise Exception('Shapes of ensemble', name, 'do not fit')
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
@@ -1216,8 +1446,14 @@ def merge_obs(list_of_obs):
     if (len(replist) == len(set(replist))) is False:
         raise Exception('list_of_obs contains duplicate replica: %s' % (str(replist)))
     new_dict = {}
+    idl_dict = {}
     for o in list_of_obs:
         new_dict.update({key: o.deltas.get(key, 0) + o.r_values.get(key, 0)
                         for key in set(o.deltas) | set(o.r_values)})
+        idl_dict.update({key: o.idl.get(key, 0) for key in set(o.deltas)})
 
-    return Obs(list(new_dict.values()), list(new_dict.keys()))
+    names = sorted(new_dict.keys())
+    o = Obs([new_dict[name] for name in names], names, idl=[idl_dict[name] for name in names])
+    o.is_merged = np.any([oi.is_merged for oi in list_of_obs])
+    o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
+    return o

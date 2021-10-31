@@ -27,7 +27,8 @@ def test_standard_fit():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
-    beta = pe.fits.standard_fit(x, oy, func)
+    out = pe.fits.standard_fit(x, oy, func)
+    beta = out.fit_parameters
 
     pe.Obs.e_tag_global = 5
     for i in range(2):
@@ -70,7 +71,8 @@ def test_odr_fit():
     odr.set_job(fit_type=0, deriv=1)
     output = odr.run()
 
-    beta = pe.fits.odr_fit(ox, oy, func)
+    out = pe.fits.odr_fit(ox, oy, func)
+    beta = out.fit_parameters
 
     pe.Obs.e_tag_global = 5
     for i in range(2):
@@ -95,8 +97,8 @@ def test_odr_derivatives():
 
         def func(a, x):
             return a[0] + a[1] * x ** 2
-
-    fit1 = pe.fits.odr_fit(x, y, func)
+    out = pe.fits.odr_fit(x, y, func)
+    fit1 = out.fit_parameters
 
     tfit = pe.fits.fit_general(x, y, func, base_step=0.1, step_ratio=1.1, num_steps=20)
     assert np.abs(np.max(np.array(list(fit1[1].deltas.values()))

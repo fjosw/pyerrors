@@ -18,6 +18,26 @@ class Fit_result:
     def __init__(self):
         self.fit_parameters = None
 
+    def gamma_method(self):
+        """Apply the gamma method to all fit parameters"""
+        [o.gamma_method() for o in self.fit_parameters]
+
+    def __str__(self):
+        self.gamma_method()
+        my_str = ''
+        if hasattr(self, 'chisquare_by_dof'):
+            my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'
+        elif hasattr(self, 'residual_variance'):
+            my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
+        if hasattr(self, 'chisquare_by_expected_chisquare'):
+            my_str += '\u03C7\u00b2/\u03C7\u00b2exp = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
+        my_str += 'Fit parameters:\n'
+        for i_par, par in enumerate(self.fit_parameters):
+            my_str += str(i_par) + '\t' + str(par) + '\n'
+        return my_str
+
+    def __repr__(self):
+        return 'Fit_result' + str([o.value for o in self.fit_parameters]) + '\n'
 
 
 def standard_fit(x, y, func, silent=False, **kwargs):
@@ -56,7 +76,6 @@ def standard_fit(x, y, func, silent=False, **kwargs):
                           This can take a while as the full correlation matrix
                           has to be calculated (default False).
     """
-
 
     output = Fit_result()
 
@@ -105,7 +124,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
         return chisq
 
     if 'method' in kwargs:
-        utput.method = kwargs.get('method')
+        output.method = kwargs.get('method')
         if not silent:
             print('Method:', kwargs.get('method'))
         if kwargs.get('method') == 'migrad':
@@ -207,8 +226,6 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
     Keyword arguments
     -----------------
-    dict_output -- If true, the output is a dictionary containing all relevant
-                   data instead of just a list of the fit parameters.
     silent -- If true all output to the console is omitted (default False).
     initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear
                      fits with many parameters.
@@ -263,20 +280,20 @@ def odr_fit(x, y, func, silent=False, **kwargs):
     model = Model(func)
     odr = ODR(data, model, x0, partol=np.finfo(np.float64).eps)
     odr.set_job(fit_type=0, deriv=1)
-    output = odr.run()
+    out = odr.run()
 
-    output.residual_variance = output.res_var
+    output.residual_variance = out.res_var
 
     output.method = 'ODR'
 
-    output.xplus = output.xplus
+    output.xplus = out.xplus
 
     if not silent:
         print('Method: ODR')
-        print(*output.stopreason)
+        print(*out.stopreason)
         print('Residual variance:', output.residual_variance)
 
-    if output.info > 3:
+    if out.info > 3:
         raise Exception('The minimization procedure did not converge.')
 
     m = x_f.size
@@ -296,9 +313,9 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 
         number_of_x_parameters = int(m / x_f.shape[-1])
 
-        old_jac = jacobian(func)(output.beta, output.xplus)
+        old_jac = jacobian(func)(out.beta, out.xplus)
         fused_row1 = np.concatenate((old_jac, np.concatenate((number_of_x_parameters * [np.zeros(old_jac.shape)]), axis=0)))
-        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(output.xplus, output.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
+        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(out.xplus, out.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
@@ -307,19 +324,19 @@ def odr_fit(x, y, func, silent=False, **kwargs):
         if expected_chisquare <= 0.0:
             warnings.warn("Negative expected_chisquare.", RuntimeWarning)
             expected_chisquare = np.abs(expected_chisquare)
-        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((output.beta, output.xplus.ravel()))) / expected_chisquare
+        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel()))) / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
                   output.chisquare_by_expected_chisquare)
 
-    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((output.beta, output.xplus.ravel()))))
+    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((out.beta, out.xplus.ravel()))))
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
         chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((output.beta, output.xplus.ravel(), x_f.ravel())))
+    jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((out.beta, out.xplus.ravel(), x_f.ravel())))
 
     deriv_x = -hess_inv @ jac_jac_x[:n_parms + m, n_parms + m:]
 
@@ -328,17 +345,17 @@ def odr_fit(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((output.beta, output.xplus.ravel(), y_f)))
+    jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((out.beta, out.xplus.ravel(), y_f)))
 
     deriv_y = -hess_inv @ jac_jac_y[:n_parms + m, n_parms + m:]
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(output.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(out.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i]) + list(deriv_y[i])))
 
     output.fit_parameters = result
 
-    output.odr_chisquare = odr_chisquare(np.concatenate((output.beta, output.xplus.ravel())))
+    output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
 
     return output
@@ -650,7 +667,7 @@ def ks_test(obs=None):
     print(scipy.stats.kstest(Qs, 'uniform'))
 
 
-def fit_general(x, y, func, silent=False, **kwargs):
+def fit_general(x, y, func, silent=silent, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     Plausibility of the results should be checked. To control the numerical differentiation

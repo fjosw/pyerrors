@@ -667,7 +667,7 @@ def ks_test(obs=None):
     print(scipy.stats.kstest(Qs, 'uniform'))
 
 
-def fit_general(x, y, func, silent=silent, **kwargs):
+def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     Plausibility of the results should be checked. To control the numerical differentiation

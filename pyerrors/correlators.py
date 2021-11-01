@@ -317,12 +317,7 @@ class Corr:
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
-        if isinstance(result, list):
-            [item.gamma_method() for item in result if isinstance(item, Obs)]
-        elif isinstance(result, dict):
-            [item.gamma_method() for item in result['fit_parameters'] if isinstance(item, Obs)]
-        else:
-            raise Exception('Unexpected fit result.')
+        result.gamma_method()
         return result
 
     def plateau(self, plateau_range=None, method="fit"):

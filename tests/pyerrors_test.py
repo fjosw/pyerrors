@@ -135,7 +135,7 @@ def test_fft():
     test_obs2 = copy.deepcopy(test_obs1)
     test_obs1.gamma_method()
     test_obs2.gamma_method(fft=False)
-    assert max(np.abs(test_obs1.e_rho[''] - test_obs2.e_rho[''])) <= 10 * np.finfo(np.float64).eps
+    assert max(np.abs(test_obs1.e_rho['t'] - test_obs2.e_rho['t'])) <= 10 * np.finfo(np.float64).eps
     assert np.abs(test_obs1.dvalue - test_obs2.dvalue) <= 10 * max(test_obs1.dvalue, test_obs2.dvalue) * np.finfo(np.float64).eps
 
 
@@ -190,22 +190,19 @@ def test_derived_observables():
     assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float64).eps
 
 
-def test_multi_ens_system():
-    names = []
-    for i in range(100 + int(np.random.rand() * 50)):
-        tmp_string = ''
-        for _ in range(int(2 + np.random.rand() * 4)):
-            tmp_string += random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
-        names.append(tmp_string)
-    names = list(set(names))
-    samples = [np.random.rand(5)] * len(names)
-    new_obs = pe.Obs(samples, names)
+def test_multi_ens():
+    names = ['A0', 'A1|r001', 'A1|r002']
+    test_obs = pe.Obs([np.random.rand(50), np.random.rand(50), np.random.rand(50)], names)
+    assert test_obs.e_names == ['A0', 'A1']
+    assert test_obs.e_content['A0'] == ['A0']
+    assert test_obs.e_content['A1'] == ['A1|r001', 'A1|r002']
 
-    for e_tag_length in range(1, 6):
-        new_obs.gamma_method(e_tag=e_tag_length)
-        e_names = sorted(set([n[:e_tag_length] for n in names]))
-        assert e_names == new_obs.e_names
-        assert sorted(x for y in sorted(new_obs.e_content.values()) for x in y) == sorted(new_obs.names)
+    my_sum = 0
+    ensembles = []
+    for i in range(100):
+        my_sum += pe.Obs([np.random.rand(50)], [str(i)])
+        ensembles.append(str(i))
+    assert my_sum.e_names == sorted(ensembles)
 
 
 def test_overloaded_functions():

@@ -33,4 +33,4 @@ jobs:
           pip install pytest-benchmark
 
       - name: Run tests
-        run: pytest --cov=pyerrors -v
+        run: pytest --cov=pyerrors -vv

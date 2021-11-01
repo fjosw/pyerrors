@@ -30,9 +30,8 @@ def test_least_squares():
     out = pe.least_squares(x, oy, func)
     beta = out.fit_parameters
 
-    pe.Obs.e_tag_global = 5
     for i in range(2):
-        beta[i].gamma_method(e_tag=5, S=1.0)
+        beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], beta[i].dvalue ** 2, abs_tol=1e-3)
     assert math.isclose(pe.covariance(beta[0], beta[1]), pcov[0, 1], abs_tol=1e-3)

@@ -24,9 +24,6 @@ class Obs:
 
     Attributes
     ----------
-    e_tag_global : int
-        Integer which determines which part of the name belongs
-        to the ensemble and which to the replicum.
     S_global : float
         Standard value for S (default 2.0)
     S_dict : dict
@@ -41,12 +38,11 @@ class Obs:
         Standard value for N_sigma (default 1.0)
     """
     __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
-                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
-                 'e_content', 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
+                 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
                  'idl', 'is_merged', 'tag', '__dict__']
 
-    e_tag_global = 0
     S_global = 2.0
     S_dict = {}
     tau_exp_global = 0.0
@@ -141,6 +137,19 @@ class Obs:
     def dvalue(self):
         return self._dvalue
 
+    @property
+    def e_names(self):
+        return sorted(set([o.split('|')[0] for o in self.names]))
+
+    @property
+    def e_content(self):
+        res = {}
+        for e, e_name in enumerate(self.e_names):
+            res[e_name] = sorted(filter(lambda x: x.startswith(e_name + '|'), self.names))
+            if e_name in self.names:
+                res[e_name].append(e_name)
+        return res
+
     def expand_deltas(self, deltas, idx, shape):
         """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
            If idx is of type range, the deltas are not changed
@@ -202,23 +211,12 @@ class Obs:
         N_sigma : float
             number of standard deviations from zero until the tail is
             attached to the autocorrelation function (default 1)
-        e_tag : int
-            number of characters which label the ensemble. The remaining
-            ones label replica (default 0)
         fft : bool
             determines whether the fft algorithm is used for the computation
             of the autocorrelation function (default True)
         """
 
-        if 'e_tag' in kwargs:
-            e_tag_local = kwargs.get('e_tag')
-            if not isinstance(e_tag_local, int):
-                raise TypeError('Error: e_tag is not integer')
-        else:
-            e_tag_local = Obs.e_tag_global
-
-        self.e_names = sorted(set([o[:e_tag_local] for o in self.names]))
-        self.e_content = {}
+        e_content = self.e_content
         self.e_dvalue = {}
         self.e_ddvalue = {}
         self.e_tauint = {}
@@ -295,36 +293,26 @@ class Obs:
         else:
             self.N_sigma = Obs.N_sigma_global
 
-        if max([len(x) for x in self.names]) <= e_tag_local:
-            for e, e_name in enumerate(self.e_names):
-                self.e_content[e_name] = [e_name]
-        else:
-            for e, e_name in enumerate(self.e_names):
-                if len(e_name) < e_tag_local:
-                    self.e_content[e_name] = [e_name]
-                else:
-                    self.e_content[e_name] = sorted(filter(lambda x: x.startswith(e_name), self.names))
-
         for e, e_name in enumerate(self.e_names):
 
             r_length = []
-            for r_name in self.e_content[e_name]:
+            for r_name in e_content[e_name]:
                 if self.idl[r_name] is range:
                     r_length.append(len(self.idl[r_name]))
                 else:
                     r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
 
-            e_N = np.sum([self.shape[r_name] for r_name in self.e_content[e_name]])
+            e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
             w_max = max(r_length) // 2
             e_gamma[e_name] = np.zeros(w_max)
             self.e_rho[e_name] = np.zeros(w_max)
             self.e_drho[e_name] = np.zeros(w_max)
 
-            for r_name in self.e_content[e_name]:
+            for r_name in e_content[e_name]:
                 e_gamma[e_name] += self.calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
             gamma_div = np.zeros(w_max)
-            for r_name in self.e_content[e_name]:
+            for r_name in e_content[e_name]:
                 gamma_div += self.calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
             e_gamma[e_name] /= gamma_div[:w_max]
 
@@ -384,11 +372,11 @@ class Obs:
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
         self._dvalue = np.sqrt(self.dvalue)
-        if self.dvalue == 0.0:
+        if self._dvalue == 0.0:
             self.ddvalue = 0.0
         else:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
-        return 0
+        return
 
     def print(self, level=1):
         """Print basic properties of the Obs."""
@@ -400,7 +388,7 @@ class Obs:
             else:
                 percentage = np.abs(self.dvalue / self.value) * 100
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
-            if hasattr(self, 'e_names'):
+            if hasattr(self, 'e_dvalue'):
                 if len(self.e_names) > 1:
                     print(' Ensemble errors:')
                 for e_name in self.e_names:

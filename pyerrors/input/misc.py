@@ -118,9 +118,14 @@ def read_pbp(path, prefix, **kwargs):
             for k in range(nrw):
                 deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]])
 
+    rep_names = []
+    for entry in ls:
+        truncated_entry = entry.split('.')[0]
+        idx = truncated_entry.index('r')
+        rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
     print(',', nrw, r'<bar{psi}\psi> with', nsrc, 'sources')
     result = []
     for t in range(nrw):
-        result.append(Obs(deltas[t], [(w.split('.'))[0] for w in ls]))
+        result.append(Obs(deltas[t], rep_names))
 
     return result

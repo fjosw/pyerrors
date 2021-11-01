@@ -15,6 +15,14 @@ from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
 
 
 class Fit_result(Sequence):
+    """Represents fit results.
+
+    Attributes
+    ----------
+    fit_parameters : list
+        results for the individual fit parameters,
+        also accesible via indices.
+    """
 
     def __init__(self):
         self.fit_parameters = None

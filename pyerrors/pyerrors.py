@@ -24,16 +24,21 @@ class Obs:
 
     Attributes
     ----------
-    e_tag_global -- Integer which determines which part of the name belongs
-                    to the ensemble and which to the replicum.
-    S_global -- Standard value for S (default 2.0)
-    S_dict -- Dictionary for S values. If an entry for a given ensemble
-              exists this overwrites the standard value for that ensemble.
-    tau_exp_global -- Standard value for tau_exp (default 0.0)
-    tau_exp_dict -- Dictionary for tau_exp values. If an entry for a given
-                    ensemble exists this overwrites the standard value for that
-                    ensemble.
-    N_sigma_global -- Standard value for N_sigma (default 1.0)
+    e_tag_global : int
+        Integer which determines which part of the name belongs
+        to the ensemble and which to the replicum.
+    S_global : float
+        Standard value for S (default 2.0)
+    S_dict : dict
+        Dictionary for S values. If an entry for a given ensemble
+        exists this overwrites the standard value for that ensemble.
+    tau_exp_global : float
+        Standard value for tau_exp (default 0.0)
+    tau_exp_dict :dict
+        Dictionary for tau_exp values. If an entry for a given ensemble exists
+        this overwrites the standard value for that ensemble.
+    N_sigma_global : float
+        Standard value for N_sigma (default 1.0)
     """
     __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'e_names',
@@ -50,6 +55,20 @@ class Obs:
     filter_eps = 1e-10
 
     def __init__(self, samples, names, idl=None, means=None, **kwargs):
+        """ Initialize Obs object.
+
+        Attributes
+        ----------
+        samples : list
+            list of numpy arrays containing the Monte Carlo samples
+        names : list
+            list of strings labeling the indivdual samples
+        idl : list, optional
+            list of ranges or lists on which the samples are defined
+        means : list, optional
+            list of mean values for the case that the mean values were
+            already subtracted from the samples
+        """
 
         if means is None:
             if len(samples) != len(names):
@@ -173,17 +192,22 @@ class Obs:
 
         Keyword arguments
         -----------------
-        S -- specifies a custom value for the parameter S (default 2.0), can be
-             a float or an array of floats for different ensembles
-        tau_exp -- positive value triggers the critical slowing down analysis
-                   (default 0.0), can be a float or an array of floats for
-                   different ensembles
-        N_sigma -- number of standard deviations from zero until the tail is
-                   attached to the autocorrelation function (default 1)
-        e_tag -- number of characters which label the ensemble. The remaining
-                 ones label replica (default 0)
-        fft -- boolean, which determines whether the fft algorithm is used for
-               the computation of the autocorrelation function (default True)
+        S : float
+            specifies a custom value for the parameter S (default 2.0), can be
+            a float or an array of floats for different ensembles
+        tau_exp : float
+            positive value triggers the critical slowing down analysis
+            (default 0.0), can be a float or an array of floats for different
+            ensembles
+        N_sigma : float
+            number of standard deviations from zero until the tail is
+            attached to the autocorrelation function (default 1)
+        e_tag : int
+            number of characters which label the ensemble. The remaining
+            ones label replica (default 0)
+        fft : bool
+            determines whether the fft algorithm is used for the computation
+            of the autocorrelation function (default True)
         """
 
         if 'e_tag' in kwargs:
@@ -846,11 +870,15 @@ def expand_deltas_for_merge(deltas, idx, shape, new_idx):
 
     Parameters
     ----------
-    deltas  -- List of fluctuations
-    idx     -- List or range of configs on which the deltas are defined.
-               Has to be a subset of new_idx.
-    shape   -- Number of configs in idx.
-    new_idx -- List of configs that defines the new range.
+    deltas : list
+        List of fluctuations
+    idx : list
+        List or range of configs on which the deltas are defined.
+        Has to be a subset of new_idx.
+    shape : list
+        Number of configs in idx.
+    new_idx : list
+        List of configs that defines the new range.
     """
 
     if type(idx) is range and type(new_idx) is range:
@@ -903,20 +931,24 @@ def derived_observable(func, data, **kwargs):
 
     Parameters
     ----------
-    func -- arbitrary function of the form func(data, **kwargs). For the
-            automatic differentiation to work, all numpy functions have to have
-            the autograd wrapper (use 'import autograd.numpy as anp').
-    data -- list of Obs, e.g. [obs1, obs2, obs3].
+    func : object
+        arbitrary function of the form func(data, **kwargs). For the
+        automatic differentiation to work, all numpy functions have to have
+        the autograd wrapper (use 'import autograd.numpy as anp').
+    data : list
+        list of Obs, e.g. [obs1, obs2, obs3].
 
     Keyword arguments
     -----------------
-    num_grad -- if True, numerical derivatives are used instead of autograd
-                (default False). To control the numerical differentiation the
-                kwargs of numdifftools.step_generators.MaxStepGenerator
-                can be used.
-    man_grad -- manually supply a list or an array which contains the jacobian
-                of func. Use cautiously, supplying the wrong derivative will
-                not be intercepted.
+    num_grad : bool
+        if True, numerical derivatives are used instead of autograd
+        (default False). To control the numerical differentiation the
+        kwargs of numdifftools.step_generators.MaxStepGenerator
+        can be used.
+    man_grad : list
+        manually supply a list or an array which contains the jacobian
+        of func. Use cautiously, supplying the wrong derivative will
+        not be intercepted.
 
     Notes
     -----
@@ -1077,9 +1109,11 @@ def reweight(weight, obs, **kwargs):
 
     Parameters
     ----------
-    weight -- Reweighting factor. An Observable that has to be defined on a superset of the
-              configurations in obs[i].idl for all i.
-    obs    -- list of Obs, e.g. [obs1, obs2, obs3].
+    weight : Obs
+        Reweighting factor. An Observable that has to be defined on a superset of the
+        configurations in obs[i].idl for all i.
+    obs : list
+        list of Obs, e.g. [obs1, obs2, obs3].
 
     Keyword arguments
     -----------------

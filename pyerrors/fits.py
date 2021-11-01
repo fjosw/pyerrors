@@ -56,35 +56,40 @@ class Fit_result(Sequence):
 
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
-    if priors is not None:
-        return prior_fit(x, y, func, priors, silent=silent, **kwargs)
-    else:
-        return standard_fit(x, y, func, silent=silent, **kwargs)
+    """Performs a non-linear fit to y = func(x).
 
+    Arguments:
+    ----------
+    x : list
+        list of floats.
+    y : list
+        list of Obs.
+    func : object
+        fit function, has to be of the form
 
-def standard_fit(x, y, func, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
+        def func(a, x):
+            return a[0] + a[1] * x + a[2] * anp.sinh(x)
 
-    x has to be a list of floats.
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
+        For multiple x values func can be of the form
 
-    func has to be of the form
+        def func(a, x):
+            (x1, x2) = x
+            return a[0] * x1 ** 2 + a[1] * x2
 
-    def func(a, x):
-        return a[0] + a[1] * x + a[2] * anp.sinh(x)
+        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
+        will not work
+    priors : list, optional
+        priors has to be a list with an entry for every parameter in the fit. The entries can either be
+        Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
+        0.548(23), 500(40) or 0.5(0.4)
+        It is important for the subsequent error estimation that the e_tag for the gamma method is large
+        enough.
+    silent : bool, optional
+        If true all output to the console is omitted (default False).
 
-    For multiple x values func can be of the form
-
-    def func(a, x):
-    (x1, x2) = x
-    return a[0] * x1 ** 2 + a[1] * x2
-
-    It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-    will not work
 
     Keyword arguments
     -----------------
-    silent -- If true all output to the console is omitted (default False).
     initial_guess -- can provide an initial guess for the input parameters. Relevant for
                      non-linear fits with many parameters.
     method -- can be used to choose an alternative method for the minimization of chisquare.
@@ -98,6 +103,18 @@ def standard_fit(x, y, func, silent=False, **kwargs):
                           This can take a while as the full correlation matrix
                           has to be calculated (default False).
     """
+    if priors is not None:
+        return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
+    else:
+        return _standard_fit(x, y, func, silent=silent, **kwargs)
+
+
+def standard_fit(x, y, func, silent=False, **kwargs):
+    warnings.warn("standard_fit renamed to least_squares", DeprecationWarning)
+    return least_squares(x, y, func, silent=silent, **kwargs)
+
+
+def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output = Fit_result()
 
@@ -236,29 +253,31 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 def total_least_squares(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
-    x has to be a list of Obs, or a tuple of lists of Obs
-    y has to be a list of Obs
-    the dvalues of the Obs are used as x- and yerror for the fit.
+    x : list
+        list of Obs, or a tuple of lists of Obs
+    y : list
+        list of Obs. The dvalues of the Obs are used as x- and yerror for the fit.
+    func : object
+        func has to be of the form
 
-    func has to be of the form
+        def func(a, x):
+            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
+            return y
 
-    def func(a, x):
-        y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-        return y
+        For multiple x values func can be of the form
 
-    For multiple x values func can be of the form
+        def func(a, x):
+            (x1, x2) = x
+            return a[0] * x1 ** 2 + a[1] * x2
 
-    def func(a, x):
-    (x1, x2) = x
-    return a[0] * x1 ** 2 + a[1] * x2
-
-    It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-    will not work.
+        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
+        will not work.
+    silent : bool, optional
+        If true all output to the console is omitted (default False).
     Based on the orthogonal distance regression module of scipy
 
     Keyword arguments
     -----------------
-    silent -- If true all output to the console is omitted (default False).
     initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear
                      fits with many parameters.
     expected_chisquare -- If true prints the expected chisquare which is
@@ -396,39 +415,11 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
 
 def prior_fit(x, y, func, priors, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x) with given priors and returns a list of Obs corresponding to the fit parameters.
+    warnings.warn("prior_fit renamed to least_squares", DeprecationWarning)
+    return least_squares(x, y, func, priors=priors, silent=silent, **kwargs)
 
-    x has to be a list of floats.
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
 
-    func has to be of the form
-
-    def func(a, x):
-        y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-        return y
-
-    It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-    will not work
-
-    priors has to be a list with an entry for every parameter in the fit. The entries can either be
-    Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
-    0.548(23), 500(40) or 0.5(0.4)
-
-    It is important for the subsequent error estimation that the e_tag for the gamma method is large
-    enough.
-
-    Keyword arguments
-    -----------------
-    dict_output -- If true, the output is a dictionary containing all relevant
-                   data instead of just a list of the fit parameters.
-    silent -- If true all output to the console is omitted (default False).
-    initial_guess -- can provide an initial guess for the input parameters.
-                     If no guess is provided, the prior values are used.
-    resplot -- if true, a plot which displays fit, data and residuals is generated (default False)
-    qqplot -- if true, a quantile-quantile plot of the fit result is generated (default False)
-    tol -- Specify the tolerance of the migrad solver (default 1e-4)
-    """
-
+def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     output = Fit_result()
 
     output.fit_function = func

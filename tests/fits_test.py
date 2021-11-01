@@ -8,7 +8,7 @@ import pytest
 np.random.seed(0)
 
 
-def test_standard_fit():
+def test_least_squares():
     dim = 10 + int(30 * np.random.rand())
     x = np.arange(dim)
     y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
@@ -43,7 +43,7 @@ def test_standard_fit():
     assert math.isclose(chi2_pyerrors, chi2_scipy, abs_tol=1e-10)
 
 
-def test_odr_fit():
+def test_total_least_squares():
     dim = 10 + int(30 * np.random.rand())
     x = np.arange(dim) + np.random.normal(0.0, 0.15, dim)
     xerr = 0.1 + 0.1 * np.random.rand(dim)

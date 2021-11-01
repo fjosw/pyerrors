@@ -4,7 +4,7 @@ import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
 from .pyerrors import Obs, dump_object
-from .fits import standard_fit
+from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root
 
@@ -316,7 +316,7 @@ class Corr:
 
         xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
-        result = standard_fit(xs, ys, function, silent=silent, **kwargs)
+        result = least_squares(xs, ys, function, silent=silent, **kwargs)
         if isinstance(result, list):
             [item.gamma_method() for item in result if isinstance(item, Obs)]
         elif isinstance(result, dict):

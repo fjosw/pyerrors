@@ -65,6 +65,14 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     print('Read reweighting factors from', prefix[:-1], ',', replica, 'replica', end='')
 
+    # Adjust replica names to new bookmarking system
+    if names is None:
+        rep_names = []
+        for entry in ls:
+            truncated_entry = entry.split('.')[0]
+            idx = truncated_entry.index('r')
+            rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
+
     print_err = 0
     if 'print_err' in kwargs:
         print_err = 1
@@ -149,7 +157,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     result = []
     for t in range(nrw):
         if names is None:
-            result.append(Obs(deltas[t], [w.split(".")[0] for w in ls]))
+            result.append(Obs(deltas[t], rep_names))
         else:
             print(names)
             result.append(Obs(deltas[t], names))

@@ -56,7 +56,12 @@ def read_sfcf(path, prefix, name, **kwargs):
         if len(new_names) != replica:
             raise Exception('Names does not have the required length', replica)
     else:
-        new_names = ls
+        # Adjust replica names to new bookmarking system
+        new_names = []
+        for entry in ls:
+            idx = entry.index('r')
+            new_names.append(entry[:idx] + '|' + entry[idx:])
+
     print(replica, 'replica')
     for i, item in enumerate(ls):
         print(item)
@@ -153,7 +158,12 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
         if len(new_names) != replica:
             raise Exception('Names does not have the required length', replica)
     else:
-        new_names = ls
+        # Adjust replica names to new bookmarking system
+        new_names = []
+        for entry in ls:
+            idx = entry.index('r')
+            new_names.append(entry[:idx] + '|' + entry[idx:])
+
     print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
     for i, item in enumerate(ls):
         sub_ls = []
@@ -271,6 +281,12 @@ def read_qtop(path, prefix, **kwargs):
 
         deltas.append(np.array(tmp))
 
-    result = Obs(deltas, [(w.split('.'))[0] for w in ls])
+    rep_names = []
+    for entry in ls:
+        truncated_entry = entry.split('.')[0]
+        idx = truncated_entry.index('r')
+        rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
+
+    result = Obs(deltas, rep_names)
 
     return result

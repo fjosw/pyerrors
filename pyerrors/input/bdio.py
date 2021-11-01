@@ -148,7 +148,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         for loc_id, reps in zip(ids, no_reps):
             for index in range(reps):
                 missing_chars = ens_length - len(str(loc_id))
-                tmp_names.append(str(loc_id) + ' ' * missing_chars + 'r' + '{0:03d}'.format(index))
+                tmp_names.append(str(loc_id) + ' ' * missing_chars + '|r' + '{0:03d}'.format(index))
 
         return_list.append(Obs(samples, tmp_names))
 

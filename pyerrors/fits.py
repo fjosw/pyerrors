@@ -214,6 +214,11 @@ def standard_fit(x, y, func, silent=False, **kwargs):
 
 
 def odr_fit(x, y, func, silent=False, **kwargs):
+    warnings.warn("odr_fit renamed to total_least_squares", DeprecationWarning)
+    return total_least_squares(x, y, func, silent=silent, **kwargs)
+
+
+def total_least_squares(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     x has to be a list of Obs, or a tuple of lists of Obs

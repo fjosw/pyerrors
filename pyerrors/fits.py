@@ -40,6 +40,13 @@ class Fit_result:
         return 'Fit_result' + str([o.value for o in self.fit_parameters]) + '\n'
 
 
+def least_squares(x, y, func, priors=None, silent=False, **kwargs):
+    if priors is not None:
+        return prior_fit(x, y, func, priors, silent=silent, **kwargs)
+    else:
+        return standard_fit(x, y, func, silent=silent, **kwargs)
+
+
 def standard_fit(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
@@ -135,6 +142,8 @@ def standard_fit(x, y, func, silent=False, **kwargs):
             fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
 
         chisquare = fit_result.fun
+
+        output.nit = fit_result.nit
     else:
         output.method = 'Levenberg-Marquardt'
         if not silent:
@@ -149,6 +158,8 @@ def standard_fit(x, y, func, silent=False, **kwargs):
 
         chisquare = np.sum(fit_result.fun ** 2)
 
+        output.nit = fit_result.nfev
+
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')
 
@@ -157,6 +168,7 @@ def standard_fit(x, y, func, silent=False, **kwargs):
     else:
         output.chisquare_by_dof = float('nan')
 
+    output.message = fit_result.message
     if not silent:
         print(fit_result.message)
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
@@ -285,6 +297,8 @@ def odr_fit(x, y, func, silent=False, **kwargs):
     output.residual_variance = out.res_var
 
     output.method = 'ODR'
+
+    output.message = out.stopreason
 
     output.xplus = out.xplus
 

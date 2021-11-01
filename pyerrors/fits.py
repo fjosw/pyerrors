@@ -52,7 +52,8 @@ class Fit_result(Sequence):
         return my_str
 
     def __repr__(self):
-        return 'Fit_result' + str([o.value for o in self.fit_parameters]) + '\n'
+        m = max(map(len, list(self.__dict__.keys()))) + 1
+        return '\n'.join([key.rjust(m) + ': ' + repr(value) for key, value in sorted(self.__dict__.items())])
 
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
@@ -175,7 +176,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
         chisquare = fit_result.fun
 
-        output.nit = fit_result.nit
+        output.iterations = fit_result.nit
     else:
         output.method = 'Levenberg-Marquardt'
         if not silent:
@@ -190,7 +191,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
         chisquare = np.sum(fit_result.fun ** 2)
 
-        output.nit = fit_result.nfev
+        output.iterations = fit_result.nfev
 
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')

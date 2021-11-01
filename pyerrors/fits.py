@@ -1,4 +1,5 @@
 import gc
+from collections.abc import Sequence
 import warnings
 import numpy as np
 import autograd.numpy as anp
@@ -13,10 +14,16 @@ from autograd import elementwise_grad as egrad
 from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
 
 
-class Fit_result:
+class Fit_result(Sequence):
 
     def __init__(self):
         self.fit_parameters = None
+
+    def __getitem__(self, idx):
+        return self.fit_parameters[idx]
+
+    def __len__(self):
+        return len(self.fit_parameters)
 
     def gamma_method(self):
         """Apply the gamma method to all fit parameters"""
@@ -24,16 +31,16 @@ class Fit_result:
 
     def __str__(self):
         self.gamma_method()
-        my_str = ''
+        my_str = 'Goodness of fit:\n'
         if hasattr(self, 'chisquare_by_dof'):
             my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'
         elif hasattr(self, 'residual_variance'):
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
         if hasattr(self, 'chisquare_by_expected_chisquare'):
-            my_str += '\u03C7\u00b2/\u03C7\u00b2exp = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
+            my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
         my_str += 'Fit parameters:\n'
         for i_par, par in enumerate(self.fit_parameters):
-            my_str += str(i_par) + '\t' + str(par) + '\n'
+            my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
         return my_str
 
     def __repr__(self):

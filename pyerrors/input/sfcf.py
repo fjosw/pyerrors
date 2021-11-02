@@ -125,6 +125,8 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
     im -- if True, read imaginary instead of real part of the correlation function.
     b2b -- if True, read a time-dependent boundary-to-boundary correlation function
     names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length
+    ens_name : str
+        replaces the name of the ensemble
     """
 
     if kwargs.get('im'):
@@ -162,7 +164,10 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
         new_names = []
         for entry in ls:
             idx = entry.index('r')
-            new_names.append(entry[:idx] + '|' + entry[idx:])
+            if 'ens_name' in kwargs:
+                new_names.append(kwargs.get('ens_name') + '|' + entry[idx:])
+            else:
+                new_names.append(entry[:idx] + '|' + entry[idx:])
 
     print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
     for i, item in enumerate(ls):

@@ -354,8 +354,8 @@ class Corr:
             else:
                 fitrange = [0, self.T]
 
-        xs = [x for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
-        ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1]) if not self.content[x] is None]
+        xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
+        ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         result.gamma_method()
         return result
@@ -380,7 +380,7 @@ class Corr:
                 raise Exception("no plateau range provided")
         if self.N != 1:
             raise Exception("Correlator must be projected before getting a plateau.")
-        if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1])])):
+        if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
             raise Exception("plateau is undefined at all timeslices in plateaurange.")
         if method == "fit":
             def const_func(a, t):

@@ -64,7 +64,7 @@ def test_matrix_inverse():
 
 
 def test_complex_matrix_inverse():
-    dimension = 6
+    dimension = 4
     base_matrix = np.empty((dimension, dimension), dtype=object)
     matrix = np.empty((dimension, dimension), dtype=complex)
     for (n, m), entry in np.ndenumerate(base_matrix):

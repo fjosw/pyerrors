@@ -54,6 +54,11 @@ def test_m_eff():
     my_corr.m_eff('cosh')
     my_corr.m_eff('sinh')
 
+def test_T_symmetry():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
+    with pytest.warns(RuntimeWarning):
+        T_symmetric = my_corr.T_symmetry(my_corr)
+
 def test_utility():
     corr_content = []
     for t in range(8):

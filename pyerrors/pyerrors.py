@@ -1405,26 +1405,6 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
     return cov
 
 
-def use_time_reversal_symmetry(data1, data2, **kwargs):
-    """Combine two correlation functions (lists of Obs) according to time reversal symmetry
-
-    Keyword arguments
-    -----------------
-    minus -- if True, multiply the second correlation function by a minus sign.
-    """
-    if kwargs.get('minus'):
-        sign = -1
-    else:
-        sign = 1
-
-    result = []
-    T = int(len(data1))
-    for i in range(T):
-        result.append(derived_observable(lambda x, **kwargs: (x[0] + sign * x[1]) / 2, [data1[i], data2[T - i - 1]], **kwargs))
-
-    return result
-
-
 def pseudo_Obs(value, dvalue, name, samples=1000):
     """Generate a pseudo Obs with given value, dvalue and name
 

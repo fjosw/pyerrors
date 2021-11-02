@@ -209,7 +209,7 @@ class Corr:
     def reverse(self):
         return Corr(self.content[::-1])
 
-    def T_symmetry(partner, parity=+1):
+    def T_symmetry(self, partner, parity=+1):
         if not isinstance(partner, Corr):
             raise Exception("T partner has to be a Corr object.")
         if parity not in [+1, -1]:
@@ -218,10 +218,10 @@ class Corr:
         t_slices = []
         for x0, t_slice in enumerate(self - T_partner):
             if t_slice is not None:
-                if not t_slice.is_zero_within_error(3):
+                if not t_slice[0].is_zero_within_error(3):
                     t_slices.append(x0)
         if t_slices:
-            warnings.warn("T symmetry partner do not agree within 5 sigma on time slices" + str(t_slices) + ".", RuntimeWarning)
+            warnings.warn("T symmetry partner do not agree within 5 sigma on time slices " + str(t_slices) + ".", RuntimeWarning)
 
         return (self + T_partner) / 2
 

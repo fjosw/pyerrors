@@ -203,6 +203,9 @@ class Corr:
     def roll(self, dt):
         return Corr(list(np.roll(np.array(self.content, dtype=object), dt)))
 
+    def reverse(self):
+        return Corr(self.content[::-1])
+
     def deriv(self, symmetric=True):  # Defaults to symmetric derivative
         if not symmetric:
             newcontent = []

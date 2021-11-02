@@ -66,6 +66,7 @@ class Corr:
         return self.content[idx]
 
     def gamma_method(self):
+        """Apply the gamma method to the content of the Corr."""
         for item in self.content:
             if not(item is None):
                 if self.N == 1:
@@ -117,6 +118,11 @@ class Corr:
     # Obs and Matplotlib do not play nicely
     # We often want to retrieve x,y,y_err as lists to pass them to something like pyplot.errorbar
     def plottable(self):
+        """Outputs the correlator in a plotable format.
+
+        Outputs three lists containing the timeslice index, the value on each
+        timeslice and the error on each timeslice.
+        """
         if self.N != 1:
             raise Exception("Can only make Corr[N=1] plottable")  # We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.
         x_list = [x for x in range(self.T) if not self.content[x] is None]
@@ -129,7 +135,7 @@ class Corr:
     # A symmetry checker is still to be implemented
     # The method will not delete any redundant timeslices (Bad for memory, Great for convenience)
     def symmetric(self):
-
+        """ Symmetrize the correlator around x0=0."""
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
@@ -147,7 +153,7 @@ class Corr:
         return Corr(newcontent, prange=self.prange)
 
     def anti_symmetric(self):
-
+        """Anti-symmetrize the correlator around x0=0."""
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
@@ -243,7 +249,14 @@ class Corr:
 
         return (self + T_partner) / 2
 
-    def deriv(self, symmetric=True):  # Defaults to symmetric derivative
+    def deriv(self, symmetric=True):
+        """Return the first derivative of the correlator with respect to x0.
+
+        Attributes:
+        -----------
+        symmetric : bool
+            decides whether symmertic of simple finite differences are used. Default: True
+        """
         if not symmetric:
             newcontent = []
             for t in range(self.T - 1):
@@ -266,6 +279,7 @@ class Corr:
             return Corr(newcontent, padding_back=1, padding_front=1)
 
     def second_deriv(self):
+        """Return the second derivative of the correlator with respect to x0."""
         newcontent = []
         for t in range(1, self.T - 1):
             if (self.content[t - 1] is None) or (self.content[t + 1] is None):
@@ -281,11 +295,13 @@ class Corr:
 
         Parameters
         ----------
-        variant -- log: uses the standard effective mass log(C(t) / C(t+1))
-                   cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
-                   sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
-                   See, e.g., arXiv:1205.5380
-        guess -- guess for the root finder, only relevant for the root variant
+        variant : str
+            log: uses the standard effective mass log(C(t) / C(t+1))
+            cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
+            See, e.g., arXiv:1205.5380
+        guess : float
+            guess for the root finder, only relevant for the root variant
         """
         if self.N != 1:
             raise Exception('Correlator must be projected before getting m_eff')
@@ -338,8 +354,19 @@ class Corr:
         else:
             raise Exception('Unkown variant.')
 
-    # We want to apply a pe.standard_fit directly to the Corr using an arbitrary function and range.
     def fit(self, function, fitrange=None, silent=False, **kwargs):
+        """Fits function to the data
+
+        Attributes:
+        -----------
+        function : obj
+            function to fit to the data. See fits.least_squares for details.
+        fitrange : list
+            Range in which the function is to be fitted to the data.
+            If not specified, self.prange or all timeslices are used.
+        silent : bool
+            Decides whether output is printed to the standard output.
+        """
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 
@@ -395,6 +422,7 @@ class Corr:
             raise Exception("Unsupported plateau method: " + method)
 
     def set_prange(self, prange):
+        """Sets the attribute prange of the Corr object."""
         if not len(prange) == 2:
             raise Exception("prange must be a list or array with two values")
         if not ((isinstance(prange[0], int)) and (isinstance(prange[1], int))):
@@ -405,7 +433,6 @@ class Corr:
         self.prange = prange
         return
 
-    # Plotting routine for correlator
     def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
         """Plots the correlator, uses tag as label if available.
 
@@ -482,6 +509,13 @@ class Corr:
         return
 
     def dump(self, filename):
+        """Dumps the Corr into a pickel file
+
+        Attributes:
+        -----------
+        filename : str
+            Name of the file
+        """
         dump_object(self, filename)
         return
 

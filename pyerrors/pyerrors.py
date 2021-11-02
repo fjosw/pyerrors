@@ -1105,9 +1105,10 @@ def reweight(weight, obs, **kwargs):
 
     Keyword arguments
     -----------------
-    all_configs -- if True, the reweighted observables are normalized by the average of
-                   the reweighting factor on all configurations in weight.idl and not
-                   on the configurations in obs[i].idl.
+    all_configs : bool
+        if True, the reweighted observables are normalized by the average of
+        the reweighting factor on all configurations in weight.idl and not
+        on the configurations in obs[i].idl.
     """
     result = []
     for i in range(len(obs)):

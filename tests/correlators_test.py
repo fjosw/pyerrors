@@ -54,6 +54,12 @@ def test_m_eff():
     my_corr.m_eff('cosh')
     my_corr.m_eff('sinh')
 
+def test_reweighting():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
+    assert my_corr.reweighted is False
+    r_my_corr = my_corr.reweight(pe.pseudo_Obs(1, 0.1, 't'))
+    assert r_my_corr.reweighted is True
+
 def test_T_symmetry():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
     with pytest.warns(RuntimeWarning):

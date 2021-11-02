@@ -233,13 +233,28 @@ class Corr:
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[::-1])
 
-    def reweight(self, weight):
+    def reweight(self, weight, **kwargs):
+        """Reweight the correlator.
+
+        Parameters
+        ----------
+        weight : Obs
+            Reweighting factor. An Observable that has to be defined on a superset of the
+            configurations in obs[i].idl for all i.
+
+        Keyword arguments
+        -----------------
+        all_configs : bool
+            if True, the reweighted observables are normalized by the average of
+            the reweighting factor on all configurations in weight.idl and not
+            on the configurations in obs[i].idl.
+        """
         new_content = []
         for t_slice in self:
             if t_slice is None:
                 new_content.append(None)
             else:
-                new_content.append(np.array(reweight(weight, t_slice)))
+                new_content.append(np.array(reweight(weight, t_slice, **kwargs)))
         return Corr(new_content)
 
     def T_symmetry(self, partner, parity=+1):

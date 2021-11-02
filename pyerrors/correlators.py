@@ -361,6 +361,18 @@ class Corr:
         return result
 
     def plateau(self, plateau_range=None, method="fit"):
+        """ Extract a plateu value from a Corr object
+
+        Attributes:
+        -----------
+        plateau_range : list
+            list with two entries, indicating the first and the last timeslice
+            of the plateau region.
+        method : str
+            method to extract the plateau.
+                'fit' fits a constant to the plateau region
+                'avg', 'average' or 'mean' just average over the given timeslices.
+        """
         if not plateau_range:
             if self.prange:
                 plateau_range = self.prange
@@ -372,7 +384,7 @@ class Corr:
             raise Exception("plateau is undefined at all timeslices in plateaurange.")
         if method == "fit":
             def const_func(a, t):
-                return a[0]  # At some point pe.standard fit had an issue with single parameter fits. Being careful does not hurt
+                return a[0]
             return self.fit(const_func, plateau_range)[0]
         elif method in ["avg", "average", "mean"]:
             returnvalue = np.mean([item[0] for item in self.content[plateau_range[0]:plateau_range[1] + 1] if item is not None])

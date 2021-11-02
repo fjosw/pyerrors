@@ -498,7 +498,7 @@ class Corr:
             else:
                 content_string += str(i + range[0])
                 for element in sub_corr:
-                    content_string += '\t' + str(element)
+                    content_string += '\t' + ' ' * int(element >= 0) + str(element)
                 content_string += '\n'
         return content_string
 

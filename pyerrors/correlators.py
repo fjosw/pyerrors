@@ -432,8 +432,8 @@ class Corr:
             # we generate ylim instead of using autoscaling.
             if y_range is None:
                 try:
-                    y_min = min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]: x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
-                    y_max = max([(x[0].value + x[0].dvalue) for x in self.content[x_range[0]: x_range[1]] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
+                    y_min = min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
+                    y_max = max([(x[0].value + x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
                     ax1.set_ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
                 except:
                     pass

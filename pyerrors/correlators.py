@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
-from .pyerrors import Obs, dump_object
+from .pyerrors import Obs, dump_object, reweight
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root
@@ -64,6 +64,16 @@ class Corr:
 
     def __getitem__(self, idx):
         return self.content[idx]
+
+    @property
+    def reweighted(self):
+        bool_array = np.array([list(map(lambda x: x.reweighted, o)) for o in self.content])
+        if np.all(bool_array == 1):
+            return True
+        elif np.all(bool_array == 0):
+            return False
+        else:
+            raise Exception("Reweighting status of correlator corrupted.")
 
     def gamma_method(self):
         """Apply the gamma method to the content of the Corr."""
@@ -222,6 +232,15 @@ class Corr:
     def reverse(self):
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[::-1])
+
+    def reweight(self, weight):
+        new_content = []
+        for t_slice in self:
+            if t_slice is None:
+                new_content.append(None)
+            else:
+                new_content.append(np.array(reweight(weight, t_slice)))
+        return Corr(new_content)
 
     def T_symmetry(self, partner, parity=+1):
         """Return the time symmetry average of the correlator and its partner

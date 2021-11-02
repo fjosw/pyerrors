@@ -204,24 +204,42 @@ class Corr:
         return Corr(newcontent)
 
     def roll(self, dt):
+        """Periodically shift the correlator by dt timeslices
+
+        Attributes:
+        -----------
+        dt : int
+            number of timeslices
+        """
         return Corr(list(np.roll(np.array(self.content, dtype=object), dt)))
 
     def reverse(self):
+        """Reverse the time ordering of the Corr"""
         return Corr(self.content[::-1])
 
     def T_symmetry(self, partner, parity=+1):
+        """Return the time symmetry average of the correlator and its partner
+
+        Attributes:
+        -----------
+        partner : Corr
+            Time symmetry partner of the Corr
+        partity : int
+            Parity quantum number of the correlator, can be +1 or -1
+        """
         if not isinstance(partner, Corr):
             raise Exception("T partner has to be a Corr object.")
         if parity not in [+1, -1]:
             raise Exception("Parity has to be +1 or -1.")
         T_partner = parity * partner.reverse()
+
         t_slices = []
         for x0, t_slice in enumerate(self - T_partner):
             if t_slice is not None:
-                if not t_slice[0].is_zero_within_error(3):
+                if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)
         if t_slices:
-            warnings.warn("T symmetry partner do not agree within 5 sigma on time slices " + str(t_slices) + ".", RuntimeWarning)
+            warnings.warn("T symmetry partners do not agree within 5 sigma on time slices " + str(t_slices) + ".", RuntimeWarning)
 
         return (self + T_partner) / 2
 

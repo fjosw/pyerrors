@@ -642,10 +642,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self / o for o in y])
-
             elif y.__class__.__name__ == 'Corr':
                 return NotImplemented
-
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
 
@@ -655,6 +653,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([o / self for o in y])
+            elif y.__class__.__name__ == 'Corr':
+                return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
 

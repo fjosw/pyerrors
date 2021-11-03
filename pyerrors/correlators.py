@@ -752,11 +752,14 @@ class Corr:
         return self._apply_func_to_corr(np.arctanh)
 
     # Right hand side operations (require tweak in main module to work)
+    def __radd__(self, y):
+        return self + y
+
     def __rsub__(self, y):
         return -self + y
 
     def __rmul__(self, y):
         return self * y
 
-    def __radd__(self, y):
-        return self + y
+    def __rtruediv__(self, y):
+        return (self / y) ** (-1)

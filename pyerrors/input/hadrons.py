@@ -46,10 +46,19 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
 
     Parameters
     -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
-    meson -- label of the meson to be extracted, standard value meson_0 which corresponds to the pseudoscalar pseudoscalar two-point function.
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    meson : str
+        label of the meson to be extracted, standard value meson_0 which
+        corresponds to the pseudoscalar pseudoscalar two-point function.
+    tree : str
+        Label of the upmost directory in the hdf5 file, default 'meson'
+        for outputs of the Meson module. Can be altered to read input
+        from other modules with similar structures.
     """
 
     files = _get_files(path, filestem)

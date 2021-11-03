@@ -223,8 +223,8 @@ def test_overloaded_functions():
 
 def test_utils():
     my_obs = pe.pseudo_Obs(1.0, 0.5, 't')
-    my_obs.details(1)
-    my_obs.details(2)
+    my_obs.details()
+    my_obs.details(True)
     assert not my_obs.is_zero_within_error()
     my_obs.plot_tauint()
     my_obs.plot_rho()

@@ -380,9 +380,9 @@ class Obs:
 
     def print(self, level=1):
         warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level)
+        self.details(level > 1)
 
-    def details(self, level=1):
+    def details(self, ens_content=False):
         """Output detailed properties of the Obs."""
         if self.value == 0.0:
             percentage = np.nan
@@ -399,10 +399,10 @@ class Obs:
                     print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
                 else:
                     print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-            if level > 1:
-                print(self.N, 'samples in', len(self.e_names), 'ensembles:')
-                for e_name in self.e_names:
-                    print(e_name, ':', self.e_content[e_name])
+        if ens_content is True:
+            print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+            for e_name in self.e_names:
+                print(e_name, ':', self.e_content[e_name])
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.

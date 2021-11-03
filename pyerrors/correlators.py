@@ -63,7 +63,11 @@ class Corr:
         self.gamma_method()
 
     def __getitem__(self, idx):
-        return self.content[idx]
+        """Return the content of timeslice idx"""
+        if len(self.content[idx]) == 1:
+            return self.content[idx][0]
+        else:
+            return self.content[idx]
 
     @property
     def reweighted(self):
@@ -250,7 +254,7 @@ class Corr:
             on the configurations in obs[i].idl.
         """
         new_content = []
-        for t_slice in self:
+        for t_slice in self.content:
             if t_slice is None:
                 new_content.append(None)
             else:
@@ -274,7 +278,7 @@ class Corr:
         T_partner = parity * partner.reverse()
 
         t_slices = []
-        for x0, t_slice in enumerate(self - T_partner):
+        for x0, t_slice in enumerate((self - T_partner).content):
             if t_slice is not None:
                 if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)

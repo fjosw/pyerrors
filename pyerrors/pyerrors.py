@@ -379,29 +379,30 @@ class Obs:
         return
 
     def print(self, level=1):
-        """Print basic properties of the Obs."""
-        if level == 0:
-            print(self)
+        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
+        self.details(level)
+
+    def details(self, level=1):
+        """Output detailed properties of the Obs."""
+        if self.value == 0.0:
+            percentage = np.nan
         else:
-            if self.value == 0.0:
-                percentage = np.nan
-            else:
-                percentage = np.abs(self.dvalue / self.value) * 100
-            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
-            if hasattr(self, 'e_dvalue'):
+            percentage = np.abs(self.dvalue / self.value) * 100
+        print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
+        if hasattr(self, 'e_dvalue'):
+            if len(self.e_names) > 1:
+                print(' Ensemble errors:')
+            for e_name in self.e_names:
                 if len(self.e_names) > 1:
-                    print(' Ensemble errors:')
+                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                if self.tau_exp[e_name] > 0:
+                    print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                else:
+                    print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+            if level > 1:
+                print(self.N, 'samples in', len(self.e_names), 'ensembles:')
                 for e_name in self.e_names:
-                    if len(self.e_names) > 1:
-                        print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                    if self.tau_exp[e_name] > 0:
-                        print('  t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
-                    else:
-                        print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-                if level > 1:
-                    print(self.N, 'samples in', len(self.e_names), 'ensembles:')
-                    for e_name in self.e_names:
-                        print(e_name, ':', self.e_content[e_name])
+                    print(e_name, ':', self.e_content[e_name])
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.

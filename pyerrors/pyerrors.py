@@ -1145,6 +1145,13 @@ def reweight(weight, obs, **kwargs):
 def correlate(obs_a, obs_b):
     """Correlate two observables.
 
+    Attributes:
+    -----------
+    obs_a : Obs
+        First observable
+    obs_b : Obs
+        Second observable
+
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
     Currently only works if ensembles are identical. This is not really necessary.

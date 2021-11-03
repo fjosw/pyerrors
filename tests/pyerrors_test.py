@@ -290,6 +290,14 @@ def test_merge_obs():
     assert diff == -(my_obs1.value + my_obs2.value) / 2
 
 
+def test_correlate():
+    my_obs1 = pe.Obs([np.random.rand(100)], ['t'])
+    my_obs2 = pe.Obs([np.random.rand(100)], ['t'])
+    corr1 = pe.correlate(my_obs1, my_obs2)
+    corr2 = pe.correlate(my_obs2, my_obs1)
+    assert corr1 == corr2
+
+
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),

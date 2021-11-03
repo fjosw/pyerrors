@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
-from .pyerrors import Obs, dump_object, reweight
+from .pyerrors import Obs, dump_object, reweight, correlate
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root
@@ -236,6 +236,22 @@ class Corr:
     def reverse(self):
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[::-1])
+
+    def correlate(self, partner):
+        """Correlate the correlator with another correlator or Obs"""
+        new_content = []
+        for x0, t_slice in enumerate(self.content):
+            if t_slice is None:
+                new_content.append(None)
+            else:
+                if isinstance(partner, Corr):
+                    new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
+                elif isinstance(partner, Obs):
+                    new_content.append(np.array([correlate(o, partner) for o in t_slice]))
+                else:
+                    raise Exception("Can only correlate with an Obs or a Corr.")
+
+        return Corr(new_content)
 
     def reweight(self, weight, **kwargs):
         """Reweight the correlator.

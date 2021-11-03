@@ -245,7 +245,10 @@ class Corr:
                 new_content.append(None)
             else:
                 if isinstance(partner, Corr):
-                    new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
+                    if partner.content[x0] is None:
+                        new_content.append(None)
+                    else:
+                        new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
                 elif isinstance(partner, Obs):
                     new_content.append(np.array([correlate(o, partner) for o in t_slice]))
                 else:

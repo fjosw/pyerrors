@@ -490,15 +490,25 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, save=None, ylabel=None):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None):
         """Plots the correlator, uses tag as label if available.
 
         Parameters
         ----------
-        x_range -- list of two values, determining the range of the x-axis e.g. [4, 8]
-        comp -- Correlator or list of correlators which are plotted for comparison.
-        logscale -- Sets y-axis to logscale
-        save -- path to file in which the figure should be saved
+        x_range : list
+            list of two values, determining the range of the x-axis e.g. [4, 8]
+        comp : Corr or list of Corr
+            Correlator or list of correlators which are plotted for comparison.
+        logscale : bool
+            Sets y-axis to logscale
+        plateau : Obs
+            plateau to be visualized in the figure
+        fit_res : Fit_result
+            Fit_result object to be visualized
+        ylabel : str
+            Label for the y-axis
+        save : str
+            path to file in which the figure should be saved
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
@@ -544,7 +554,7 @@ class Corr:
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
             ax1.plot(x_samples,
-                     fit_res['fit_function']([o.value for o in fit_res['fit_parameters']], x_samples),
+                     fit_res.fit_function([o.value for o in fit_res.fit_parameters], x_samples),
                      ls='-', marker=',', lw=2)
 
         ax1.set_xlabel(r'$x_0 / a$')

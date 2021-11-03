@@ -400,7 +400,10 @@ class Obs:
                 else:
                     print('  t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
         if ens_content is True:
-            print(self.N, 'samples in', len(self.e_names), 'ensembles:')
+            if len(self.e_names) == 1:
+                print(self.N, 'samples in', len(self.e_names), 'ensemble:')
+            else:
+                print(self.N, 'samples in', len(self.e_names), 'ensembles:')
             for e_name in self.e_names:
                 print(e_name, ':', self.e_content[e_name])
 

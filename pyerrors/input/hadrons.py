@@ -81,7 +81,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
         l_obs.append(Obs([c], [ens_id]))
 
     corr = Corr(l_obs)
-    corr.tag = ", ".join(infos)
+    corr.tag = r", ".join(infos)
     return corr
 
 

@@ -590,9 +590,12 @@ class Corr:
         print(self.__repr__(range))
 
     def __repr__(self, range=[0, None]):
+        content_string = ""
+        if self.tag is not None:
+            content_string += "Description: " + self.tag + "\n"
         if range[1]:
             range[1] += 1
-        content_string = 'x0/a\tCorr(x0/a)\n------------------\n'
+        content_string += 'x0/a\tCorr(x0/a)\n------------------\n'
         for i, sub_corr in enumerate(self.content[range[0]:range[1]]):
             if sub_corr is None:
                 content_string += str(i + range[0]) + '\n'

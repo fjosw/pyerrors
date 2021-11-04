@@ -64,11 +64,15 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     files = _get_files(path, filestem)
 
     corr_data = []
+    infos = []
     for hd5_file in files:
         file = h5py.File(path + '/' + hd5_file, "r")
         raw_data = list(file[tree + '/' + meson + '/corr'])
         real_data = [o[0] for o in raw_data]
         corr_data.append(real_data)
+        if not infos:
+            for k, i in file[tree + '/' + meson].attrs.items():
+                infos.append(k + ': ' + i[0].decode())
         file.close()
     corr_data = np.array(corr_data)
 
@@ -76,7 +80,9 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     for c in corr_data.T:
         l_obs.append(Obs([c], [ens_id]))
 
-    return Corr(l_obs)
+    corr = Corr(l_obs)
+    corr.tag = ", ".join(infos)
+    return corr
 
 
 def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):

@@ -382,7 +382,7 @@ class Obs:
         warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
         self.details(level > 1)
 
-    def details(self, ens_content=False):
+    def details(self, ens_content=True):
         """Output detailed properties of the Obs."""
         if self.value == 0.0:
             percentage = np.nan

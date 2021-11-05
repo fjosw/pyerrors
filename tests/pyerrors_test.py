@@ -297,6 +297,14 @@ def test_correlate():
     corr2 = pe.correlate(my_obs2, my_obs1)
     assert corr1 == corr2
 
+    my_obs3 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(2, 102)])
+    with pytest.raises(Exception):
+        pe.correlate(my_obs1, my_obs3)
+
+    my_obs4 = pe.Obs([np.random.rand(99)], ['t'])
+    with pytest.raises(Exception):
+        pe.correlate(my_obs1, my_obs4)
+
 
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),

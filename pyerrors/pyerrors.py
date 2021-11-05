@@ -1171,10 +1171,12 @@ def correlate(obs_a, obs_b):
         warnings.warn("The second observable is already reweighted.", RuntimeWarning)
 
     new_samples = []
+    new_idl = []
     for name in sorted(obs_a.names):
         new_samples.append((obs_a.deltas[name] + obs_a.r_values[name]) * (obs_b.deltas[name] + obs_b.r_values[name]))
+        new_idl.append(obs_a.idl[name])
 
-    o = Obs(new_samples, sorted(obs_a.names))
+    o = Obs(new_samples, sorted(obs_a.names), idl=new_idl)
     o.is_merged = obs_a.is_merged or obs_b.is_merged
     o.reweighted = obs_a.reweighted or obs_b.reweighted
     return o

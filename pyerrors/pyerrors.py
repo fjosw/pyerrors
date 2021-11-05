@@ -1162,6 +1162,8 @@ def correlate(obs_a, obs_b):
     for name in obs_a.names:
         if obs_a.shape[name] != obs_b.shape[name]:
             raise Exception('Shapes of ensemble', name, 'do not fit')
+        if obs_a.idl[name] != obs_b.idl[name]:
+            raise Exception('idl of ensemble', name, 'do not fit')
 
     if obs_a.reweighted is True:
         warnings.warn("The first observable is already reweighted.", RuntimeWarning)

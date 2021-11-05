@@ -960,11 +960,12 @@ def derived_observable(func, data, **kwargs):
         if isinstance(i_data, Obs):
             first_name = i_data.names[0]
             first_shape = i_data.shape[first_name]
+            first_idl = i_data.idl[first_name]
             break
 
     for i in range(len(raveled_data)):
         if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name])
+            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))

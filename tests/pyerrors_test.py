@@ -305,6 +305,11 @@ def test_correlate():
     with pytest.raises(Exception):
         pe.correlate(my_obs1, my_obs4)
 
+    my_obs5 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
+    my_obs6 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
+    corr3 = pe.correlate(my_obs5, my_obs6)
+    assert my_obs5.idl == corr3.idl
+
 
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),

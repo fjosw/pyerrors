@@ -205,6 +205,22 @@ def test_multi_ens():
     assert my_sum.e_names == sorted(ensembles)
 
 
+def test_multi_ens2():
+    names = ['ens', 'e', 'en', 'e|r010', 'E|er', 'ens|', 'Ens|34', 'ens|r548984654ez4e3t34terh']
+
+    my_sum = 0
+    for name in names:
+        my_sum += pe.pseudo_Obs(1, 0.1, name)
+
+    assert my_sum.e_names == ['E', 'Ens', 'e', 'en', 'ens']
+    assert my_sum.e_content == {'E': ['E|er'],
+                                'Ens': ['Ens|34'],
+                                'e': ['e|r010', 'e'],
+                                'en': ['en'],
+                                'ens': ['ens|', 'ens|r548984654ez4e3t34terh', 'ens']}
+
+
+
 def test_overloaded_functions():
     funcs = [np.exp, np.log, np.sin, np.cos, np.tan, np.sinh, np.cosh, np.arcsinh, np.arccosh]
     deriv = [np.exp, lambda x: 1 / x, np.cos, lambda x: -np.sin(x), lambda x: 1 / np.cos(x) ** 2, np.cosh, np.sinh, lambda x: 1 / np.sqrt(x ** 2 + 1), lambda x: 1 / np.sqrt(x ** 2 - 1)]

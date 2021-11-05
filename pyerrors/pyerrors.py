@@ -406,8 +406,8 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
             else:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
-            for e_name in self.e_names:
-                print('  ', e_name, ':', self.e_content[e_name])
+            m = max(map(len, list(self.e_content.keys()))) + 1
+            print('\n'.join(['  ' + key.rjust(m) + ': ' + str([o[len(key):] for o in value]) for key, value in sorted(self.e_content.items())]))
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.

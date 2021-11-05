@@ -31,6 +31,7 @@ def test_function_overloading():
             assert np.isclose(con[0].dvalue, t2.dvalue)
             assert np.allclose(con[0].deltas['t'], t2.deltas['t'])
 
+
 def test_modify_correlator():
     corr_content = []
     for t in range(24):
@@ -48,11 +49,14 @@ def test_modify_correlator():
     corr.deriv(symmetric=False)
     corr.second_deriv()
 
+
 def test_m_eff():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(8, 0.1, 't'), pe.pseudo_Obs(7, 0.05, 't')])
     my_corr.m_eff('log')
     my_corr.m_eff('cosh')
     my_corr.m_eff('sinh')
+    my_corr.m_eff('arccosh')
+
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
@@ -60,10 +64,20 @@ def test_reweighting():
     r_my_corr = my_corr.reweight(pe.pseudo_Obs(1, 0.1, 't'))
     assert r_my_corr.reweighted is True
 
+
+def test_correlate():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
+    corr1 = my_corr.correlate(my_corr)
+    corr2 = my_corr.correlate(my_corr[0])
+    with pytest.raises(Exception):
+        corr3 = my_corr.correlate(7.3)
+
+
 def test_T_symmetry():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
     with pytest.warns(RuntimeWarning):
         T_symmetric = my_corr.T_symmetry(my_corr)
+
 
 def test_utility():
     corr_content = []

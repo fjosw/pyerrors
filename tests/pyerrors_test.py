@@ -238,18 +238,22 @@ def test_overloaded_functions():
 
 
 def test_utils():
-    my_obs = pe.pseudo_Obs(1.0, 0.5, 't')
-    my_obs.tag = "Test descrption"
-    my_obs.details(False)
-    my_obs.details(True)
-    assert not my_obs.is_zero_within_error()
-    my_obs.plot_tauint()
-    my_obs.plot_rho()
-    my_obs.plot_rep_dist()
-    my_obs.plot_history()
-    my_obs.plot_piechart()
-    assert my_obs > (my_obs - 1)
-    assert my_obs < (my_obs + 1)
+    my_obs = pe.pseudo_Obs(1.0, 0.5, 't|r01')
+    my_obs += pe.pseudo_Obs(1.0, 0.5, 't|r02')
+    for tau_exp in [0, 5]:
+        my_obs.gamma_method(tau_exp=tau_exp)
+        my_obs.tag = "Test description"
+        my_obs.details(False)
+        my_obs.details(True)
+        assert not my_obs.is_zero_within_error()
+        my_obs.plot_tauint()
+        my_obs.plot_rho()
+        my_obs.plot_rep_dist()
+        my_obs.plot_history(True)
+        my_obs.plot_history(False)
+        my_obs.plot_piechart()
+        assert my_obs > (my_obs - 1)
+        assert my_obs < (my_obs + 1)
 
 
 def test_cobs():

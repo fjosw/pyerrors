@@ -79,8 +79,8 @@
 <span class="k">def</span> <span class="nf">gen_correlated_data</span><span class="p">(</span><span class="n">means</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Generate observables with given covariance and autocorrelation times.</span>
 
-<span class="sd">    Arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    means -- list containing the mean value of each observable.</span>
 <span class="sd">    cov -- covariance matrix for the data to be geneated.</span>
 <span class="sd">    name -- ensemble name for the data to be geneated.</span>
@@ -124,8 +124,8 @@
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">gen_correlated_data</span><span class="p">(</span><span class="n">means</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Generate observables with given covariance and autocorrelation times.</span>
 
-<span class="sd">    Arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    means -- list containing the mean value of each observable.</span>
 <span class="sd">    cov -- covariance matrix for the data to be geneated.</span>
 <span class="sd">    name -- ensemble name for the data to be geneated.</span>
@@ -157,14 +157,15 @@
 
             <div class="docstring"><p>Generate observables with given covariance and autocorrelation times.</p>
 
-<h6 id="arguments">Arguments</h6>
+<h6 id="parameters">Parameters</h6>
 
-<p>means -- list containing the mean value of each observable.
-cov -- covariance matrix for the data to be geneated.
-name -- ensemble name for the data to be geneated.
-tau -- can either be a real number or a list with an entry for
-       every dataset.
-samples -- number of samples to be generated for each observable.</p>
+<ul>
+<li><strong>means -- list containing the mean value of each observable.</strong></li>
+<li><strong>cov -- covariance matrix for the data to be geneated.</strong></li>
+<li><strong>name -- ensemble name for the data to be geneated.</strong></li>
+<li><strong>tau -- can either be a real number or a list with an entry for</strong>: every dataset.</li>
+<li><strong>samples -- number of samples to be generated for each observable.</strong></li>
+</ul>
 </div>
 
 

@@ -87,15 +87,16 @@
 <span class="k">def</span> <span class="nf">read_rwms</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;2.0&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read rwms format from given folder structure. Returns a list of length nrw</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    version -- version of openQCD, default 2.0</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    r_start -- list which contains the first config to be read for each replicum</span>
-<span class="sd">    r_stop -- list which contains the last config to be read for each replicum</span>
-<span class="sd">    postfix -- postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version : str</span>
+<span class="sd">        version of openQCD, default 2.0</span>
+<span class="sd">    r_start : list</span>
+<span class="sd">        list which contains the first config to be read for each replicum</span>
+<span class="sd">    r_stop : list</span>
+<span class="sd">        list which contains the last config to be read for each replicum</span>
+<span class="sd">    postfix : str</span>
+<span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">known_oqcd_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.4&#39;</span><span class="p">,</span> <span class="s1">&#39;1.6&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">version</span> <span class="ow">in</span> <span class="n">known_oqcd_versions</span><span class="p">):</span>
@@ -248,19 +249,25 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path -- Path to .ms.dat files</span>
-<span class="sd">    prefix -- Ensemble prefix</span>
-<span class="sd">    dtr_read -- Determines how many trajectories should be skipped when reading the ms.dat files.</span>
-<span class="sd">                Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</span>
-<span class="sd">    xmin -- First timeslice where the boundary effects have sufficiently decayed.</span>
-<span class="sd">    spatial_extent -- spatial extent of the lattice, required for normalization.</span>
-<span class="sd">    fit_range -- Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    r_start -- list which contains the first config to be read for each replicum.</span>
-<span class="sd">    r_stop -- list which contains the last config to be read for each replicum.</span>
-<span class="sd">    plaquette -- If true extract the plaquette estimate of t0 instead.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to .ms.dat files</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Ensemble prefix</span>
+<span class="sd">    dtr_read : int</span>
+<span class="sd">        Determines how many trajectories should be skipped when reading the ms.dat files.</span>
+<span class="sd">        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</span>
+<span class="sd">    xmin : int</span>
+<span class="sd">        First timeslice where the boundary effects have sufficiently decayed.</span>
+<span class="sd">    spatial_extent : int</span>
+<span class="sd">        spatial extent of the lattice, required for normalization.</span>
+<span class="sd">    fit_range : int</span>
+<span class="sd">        Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)</span>
+<span class="sd">    r_start : list</span>
+<span class="sd">        list which contains the first config to be read for each replicum.</span>
+<span class="sd">    r_stop: list</span>
+<span class="sd">        list which contains the last config to be read for each replicum.</span>
+<span class="sd">    plaquette : bool</span>
+<span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -428,15 +435,16 @@
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_rwms</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;2.0&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read rwms format from given folder structure. Returns a list of length nrw</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    version -- version of openQCD, default 2.0</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    r_start -- list which contains the first config to be read for each replicum</span>
-<span class="sd">    r_stop -- list which contains the last config to be read for each replicum</span>
-<span class="sd">    postfix -- postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version : str</span>
+<span class="sd">        version of openQCD, default 2.0</span>
+<span class="sd">    r_start : list</span>
+<span class="sd">        list which contains the first config to be read for each replicum</span>
+<span class="sd">    r_stop : list</span>
+<span class="sd">        list which contains the last config to be read for each replicum</span>
+<span class="sd">    postfix : str</span>
+<span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">known_oqcd_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.4&#39;</span><span class="p">,</span> <span class="s1">&#39;1.6&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">version</span> <span class="ow">in</span> <span class="n">known_oqcd_versions</span><span class="p">):</span>
@@ -583,17 +591,18 @@
 
             <div class="docstring"><p>Read rwms format from given folder structure. Returns a list of length nrw</p>
 
-<h6 id="attributes">Attributes</h6>
+<h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>version -- version of openQCD, default 2.0</strong></li>
+<li><strong>version</strong> (str):
+version of openQCD, default 2.0</li>
+<li><strong>r_start</strong> (list):
+list which contains the first config to be read for each replicum</li>
+<li><strong>r_stop</strong> (list):
+list which contains the last config to be read for each replicum</li>
+<li><strong>postfix</strong> (str):
+postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
 </ul>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>r_start -- list which contains the first config to be read for each replicum
-r_stop -- list which contains the last config to be read for each replicum
-postfix -- postfix of the file to read, e.g. '.ms1' for openQCD-files</p>
 </div>
 
 
@@ -618,19 +627,25 @@ postfix -- postfix of the file to read, e.g. '.ms1' for openQCD-files</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path -- Path to .ms.dat files</span>
-<span class="sd">    prefix -- Ensemble prefix</span>
-<span class="sd">    dtr_read -- Determines how many trajectories should be skipped when reading the ms.dat files.</span>
-<span class="sd">                Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</span>
-<span class="sd">    xmin -- First timeslice where the boundary effects have sufficiently decayed.</span>
-<span class="sd">    spatial_extent -- spatial extent of the lattice, required for normalization.</span>
-<span class="sd">    fit_range -- Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    r_start -- list which contains the first config to be read for each replicum.</span>
-<span class="sd">    r_stop -- list which contains the last config to be read for each replicum.</span>
-<span class="sd">    plaquette -- If true extract the plaquette estimate of t0 instead.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to .ms.dat files</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Ensemble prefix</span>
+<span class="sd">    dtr_read : int</span>
+<span class="sd">        Determines how many trajectories should be skipped when reading the ms.dat files.</span>
+<span class="sd">        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</span>
+<span class="sd">    xmin : int</span>
+<span class="sd">        First timeslice where the boundary effects have sufficiently decayed.</span>
+<span class="sd">    spatial_extent : int</span>
+<span class="sd">        spatial extent of the lattice, required for normalization.</span>
+<span class="sd">    fit_range : int</span>
+<span class="sd">        Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)</span>
+<span class="sd">    r_start : list</span>
+<span class="sd">        list which contains the first config to be read for each replicum.</span>
+<span class="sd">    r_stop: list</span>
+<span class="sd">        list which contains the last config to be read for each replicum.</span>
+<span class="sd">    plaquette : bool</span>
+<span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -745,19 +760,26 @@ Only works with openQCD v 1.2.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>path -- Path to .ms.dat files</strong></li>
-<li><strong>prefix -- Ensemble prefix</strong></li>
-<li><strong>dtr_read -- Determines how many trajectories should be skipped when reading the ms.dat files.</strong>: Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</li>
-<li><strong>xmin -- First timeslice where the boundary effects have sufficiently decayed.</strong></li>
-<li><strong>spatial_extent -- spatial extent of the lattice, required for normalization.</strong></li>
-<li><strong>fit_range -- Number of data points left and right of the zero crossing to be included in the linear fit. (Default</strong> (5)):</li>
+<li><strong>path</strong> (str):
+Path to .ms.dat files</li>
+<li><strong>prefix</strong> (str):
+Ensemble prefix</li>
+<li><strong>dtr_read</strong> (int):
+Determines how many trajectories should be skipped when reading the ms.dat files.
+Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.</li>
+<li><strong>xmin</strong> (int):
+First timeslice where the boundary effects have sufficiently decayed.</li>
+<li><strong>spatial_extent</strong> (int):
+spatial extent of the lattice, required for normalization.</li>
+<li><strong>fit_range</strong> (int):
+Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)</li>
+<li><strong>r_start</strong> (list):
+list which contains the first config to be read for each replicum.</li>
+<li><strong>r_stop</strong> (list):
+list which contains the last config to be read for each replicum.</li>
+<li><strong>plaquette</strong> (bool):
+If true extract the plaquette estimate of t0 instead.</li>
 </ul>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>r_start -- list which contains the first config to be read for each replicum.
-r_stop -- list which contains the last config to be read for each replicum.
-plaquette -- If true extract the plaquette estimate of t0 instead.</p>
 </div>
 
 

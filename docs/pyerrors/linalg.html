@@ -121,9 +121,6 @@
 <span class="sd">            automatic differentiation to work, all numpy functions have to have</span>
 <span class="sd">            the autograd wrapper (use &#39;import autograd.numpy as anp&#39;).</span>
 <span class="sd">    data -- list of Obs, e.g. [obs1, obs2, obs3].</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
 <span class="sd">    man_grad -- manually supply a list or an array which contains the jacobian</span>
 <span class="sd">                of func. Use cautiously, supplying the wrong derivative will</span>
 <span class="sd">                not be intercepted.</span>
@@ -667,9 +664,6 @@
 <span class="sd">            automatic differentiation to work, all numpy functions have to have</span>
 <span class="sd">            the autograd wrapper (use &#39;import autograd.numpy as anp&#39;).</span>
 <span class="sd">    data -- list of Obs, e.g. [obs1, obs2, obs3].</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
 <span class="sd">    man_grad -- manually supply a list or an array which contains the jacobian</span>
 <span class="sd">                of func. Use cautiously, supplying the wrong derivative will</span>
 <span class="sd">                not be intercepted.</span>
@@ -769,13 +763,9 @@ using automatic differentiation.</p>
 <li><strong>func -- arbitrary function of the form func(data, **kwargs). For the</strong>: automatic differentiation to work, all numpy functions have to have
 the autograd wrapper (use 'import autograd.numpy as anp').</li>
 <li><strong>data -- list of Obs, e.g. [obs1, obs2, obs3].</strong></li>
+<li><strong>man_grad -- manually supply a list or an array which contains the jacobian</strong>: of func. Use cautiously, supplying the wrong derivative will
+not be intercepted.</li>
 </ul>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>man_grad -- manually supply a list or an array which contains the jacobian
-            of func. Use cautiously, supplying the wrong derivative will
-            not be intercepted.</p>
 </div>
 
 

@@ -88,8 +88,8 @@
 <span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read sfcf C format from given folder structure.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    im -- if True, read imaginary instead of real part of the correlation function.</span>
 <span class="sd">    single -- if True, read a boundary-to-boundary correlation function with a single value</span>
 <span class="sd">    b2b -- if True, read a time-dependent boundary-to-boundary correlation function</span>
@@ -190,15 +190,12 @@
 <span class="k">def</span> <span class="nf">read_sfcf_c</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
 
-<span class="sd">    Arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    quarks -- Label of the quarks used in the sfcf input file</span>
 <span class="sd">    noffset -- Offset of the source (only relevant when wavefunctions are used)</span>
 <span class="sd">    wf -- ID of wave function</span>
 <span class="sd">    wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
 <span class="sd">    im -- if True, read imaginary instead of real part of the correlation function.</span>
 <span class="sd">    b2b -- if True, read a time-dependent boundary-to-boundary correlation function</span>
 <span class="sd">    names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length</span>
@@ -313,8 +310,8 @@
 <span class="k">def</span> <span class="nf">read_qtop</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read qtop format from given folder structure.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    target -- specifies the topological sector to be reweighted to (default 0)</span>
 <span class="sd">    full -- if true read the charge instead of the reweighting factor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -390,8 +387,8 @@
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read sfcf C format from given folder structure.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    im -- if True, read imaginary instead of real part of the correlation function.</span>
 <span class="sd">    single -- if True, read a boundary-to-boundary correlation function with a single value</span>
 <span class="sd">    b2b -- if True, read a time-dependent boundary-to-boundary correlation function</span>
@@ -493,12 +490,14 @@
 
             <div class="docstring"><p>Read sfcf C format from given folder structure.</p>
 
-<h6 id="keyword-arguments">Keyword arguments</h6>
+<h6 id="parameters">Parameters</h6>
 
-<p>im -- if True, read imaginary instead of real part of the correlation function.
-single -- if True, read a boundary-to-boundary correlation function with a single value
-b2b -- if True, read a time-dependent boundary-to-boundary correlation function
-names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length</p>
+<ul>
+<li><strong>im -- if True, read imaginary instead of real part of the correlation function.</strong></li>
+<li><strong>single -- if True, read a boundary-to-boundary correlation function with a single value</strong></li>
+<li><strong>b2b -- if True, read a time-dependent boundary-to-boundary correlation function</strong></li>
+<li><strong>names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length</strong></li>
+</ul>
 </div>
 
 
@@ -516,15 +515,12 @@ names -- Alternative labeling for replicas/ensembles. Has to have the appropriat
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_sfcf_c</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
 
-<span class="sd">    Arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    quarks -- Label of the quarks used in the sfcf input file</span>
 <span class="sd">    noffset -- Offset of the source (only relevant when wavefunctions are used)</span>
 <span class="sd">    wf -- ID of wave function</span>
 <span class="sd">    wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
 <span class="sd">    im -- if True, read imaginary instead of real part of the correlation function.</span>
 <span class="sd">    b2b -- if True, read a time-dependent boundary-to-boundary correlation function</span>
 <span class="sd">    names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length</span>
@@ -640,20 +636,19 @@ names -- Alternative labeling for replicas/ensembles. Has to have the appropriat
 
             <div class="docstring"><p>Read sfcf c format from given folder structure.</p>
 
-<h6 id="arguments">Arguments</h6>
+<h6 id="parameters">Parameters</h6>
 
-<p>quarks -- Label of the quarks used in the sfcf input file
-noffset -- Offset of the source (only relevant when wavefunctions are used)
-wf -- ID of wave function
-wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)</p>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>im -- if True, read imaginary instead of real part of the correlation function.
-b2b -- if True, read a time-dependent boundary-to-boundary correlation function
-names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length
-ens_name : str
-    replaces the name of the ensemble</p>
+<ul>
+<li><strong>quarks -- Label of the quarks used in the sfcf input file</strong></li>
+<li><strong>noffset -- Offset of the source (only relevant when wavefunctions are used)</strong></li>
+<li><strong>wf -- ID of wave function</strong></li>
+<li><strong>wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)</strong></li>
+<li><strong>im -- if True, read imaginary instead of real part of the correlation function.</strong></li>
+<li><strong>b2b -- if True, read a time-dependent boundary-to-boundary correlation function</strong></li>
+<li><strong>names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length</strong></li>
+<li><strong>ens_name</strong> (str):
+replaces the name of the ensemble</li>
+</ul>
 </div>
 
 
@@ -671,8 +666,8 @@ ens_name : str
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_qtop</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read qtop format from given folder structure.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    target -- specifies the topological sector to be reweighted to (default 0)</span>
 <span class="sd">    full -- if true read the charge instead of the reweighting factor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -736,10 +731,12 @@ ens_name : str
 
             <div class="docstring"><p>Read qtop format from given folder structure.</p>
 
-<h6 id="keyword-arguments">Keyword arguments</h6>
+<h6 id="parameters">Parameters</h6>
 
-<p>target -- specifies the topological sector to be reweighted to (default 0)
-full -- if true read the charge instead of the reweighting factor.</p>
+<ul>
+<li><strong>target -- specifies the topological sector to be reweighted to (default 0)</strong></li>
+<li><strong>full -- if true read the charge instead of the reweighting factor.</strong></li>
+</ul>
 </div>
 
 

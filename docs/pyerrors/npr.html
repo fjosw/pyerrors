@@ -159,9 +159,12 @@
 <span class="k">def</span> <span class="nf">Zq</span><span class="p">(</span><span class="n">inv_prop</span><span class="p">,</span> <span class="n">fermion</span><span class="o">=</span><span class="s1">&#39;Wilson&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Calculates the quark field renormalization constant Zq</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        inv_prop -- Inverted 12x12 quark propagator</span>
-<span class="sd">        fermion -- Fermion type for which the tree-level propagator is used</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inv_prop : array</span>
+<span class="sd">            Inverted 12x12 quark propagator</span>
+<span class="sd">        fermion : str</span>
+<span class="sd">            Fermion type for which the tree-level propagator is used</span>
 <span class="sd">                   in the calculation of Zq. Default Wilson.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_check_geometry</span><span class="p">()</span>
@@ -520,9 +523,12 @@ momenta. Works only for 12x12 matrices.</p>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">Zq</span><span class="p">(</span><span class="n">inv_prop</span><span class="p">,</span> <span class="n">fermion</span><span class="o">=</span><span class="s1">&#39;Wilson&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Calculates the quark field renormalization constant Zq</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        inv_prop -- Inverted 12x12 quark propagator</span>
-<span class="sd">        fermion -- Fermion type for which the tree-level propagator is used</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inv_prop : array</span>
+<span class="sd">            Inverted 12x12 quark propagator</span>
+<span class="sd">        fermion : str</span>
+<span class="sd">            Fermion type for which the tree-level propagator is used</span>
 <span class="sd">                   in the calculation of Zq. Default Wilson.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_check_geometry</span><span class="p">()</span>
@@ -556,10 +562,15 @@ momenta. Works only for 12x12 matrices.</p>
 
             <div class="docstring"><p>Calculates the quark field renormalization constant Zq</p>
 
-<p>Attributes:
-inv_prop -- Inverted 12x12 quark propagator
-fermion -- Fermion type for which the tree-level propagator is used
-           in the calculation of Zq. Default Wilson.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>inv_prop</strong> (array):
+Inverted 12x12 quark propagator</li>
+<li><strong>fermion</strong> (str):
+Fermion type for which the tree-level propagator is used
+      in the calculation of Zq. Default Wilson.</li>
+</ul>
 </div>
 
 

@@ -423,8 +423,8 @@
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        dt : int</span>
 <span class="sd">            number of timeslices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -461,9 +461,6 @@
 <span class="sd">        weight : Obs</span>
 <span class="sd">            Reweighting factor. An Observable that has to be defined on a superset of the</span>
 <span class="sd">            configurations in obs[i].idl for all i.</span>
-
-<span class="sd">        Keyword arguments</span>
-<span class="sd">        -----------------</span>
 <span class="sd">        all_configs : bool</span>
 <span class="sd">            if True, the reweighted observables are normalized by the average of</span>
 <span class="sd">            the reweighting factor on all configurations in weight.idl and not</span>
@@ -480,8 +477,8 @@
     <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        partner : Corr</span>
 <span class="sd">            Time symmetry partner of the Corr</span>
 <span class="sd">        partity : int</span>
@@ -506,8 +503,8 @@
     <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
 <span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -611,8 +608,8 @@
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
@@ -644,8 +641,8 @@
     <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        plateau_range : list</span>
 <span class="sd">            list with two entries, indicating the first and the last timeslice</span>
 <span class="sd">            of the plateau region.</span>
@@ -775,8 +772,8 @@
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1225,8 +1222,8 @@
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        dt : int</span>
 <span class="sd">            number of timeslices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1263,9 +1260,6 @@
 <span class="sd">        weight : Obs</span>
 <span class="sd">            Reweighting factor. An Observable that has to be defined on a superset of the</span>
 <span class="sd">            configurations in obs[i].idl for all i.</span>
-
-<span class="sd">        Keyword arguments</span>
-<span class="sd">        -----------------</span>
 <span class="sd">        all_configs : bool</span>
 <span class="sd">            if True, the reweighted observables are normalized by the average of</span>
 <span class="sd">            the reweighting factor on all configurations in weight.idl and not</span>
@@ -1282,8 +1276,8 @@
     <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        partner : Corr</span>
 <span class="sd">            Time symmetry partner of the Corr</span>
 <span class="sd">        partity : int</span>
@@ -1308,8 +1302,8 @@
     <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
 <span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1413,8 +1407,8 @@
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
@@ -1446,8 +1440,8 @@
     <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        plateau_range : list</span>
 <span class="sd">            list with two entries, indicating the first and the last timeslice</span>
 <span class="sd">            of the plateau region.</span>
@@ -1577,8 +1571,8 @@
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2190,8 +2184,8 @@ timeslice and the error on each timeslice.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        dt : int</span>
 <span class="sd">            number of timeslices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2202,10 +2196,12 @@ timeslice and the error on each timeslice.</p>
 
             <div class="docstring"><p>Periodically shift the correlator by dt timeslices</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>dt : int
-    number of timeslices</p>
+<ul>
+<li><strong>dt</strong> (int):
+number of timeslices</li>
+</ul>
 </div>
 
 
@@ -2287,9 +2283,6 @@ timeslice and the error on each timeslice.</p>
 <span class="sd">        weight : Obs</span>
 <span class="sd">            Reweighting factor. An Observable that has to be defined on a superset of the</span>
 <span class="sd">            configurations in obs[i].idl for all i.</span>
-
-<span class="sd">        Keyword arguments</span>
-<span class="sd">        -----------------</span>
 <span class="sd">        all_configs : bool</span>
 <span class="sd">            if True, the reweighted observables are normalized by the average of</span>
 <span class="sd">            the reweighting factor on all configurations in weight.idl and not</span>
@@ -2314,14 +2307,11 @@ timeslice and the error on each timeslice.</p>
 <li><strong>weight</strong> (Obs):
 Reweighting factor. An Observable that has to be defined on a superset of the
 configurations in obs[i].idl for all i.</li>
+<li><strong>all_configs</strong> (bool):
+if True, the reweighted observables are normalized by the average of
+the reweighting factor on all configurations in weight.idl and not
+on the configurations in obs[i].idl.</li>
 </ul>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>all_configs : bool
-    if True, the reweighted observables are normalized by the average of
-    the reweighting factor on all configurations in weight.idl and not
-    on the configurations in obs[i].idl.</p>
 </div>
 
 
@@ -2339,8 +2329,8 @@ configurations in obs[i].idl for all i.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        partner : Corr</span>
 <span class="sd">            Time symmetry partner of the Corr</span>
 <span class="sd">        partity : int</span>
@@ -2367,12 +2357,14 @@ configurations in obs[i].idl for all i.</li>
 
             <div class="docstring"><p>Return the time symmetry average of the correlator and its partner</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>partner : Corr
-    Time symmetry partner of the Corr
-partity : int
-    Parity quantum number of the correlator, can be +1 or -1</p>
+<ul>
+<li><strong>partner</strong> (Corr):
+Time symmetry partner of the Corr</li>
+<li><strong>partity</strong> (int):
+Parity quantum number of the correlator, can be +1 or -1</li>
+</ul>
 </div>
 
 
@@ -2390,8 +2382,8 @@ partity : int
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
 <span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2421,10 +2413,12 @@ partity : int
 
             <div class="docstring"><p>Return the first derivative of the correlator with respect to x0.</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>symmetric : bool
-    decides whether symmertic of simple finite differences are used. Default: True</p>
+<ul>
+<li><strong>symmetric</strong> (bool):
+decides whether symmertic of simple finite differences are used. Default: True</li>
+</ul>
 </div>
 
 
@@ -2566,8 +2560,8 @@ guess for the root finder, only relevant for the root variant</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
@@ -2601,15 +2595,17 @@ guess for the root finder, only relevant for the root variant</li>
 
             <div class="docstring"><p>Fits function to the data</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>function : obj
-    function to fit to the data. See fits.least_squares for details.
-fitrange : list
-    Range in which the function is to be fitted to the data.
-    If not specified, self.prange or all timeslices are used.
-silent : bool
-    Decides whether output is printed to the standard output.</p>
+<ul>
+<li><strong>function</strong> (obj):
+function to fit to the data. See fits.least_squares for details.</li>
+<li><strong>fitrange</strong> (list):
+Range in which the function is to be fitted to the data.
+If not specified, self.prange or all timeslices are used.</li>
+<li><strong>silent</strong> (bool):
+Decides whether output is printed to the standard output.</li>
+</ul>
 </div>
 
 
@@ -2627,8 +2623,8 @@ silent : bool
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        plateau_range : list</span>
 <span class="sd">            list with two entries, indicating the first and the last timeslice</span>
 <span class="sd">            of the plateau region.</span>
@@ -2663,15 +2659,17 @@ silent : bool
 
             <div class="docstring"><p>Extract a plateu value from a Corr object</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>plateau_range : list
-    list with two entries, indicating the first and the last timeslice
-    of the plateau region.
-method : str
-    method to extract the plateau.
-        'fit' fits a constant to the plateau region
-        'avg', 'average' or 'mean' just average over the given timeslices.</p>
+<ul>
+<li><strong>plateau_range</strong> (list):
+list with two entries, indicating the first and the last timeslice
+of the plateau region.</li>
+<li><strong>method</strong> (str):
+method to extract the plateau.
+   'fit' fits a constant to the plateau region
+   'avg', 'average' or 'mean' just average over the given timeslices.</li>
+</ul>
 </div>
 
 
@@ -2851,8 +2849,8 @@ path to file in which the figure should be saved</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2864,10 +2862,12 @@ path to file in which the figure should be saved</li>
 
             <div class="docstring"><p>Dumps the Corr into a pickel file</p>
 
-<h2 id="attributes">Attributes:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>filename : str
-    Name of the file</p>
+<ul>
+<li><strong>filename</strong> (str):
+Name of the file</li>
+</ul>
 </div>
 
 

@@ -73,9 +73,12 @@ def inv_propagator(prop):
 def Zq(inv_prop, fermion='Wilson'):
     """ Calculates the quark field renormalization constant Zq
 
-        Attributes:
-        inv_prop -- Inverted 12x12 quark propagator
-        fermion -- Fermion type for which the tree-level propagator is used
+        Parameters
+        ----------
+        inv_prop : array
+            Inverted 12x12 quark propagator
+        fermion : str
+            Fermion type for which the tree-level propagator is used
                    in the calculation of Zq. Default Wilson.
     """
     _check_geometry()

@@ -226,8 +226,8 @@ class Corr:
     def roll(self, dt):
         """Periodically shift the correlator by dt timeslices
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         dt : int
             number of timeslices
         """
@@ -264,9 +264,6 @@ class Corr:
         weight : Obs
             Reweighting factor. An Observable that has to be defined on a superset of the
             configurations in obs[i].idl for all i.
-
-        Keyword arguments
-        -----------------
         all_configs : bool
             if True, the reweighted observables are normalized by the average of
             the reweighting factor on all configurations in weight.idl and not
@@ -283,8 +280,8 @@ class Corr:
     def T_symmetry(self, partner, parity=+1):
         """Return the time symmetry average of the correlator and its partner
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         partner : Corr
             Time symmetry partner of the Corr
         partity : int
@@ -309,8 +306,8 @@ class Corr:
     def deriv(self, symmetric=True):
         """Return the first derivative of the correlator with respect to x0.
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         symmetric : bool
             decides whether symmertic of simple finite differences are used. Default: True
         """
@@ -414,8 +411,8 @@ class Corr:
     def fit(self, function, fitrange=None, silent=False, **kwargs):
         """Fits function to the data
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         function : obj
             function to fit to the data. See fits.least_squares for details.
         fitrange : list
@@ -447,8 +444,8 @@ class Corr:
     def plateau(self, plateau_range=None, method="fit"):
         """ Extract a plateu value from a Corr object
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         plateau_range : list
             list with two entries, indicating the first and the last timeslice
             of the plateau region.
@@ -578,8 +575,8 @@ class Corr:
     def dump(self, filename):
         """Dumps the Corr into a pickel file
 
-        Attributes:
-        -----------
+        Parameters
+        ----------
         filename : str
             Name of the file
         """

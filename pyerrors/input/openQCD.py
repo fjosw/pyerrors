@@ -13,15 +13,16 @@ from ..fits import fit_lin
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
-    Attributes
-    -----------------
-    version -- version of openQCD, default 2.0
-
-    Keyword arguments
-    -----------------
-    r_start -- list which contains the first config to be read for each replicum
-    r_stop -- list which contains the last config to be read for each replicum
-    postfix -- postfix of the file to read, e.g. '.ms1' for openQCD-files
+    Parameters
+    ----------
+    version : str
+        version of openQCD, default 2.0
+    r_start : list
+        list which contains the first config to be read for each replicum
+    r_stop : list
+        list which contains the last config to be read for each replicum
+    postfix : str
+        postfix of the file to read, e.g. '.ms1' for openQCD-files
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if not (version in known_oqcd_versions):
@@ -174,19 +175,25 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
 
     Parameters
     ----------
-    path -- Path to .ms.dat files
-    prefix -- Ensemble prefix
-    dtr_read -- Determines how many trajectories should be skipped when reading the ms.dat files.
-                Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
-    xmin -- First timeslice where the boundary effects have sufficiently decayed.
-    spatial_extent -- spatial extent of the lattice, required for normalization.
-    fit_range -- Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)
-
-    Keyword arguments
-    -----------------
-    r_start -- list which contains the first config to be read for each replicum.
-    r_stop -- list which contains the last config to be read for each replicum.
-    plaquette -- If true extract the plaquette estimate of t0 instead.
+    path : str
+        Path to .ms.dat files
+    prefix : str
+        Ensemble prefix
+    dtr_read : int
+        Determines how many trajectories should be skipped when reading the ms.dat files.
+        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
+    xmin : int
+        First timeslice where the boundary effects have sufficiently decayed.
+    spatial_extent : int
+        spatial extent of the lattice, required for normalization.
+    fit_range : int
+        Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)
+    r_start : list
+        list which contains the first config to be read for each replicum.
+    r_stop: list
+        list which contains the last config to be read for each replicum.
+    plaquette : bool
+        If true extract the plaquette estimate of t0 instead.
     """
 
     ls = []

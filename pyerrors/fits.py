@@ -59,7 +59,7 @@ class Fit_result(Sequence):
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x).
 
-    Arguments:
+    Parameters
     ----------
     x : list
         list of floats.
@@ -87,22 +87,23 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         enough.
     silent : bool, optional
         If true all output to the console is omitted (default False).
-
-
-    Keyword arguments
-    -----------------
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for
+    initial_guess : list
+        can provide an initial guess for the input parameters. Relevant for
                      non-linear fits with many parameters.
-    method -- can be used to choose an alternative method for the minimization of chisquare.
-              The possible methods are the ones which can be used for scipy.optimize.minimize and
-              migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
-              Reliable alternatives are migrad, Powell and Nelder-Mead.
-    resplot -- If true, a plot which displays fit, data and residuals is generated (default False).
-    qqplot -- If true, a quantile-quantile plot of the fit result is generated (default False).
-    expected_chisquare -- If true prints the expected chisquare which is
-                          corrected by effects caused by correlated input data.
-                          This can take a while as the full correlation matrix
-                          has to be calculated (default False).
+    method : str
+        can be used to choose an alternative method for the minimization of chisquare.
+        The possible methods are the ones which can be used for scipy.optimize.minimize and
+        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
+        Reliable alternatives are migrad, Powell and Nelder-Mead.
+    resplot : bool
+        If true, a plot which displays fit, data and residuals is generated (default False).
+    qqplot : bool
+        If true, a quantile-quantile plot of the fit result is generated (default False).
+    expected_chisquare : bool
+        If true prints the expected chisquare which is
+        corrected by effects caused by correlated input data.
+        This can take a while as the full correlation matrix
+        has to be calculated (default False).
     """
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -254,6 +255,8 @@ def odr_fit(x, y, func, silent=False, **kwargs):
 def total_least_squares(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
+    Parameters
+    ----------
     x : list
         list of Obs, or a tuple of lists of Obs
     y : list
@@ -276,15 +279,14 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     silent : bool, optional
         If true all output to the console is omitted (default False).
     Based on the orthogonal distance regression module of scipy
-
-    Keyword arguments
-    -----------------
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear
-                     fits with many parameters.
-    expected_chisquare -- If true prints the expected chisquare which is
-                          corrected by effects caused by correlated input data.
-                          This can take a while as the full correlation matrix
-                          has to be calculated (default False).
+    initial_guess : list
+        can provide an initial guess for the input parameters. Relevant for non-linear
+        fits with many parameters.
+    expected_chisquare : bool
+        If true prints the expected chisquare which is
+        corrected by effects caused by correlated input data.
+        This can take a while as the full correlation matrix
+        has to be calculated (default False).
     """
 
     output = Fit_result()

@@ -55,13 +55,22 @@ $\delta_i\delta_j$
 
 ## Covariance
 
+# Correlators
+`pyerrors.correlators.Corr`
+
 # Optimization / fits / roots
+`pyerrors.fits`
+`pyerrors.roots`
+
 
 # Complex observables
+`pyerrors.obs.CObs`
 
 # Matrix operations
+`pyerrors.linalg`
 
 # Input
+`pyerrors.input`
 '''
 from .obs import *
 from .correlators import *

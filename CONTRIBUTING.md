@@ -1,6 +1,6 @@
 # Development
 ### Setup
-If you want to contribute to `pyerrors` please fork `pyerrors` on Github, clone the current `develop` branch
+If you want to contribute to `pyerrors` please [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) `pyerrors` on Github, clone the current `develop` branch
 ```
 git clone http://github.com/my_username/pyerrors.git --branch develop
 ```

@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
-from .pyerrors import Obs, dump_object, reweight, correlate
+from .obs import Obs, dump_object, reweight, correlate
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root

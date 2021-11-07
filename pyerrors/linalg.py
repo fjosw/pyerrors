@@ -4,7 +4,7 @@
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .pyerrors import derived_observable, CObs, Obs
+from .obs import derived_observable, CObs, Obs
 
 from functools import partial
 from autograd.extend import defvjp

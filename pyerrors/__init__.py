@@ -1,4 +1,4 @@
-from .pyerrors import *
+from .obs import *
 from .correlators import *
 from .fits import *
 from . import dirac

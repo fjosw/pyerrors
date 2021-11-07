@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import numpy as np
-from .pyerrors import Obs
+from .obs import Obs
 
 
 def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):

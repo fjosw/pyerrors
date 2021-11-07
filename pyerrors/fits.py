@@ -11,7 +11,7 @@ from scipy.odr import ODR, Model, RealData
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
-from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
+from .obs import Obs, derived_observable, covariance, pseudo_Obs
 
 
 class Fit_result(Sequence):

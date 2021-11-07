@@ -5,7 +5,7 @@ import os
 import fnmatch
 import re
 import numpy as np  # Thinly-wrapped numpy
-from ..pyerrors import Obs
+from ..obs import Obs
 
 
 def read_sfcf(path, prefix, name, **kwargs):

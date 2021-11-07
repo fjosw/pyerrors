@@ -6,7 +6,7 @@ import fnmatch
 import re
 import struct
 import numpy as np  # Thinly-wrapped numpy
-from ..pyerrors import Obs
+from ..obs import Obs
 
 
 def read_pbp(path, prefix, **kwargs):

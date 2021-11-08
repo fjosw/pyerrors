@@ -173,8 +173,10 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
 <span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
+
 <span class="c1"># Observable defined on every second configuration between 5 and 1003</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1005</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+
 <span class="c1"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
 <span class="n">obs3</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">501</span><span class="p">]])</span>
 </code></pre></div>
@@ -184,7 +186,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <h1 id="error-propagation">Error propagation</h1>
 
-<p>Automatic differentiation, cite Alberto,</p>
+<p>Automatic differentiation, <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a></p>
 
 <p>numpy overloaded</p>
 
@@ -300,8 +302,10 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">```python</span>
 <span class="sd"># Observable defined on configurations 20 to 519</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;], idl=[range(20, 520)])</span>
+
 <span class="sd"># Observable defined on every second configuration between 5 and 1003</span>
 <span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1&#39;], idl=[range(5, 1005, 2)])</span>
+
 <span class="sd"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
 <span class="sd">obs3 = pe.Obs([samples3], [&#39;ensemble1&#39;], idl=[[2, 9, 28, 29, 501]])</span>
 <span class="sd">```</span>
@@ -310,7 +314,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
 
 <span class="sd"># Error propagation</span>
-<span class="sd">Automatic differentiation, cite Alberto,</span>
+<span class="sd">Automatic differentiation, [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
 
 <span class="sd">numpy overloaded</span>
 <span class="sd">```python</span>

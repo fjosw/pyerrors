@@ -67,8 +67,10 @@ Example:
 ```python
 # Observable defined on configurations 20 to 519
 obs1 = pe.Obs([samples1], ['ensemble1'], idl=[range(20, 520)])
+
 # Observable defined on every second configuration between 5 and 1003
 obs2 = pe.Obs([samples2], ['ensemble1'], idl=[range(5, 1005, 2)])
+
 # Observable defined on configurations 2, 9, 28, 29 and 501
 obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
 ```
@@ -77,7 +79,7 @@ obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
 Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
 
 # Error propagation
-Automatic differentiation, cite Alberto,
+Automatic differentiation, [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
 
 numpy overloaded
 ```python

@@ -57,7 +57,7 @@ class Fit_result(Sequence):
 
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x).
+    r'''Performs a non-linear fit to y = func(x).
 
     Parameters
     ----------
@@ -68,14 +68,19 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     func : object
         fit function, has to be of the form
 
+        ```python
         def func(a, x):
-            return a[0] + a[1] * x + a[2] * anp.sinh(x)
+            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
+            return y
+        ```
 
         For multiple x values func can be of the form
 
+        ```python
         def func(a, x):
             (x1, x2) = x
             return a[0] * x1 ** 2 + a[1] * x2
+        ```
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work
@@ -104,7 +109,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
-    """
+    '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
     else:

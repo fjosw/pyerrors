@@ -136,13 +136,11 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <h2 id="multiple-ensemblesreplica">Multiple ensembles/replica</h2>
 
-<p>Error propagation for multiple ensemblesi (Markov chains with different simulation parameters) are automatically handled.</p>
+<p>Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their <code>name</code>.</p>
 
-<p><strong>Example:</strong></p>
+<p>Example:</p>
 
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
-
-<span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
+<div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">])</span>
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
@@ -155,11 +153,9 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the dataset.</p>
 
-<p><strong>Example:</strong></p>
+<p>Example:</p>
 
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
-
-<span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
+<div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
@@ -171,13 +167,20 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
 
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+<p>Irregular Monte Carlo chains can be initilized with the parameter <code>idl</code>.</p>
 
-<span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
-<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
+<p>Example:</p>
 
-<span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
+<span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
+<span class="c1"># Observable defined on every second configuration between 5 and 1003</span>
+<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1005</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="c1"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
+<span class="n">obs3</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">501</span><span class="p">]])</span>
 </code></pre></div>
+
+<p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
+Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
 <h1 id="error-propagation">Error propagation</h1>
 
@@ -260,12 +263,10 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <span class="sd">## Multiple ensembles/replica</span>
 
-<span class="sd">Error propagation for multiple ensemblesi (Markov chains with different simulation parameters) are automatically handled.</span>
+<span class="sd">Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their `name`.</span>
 
-<span class="sd">**Example:**</span>
+<span class="sd">Example:</span>
 <span class="sd">```python</span>
-<span class="sd">import pyerrors as pe</span>
-
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;])</span>
 <span class="sd">obs2 = pe.Obs([samples1], [&#39;ensemble2&#39;])</span>
 
@@ -280,10 +281,8 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <span class="sd">`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.</span>
 
-<span class="sd">**Example:**</span>
+<span class="sd">Example:</span>
 <span class="sd">```python</span>
-<span class="sd">import pyerrors as pe</span>
-
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1|r01&#39;])</span>
 <span class="sd">obs2 = pe.Obs([samples1], [&#39;ensemble1|r02&#39;])</span>
 
@@ -295,14 +294,21 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <span class="sd">```</span>
 <span class="sd">## Irregular Monte Carlo chains</span>
 
+<span class="sd">Irregular Monte Carlo chains can be initilized with the parameter `idl`.</span>
+
+<span class="sd">Example:</span>
 <span class="sd">```python</span>
-<span class="sd">import pyerrors as pe</span>
-
-<span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1|r01&#39;])</span>
-<span class="sd">obs2 = pe.Obs([samples1], [&#39;ensemble1|r02&#39;])</span>
-
-<span class="sd">my_sum = obs1 + obs2</span>
+<span class="sd"># Observable defined on configurations 20 to 519</span>
+<span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;], idl=[range(20, 520)])</span>
+<span class="sd"># Observable defined on every second configuration between 5 and 1003</span>
+<span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1&#39;], idl=[range(5, 1005, 2)])</span>
+<span class="sd"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
+<span class="sd">obs3 = pe.Obs([samples3], [&#39;ensemble1&#39;], idl=[[2, 9, 28, 29, 501]])</span>
 <span class="sd">```</span>
+
+<span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>
+<span class="sd">Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
+
 <span class="sd"># Error propagation</span>
 <span class="sd">Automatic differentiation, cite Alberto,</span>
 

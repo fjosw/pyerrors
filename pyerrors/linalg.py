@@ -4,7 +4,7 @@
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .pyerrors import derived_observable, CObs, Obs
+from .obs import derived_observable, CObs, Obs
 
 from functools import partial
 from autograd.extend import defvjp
@@ -20,9 +20,6 @@ def derived_array(func, data, **kwargs):
             automatic differentiation to work, all numpy functions have to have
             the autograd wrapper (use 'import autograd.numpy as anp').
     data -- list of Obs, e.g. [obs1, obs2, obs3].
-
-    Keyword arguments
-    -----------------
     man_grad -- manually supply a list or an array which contains the jacobian
                 of func. Use cautiously, supplying the wrong derivative will
                 not be intercepted.

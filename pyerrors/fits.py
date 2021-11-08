@@ -11,7 +11,7 @@ from scipy.odr import ODR, Model, RealData
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
-from .pyerrors import Obs, derived_observable, covariance, pseudo_Obs
+from .obs import Obs, derived_observable, covariance, pseudo_Obs
 
 
 class Fit_result(Sequence):
@@ -57,9 +57,9 @@ class Fit_result(Sequence):
 
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x).
+    r'''Performs a non-linear fit to y = func(x).
 
-    Arguments:
+    Parameters
     ----------
     x : list
         list of floats.
@@ -68,14 +68,19 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     func : object
         fit function, has to be of the form
 
+        ```python
         def func(a, x):
-            return a[0] + a[1] * x + a[2] * anp.sinh(x)
+            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
+            return y
+        ```
 
         For multiple x values func can be of the form
 
+        ```python
         def func(a, x):
             (x1, x2) = x
             return a[0] * x1 ** 2 + a[1] * x2
+        ```
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work
@@ -87,173 +92,35 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         enough.
     silent : bool, optional
         If true all output to the console is omitted (default False).
-
-
-    Keyword arguments
-    -----------------
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for
+    initial_guess : list
+        can provide an initial guess for the input parameters. Relevant for
                      non-linear fits with many parameters.
-    method -- can be used to choose an alternative method for the minimization of chisquare.
-              The possible methods are the ones which can be used for scipy.optimize.minimize and
-              migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
-              Reliable alternatives are migrad, Powell and Nelder-Mead.
-    resplot -- If true, a plot which displays fit, data and residuals is generated (default False).
-    qqplot -- If true, a quantile-quantile plot of the fit result is generated (default False).
-    expected_chisquare -- If true prints the expected chisquare which is
-                          corrected by effects caused by correlated input data.
-                          This can take a while as the full correlation matrix
-                          has to be calculated (default False).
-    """
+    method : str
+        can be used to choose an alternative method for the minimization of chisquare.
+        The possible methods are the ones which can be used for scipy.optimize.minimize and
+        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
+        Reliable alternatives are migrad, Powell and Nelder-Mead.
+    resplot : bool
+        If true, a plot which displays fit, data and residuals is generated (default False).
+    qqplot : bool
+        If true, a quantile-quantile plot of the fit result is generated (default False).
+    expected_chisquare : bool
+        If true prints the expected chisquare which is
+        corrected by effects caused by correlated input data.
+        This can take a while as the full correlation matrix
+        has to be calculated (default False).
+    '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
     else:
         return _standard_fit(x, y, func, silent=silent, **kwargs)
 
 
-def standard_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("standard_fit renamed to least_squares", DeprecationWarning)
-    return least_squares(x, y, func, silent=silent, **kwargs)
-
-
-def _standard_fit(x, y, func, silent=False, **kwargs):
-
-    output = Fit_result()
-
-    output.fit_function = func
-
-    x = np.asarray(x)
-
-    if x.shape[-1] != len(y):
-        raise Exception('x and y input have to have the same length')
-
-    if len(x.shape) > 2:
-        raise Exception('Unkown format for x values')
-
-    if not callable(func):
-        raise TypeError('func has to be a function.')
-
-    for i in range(25):
-        try:
-            func(np.arange(i), x.T[0])
-        except:
-            pass
-        else:
-            break
-
-    n_parms = i
-
-    if not silent:
-        print('Fit with', n_parms, 'parameters')
-
-    y_f = [o.value for o in y]
-    dy_f = [o.dvalue for o in y]
-
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
-        if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
-    else:
-        x0 = [0.1] * n_parms
-
-    def chisqfunc(p):
-        model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-        return chisq
-
-    if 'method' in kwargs:
-        output.method = kwargs.get('method')
-        if not silent:
-            print('Method:', kwargs.get('method'))
-        if kwargs.get('method') == 'migrad':
-            fit_result = iminuit.minimize(chisqfunc, x0)
-            fit_result = iminuit.minimize(chisqfunc, fit_result.x)
-        else:
-            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'))
-            fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
-
-        chisquare = fit_result.fun
-
-        output.iterations = fit_result.nit
-    else:
-        output.method = 'Levenberg-Marquardt'
-        if not silent:
-            print('Method: Levenberg-Marquardt')
-
-        def chisqfunc_residuals(p):
-            model = func(p, x)
-            chisq = ((y_f - model) / dy_f)
-            return chisq
-
-        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
-
-        chisquare = np.sum(fit_result.fun ** 2)
-
-        output.iterations = fit_result.nfev
-
-    if not fit_result.success:
-        raise Exception('The minimization procedure did not converge.')
-
-    if x.shape[-1] - n_parms > 0:
-        output.chisquare_by_dof = chisquare / (x.shape[-1] - n_parms)
-    else:
-        output.chisquare_by_dof = float('nan')
-
-    output.message = fit_result.message
-    if not silent:
-        print(fit_result.message)
-        print('chisquare/d.o.f.:', output.chisquare_by_dof)
-
-    if kwargs.get('expected_chisquare') is True:
-        W = np.diag(1 / np.asarray(dy_f))
-        cov = covariance_matrix(y)
-        A = W @ jacobian(func)(fit_result.x, x)
-        P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
-        expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
-        output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
-        if not silent:
-            print('chisquare/expected_chisquare:',
-                  output.chisquare_by_expected_chisquare)
-
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fit_result.x))
-
-    def chisqfunc_compact(d):
-        model = func(d[:n_parms], x)
-        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
-        return chisq
-
-    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fit_result.x, y_f)))
-
-    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
-
-    result = []
-    for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(fit_result.x[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y), man_grad=[0] + list(deriv[i])))
-
-    output.fit_parameters = result
-
-    output.chisquare = chisqfunc(fit_result.x)
-    output.dof = x.shape[-1] - n_parms
-
-    if kwargs.get('resplot') is True:
-        residual_plot(x, y, func, result)
-
-    if kwargs.get('qqplot') is True:
-        qqplot(x, y, func, result)
-
-    return output
-
-
-def odr_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("odr_fit renamed to total_least_squares", DeprecationWarning)
-    return total_least_squares(x, y, func, silent=silent, **kwargs)
-
-
 def total_least_squares(x, y, func, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
+    r'''Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
+    Parameters
+    ----------
     x : list
         list of Obs, or a tuple of lists of Obs
     y : list
@@ -261,31 +128,35 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     func : object
         func has to be of the form
 
+        ```python
         def func(a, x):
             y = a[0] + a[1] * x + a[2] * anp.sinh(x)
             return y
+        ```
 
         For multiple x values func can be of the form
 
+        ```python
         def func(a, x):
             (x1, x2) = x
             return a[0] * x1 ** 2 + a[1] * x2
+        ```
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work.
     silent : bool, optional
         If true all output to the console is omitted (default False).
-    Based on the orthogonal distance regression module of scipy
+    initial_guess : list
+        can provide an initial guess for the input parameters. Relevant for non-linear
+        fits with many parameters.
+    expected_chisquare : bool
+        If true prints the expected chisquare which is
+        corrected by effects caused by correlated input data.
+        This can take a while as the full correlation matrix
+        has to be calculated (default False).
 
-    Keyword arguments
-    -----------------
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear
-                     fits with many parameters.
-    expected_chisquare -- If true prints the expected chisquare which is
-                          corrected by effects caused by correlated input data.
-                          This can take a while as the full correlation matrix
-                          has to be calculated (default False).
-    """
+    Based on the orthogonal distance regression module of scipy
+    '''
 
     output = Fit_result()
 
@@ -537,6 +408,147 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         qqplot(x, y, func, result)
 
     return output
+
+
+def standard_fit(x, y, func, silent=False, **kwargs):
+    warnings.warn("standard_fit renamed to least_squares", DeprecationWarning)
+    return least_squares(x, y, func, silent=silent, **kwargs)
+
+
+def _standard_fit(x, y, func, silent=False, **kwargs):
+
+    output = Fit_result()
+
+    output.fit_function = func
+
+    x = np.asarray(x)
+
+    if x.shape[-1] != len(y):
+        raise Exception('x and y input have to have the same length')
+
+    if len(x.shape) > 2:
+        raise Exception('Unkown format for x values')
+
+    if not callable(func):
+        raise TypeError('func has to be a function.')
+
+    for i in range(25):
+        try:
+            func(np.arange(i), x.T[0])
+        except:
+            pass
+        else:
+            break
+
+    n_parms = i
+
+    if not silent:
+        print('Fit with', n_parms, 'parameters')
+
+    y_f = [o.value for o in y]
+    dy_f = [o.dvalue for o in y]
+
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+
+    if 'initial_guess' in kwargs:
+        x0 = kwargs.get('initial_guess')
+        if len(x0) != n_parms:
+            raise Exception('Initial guess does not have the correct length.')
+    else:
+        x0 = [0.1] * n_parms
+
+    def chisqfunc(p):
+        model = func(p, x)
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+        return chisq
+
+    if 'method' in kwargs:
+        output.method = kwargs.get('method')
+        if not silent:
+            print('Method:', kwargs.get('method'))
+        if kwargs.get('method') == 'migrad':
+            fit_result = iminuit.minimize(chisqfunc, x0)
+            fit_result = iminuit.minimize(chisqfunc, fit_result.x)
+        else:
+            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'))
+            fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
+
+        chisquare = fit_result.fun
+
+        output.iterations = fit_result.nit
+    else:
+        output.method = 'Levenberg-Marquardt'
+        if not silent:
+            print('Method: Levenberg-Marquardt')
+
+        def chisqfunc_residuals(p):
+            model = func(p, x)
+            chisq = ((y_f - model) / dy_f)
+            return chisq
+
+        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+
+        chisquare = np.sum(fit_result.fun ** 2)
+
+        output.iterations = fit_result.nfev
+
+    if not fit_result.success:
+        raise Exception('The minimization procedure did not converge.')
+
+    if x.shape[-1] - n_parms > 0:
+        output.chisquare_by_dof = chisquare / (x.shape[-1] - n_parms)
+    else:
+        output.chisquare_by_dof = float('nan')
+
+    output.message = fit_result.message
+    if not silent:
+        print(fit_result.message)
+        print('chisquare/d.o.f.:', output.chisquare_by_dof)
+
+    if kwargs.get('expected_chisquare') is True:
+        W = np.diag(1 / np.asarray(dy_f))
+        cov = covariance_matrix(y)
+        A = W @ jacobian(func)(fit_result.x, x)
+        P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+        expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
+        output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
+        if not silent:
+            print('chisquare/expected_chisquare:',
+                  output.chisquare_by_expected_chisquare)
+
+    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fit_result.x))
+
+    def chisqfunc_compact(d):
+        model = func(d[:n_parms], x)
+        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
+        return chisq
+
+    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fit_result.x, y_f)))
+
+    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
+
+    result = []
+    for i in range(n_parms):
+        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(fit_result.x[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y), man_grad=[0] + list(deriv[i])))
+
+    output.fit_parameters = result
+
+    output.chisquare = chisqfunc(fit_result.x)
+    output.dof = x.shape[-1] - n_parms
+
+    if kwargs.get('resplot') is True:
+        residual_plot(x, y, func, result)
+
+    if kwargs.get('qqplot') is True:
+        qqplot(x, y, func, result)
+
+    return output
+
+
+def odr_fit(x, y, func, silent=False, **kwargs):
+    warnings.warn("odr_fit renamed to total_least_squares", DeprecationWarning)
+    return total_least_squares(x, y, func, silent=silent, **kwargs)
 
 
 def fit_lin(x, y, **kwargs):

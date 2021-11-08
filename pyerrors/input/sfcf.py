@@ -5,14 +5,14 @@ import os
 import fnmatch
 import re
 import numpy as np  # Thinly-wrapped numpy
-from ..pyerrors import Obs
+from ..obs import Obs
 
 
 def read_sfcf(path, prefix, name, **kwargs):
     """Read sfcf C format from given folder structure.
 
-    Keyword arguments
-    -----------------
+    Parameters
+    ----------
     im -- if True, read imaginary instead of real part of the correlation function.
     single -- if True, read a boundary-to-boundary correlation function with a single value
     b2b -- if True, read a time-dependent boundary-to-boundary correlation function
@@ -113,15 +113,12 @@ def read_sfcf(path, prefix, name, **kwargs):
 def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwargs):
     """Read sfcf c format from given folder structure.
 
-    Arguments
-    -----------------
+    Parameters
+    ----------
     quarks -- Label of the quarks used in the sfcf input file
     noffset -- Offset of the source (only relevant when wavefunctions are used)
     wf -- ID of wave function
     wf2 -- ID of the second wavefunction (only relevant for boundary-to-boundary correlation functions)
-
-    Keyword arguments
-    -----------------
     im -- if True, read imaginary instead of real part of the correlation function.
     b2b -- if True, read a time-dependent boundary-to-boundary correlation function
     names -- Alternative labeling for replicas/ensembles. Has to have the appropriate length
@@ -236,8 +233,8 @@ def read_sfcf_c(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwarg
 def read_qtop(path, prefix, **kwargs):
     """Read qtop format from given folder structure.
 
-    Keyword arguments
-    -----------------
+    Parameters
+    ----------
     target -- specifies the topological sector to be reweighted to (default 0)
     full -- if true read the charge instead of the reweighting factor.
     """

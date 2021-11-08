@@ -4,7 +4,7 @@
 import ctypes
 import hashlib
 import autograd.numpy as np  # Thinly-wrapped numpy
-from ..pyerrors import Obs
+from ..obs import Obs
 
 
 def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):

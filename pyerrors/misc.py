@@ -2,14 +2,14 @@
 # coding: utf-8
 
 import numpy as np
-from .pyerrors import Obs
+from .obs import Obs
 
 
 def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     """ Generate observables with given covariance and autocorrelation times.
 
-    Arguments
-    -----------------
+    Parameters
+    ----------
     means -- list containing the mean value of each observable.
     cov -- covariance matrix for the data to be geneated.
     name -- ensemble name for the data to be geneated.

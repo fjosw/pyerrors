@@ -53,7 +53,7 @@ class Obs:
     def __init__(self, samples, names, idl=None, means=None, **kwargs):
         """ Initialize Obs object.
 
-        Attributes
+        Parameters
         ----------
         samples : list
             list of numpy arrays containing the Monte Carlo samples
@@ -150,57 +150,11 @@ class Obs:
                 res[e_name].append(e_name)
         return res
 
-    def expand_deltas(self, deltas, idx, shape):
-        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-           If idx is of type range, the deltas are not changed
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        """
-        if type(idx) is range:
-            return deltas
-        else:
-            ret = np.zeros(idx[-1] - idx[0] + 1)
-            for i in range(shape):
-                ret[idx[i] - idx[0]] = deltas[i]
-            return ret
-
-    def calc_gamma(self, deltas, idx, shape, w_max, fft):
-        """Calculate Gamma_{AA} from the deltas, which are defined on idx.
-           idx is assumed to be a contiguous range (possibly with a stepsize != 1)
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        w_max   -- Upper bound for the summation window
-        fft     -- boolean, which determines whether the fft algorithm is used for
-                   the computation of the autocorrelation function
-        """
-        gamma = np.zeros(w_max)
-        deltas = self.expand_deltas(deltas, idx, shape)
-        new_shape = len(deltas)
-        if fft:
-            max_gamma = min(new_shape, w_max)
-            # The padding for the fft has to be even
-            padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
-            gamma[:max_gamma] += np.fft.irfft(np.abs(np.fft.rfft(deltas, padding)) ** 2)[:max_gamma]
-        else:
-            for n in range(w_max):
-                if new_shape - n >= 0:
-                    gamma[n] += deltas[0:new_shape - n].dot(deltas[n:new_shape])
-
-        return gamma
-
     def gamma_method(self, **kwargs):
         """Calculate the error and related properties of the Obs.
 
-        Keyword arguments
-        -----------------
+        Parameters
+        ----------
         S : float
             specifies a custom value for the parameter S (default 2.0), can be
             a float or an array of floats for different ensembles
@@ -378,6 +332,52 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
         return
 
+    def expand_deltas(self, deltas, idx, shape):
+        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
+           If idx is of type range, the deltas are not changed
+
+        Parameters
+        ----------
+        deltas  -- List of fluctuations
+        idx     -- List or range of configs on which the deltas are defined.
+        shape   -- Number of configs in idx.
+        """
+        if type(idx) is range:
+            return deltas
+        else:
+            ret = np.zeros(idx[-1] - idx[0] + 1)
+            for i in range(shape):
+                ret[idx[i] - idx[0]] = deltas[i]
+            return ret
+
+    def calc_gamma(self, deltas, idx, shape, w_max, fft):
+        """Calculate Gamma_{AA} from the deltas, which are defined on idx.
+           idx is assumed to be a contiguous range (possibly with a stepsize != 1)
+
+        Parameters
+        ----------
+        deltas  -- List of fluctuations
+        idx     -- List or range of configs on which the deltas are defined.
+        shape   -- Number of configs in idx.
+        w_max   -- Upper bound for the summation window
+        fft     -- boolean, which determines whether the fft algorithm is used for
+                   the computation of the autocorrelation function
+        """
+        gamma = np.zeros(w_max)
+        deltas = self.expand_deltas(deltas, idx, shape)
+        new_shape = len(deltas)
+        if fft:
+            max_gamma = min(new_shape, w_max)
+            # The padding for the fft has to be even
+            padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
+            gamma[:max_gamma] += np.fft.irfft(np.abs(np.fft.rfft(deltas, padding)) ** 2)[:max_gamma]
+        else:
+            for n in range(w_max):
+                if new_shape - n >= 0:
+                    gamma[n] += deltas[0:new_shape - n].dot(deltas[n:new_shape])
+
+        return gamma
+
     def print(self, level=1):
         warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
         self.details(level > 1)
@@ -539,9 +539,10 @@ class Obs:
     def dump(self, name, **kwargs):
         """Dump the Obs to a pickle file 'name'.
 
-        Keyword arguments
-        -----------------
-        path -- specifies a custom path for the file (default '.')
+        Parameters
+        ----------
+        path : str
+            specifies a custom path for the file (default '.')
         """
         if 'path' in kwargs:
             file_name = kwargs.get('path') + '/' + name + '.p'
@@ -836,7 +837,8 @@ def merge_idx(idl):
 
     Parameters
     ----------
-    idl  -- List of lists or ranges.
+    idl : list
+        List of lists or ranges.
     """
 
     # Use groupby to efficiently check whether all elements of idl are identical
@@ -893,14 +895,15 @@ def filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
 
     Parameters
     ----------
-    names  -- List of names
-    deltas -- Dict lists of fluctuations
-    idx    -- Dict of lists or ranges of configs on which the deltas are defined.
-               Has to be a subset of new_idx.
-
-    Optional parameters
-    ----------
-    eps    -- Prefactor that enters the filter criterion.
+    names : list
+        List of names
+    deltas : dict
+        Dict lists of fluctuations
+    idx : dict
+        Dict of lists or ranges of configs on which the deltas are defined.
+        Has to be a subset of new_idx.
+    eps : float
+        Prefactor that enters the filter criterion.
     """
     new_names = []
     new_deltas = {}
@@ -931,9 +934,6 @@ def derived_observable(func, data, **kwargs):
         the autograd wrapper (use 'import autograd.numpy as anp').
     data : list
         list of Obs, e.g. [obs1, obs2, obs3].
-
-    Keyword arguments
-    -----------------
     num_grad : bool
         if True, numerical derivatives are used instead of autograd
         (default False). To control the numerical differentiation the
@@ -1072,10 +1072,13 @@ def reduce_deltas(deltas, idx_old, idx_new):
 
     Parameters
     ----------
-    deltas  -- List of fluctuations
-    idx_old -- List or range of configs on which the deltas are defined
-    idx_new -- List of configs for which we want to extract the deltas.
-               Has to be a subset of idx_old.
+    deltas : list
+        List of fluctuations
+    idx_old : list
+        List or range of configs on which the deltas are defined
+    idx_new : list
+        List of configs for which we want to extract the deltas.
+        Has to be a subset of idx_old.
     """
     if not len(deltas) == len(idx_old):
         raise Exception('Lenght of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
@@ -1109,9 +1112,6 @@ def reweight(weight, obs, **kwargs):
         configurations in obs[i].idl for all i.
     obs : list
         list of Obs, e.g. [obs1, obs2, obs3].
-
-    Keyword arguments
-    -----------------
     all_configs : bool
         if True, the reweighted observables are normalized by the average of
         the reweighting factor on all configurations in weight.idl and not
@@ -1146,8 +1146,8 @@ def reweight(weight, obs, **kwargs):
 def correlate(obs_a, obs_b):
     """Correlate two observables.
 
-    Attributes:
-    -----------
+    Parameters
+    ----------
     obs_a : Obs
         First observable
     obs_b : Obs
@@ -1193,10 +1193,11 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     is constrained to the maximum value in order to make sure that covariance
     matrices are positive semidefinite.
 
-    Keyword arguments
-    -----------------
-    correlation -- if true the correlation instead of the covariance is
-                   returned (default False)
+    Parameters
+    ----------
+    correlation : bool
+        if true the correlation instead of the covariance is
+        returned (default False)
     """
 
     for name in sorted(set(obs1.names + obs2.names)):
@@ -1450,9 +1451,14 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
 def dump_object(obj, name, **kwargs):
     """Dump object into pickle file.
 
-    Keyword arguments
-    -----------------
-    path -- specifies a custom path for the file (default '.')
+    Parameters
+    ----------
+    obj : object
+        object to be saved in the pickle file
+    name : str
+        name of the file
+    path : str
+        specifies a custom path for the file (default '.')
     """
     if 'path' in kwargs:
         file_name = kwargs.get('path') + '/' + name + '.p'
@@ -1470,6 +1476,11 @@ def load_object(path):
 
 def merge_obs(list_of_obs):
     """Combine all observables in list_of_obs into one new observable
+
+    Parameters
+    ----------
+    list_of_obs : list
+        list of the Obs object to be combined
 
     It is not possible to combine obs which are based on the same replicum
     """

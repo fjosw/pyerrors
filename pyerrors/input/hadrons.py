@@ -4,7 +4,7 @@
 import os
 import h5py
 import numpy as np
-from ..pyerrors import Obs, CObs
+from ..obs import Obs, CObs
 from ..correlators import Corr
 from ..npr import Npr_matrix
 

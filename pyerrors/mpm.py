@@ -3,7 +3,7 @@
 
 import numpy as np
 import scipy.linalg
-from .pyerrors import Obs
+from .obs import Obs
 from .linalg import svd, eig, pinv
 
 
@@ -105,8 +105,6 @@ def matrix_pencil_method_old(data, p, noise_level=None, verbose=1, **kwargs):
     # Moore–Penrose pseudoinverse
     pinv_y1 = pinv(y1)
 
-    # Note: Automatic differentiation of eig is implemented in the git of autograd
-    # but not yet released to PyPi (1.3). The code is currently part of pyerrors
     e = eig((pinv_y1 @ y2), **kwargs)
     energy_levels = -np.log(np.abs(e))
     return sorted(energy_levels, key=lambda x: abs(x.value))

@@ -3,7 +3,7 @@
 
 import scipy.optimize
 from autograd import jacobian
-from .pyerrors import derived_observable, pseudo_Obs
+from .obs import derived_observable, pseudo_Obs
 
 
 def find_root(d, func, guess=1.0, **kwargs):

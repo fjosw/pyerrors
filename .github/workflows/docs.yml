@@ -1,0 +1,34 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      - uses: actions/checkout@v2
+      - name: Updated documentation
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git fetch origin documentation
+          git checkout documentation
+          git pull
+          git merge --allow-unrelated-histories -X theirs develop
+          python -m pip install --upgrade pip
+          pip install wheel
+          pip install .
+          pip install pdoc
+          echo $(ls -l docs)
+          pdoc --docformat numpy --math -o ./docs ./pyerrors
+          echo $(ls -l docs)
+          git add docs
+          if [ -n "$(git diff --cached --exit-code)" ]; then git commit -am "Documentation updated"; git push; fi

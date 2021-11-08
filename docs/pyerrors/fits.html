@@ -63,16 +63,16 @@
                     <a class="function" href="#least_squares">least_squares</a>
             </li>
             <li>
-                    <a class="function" href="#standard_fit">standard_fit</a>
-            </li>
-            <li>
-                    <a class="function" href="#odr_fit">odr_fit</a>
-            </li>
-            <li>
                     <a class="function" href="#total_least_squares">total_least_squares</a>
             </li>
             <li>
                     <a class="function" href="#prior_fit">prior_fit</a>
+            </li>
+            <li>
+                    <a class="function" href="#standard_fit">standard_fit</a>
+            </li>
+            <li>
+                    <a class="function" href="#odr_fit">odr_fit</a>
             </li>
             <li>
                     <a class="function" href="#fit_lin">fit_lin</a>
@@ -227,149 +227,8 @@
         <span class="k">return</span> <span class="n">_standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
-    <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
-
-    <span class="n">output</span><span class="o">.</span><span class="n">fit_function</span> <span class="o">=</span> <span class="n">func</span>
-
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y input have to have the same length&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unkown format for x values&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;func has to be a function.&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">break</span>
-
-    <span class="n">n_parms</span> <span class="o">=</span> <span class="n">i</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fit with&#39;</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
-
-    <span class="n">y_f</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-    <span class="n">dy_f</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dy_f</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No y errors available, run the gamma method first.&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s1">&#39;initial_guess&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">x0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;initial_guess&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_parms</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Initial guess does not have the correct length.&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_parms</span>
-
-    <span class="k">def</span> <span class="nf">chisqfunc</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">chisq</span> <span class="o">=</span> <span class="n">anp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">y_f</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">chisq</span>
-
-    <span class="k">if</span> <span class="s1">&#39;method&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method:&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;migrad&#39;</span><span class="p">:</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
-
-        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">fun</span>
-
-        <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nit</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method: Levenberg-Marquardt&#39;</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">chisqfunc_residuals</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">chisq</span> <span class="o">=</span> <span class="p">((</span><span class="n">y_f</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">chisq</span>
-
-        <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">least_squares</span><span class="p">(</span><span class="n">chisqfunc_residuals</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lm&#39;</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
-
-        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">fun</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-
-        <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nfev</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The minimization procedure did not converge.&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span> <span class="o">=</span> <span class="n">chisquare</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span>
-
-    <span class="n">output</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">message</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/d.o.f.:&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expected_chisquare&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dy_f</span><span class="p">))</span>
-        <span class="n">cov</span> <span class="o">=</span> <span class="n">covariance_matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">A</span> <span class="o">=</span> <span class="n">W</span> <span class="o">@</span> <span class="n">jacobian</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">P_phi</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">A</span><span class="p">)</span> <span class="o">@</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">expected_chisquare</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">P_phi</span><span class="p">)</span> <span class="o">@</span> <span class="n">W</span> <span class="o">@</span> <span class="n">cov</span> <span class="o">@</span> <span class="n">W</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_expected_chisquare</span> <span class="o">=</span> <span class="n">chisquare</span> <span class="o">/</span> <span class="n">expected_chisquare</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/expected_chisquare:&#39;</span><span class="p">,</span>
-                  <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_expected_chisquare</span><span class="p">)</span>
-
-    <span class="n">hess_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">))(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">chisqfunc_compact</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">d</span><span class="p">[:</span><span class="n">n_parms</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">chisq</span> <span class="o">=</span> <span class="n">anp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">d</span><span class="p">[</span><span class="n">n_parms</span><span class="p">:]</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">chisq</span>
-
-    <span class="n">jac_jac</span> <span class="o">=</span> <span class="n">jacobian</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">chisqfunc_compact</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_f</span><span class="p">)))</span>
-
-    <span class="n">deriv</span> <span class="o">=</span> <span class="o">-</span><span class="n">hess_inv</span> <span class="o">@</span> <span class="n">jac_jac</span><span class="p">[:</span><span class="n">n_parms</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">:]</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_parms</span><span class="p">):</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">pseudo_Obs</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">man_grad</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">deriv</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-
-    <span class="n">output</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">result</span>
-
-    <span class="n">output</span><span class="o">.</span><span class="n">chisquare</span> <span class="o">=</span> <span class="n">chisqfunc</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">output</span><span class="o">.</span><span class="n">dof</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span>
-
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resplot&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">residual_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qqplot&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">output</span>
-
-
-<span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
 <span class="k">def</span> <span class="nf">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -380,21 +239,24 @@
 <span class="sd">    func : object</span>
 <span class="sd">        func has to be of the form</span>
 
+<span class="sd">        ```python</span>
 <span class="sd">        def func(a, x):</span>
 <span class="sd">            y = a[0] + a[1] * x + a[2] * anp.sinh(x)</span>
 <span class="sd">            return y</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        For multiple x values func can be of the form</span>
 
+<span class="sd">        ```python</span>
 <span class="sd">        def func(a, x):</span>
 <span class="sd">            (x1, x2) = x</span>
 <span class="sd">            return a[0] * x1 ** 2 + a[1] * x2</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation</span>
 <span class="sd">        will not work.</span>
 <span class="sd">    silent : bool, optional</span>
 <span class="sd">        If true all output to the console is omitted (default False).</span>
-<span class="sd">    Based on the orthogonal distance regression module of scipy</span>
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for non-linear</span>
 <span class="sd">        fits with many parameters.</span>
@@ -403,7 +265,9 @@
 <span class="sd">        corrected by effects caused by correlated input data.</span>
 <span class="sd">        This can take a while as the full correlation matrix</span>
 <span class="sd">        has to be calculated (default False).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="sd">    Based on the orthogonal distance regression module of scipy</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
 
@@ -655,6 +519,147 @@
         <span class="n">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output</span>
+
+
+<span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
+
+    <span class="n">output</span><span class="o">.</span><span class="n">fit_function</span> <span class="o">=</span> <span class="n">func</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y input have to have the same length&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unkown format for x values&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;func has to be a function.&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="n">n_parms</span> <span class="o">=</span> <span class="n">i</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fit with&#39;</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
+
+    <span class="n">y_f</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
+    <span class="n">dy_f</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dy_f</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No y errors available, run the gamma method first.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;initial_guess&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;initial_guess&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_parms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Initial guess does not have the correct length.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_parms</span>
+
+    <span class="k">def</span> <span class="nf">chisqfunc</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">chisq</span> <span class="o">=</span> <span class="n">anp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">y_f</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chisq</span>
+
+    <span class="k">if</span> <span class="s1">&#39;method&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method:&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;migrad&#39;</span><span class="p">:</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
+
+        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">fun</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nit</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method: Levenberg-Marquardt&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">chisqfunc_residuals</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">chisq</span> <span class="o">=</span> <span class="p">((</span><span class="n">y_f</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">chisq</span>
+
+        <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">least_squares</span><span class="p">(</span><span class="n">chisqfunc_residuals</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lm&#39;</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">fun</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nfev</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The minimization procedure did not converge.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span> <span class="o">=</span> <span class="n">chisquare</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span>
+
+    <span class="n">output</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">message</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/d.o.f.:&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_dof</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expected_chisquare&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dy_f</span><span class="p">))</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">covariance_matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">W</span> <span class="o">@</span> <span class="n">jacobian</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">P_phi</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">A</span><span class="p">)</span> <span class="o">@</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">expected_chisquare</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">P_phi</span><span class="p">)</span> <span class="o">@</span> <span class="n">W</span> <span class="o">@</span> <span class="n">cov</span> <span class="o">@</span> <span class="n">W</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_expected_chisquare</span> <span class="o">=</span> <span class="n">chisquare</span> <span class="o">/</span> <span class="n">expected_chisquare</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/expected_chisquare:&#39;</span><span class="p">,</span>
+                  <span class="n">output</span><span class="o">.</span><span class="n">chisquare_by_expected_chisquare</span><span class="p">)</span>
+
+    <span class="n">hess_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">))(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">chisqfunc_compact</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">d</span><span class="p">[:</span><span class="n">n_parms</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">chisq</span> <span class="o">=</span> <span class="n">anp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">d</span><span class="p">[</span><span class="n">n_parms</span><span class="p">:]</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chisq</span>
+
+    <span class="n">jac_jac</span> <span class="o">=</span> <span class="n">jacobian</span><span class="p">(</span><span class="n">jacobian</span><span class="p">(</span><span class="n">chisqfunc_compact</span><span class="p">))(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_f</span><span class="p">)))</span>
+
+    <span class="n">deriv</span> <span class="o">=</span> <span class="o">-</span><span class="n">hess_inv</span> <span class="o">@</span> <span class="n">jac_jac</span><span class="p">[:</span><span class="n">n_parms</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">:]</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_parms</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">pseudo_Obs</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">man_grad</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">deriv</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+
+    <span class="n">output</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">result</span>
+
+    <span class="n">output</span><span class="o">.</span><span class="n">chisquare</span> <span class="o">=</span> <span class="n">chisqfunc</span><span class="p">(</span><span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">dof</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_parms</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resplot&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">residual_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;qqplot&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output</span>
+
+
+<span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1153,46 +1158,6 @@ has to be calculated (default False).</li>
 
 
                 </section>
-                <section id="standard_fit">
-                            <div class="attr function"><a class="headerlink" href="#standard_fit">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">standard_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="odr_fit">
-                            <div class="attr function"><a class="headerlink" href="#odr_fit">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">odr_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
                 <section id="total_least_squares">
                             <div class="attr function"><a class="headerlink" href="#total_least_squares">#&nbsp;&nbsp</a>
 
@@ -1204,7 +1169,7 @@ has to be calculated (default False).</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1215,21 +1180,24 @@ has to be calculated (default False).</li>
 <span class="sd">    func : object</span>
 <span class="sd">        func has to be of the form</span>
 
+<span class="sd">        ```python</span>
 <span class="sd">        def func(a, x):</span>
 <span class="sd">            y = a[0] + a[1] * x + a[2] * anp.sinh(x)</span>
 <span class="sd">            return y</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        For multiple x values func can be of the form</span>
 
+<span class="sd">        ```python</span>
 <span class="sd">        def func(a, x):</span>
 <span class="sd">            (x1, x2) = x</span>
 <span class="sd">            return a[0] * x1 ** 2 + a[1] * x2</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation</span>
 <span class="sd">        will not work.</span>
 <span class="sd">    silent : bool, optional</span>
 <span class="sd">        If true all output to the console is omitted (default False).</span>
-<span class="sd">    Based on the orthogonal distance regression module of scipy</span>
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for non-linear</span>
 <span class="sd">        fits with many parameters.</span>
@@ -1238,7 +1206,9 @@ has to be calculated (default False).</li>
 <span class="sd">        corrected by effects caused by correlated input data.</span>
 <span class="sd">        This can take a while as the full correlation matrix</span>
 <span class="sd">        has to be calculated (default False).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="sd">    Based on the orthogonal distance regression module of scipy</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
 
@@ -1382,21 +1352,22 @@ list of Obs. The dvalues of the Obs are used as x- and yerror for the fit.</li>
 <li><p><strong>func</strong> (object):
 func has to be of the form</p>
 
-<p>def func(a, x):
-   y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-   return y</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+   <span class="n">y</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">anp</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">y</span>
+</code></pre></div>
 
 <p>For multiple x values func can be of the form</p>
 
-<p>def func(a, x):
-   (x1, x2) = x
-   return a[0] * x1 ** 2 + a[1] * x2</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+   <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
+   <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x2</span>
+</code></pre></div>
 
 <p>It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
 will not work.</p></li>
 <li><strong>silent</strong> (bool, optional):
 If true all output to the console is omitted (default False).</li>
-<li><strong>Based on the orthogonal distance regression module of scipy</strong></li>
 <li><strong>initial_guess</strong> (list):
 can provide an initial guess for the input parameters. Relevant for non-linear
 fits with many parameters.</li>
@@ -1405,6 +1376,7 @@ If true prints the expected chisquare which is
 corrected by effects caused by correlated input data.
 This can take a while as the full correlation matrix
 has to be calculated (default False).</li>
+<li><strong>Based on the orthogonal distance regression module of scipy</strong></li>
 </ul>
 </div>
 
@@ -1423,6 +1395,46 @@ has to be calculated (default False).</li>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;prior_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                </section>
+                <section id="standard_fit">
+                            <div class="attr function"><a class="headerlink" href="#standard_fit">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">standard_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                </section>
+                <section id="odr_fit">
+                            <div class="attr function"><a class="headerlink" href="#odr_fit">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">odr_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>

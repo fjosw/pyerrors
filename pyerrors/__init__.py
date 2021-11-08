@@ -30,12 +30,10 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 
 ## Multiple ensembles/replica
 
-Error propagation for multiple ensemblesi (Markov chains with different simulation parameters) are automatically handled.
+Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their `name`.
 
-**Example:**
+Example:
 ```python
-import pyerrors as pe
-
 obs1 = pe.Obs([samples1], ['ensemble1'])
 obs2 = pe.Obs([samples1], ['ensemble2'])
 
@@ -50,10 +48,8 @@ my_sum.details()
 
 `pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.
 
-**Example:**
+Example:
 ```python
-import pyerrors as pe
-
 obs1 = pe.Obs([samples1], ['ensemble1|r01'])
 obs2 = pe.Obs([samples1], ['ensemble1|r02'])
 
@@ -65,14 +61,21 @@ my_sum.details()
 ```
 ## Irregular Monte Carlo chains
 
+Irregular Monte Carlo chains can be initilized with the parameter `idl`.
+
+Example:
 ```python
-import pyerrors as pe
-
-obs1 = pe.Obs([samples1], ['ensemble1|r01'])
-obs2 = pe.Obs([samples1], ['ensemble1|r02'])
-
-my_sum = obs1 + obs2
+# Observable defined on configurations 20 to 519
+obs1 = pe.Obs([samples1], ['ensemble1'], idl=[range(20, 520)])
+# Observable defined on every second configuration between 5 and 1003
+obs2 = pe.Obs([samples2], ['ensemble1'], idl=[range(5, 1005, 2)])
+# Observable defined on configurations 2, 9, 28, 29 and 501
+obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
 ```
+
+**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
+Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
+
 # Error propagation
 Automatic differentiation, cite Alberto,
 

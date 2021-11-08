@@ -30,8 +30,49 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 
 ## Multiple ensembles/replica
 
+Error propagation for multiple ensemblesi (Markov chains with different simulation parameters) are automatically handled.
+
+**Example:**
+```python
+import pyerrors as pe
+
+obs1 = pe.Obs([samples1], ['ensemble1'])
+obs2 = pe.Obs([samples1], ['ensemble2'])
+
+my_sum = obs1 + obs2
+my_sum.details()
+> Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> 1500 samples in 2 ensembles:
+>    ensemble1: ['ensemble1']
+>    ensemble2: ['ensemble2']
+
+```
+
+`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.
+
+**Example:**
+```python
+import pyerrors as pe
+
+obs1 = pe.Obs([samples1], ['ensemble1|r01'])
+obs2 = pe.Obs([samples1], ['ensemble1|r02'])
+
+my_sum = obs1 + obs2
+my_sum.details()
+> Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> 1500 samples in 1 ensemble:
+>    ensemble1: ['ensemble1|r01', 'ensemble1|r02']
+```
 ## Irregular Monte Carlo chains
 
+```python
+import pyerrors as pe
+
+obs1 = pe.Obs([samples1], ['ensemble1|r01'])
+obs2 = pe.Obs([samples1], ['ensemble1|r02'])
+
+my_sum = obs1 + obs2
+```
 # Error propagation
 Automatic differentiation, cite Alberto,
 

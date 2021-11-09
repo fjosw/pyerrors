@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy

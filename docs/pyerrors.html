@@ -53,18 +53,17 @@
   </ul></li>
   <li><a href="#the-obs-class">The <code>Obs</code> class</a>
   <ul>
+    <li><a href="#error-propagation">Error propagation</a></li>
+    <li><a href="#error-estimation">Error estimation</a>
+    <ul>
+      <li><a href="#exponential-tails">Exponential tails</a></li>
+    </ul></li>
     <li><a href="#multiple-ensemblesreplica">Multiple ensembles/replica</a></li>
     <li><a href="#irregular-monte-carlo-chains">Irregular Monte Carlo chains</a></li>
   </ul></li>
-  <li><a href="#error-propagation">Error propagation</a></li>
-  <li><a href="#error-estimation">Error estimation</a>
-  <ul>
-    <li><a href="#exponential-tails">Exponential tails</a></li>
-    <li><a href="#covariance">Covariance</a></li>
-  </ul></li>
   <li><a href="#correlators">Correlators</a></li>
-  <li><a href="#optimization-fits-roots">Optimization / fits / roots</a></li>
   <li><a href="#complex-observables">Complex observables</a></li>
+  <li><a href="#optimization-fits-roots">Optimization / fits / roots</a></li>
   <li><a href="#matrix-operations">Matrix operations</a></li>
   <li><a href="#input">Input</a></li>
 </ul>
@@ -76,7 +75,6 @@
                             <li><a href="pyerrors/dirac.html">pyerrors.dirac</a></li>
                             <li><a href="pyerrors/fits.html">pyerrors.fits</a></li>
                             <li><a href="pyerrors/input.html">pyerrors.input</a></li>
-                            <li><a href="pyerrors/jackknifing.html">pyerrors.jackknifing</a></li>
                             <li><a href="pyerrors/linalg.html">pyerrors.linalg</a></li>
                             <li><a href="pyerrors/misc.html">pyerrors.misc</a></li>
                             <li><a href="pyerrors/mpm.html">pyerrors.mpm</a></li>
@@ -127,12 +125,48 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
 
-<p><code><a href="pyerrors/obs.html#Obs">pyerrors.obs.Obs</a></code></p>
+<p><code><a href="">pyerrors</a></code> introduces a new datatype, <code>Obs</code>, which simplifies error propagation and estimation for auto- and cross-correlated data.
+An <code>Obs</code> object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.
+The samples can either be provided as python list or as numpy array.
+The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</p>
+
+<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
 </code></pre></div>
+
+<h2 id="error-propagation">Error propagation</h2>
+
+<p>When performing mathematical operations on <code>Obs</code> objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$
+as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
+
+<p>The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
+
+<p>The <code>Obs</code> class is designed such that mathematical numpy functions can be used on <code>Obs</code> just as for regular floats.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+
+<span class="n">my_obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
+<span class="n">my_obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
+
+<span class="n">my_sum</span> <span class="o">=</span> <span class="n">my_obs1</span> <span class="o">+</span> <span class="n">my_obs2</span>
+
+<span class="n">my_m_eff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs1</span> <span class="o">/</span> <span class="n">my_obs2</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="error-estimation">Error estimation</h2>
+
+<p>The error propagation is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
+
+<p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
+
+<h3 id="exponential-tails">Exponential tails</h3>
 
 <h2 id="multiple-ensemblesreplica">Multiple ensembles/replica</h2>
 
@@ -184,43 +218,20 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
-<h1 id="error-propagation">Error propagation</h1>
-
-<p>Automatic differentiation, <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a></p>
-
-<p>numpy overloaded</p>
-
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
-
-<span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
-<span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span>
-<span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
-<span class="n">my_new_obs</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-</code></pre></div>
-
-<h1 id="error-estimation">Error estimation</h1>
-
-<p><code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
-
-<p>$\delta_i\delta_j$</p>
-
-<h2 id="exponential-tails">Exponential tails</h2>
-
-<h2 id="covariance">Covariance</h2>
+<p>For the full API see <code><a href="pyerrors/obs.html#Obs">pyerrors.obs.Obs</a></code></p>
 
 <h1 id="correlators">Correlators</h1>
 
-<p><code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code></p>
+<p>For the full API see <code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code></p>
+
+<h1 id="complex-observables">Complex observables</h1>
+
+<p><code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code></p>
 
 <h1 id="optimization-fits-roots">Optimization / fits / roots</h1>
 
 <p><code><a href="pyerrors/fits.html">pyerrors.fits</a></code>
 <code><a href="pyerrors/roots.html">pyerrors.roots</a></code></p>
-
-<h1 id="complex-observables">Complex observables</h1>
-
-<p><code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code></p>
 
 <h1 id="matrix-operations">Matrix operations</h1>
 
@@ -256,12 +267,49 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">print(my_new_obs)</span>
 <span class="sd">```</span>
 <span class="sd"># The `Obs` class</span>
-<span class="sd">`pyerrors.obs.Obs`</span>
+
+<span class="sd">`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.</span>
+<span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.</span>
+<span class="sd">The samples can either be provided as python list or as numpy array.</span>
+<span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</span>
+
+<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">import pyerrors as pe</span>
 
 <span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;])</span>
 <span class="sd">```</span>
+
+<span class="sd">## Error propagation</span>
+
+<span class="sd">When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion</span>
+<span class="sd">$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$</span>
+<span class="sd">as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
+
+<span class="sd">The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
+
+<span class="sd">The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">import numpy as np</span>
+<span class="sd">import pyerrors as pe</span>
+
+<span class="sd">my_obs1 = pe.Obs([samples1], [&#39;ensemble_name&#39;])</span>
+<span class="sd">my_obs2 = pe.Obs([samples2], [&#39;ensemble_name&#39;])</span>
+
+<span class="sd">my_sum = my_obs1 + my_obs2</span>
+
+<span class="sd">my_m_eff = np.log(my_obs1 / my_obs2)</span>
+<span class="sd">```</span>
+
+<span class="sd">## Error estimation</span>
+
+<span class="sd">The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
+
+
+<span class="sd">For the full API see `pyerrors.obs.Obs.gamma_method`</span>
+<span class="sd">### Exponential tails</span>
 
 <span class="sd">## Multiple ensembles/replica</span>
 
@@ -313,39 +361,17 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>
 <span class="sd">Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
 
-<span class="sd"># Error propagation</span>
-<span class="sd">Automatic differentiation, [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
-
-<span class="sd">numpy overloaded</span>
-<span class="sd">```python</span>
-<span class="sd">import numpy as np</span>
-<span class="sd">import pyerrors as pe</span>
-
-<span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;])</span>
-<span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs</span>
-<span class="sd">my_new_obs.gamma_method()</span>
-<span class="sd">my_new_obs.details()</span>
-<span class="sd">```</span>
-
-<span class="sd"># Error estimation</span>
-<span class="sd">`pyerrors.obs.Obs.gamma_method`</span>
-
-<span class="sd">$\delta_i\delta_j$</span>
-
-<span class="sd">## Exponential tails</span>
-
-<span class="sd">## Covariance</span>
+<span class="sd">For the full API see `pyerrors.obs.Obs`</span>
 
 <span class="sd"># Correlators</span>
-<span class="sd">`pyerrors.correlators.Corr`</span>
+<span class="sd">For the full API see `pyerrors.correlators.Corr`</span>
+
+<span class="sd"># Complex observables</span>
+<span class="sd">`pyerrors.obs.CObs`</span>
 
 <span class="sd"># Optimization / fits / roots</span>
 <span class="sd">`pyerrors.fits`</span>
 <span class="sd">`pyerrors.roots`</span>
-
-
-<span class="sd"># Complex observables</span>
-<span class="sd">`pyerrors.obs.CObs`</span>
 
 <span class="sd"># Matrix operations</span>
 <span class="sd">`pyerrors.linalg`</span>

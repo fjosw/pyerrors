@@ -21,12 +21,49 @@ my_new_obs.details()
 print(my_new_obs)
 ```
 # The `Obs` class
-`pyerrors.obs.Obs`
+
+`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
+An `Obs` object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.
+The samples can either be provided as python list or as numpy array.
+The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
+
+Example:
 ```python
 import pyerrors as pe
 
 my_obs = pe.Obs([samples], ['ensemble_name'])
 ```
+
+## Error propagation
+
+When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$
+as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
+
+The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
+
+The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.
+
+Example:
+```python
+import numpy as np
+import pyerrors as pe
+
+my_obs1 = pe.Obs([samples1], ['ensemble_name'])
+my_obs2 = pe.Obs([samples2], ['ensemble_name'])
+
+my_sum = my_obs1 + my_obs2
+
+my_m_eff = np.log(my_obs1 / my_obs2)
+```
+
+## Error estimation
+
+The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
+
+
+For the full API see `pyerrors.obs.Obs.gamma_method`
+### Exponential tails
 
 ## Multiple ensembles/replica
 
@@ -78,39 +115,17 @@ obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
 
-# Error propagation
-Automatic differentiation, [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
-
-numpy overloaded
-```python
-import numpy as np
-import pyerrors as pe
-
-my_obs = pe.Obs([samples], ['ensemble_name'])
-my_new_obs = 2 * np.log(my_obs) / my_obs
-my_new_obs.gamma_method()
-my_new_obs.details()
-```
-
-# Error estimation
-`pyerrors.obs.Obs.gamma_method`
-
-$\delta_i\delta_j$
-
-## Exponential tails
-
-## Covariance
+For the full API see `pyerrors.obs.Obs`
 
 # Correlators
-`pyerrors.correlators.Corr`
+For the full API see `pyerrors.correlators.Corr`
+
+# Complex observables
+`pyerrors.obs.CObs`
 
 # Optimization / fits / roots
 `pyerrors.fits`
 `pyerrors.roots`
-
-
-# Complex observables
-`pyerrors.obs.CObs`
 
 # Matrix operations
 `pyerrors.linalg`

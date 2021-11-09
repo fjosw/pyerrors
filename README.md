@@ -8,17 +8,17 @@
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
-To install the most recent release of `pyerrors` run
-```bash
-pip install git+https://github.com/fjosw/pyerrors.git@master
-```
-to install the current `develop` version run
+To install the current `develop` version run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@develop
 ```
+to install the most recent release run
+```bash
+pip install git+https://github.com/fjosw/pyerrors.git@master
+```
 
 ## Other implementations
-There exist similar implementations of gamma method error analysis suites in
+There exist similar publicly available implementations of gamma method error analysis suites in
 - [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)
 - [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)
 - [Python](https://github.com/mbruno46/pyobs)

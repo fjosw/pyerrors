@@ -72,7 +72,7 @@ Error propagation for multiple ensembles (Markov chains with different simulatio
 Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1'])
-obs2 = pe.Obs([samples1], ['ensemble2'])
+obs2 = pe.Obs([samples2], ['ensemble2'])
 
 my_sum = obs1 + obs2
 my_sum.details()
@@ -88,7 +88,7 @@ my_sum.details()
 Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1|r01'])
-obs2 = pe.Obs([samples1], ['ensemble1|r02'])
+obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
 my_sum = obs1 + obs2
 my_sum.details()

@@ -69,23 +69,34 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># coding: utf-8</span>
-
-<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.optimize</span>
 <span class="kn">from</span> <span class="nn">autograd</span> <span class="kn">import</span> <span class="n">jacobian</span>
 <span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="n">derived_observable</span><span class="p">,</span> <span class="n">pseudo_Obs</span>
 
 
 <span class="k">def</span> <span class="nf">find_root</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Finds the root of the function func(x, d) where d is an Obs.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Finds the root of the function func(x, d) where d is an `Obs`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------------</span>
-<span class="sd">    d -- Obs passed to the function.</span>
-<span class="sd">    func -- Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper</span>
-<span class="sd">    guess -- Initial guess for the minimization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    d : Obs</span>
+<span class="sd">        Obs passed to the function.</span>
+<span class="sd">    func : object</span>
+<span class="sd">        Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper.</span>
+<span class="sd">        Example:</span>
+<span class="sd">        ```python</span>
+<span class="sd">        import autograd.numpy as anp</span>
+<span class="sd">        def root_func(x, d):</span>
+<span class="sd">            return anp.exp(-x ** 2) - d</span>
+<span class="sd">        ```</span>
+<span class="sd">    guess : float</span>
+<span class="sd">        Initial guess for the minimization.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Obs</span>
+<span class="sd">        `Obs` valued root of the function.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">root</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">fsolve</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">guess</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="c1"># Error propagation as detailed in arXiv:1809.01289</span>
@@ -110,14 +121,28 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find_root</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Finds the root of the function func(x, d) where d is an Obs.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Finds the root of the function func(x, d) where d is an `Obs`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------------</span>
-<span class="sd">    d -- Obs passed to the function.</span>
-<span class="sd">    func -- Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper</span>
-<span class="sd">    guess -- Initial guess for the minimization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    d : Obs</span>
+<span class="sd">        Obs passed to the function.</span>
+<span class="sd">    func : object</span>
+<span class="sd">        Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper.</span>
+<span class="sd">        Example:</span>
+<span class="sd">        ```python</span>
+<span class="sd">        import autograd.numpy as anp</span>
+<span class="sd">        def root_func(x, d):</span>
+<span class="sd">            return anp.exp(-x ** 2) - d</span>
+<span class="sd">        ```</span>
+<span class="sd">    guess : float</span>
+<span class="sd">        Initial guess for the minimization.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Obs</span>
+<span class="sd">        `Obs` valued root of the function.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">root</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">fsolve</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">guess</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="c1"># Error propagation as detailed in arXiv:1809.01289</span>
@@ -130,14 +155,29 @@
 
         </details>
 
-            <div class="docstring"><p>Finds the root of the function func(x, d) where d is an Obs.</p>
+            <div class="docstring"><p>Finds the root of the function func(x, d) where d is an <code>Obs</code>.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>d -- Obs passed to the function.</strong></li>
-<li><strong>func -- Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper</strong></li>
-<li><strong>guess -- Initial guess for the minimization.</strong></li>
+<li><strong>d</strong> (Obs):
+Obs passed to the function.</li>
+<li><strong>func</strong> (object):
+Function to be minimized. Any numpy functions have to use the autograd.numpy wrapper.
+Example:
+<code>python
+import autograd.numpy as anp
+def root_func(x, d):
+   return anp.exp(-x ** 2) - d
+</code></li>
+<li><strong>guess</strong> (float):
+Initial guess for the minimization.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Obs</strong>: <code>Obs</code> valued root of the function.</li>
 </ul>
 </div>
 

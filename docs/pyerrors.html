@@ -175,7 +175,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
-<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">])</span>
+<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">])</span>
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
@@ -190,7 +190,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
-<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
+<span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
@@ -318,7 +318,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;])</span>
-<span class="sd">obs2 = pe.Obs([samples1], [&#39;ensemble2&#39;])</span>
+<span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble2&#39;])</span>
 
 <span class="sd">my_sum = obs1 + obs2</span>
 <span class="sd">my_sum.details()</span>
@@ -334,7 +334,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1|r01&#39;])</span>
-<span class="sd">obs2 = pe.Obs([samples1], [&#39;ensemble1|r02&#39;])</span>
+<span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1|r02&#39;])</span>
 
 <span class="sd">my_sum = obs1 + obs2</span>
 <span class="sd">my_sum.details()</span>

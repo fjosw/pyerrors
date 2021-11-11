@@ -137,6 +137,7 @@ from .obs import *
 from .correlators import *
 from .fits import *
 from . import dirac
+from . import input
 from . import linalg
 from . import misc
 from . import mpm

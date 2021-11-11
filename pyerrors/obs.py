@@ -829,7 +829,7 @@ class CObs:
         return 'CObs[' + str(self) + ']'
 
 
-def merge_idx(idl):
+def _merge_idx(idl):
     """Returns the union of all lists in idl
 
     Parameters
@@ -856,7 +856,7 @@ def merge_idx(idl):
     return list(set().union(*idl))
 
 
-def expand_deltas_for_merge(deltas, idx, shape, new_idx):
+def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
@@ -883,7 +883,7 @@ def expand_deltas_for_merge(deltas, idx, shape, new_idx):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 
-def filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
+def _filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
     """Filter out all configurations with vanishing fluctuation such that they do not
        contribute to the error estimate anymore. Returns the new names, deltas and
        idl according to the filtering.
@@ -976,7 +976,7 @@ def derived_observable(func, data, **kwargs):
             tmp = i_data.idl.get(name)
             if tmp is not None:
                 idl.append(tmp)
-        new_idl_d[name] = merge_idx(idl)
+        new_idl_d[name] = _merge_idx(idl)
         if not is_merged:
             is_merged = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
@@ -1038,13 +1038,13 @@ def derived_observable(func, data, **kwargs):
         new_deltas = {}
         for j_obs, obs in np.ndenumerate(data):
             for name in obs.names:
-                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 
         new_samples = []
         new_means = []
         new_idl = []
         if is_merged:
-            filtered_names, filtered_deltas, filtered_idl_d = filter_zeroes(new_names, new_deltas, new_idl_d)
+            filtered_names, filtered_deltas, filtered_idl_d = _filter_zeroes(new_names, new_deltas, new_idl_d)
         else:
             filtered_names = new_names
             filtered_deltas = new_deltas
@@ -1064,7 +1064,7 @@ def derived_observable(func, data, **kwargs):
     return final_result
 
 
-def reduce_deltas(deltas, idx_old, idx_new):
+def _reduce_deltas(deltas, idx_old, idx_new):
     """Extract deltas defined on idx_old on all configs of idx_new.
 
     Parameters
@@ -1094,7 +1094,7 @@ def reduce_deltas(deltas, idx_old, idx_new):
                 pos = j
                 break
         if pos < 0:
-            raise Exception('Error in reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
+            raise Exception('Error in _reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
         ret[i] = deltas[j]
     return np.array(ret)
 
@@ -1124,7 +1124,7 @@ def reweight(weight, obs, **kwargs):
         new_samples = []
         w_deltas = {}
         for name in sorted(weight.names):
-            w_deltas[name] = reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
+            w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
         tmp_obs = Obs(new_samples, sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
 
@@ -1200,7 +1200,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     for name in sorted(set(obs1.names + obs2.names)):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
             raise Exception('Shapes of ensemble', name, 'do not fit')
-        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
@@ -1306,7 +1306,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            idl_d[r_name] = merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
+            idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
             if idl_d[r_name] is range:
                 r_length.append(len(idl_d[r_name]))
             else:
@@ -1380,7 +1380,7 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
     for name in sorted(set(obs1.names + obs2.names)):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
             raise Exception('Shapes of ensemble', name, 'do not fit')
-        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
+        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):

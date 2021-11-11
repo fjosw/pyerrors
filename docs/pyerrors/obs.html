@@ -267,19 +267,7 @@
 
             </li>
             <li>
-                    <a class="function" href="#merge_idx">merge_idx</a>
-            </li>
-            <li>
-                    <a class="function" href="#expand_deltas_for_merge">expand_deltas_for_merge</a>
-            </li>
-            <li>
-                    <a class="function" href="#filter_zeroes">filter_zeroes</a>
-            </li>
-            <li>
                     <a class="function" href="#derived_observable">derived_observable</a>
-            </li>
-            <li>
-                    <a class="function" href="#reduce_deltas">reduce_deltas</a>
             </li>
             <li>
                     <a class="function" href="#reweight">reweight</a>
@@ -1158,7 +1146,7 @@
         <span class="k">return</span> <span class="s1">&#39;CObs[&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span>
 
 
-<span class="k">def</span> <span class="nf">merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the union of all lists in idl</span>
 
 <span class="sd">    Parameters</span>
@@ -1185,7 +1173,7 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="n">idl</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to the list of configs that is defined by new_idx.</span>
 <span class="sd">       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest</span>
 <span class="sd">       common divisor of the step sizes is used as new step size.</span>
@@ -1212,7 +1200,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ret</span><span class="p">[</span><span class="n">new_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_idx</span><span class="p">))])</span>
 
 
-<span class="k">def</span> <span class="nf">filter_zeroes</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idl</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">Obs</span><span class="o">.</span><span class="n">filter_eps</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_filter_zeroes</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idl</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">Obs</span><span class="o">.</span><span class="n">filter_eps</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Filter out all configurations with vanishing fluctuation such that they do not</span>
 <span class="sd">       contribute to the error estimate anymore. Returns the new names, deltas and</span>
 <span class="sd">       idl according to the filtering.</span>
@@ -1305,7 +1293,7 @@
             <span class="n">tmp</span> <span class="o">=</span> <span class="n">i_data</span><span class="o">.</span><span class="n">idl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
-        <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span>
+        <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_merged</span><span class="p">:</span>
             <span class="n">is_merged</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">idl</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]]])))</span>
 
@@ -1367,13 +1355,13 @@
         <span class="n">new_deltas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">j_obs</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
-                <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_deltas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">deriv</span><span class="p">[</span><span class="n">i_val</span> <span class="o">+</span> <span class="n">j_obs</span><span class="p">]</span> <span class="o">*</span> <span class="n">expand_deltas_for_merge</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+                <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_deltas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">deriv</span><span class="p">[</span><span class="n">i_val</span> <span class="o">+</span> <span class="n">j_obs</span><span class="p">]</span> <span class="o">*</span> <span class="n">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_means</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_idl</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">is_merged</span><span class="p">:</span>
-            <span class="n">filtered_names</span><span class="p">,</span> <span class="n">filtered_deltas</span><span class="p">,</span> <span class="n">filtered_idl_d</span> <span class="o">=</span> <span class="n">filter_zeroes</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">)</span>
+            <span class="n">filtered_names</span><span class="p">,</span> <span class="n">filtered_deltas</span><span class="p">,</span> <span class="n">filtered_idl_d</span> <span class="o">=</span> <span class="n">_filter_zeroes</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filtered_names</span> <span class="o">=</span> <span class="n">new_names</span>
             <span class="n">filtered_deltas</span> <span class="o">=</span> <span class="n">new_deltas</span>
@@ -1393,7 +1381,7 @@
     <span class="k">return</span> <span class="n">final_result</span>
 
 
-<span class="k">def</span> <span class="nf">reduce_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx_old</span><span class="p">,</span> <span class="n">idx_new</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_reduce_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx_old</span><span class="p">,</span> <span class="n">idx_new</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extract deltas defined on idx_old on all configs of idx_new.</span>
 
 <span class="sd">    Parameters</span>
@@ -1423,7 +1411,7 @@
                 <span class="n">pos</span> <span class="o">=</span> <span class="n">j</span>
                 <span class="k">break</span>
         <span class="k">if</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error in reduce_deltas: Config </span><span class="si">%d</span><span class="s1"> not in idx_old&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error in _reduce_deltas: Config </span><span class="si">%d</span><span class="s1"> not in idx_old&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
         <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 
@@ -1453,7 +1441,7 @@
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">w_deltas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
-            <span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reduce_deltas</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">weight</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_reduce_deltas</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">weight</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
             <span class="n">new_samples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">weight</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
         <span class="n">tmp_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">new_samples</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">),</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">)])</span>
 
@@ -1529,7 +1517,7 @@
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
@@ -1635,7 +1623,7 @@
         <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">r_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
                 <span class="k">continue</span>
-            <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">]])</span>
+            <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">]])</span>
             <span class="k">if</span> <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
                 <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1709,7 +1697,7 @@
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
@@ -4208,189 +4196,6 @@ specifies a custom path for the file (default '.')</li>
 
                             </div>
                 </section>
-                <section id="merge_idx">
-                            <div class="attr function"><a class="headerlink" href="#merge_idx">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">merge_idx</span><span class="signature">(idl)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the union of all lists in idl</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    idl : list</span>
-<span class="sd">        List of lists or ranges.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Use groupby to efficiently check whether all elements of idl are identical</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">groupby</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">idl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">]):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">idstart</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">idx</span><span class="o">.</span><span class="n">start</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">])</span>
-            <span class="n">idstop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">idx</span><span class="o">.</span><span class="n">stop</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">])</span>
-            <span class="n">idstep</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">idx</span><span class="o">.</span><span class="n">step</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">])</span>
-            <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="n">idstart</span><span class="p">,</span> <span class="n">idstop</span><span class="p">,</span> <span class="n">idstep</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="n">idl</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Returns the union of all lists in idl</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>idl</strong> (list):
-List of lists or ranges.</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="expand_deltas_for_merge">
-                            <div class="attr function"><a class="headerlink" href="#expand_deltas_for_merge">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">expand_deltas_for_merge</span><span class="signature">(deltas, idx, shape, new_idx)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to the list of configs that is defined by new_idx.</span>
-<span class="sd">       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest</span>
-<span class="sd">       common divisor of the step sizes is used as new step size.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    deltas : list</span>
-<span class="sd">        List of fluctuations</span>
-<span class="sd">    idx : list</span>
-<span class="sd">        List or range of configs on which the deltas are defined.</span>
-<span class="sd">        Has to be a subset of new_idx.</span>
-<span class="sd">    shape : list</span>
-<span class="sd">        Number of configs in idx.</span>
-<span class="sd">    new_idx : list</span>
-<span class="sd">        List of configs that defines the new range.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">new_idx</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">new_idx</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">deltas</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-        <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ret</span><span class="p">[</span><span class="n">new_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_idx</span><span class="p">))])</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Expand deltas defined on idx to the list of configs that is defined by new_idx.
-   New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
-   common divisor of the step sizes is used as new step size.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>deltas</strong> (list):
-List of fluctuations</li>
-<li><strong>idx</strong> (list):
-List or range of configs on which the deltas are defined.
-Has to be a subset of new_idx.</li>
-<li><strong>shape</strong> (list):
-Number of configs in idx.</li>
-<li><strong>new_idx</strong> (list):
-List of configs that defines the new range.</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="filter_zeroes">
-                            <div class="attr function"><a class="headerlink" href="#filter_zeroes">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">filter_zeroes</span><span class="signature">(names, deltas, idl, eps=1e-10)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">filter_zeroes</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idl</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">Obs</span><span class="o">.</span><span class="n">filter_eps</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Filter out all configurations with vanishing fluctuation such that they do not</span>
-<span class="sd">       contribute to the error estimate anymore. Returns the new names, deltas and</span>
-<span class="sd">       idl according to the filtering.</span>
-<span class="sd">       A fluctuation is considered to be vanishing, if it is smaller than eps times</span>
-<span class="sd">       the mean of the absolute values of all deltas in one list.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    names : list</span>
-<span class="sd">        List of names</span>
-<span class="sd">    deltas : dict</span>
-<span class="sd">        Dict lists of fluctuations</span>
-<span class="sd">    idx : dict</span>
-<span class="sd">        Dict of lists or ranges of configs on which the deltas are defined.</span>
-<span class="sd">        Has to be a subset of new_idx.</span>
-<span class="sd">    eps : float</span>
-<span class="sd">        Prefactor that enters the filter criterion.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">new_names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">new_deltas</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">new_idl</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="n">nd</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ni</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">maxd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">])):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span> <span class="o">*</span> <span class="n">maxd</span><span class="p">):</span>
-                <span class="n">nd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-                <span class="n">ni</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">nd</span><span class="p">:</span>
-            <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nd</span><span class="p">)</span>
-            <span class="n">new_idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ni</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Filter out all configurations with vanishing fluctuation such that they do not
-   contribute to the error estimate anymore. Returns the new names, deltas and
-   idl according to the filtering.
-   A fluctuation is considered to be vanishing, if it is smaller than eps times
-   the mean of the absolute values of all deltas in one list.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>names</strong> (list):
-List of names</li>
-<li><strong>deltas</strong> (dict):
-Dict lists of fluctuations</li>
-<li><strong>idx</strong> (dict):
-Dict of lists or ranges of configs on which the deltas are defined.
-Has to be a subset of new_idx.</li>
-<li><strong>eps</strong> (float):
-Prefactor that enters the filter criterion.</li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="derived_observable">
                             <div class="attr function"><a class="headerlink" href="#derived_observable">#&nbsp;&nbsp</a>
 
@@ -4457,7 +4262,7 @@ Prefactor that enters the filter criterion.</li>
             <span class="n">tmp</span> <span class="o">=</span> <span class="n">i_data</span><span class="o">.</span><span class="n">idl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
-        <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span>
+        <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_merged</span><span class="p">:</span>
             <span class="n">is_merged</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">idl</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">]]])))</span>
 
@@ -4519,13 +4324,13 @@ Prefactor that enters the filter criterion.</li>
         <span class="n">new_deltas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">j_obs</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
-                <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_deltas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">deriv</span><span class="p">[</span><span class="n">i_val</span> <span class="o">+</span> <span class="n">j_obs</span><span class="p">]</span> <span class="o">*</span> <span class="n">expand_deltas_for_merge</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+                <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_deltas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">deriv</span><span class="p">[</span><span class="n">i_val</span> <span class="o">+</span> <span class="n">j_obs</span><span class="p">]</span> <span class="o">*</span> <span class="n">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">new_idl_d</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_means</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_idl</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">is_merged</span><span class="p">:</span>
-            <span class="n">filtered_names</span><span class="p">,</span> <span class="n">filtered_deltas</span><span class="p">,</span> <span class="n">filtered_idl_d</span> <span class="o">=</span> <span class="n">filter_zeroes</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">)</span>
+            <span class="n">filtered_names</span><span class="p">,</span> <span class="n">filtered_deltas</span><span class="p">,</span> <span class="n">filtered_idl_d</span> <span class="o">=</span> <span class="n">_filter_zeroes</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl_d</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filtered_names</span> <span class="o">=</span> <span class="n">new_names</span>
             <span class="n">filtered_deltas</span> <span class="o">=</span> <span class="n">new_deltas</span>
@@ -4579,70 +4384,6 @@ functions. For the ratio of two observables one can e.g. use</p>
 
 
                 </section>
-                <section id="reduce_deltas">
-                            <div class="attr function"><a class="headerlink" href="#reduce_deltas">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">reduce_deltas</span><span class="signature">(deltas, idx_old, idx_new)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">reduce_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx_old</span><span class="p">,</span> <span class="n">idx_new</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extract deltas defined on idx_old on all configs of idx_new.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    deltas : list</span>
-<span class="sd">        List of fluctuations</span>
-<span class="sd">    idx_old : list</span>
-<span class="sd">        List or range of configs on which the deltas are defined</span>
-<span class="sd">    idx_new : list</span>
-<span class="sd">        List of configs for which we want to extract the deltas.</span>
-<span class="sd">        Has to be a subset of idx_old.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Lenght of deltas and idx_old have to be the same: </span><span class="si">%d</span><span class="s1"> != </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)))</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx_new</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">idx_old</span> <span class="o">==</span> <span class="n">idx_new</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">deltas</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_new</span><span class="p">)</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">oldpos</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">oldpos</span> <span class="o">==</span> <span class="n">idx_old</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;idx_old and idx_new do not match!&#39;</span><span class="p">)</span>
-        <span class="n">pos</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oldpos</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">idx_old</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">pos</span> <span class="o">=</span> <span class="n">j</span>
-                <span class="k">break</span>
-        <span class="k">if</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error in reduce_deltas: Config </span><span class="si">%d</span><span class="s1"> not in idx_old&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Extract deltas defined on idx_old on all configs of idx_new.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>deltas</strong> (list):
-List of fluctuations</li>
-<li><strong>idx_old</strong> (list):
-List or range of configs on which the deltas are defined</li>
-<li><strong>idx_new</strong> (list):
-List of configs for which we want to extract the deltas.
-Has to be a subset of idx_old.</li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="reweight">
                             <div class="attr function"><a class="headerlink" href="#reweight">#&nbsp;&nbsp</a>
 
@@ -4678,7 +4419,7 @@ Has to be a subset of idx_old.</li>
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">w_deltas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
-            <span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reduce_deltas</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">weight</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_reduce_deltas</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">weight</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
             <span class="n">new_samples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">w_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">weight</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
         <span class="n">tmp_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">new_samples</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">),</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">names</span><span class="p">)])</span>
 
@@ -4814,7 +4555,7 @@ Second observable</li>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
@@ -4952,7 +4693,7 @@ returned (default False)</li>
         <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">r_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
                 <span class="k">continue</span>
-            <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">]])</span>
+            <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">]])</span>
             <span class="k">if</span> <span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
                 <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idl_d</span><span class="p">[</span><span class="n">r_name</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -5055,7 +4796,7 @@ matrices are positive semidefinite.</p>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>

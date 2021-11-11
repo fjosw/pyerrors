@@ -1,7 +1,7 @@
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs, merge_idx, expand_deltas_for_merge, filter_zeroes
+from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes
 
 from functools import partial
 from autograd.extend import defvjp
@@ -51,7 +51,7 @@ def derived_array(func, data, **kwargs):
             tmp = i_data.idl.get(name)
             if tmp is not None:
                 idl.append(tmp)
-        new_idl_d[name] = merge_idx(idl)
+        new_idl_d[name] = _merge_idx(idl)
         if not is_merged:
             is_merged = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
@@ -87,7 +87,7 @@ def derived_array(func, data, **kwargs):
         d_extracted[name] = []
         for i_dat, dat in enumerate(data):
             ens_length = dat.ravel()[0].shape[name]
-            d_extracted[name].append(np.array([expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+            d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
@@ -101,7 +101,7 @@ def derived_array(func, data, **kwargs):
         new_means = []
         new_idl = []
         if is_merged:
-            filtered_names, filtered_deltas, filtered_idl_d = filter_zeroes(new_names, new_deltas, new_idl_d)
+            filtered_names, filtered_deltas, filtered_idl_d = _filter_zeroes(new_names, new_deltas, new_idl_d)
         else:
             filtered_names = new_names
             filtered_deltas = new_deltas

@@ -276,16 +276,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Reweighting status of correlator corrupted.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
     <span class="c1"># The method can use one or two vectors.</span>
@@ -435,7 +435,15 @@
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partner : Obs or Corr</span>
+<span class="sd">            partner to correlate the correlator with.</span>
+<span class="sd">            Can either be an Obs which is correlated with all entries of the</span>
+<span class="sd">            correlator or a Corr of same length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x0</span><span class="p">,</span> <span class="n">t_slice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">t_slice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -547,10 +555,11 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        variant : str</span>
-<span class="sd">            log: uses the standard effective mass log(C(t) / C(t+1))</span>
-<span class="sd">            cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
+<span class="sd">            log : uses the standard effective mass log(C(t) / C(t+1))</span>
+<span class="sd">            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            See, e.g., arXiv:1205.5380</span>
+<span class="sd">            arccosh : Uses the explicit form of the symmetrized correlator (not recommended)</span>
 <span class="sd">        guess : float</span>
 <span class="sd">            guess for the root finder, only relevant for the root variant</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1075,16 +1084,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Reweighting status of correlator corrupted.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
     <span class="c1"># The method can use one or two vectors.</span>
@@ -1234,7 +1243,15 @@
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partner : Obs or Corr</span>
+<span class="sd">            partner to correlate the correlator with.</span>
+<span class="sd">            Can either be an Obs which is correlated with all entries of the</span>
+<span class="sd">            correlator or a Corr of same length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x0</span><span class="p">,</span> <span class="n">t_slice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">t_slice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1346,10 +1363,11 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        variant : str</span>
-<span class="sd">            log: uses the standard effective mass log(C(t) / C(t+1))</span>
-<span class="sd">            cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
+<span class="sd">            log : uses the standard effective mass log(C(t) / C(t+1))</span>
+<span class="sd">            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            See, e.g., arXiv:1205.5380</span>
+<span class="sd">            arccosh : Uses the explicit form of the symmetrized correlator (not recommended)</span>
 <span class="sd">        guess : float</span>
 <span class="sd">            guess for the root finder, only relevant for the root variant</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1873,21 +1891,21 @@ smearing matrix at every timeslice. Other dependency (eg. spacial) are not suppo
 
         
             <span class="def">def</span>
-            <span class="name">gamma_method</span><span class="signature">(self)</span>:
+            <span class="name">gamma_method</span><span class="signature">(self, **kwargs)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                    <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2239,7 +2257,15 @@ number of timeslices</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partner : Obs or Corr</span>
+<span class="sd">            partner to correlate the correlator with.</span>
+<span class="sd">            Can either be an Obs which is correlated with all entries of the</span>
+<span class="sd">            correlator or a Corr of same length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x0</span><span class="p">,</span> <span class="n">t_slice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">t_slice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2261,6 +2287,15 @@ number of timeslices</li>
         </details>
 
             <div class="docstring"><p>Correlate the correlator with another correlator or Obs</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>partner</strong> (Obs or Corr):
+partner to correlate the correlator with.
+Can either be an Obs which is correlated with all entries of the
+correlator or a Corr of same length.</li>
+</ul>
 </div>
 
 
@@ -2469,10 +2504,11 @@ decides whether symmertic of simple finite differences are used. Default: True</
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        variant : str</span>
-<span class="sd">            log: uses the standard effective mass log(C(t) / C(t+1))</span>
-<span class="sd">            cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
+<span class="sd">            log : uses the standard effective mass log(C(t) / C(t+1))</span>
+<span class="sd">            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.</span>
 <span class="sd">            See, e.g., arXiv:1205.5380</span>
+<span class="sd">            arccosh : Uses the explicit form of the symmetrized correlator (not recommended)</span>
 <span class="sd">        guess : float</span>
 <span class="sd">            guess for the root finder, only relevant for the root variant</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2536,10 +2572,11 @@ decides whether symmertic of simple finite differences are used. Default: True</
 
 <ul>
 <li><strong>variant</strong> (str):
-log: uses the standard effective mass log(C(t) / C(t+1))
-cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+log : uses the standard effective mass log(C(t) / C(t+1))
+cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
 sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
-See, e.g., arXiv:1205.5380</li>
+See, e.g., arXiv:1205.5380
+arccosh : Uses the explicit form of the symmetrized correlator (not recommended)</li>
 <li><strong>guess</strong> (float):
 guess for the root finder, only relevant for the root variant</li>
 </ul>

@@ -329,24 +329,6 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
         return
 
-    def expand_deltas(self, deltas, idx, shape):
-        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-           If idx is of type range, the deltas are not changed
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        """
-        if isinstance(idx, range):
-            return deltas
-        else:
-            ret = np.zeros(idx[-1] - idx[0] + 1)
-            for i in range(shape):
-                ret[idx[i] - idx[0]] = deltas[i]
-            return ret
-
     def calc_gamma(self, deltas, idx, shape, w_max, fft):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
@@ -361,7 +343,7 @@ class Obs:
                    the computation of the autocorrelation function
         """
         gamma = np.zeros(w_max)
-        deltas = self.expand_deltas(deltas, idx, shape)
+        deltas = _expand_deltas(deltas, idx, shape)
         new_shape = len(deltas)
         if fft:
             max_gamma = min(new_shape, w_max)
@@ -505,7 +487,7 @@ class Obs:
             tmp = []
             for r, r_name in enumerate(self.e_content[e_name]):
                 if expand:
-                    tmp.append(self.expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
+                    tmp.append(_expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
                 else:
                     tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 r_length.append(len(tmp[-1]))
@@ -827,6 +809,28 @@ class CObs:
 
     def __repr__(self):
         return 'CObs[' + str(self) + ']'
+
+
+def _expand_deltas(deltas, idx, shape):
+    """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
+       If idx is of type range, the deltas are not changed
+
+    Parameters
+    ----------
+    deltas : list
+        List of fluctuations
+    idx : list
+        List or range of configs on which the deltas are defined.
+    shape : int
+        Number of configs in idx.
+    """
+    if isinstance(idx, range):
+        return deltas
+    else:
+        ret = np.zeros(idx[-1] - idx[0] + 1)
+        for i in range(shape):
+            ret[idx[i] - idx[0]] = deltas[i]
+        return ret
 
 
 def _merge_idx(idl):

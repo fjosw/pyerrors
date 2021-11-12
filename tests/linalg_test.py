@@ -74,6 +74,28 @@ def test_matmul_irregular_histories():
         assert np.all([o.is_merged for o in t2.ravel()])
 
 
+def test_irregular_matrix_inverse():
+    dim = 3
+    length = 500
+
+    for idl in [range(8, 508, 10), range(250, 273), [2, 8, 19, 20, 78, 99, 828, 10548979]]:
+        irregular_array = []
+        for i in range(dim ** 2):
+            irregular_array.append(pe.Obs([np.random.normal(1.1, 0.2, len(idl)), np.random.normal(0.25, 0.1, 10)], ['ens1', 'ens2'], idl=[idl, range(1, 11)]))
+        irregular_matrix = np.array(irregular_array).reshape((dim, dim))
+
+        invertible_irregular_matrix = np.identity(dim) + irregular_matrix @ irregular_matrix.T
+
+        inverse = pe.linalg.inv(invertible_irregular_matrix)
+
+        assert np.allclose(np.linalg.inv(np.vectorize(lambda x: x.value)(invertible_irregular_matrix)) - np.vectorize(lambda x: x.value)(inverse), 0.0)
+
+        check1 = pe.linalg.matmul(invertible_irregular_matrix, inverse)
+        assert np.all([o.is_zero() for o in (check1 - np.identity(dim)).ravel()])
+        check2 = invertible_irregular_matrix @ inverse
+        assert np.all([o.is_zero() for o in (check2 - np.identity(dim)).ravel()])
+
+
 def test_matrix_inverse():
     content = []
     for t in range(9):

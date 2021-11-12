@@ -117,6 +117,65 @@ def test_gamma_method_persistance():
     assert ddvalue == my_obs.ddvalue
 
 
+def test_gamma_method_kwargs():
+
+    my_obs = pe.Obs([np.random.normal(1, 0.8, 5)], ['ens'], idl=[[1, 2, 3, 6, 17]])
+
+    pe.Obs.S_dict['ens13.7'] = 3
+
+    my_obs.gamma_method()
+    assert my_obs.S['ens'] == pe.Obs.S_global
+    assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+    my_obs.gamma_method(S=3.71)
+    assert my_obs.S['ens'] == 3.71
+    assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+    my_obs.gamma_method(tau_exp=17)
+    assert my_obs.S['ens'] == pe.Obs.S_global
+    assert my_obs.tau_exp['ens'] == 17
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+    my_obs.gamma_method(tau_exp=1.7, N_sigma=2.123)
+    assert my_obs.S['ens'] == pe.Obs.S_global
+    assert my_obs.tau_exp['ens'] == 1.7
+    assert my_obs.N_sigma['ens'] == 2.123
+
+    pe.Obs.S_dict['ens'] = 3
+    pe.Obs.S_dict['ens|23'] = 7
+
+    my_obs.gamma_method()
+    assert my_obs.S['ens'] == pe.Obs.S_dict['ens'] == 3
+    assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+    pe.Obs.tau_exp_dict['ens'] = 4
+    pe.Obs.N_sigma_dict['ens'] = 4
+
+    my_obs.gamma_method()
+    assert my_obs.S['ens'] == pe.Obs.S_dict['ens'] == 3
+    assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_dict['ens'] == 4
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_dict['ens'] == 4
+
+    my_obs.gamma_method(S=1.1, tau_exp=1.2, N_sigma=1.3)
+    assert my_obs.S['ens'] == 1.1
+    assert my_obs.tau_exp['ens'] == 1.2
+    assert my_obs.N_sigma['ens'] == 1.3
+
+    pe.Obs.S_dict = {}
+    pe.Obs.tau_exp_dict = {}
+    pe.Obs.N_sigma_dict = {}
+
+    my_obs = pe.Obs([np.random.normal(1, 0.8, 5)], ['ens'])
+
+    my_obs.gamma_method()
+    assert my_obs.S['ens'] == pe.Obs.S_global
+    assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
+    assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+
 def test_covariance_is_variance():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

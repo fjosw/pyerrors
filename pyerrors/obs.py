@@ -333,10 +333,6 @@ class Obs:
 
         return gamma
 
-    def print(self, level=1):
-        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level > 1)
-
     def details(self, ens_content=True):
         """Output detailed properties of the Obs.
 
@@ -369,6 +365,10 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
             m = max(map(len, list(self.e_content.keys()))) + 1
             print('\n'.join(['  ' + key.rjust(m) + ': ' + str(value) for key, value in sorted(self.e_content.items())]))
+
+    def print(self, level=1):
+        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
+        self.details(level > 1)
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.

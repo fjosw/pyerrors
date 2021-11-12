@@ -346,6 +346,8 @@ class Obs:
         ens_content : bool
             print details about the ensembles and replica if true.
         """
+        if self.tag is not None:
+            print("Description:", self.tag)
         if self.value == 0.0:
             percentage = np.nan
         else:
@@ -361,8 +363,6 @@ class Obs:
                     print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
                 else:
                     print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-        if self.tag is not None:
-            print("Description:", self.tag)
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')

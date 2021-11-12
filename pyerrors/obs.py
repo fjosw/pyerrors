@@ -248,7 +248,7 @@ class Obs:
 
             r_length = []
             for r_name in e_content[e_name]:
-                if self.idl[r_name] is range:
+                if isinstance(self.idl[r_name], range):
                     r_length.append(len(self.idl[r_name]))
                 else:
                     r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
@@ -339,7 +339,7 @@ class Obs:
         idx     -- List or range of configs on which the deltas are defined.
         shape   -- Number of configs in idx.
         """
-        if type(idx) is range:
+        if isinstance(idx, range):
             return deltas
         else:
             ret = np.zeros(idx[-1] - idx[0] + 1)

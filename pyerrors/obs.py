@@ -70,12 +70,15 @@ class Obs:
         if means is None:
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
+            if idl is not None:
+                if len(idl) != len(names):
+                    raise Exception('Length of idl incompatible with samples and names.')
             if len(names) != len(set(names)):
-                raise Exception('Names are not unique.')
+                raise Exception('names are not unique.')
             if not all(isinstance(x, str) for x in names):
                 raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
-                raise Exception('Samples have to have at least 4 entries.')
+                raise Exception('Samples have to have at least 5 entries.')
 
         self.names = sorted(names)
         self.shape = {}

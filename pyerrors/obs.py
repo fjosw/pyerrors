@@ -189,7 +189,7 @@ class Obs:
         else:
             fft = True
 
-        def _parse_kwarg(kwarg_name, **kwargs):
+        def _parse_kwarg(kwarg_name):
             if kwarg_name in kwargs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
@@ -206,53 +206,8 @@ class Obs:
                     else:
                         getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_global')
 
-        if 'S' in kwargs:
-            tmp = kwargs.get('S')
-            if isinstance(tmp, list):
-                if len(tmp) != len(self.e_names):
-                    raise Exception('Length of S array does not match ensembles.')
-                for e, e_name in enumerate(self.e_names):
-                    if tmp[e] <= 0:
-                        raise Exception('S has to be larger than 0.')
-                    self.S[e_name] = tmp[e]
-            else:
-                if isinstance(tmp, (int, float)):
-                    if tmp <= 0:
-                        raise Exception('S has to be larger than 0.')
-                    for e, e_name in enumerate(self.e_names):
-                        self.S[e_name] = tmp
-                else:
-                    raise TypeError('S is not in proper format.')
-        else:
-            for e, e_name in enumerate(self.e_names):
-                if e_name in Obs.S_dict:
-                    self.S[e_name] = Obs.S_dict[e_name]
-                else:
-                    self.S[e_name] = Obs.S_global
-
-        if 'tau_exp' in kwargs:
-            tmp = kwargs.get('tau_exp')
-            if isinstance(tmp, list):
-                if len(tmp) != len(self.e_names):
-                    raise Exception('Length of tau_exp array does not match ensembles.')
-                for e, e_name in enumerate(self.e_names):
-                    if tmp[e] < 0:
-                        raise Exception('tau_exp smaller than 0.')
-                    self.tau_exp[e_name] = tmp[e]
-            else:
-                if isinstance(tmp, (int, float)):
-                    if tmp < 0:
-                        raise Exception('tau_exp smaller than 0.')
-                    for e, e_name in enumerate(self.e_names):
-                        self.tau_exp[e_name] = tmp
-                else:
-                    raise TypeError('tau_exp is not in proper format.')
-        else:
-            for e, e_name in enumerate(self.e_names):
-                if e_name in Obs.tau_exp_dict:
-                    self.tau_exp[e_name] = Obs.tau_exp_dict[e_name]
-                else:
-                    self.tau_exp[e_name] = Obs.tau_exp_global
+        _parse_kwarg('S')
+        _parse_kwarg('tau_exp')
 
         if 'N_sigma' in kwargs:
             self.N_sigma = kwargs.get('N_sigma')

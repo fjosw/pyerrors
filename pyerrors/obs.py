@@ -189,6 +189,23 @@ class Obs:
         else:
             fft = True
 
+        def _parse_kwarg(kwarg_name, **kwargs):
+            if kwarg_name in kwargs:
+                tmp = kwargs.get(kwarg_name)
+                if isinstance(tmp, (int, float)):
+                    if tmp <= 0:
+                        raise Exception(kwarg_name + ' has to be larger than 0.')
+                    for e, e_name in enumerate(self.e_names):
+                        getattr(self, kwarg_name)[e_name] = tmp
+                else:
+                    raise TypeError(kwarg_name + ' is not in proper format.')
+            else:
+                for e, e_name in enumerate(self.e_names):
+                    if e_name in getattr(Obs, kwarg_name + '_dict'):
+                        getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_dict')[e_name]
+                    else:
+                        getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_global')
+
         if 'S' in kwargs:
             tmp = kwargs.get('S')
             if isinstance(tmp, list):

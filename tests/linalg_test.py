@@ -90,8 +90,10 @@ def test_irregular_matrix_inverse():
 
         assert np.allclose(np.linalg.inv(np.vectorize(lambda x: x.value)(invertible_irregular_matrix)) - np.vectorize(lambda x: x.value)(inverse), 0.0)
 
-        check = pe.linalg.matmul(invertible_irregular_matrix, inverse)
-        assert np.all([o.is_zero() for o in (check - np.identity(dim)).ravel()])
+        check1 = pe.linalg.matmul(invertible_irregular_matrix, inverse)
+        assert np.all([o.is_zero() for o in (check1 - np.identity(dim)).ravel()])
+        check2 = invertible_irregular_matrix @ inverse
+        assert np.all([o.is_zero() for o in (check2 - np.identity(dim)).ravel()])
 
 
 def test_matrix_inverse():

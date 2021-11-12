@@ -678,7 +678,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">(</span><span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ens_content</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ens_content : bool</span>
+<span class="sd">            print details about the ensembles and replica if true.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">percentage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">else</span><span class="p">:</span>
@@ -707,6 +713,11 @@
     <span class="k">def</span> <span class="nf">is_zero_within_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within &#39;sigma&#39; standard errors.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sigma : int</span>
+<span class="sd">            Number of standard errors used for the check.</span>
+
 <span class="sd">        Works only properly when the gamma method was run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
@@ -716,7 +727,13 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">plot_tauint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        save : str</span>
+<span class="sd">            saves the figure to a file named &#39;save&#39; if.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -793,7 +810,13 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">plot_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expand : bool</span>
+<span class="sd">            show expanded history for irregular Monte Carlo chains (default: True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -836,6 +859,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            name of the file to be saved.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1512,6 +1537,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    obs1 : Obs</span>
+<span class="sd">        First Obs</span>
+<span class="sd">    obs2 : Obs</span>
+<span class="sd">        Second Obs</span>
 <span class="sd">    correlation : bool</span>
 <span class="sd">        if true the correlation instead of the covariance is</span>
 <span class="sd">        returned (default False)</span>
@@ -1745,7 +1774,16 @@
 <span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate a pseudo Obs with given value, dvalue and name</span>
 
-<span class="sd">    The standard number of samples is a 1000. This can be adjusted.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        central value of the Obs to be generated.</span>
+<span class="sd">    dvalue : float</span>
+<span class="sd">        error of the Obs to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble for which the Obs is to be generated.</span>
+<span class="sd">    samples: int</span>
+<span class="sd">        number of samples for the Obs (default 1000).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dvalue</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">+</span> <span class="n">value</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
@@ -1786,7 +1824,13 @@
 
 
 <span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load object from pickle file. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Load object from pickle file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        path to the file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
@@ -2191,7 +2235,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">(</span><span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ens_content</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ens_content : bool</span>
+<span class="sd">            print details about the ensembles and replica if true.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">percentage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2220,6 +2270,11 @@
     <span class="k">def</span> <span class="nf">is_zero_within_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within &#39;sigma&#39; standard errors.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sigma : int</span>
+<span class="sd">            Number of standard errors used for the check.</span>
+
 <span class="sd">        Works only properly when the gamma method was run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
@@ -2229,7 +2284,13 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">plot_tauint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        save : str</span>
+<span class="sd">            saves the figure to a file named &#39;save&#39; if.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -2306,7 +2367,13 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">plot_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expand : bool</span>
+<span class="sd">            show expanded history for irregular Monte Carlo chains (default: True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -2349,6 +2416,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            name of the file to be saved.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3102,7 +3171,13 @@ of the autocorrelation function (default True)</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ens_content</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Output detailed properties of the Obs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ens_content : bool</span>
+<span class="sd">            print details about the ensembles and replica if true.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">percentage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3132,6 +3207,13 @@ of the autocorrelation function (default True)</li>
         </details>
 
             <div class="docstring"><p>Output detailed properties of the Obs.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ens_content</strong> (bool):
+print details about the ensembles and replica if true.</li>
+</ul>
 </div>
 
 
@@ -3149,6 +3231,11 @@ of the autocorrelation function (default True)</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">is_zero_within_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within &#39;sigma&#39; standard errors.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sigma : int</span>
+<span class="sd">            Number of standard errors used for the check.</span>
+
 <span class="sd">        Works only properly when the gamma method was run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
@@ -3158,7 +3245,13 @@ of the autocorrelation function (default True)</li>
 
             <div class="docstring"><p>Checks whether the observable is zero within 'sigma' standard errors.</p>
 
-<p>Works only properly when the gamma method was run.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>sigma</strong> (int):
+Number of standard errors used for the check.</li>
+<li><strong>Works only properly when the gamma method was run.</strong></li>
+</ul>
 </div>
 
 
@@ -3196,7 +3289,13 @@ of the autocorrelation function (default True)</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">plot_tauint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot integrated autocorrelation time for each ensemble.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        save : str</span>
+<span class="sd">            saves the figure to a file named &#39;save&#39; if.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -3232,6 +3331,13 @@ of the autocorrelation function (default True)</li>
         </details>
 
             <div class="docstring"><p>Plot integrated autocorrelation time for each ensemble.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>save</strong> (str):
+saves the figure to a file named 'save' if.</li>
+</ul>
 </div>
 
 
@@ -3327,7 +3433,13 @@ of the autocorrelation function (default True)</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">plot_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Plot derived Monte Carlo history for each ensemble</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expand : bool</span>
+<span class="sd">            show expanded history for irregular Monte Carlo chains (default: True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;e_names&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Run the gamma method first.&#39;</span><span class="p">)</span>
 
@@ -3352,7 +3464,14 @@ of the autocorrelation function (default True)</li>
 
         </details>
 
-            <div class="docstring"><p>Plot derived Monte Carlo history for each ensemble.</p>
+            <div class="docstring"><p>Plot derived Monte Carlo history for each ensemble</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>expand</strong> (bool):
+show expanded history for irregular Monte Carlo chains (default: True).</li>
+</ul>
 </div>
 
 
@@ -3407,6 +3526,8 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            name of the file to be saved.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3425,6 +3546,8 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
+<li><strong>name</strong> (str):
+name of the file to be saved.</li>
 <li><strong>path</strong> (str):
 specifies a custom path for the file (default '.')</li>
 </ul>
@@ -4435,6 +4558,10 @@ Second observable</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    obs1 : Obs</span>
+<span class="sd">        First Obs</span>
+<span class="sd">    obs2 : Obs</span>
+<span class="sd">        Second Obs</span>
 <span class="sd">    correlation : bool</span>
 <span class="sd">        if true the correlation instead of the covariance is</span>
 <span class="sd">        returned (default False)</span>
@@ -4494,6 +4621,10 @@ matrices are positive semidefinite.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
+<li><strong>obs1</strong> (Obs):
+First Obs</li>
+<li><strong>obs2</strong> (Obs):
+Second Obs</li>
 <li><strong>correlation</strong> (bool):
 if true the correlation instead of the covariance is
 returned (default False)</li>
@@ -4761,7 +4892,16 @@ plot -- if true, the integrated autocorrelation time for each ensemble is
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate a pseudo Obs with given value, dvalue and name</span>
 
-<span class="sd">    The standard number of samples is a 1000. This can be adjusted.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        central value of the Obs to be generated.</span>
+<span class="sd">    dvalue : float</span>
+<span class="sd">        error of the Obs to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble for which the Obs is to be generated.</span>
+<span class="sd">    samples: int</span>
+<span class="sd">        number of samples for the Obs (default 1000).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dvalue</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">+</span> <span class="n">value</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
@@ -4785,7 +4925,18 @@ plot -- if true, the integrated autocorrelation time for each ensemble is
 
             <div class="docstring"><p>Generate a pseudo Obs with given value, dvalue and name</p>
 
-<p>The standard number of samples is a 1000. This can be adjusted.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (float):
+central value of the Obs to be generated.</li>
+<li><strong>dvalue</strong> (float):
+error of the Obs to be generated.</li>
+<li><strong>name</strong> (str):
+name of the ensemble for which the Obs is to be generated.</li>
+<li><strong>samples</strong> (int):
+number of samples for the Obs (default 1000).</li>
+</ul>
 </div>
 
 
@@ -4849,7 +5000,13 @@ specifies a custom path for the file (default '.')</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load object from pickle file. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Load object from pickle file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        path to the file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 </pre></div>
@@ -4857,6 +5014,13 @@ specifies a custom path for the file (default '.')</li>
         </details>
 
             <div class="docstring"><p>Load object from pickle file.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>path</strong> (str):
+path to the file</li>
+</ul>
 </div>
 
 

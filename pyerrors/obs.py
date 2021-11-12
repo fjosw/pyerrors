@@ -260,11 +260,11 @@ class Obs:
             self.e_drho[e_name] = np.zeros(w_max)
 
             for r_name in e_content[e_name]:
-                e_gamma[e_name] += self.calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
+                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
-                gamma_div += self.calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
             e_gamma[e_name] /= gamma_div[:w_max]
 
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
@@ -329,18 +329,23 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
         return
 
-    def calc_gamma(self, deltas, idx, shape, w_max, fft):
+    def _calc_gamma(self, deltas, idx, shape, w_max, fft):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
 
         Parameters
         ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        w_max   -- Upper bound for the summation window
-        fft     -- boolean, which determines whether the fft algorithm is used for
-                   the computation of the autocorrelation function
+        deltas : list
+            List of fluctuations
+        idx : list
+            List or range of configs on which the deltas are defined.
+        shape : int
+            Number of configs in idx.
+        w_max : int
+            Upper bound for the summation window.
+        fft : bool
+            determines whether the fft algorithm is used for the computation
+            of the autocorrelation function.
         """
         gamma = np.zeros(w_max)
         deltas = _expand_deltas(deltas, idx, shape)

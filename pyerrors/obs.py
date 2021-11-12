@@ -368,8 +368,29 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
             else:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
-            m = max(map(len, list(self.e_content.keys()))) + 1
-            print('\n'.join(['  ' + key.rjust(m) + ': ' + str(value) for key, value in sorted(self.e_content.items())]))
+            my_string_list = []
+            for key, value in sorted(self.e_content.items()):
+                my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
+                if len(value) == 1:
+                    my_string += f': {self.shape[value[0]]} configurations'
+                    if isinstance(self.idl[value[0]], range):
+                        my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
+                    else:
+                        my_string += ' (irregular range)'
+                else:
+                    sublist = []
+                    for v in value:
+                        my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
+                        my_substring += f': {self.shape[v]} configurations'
+                        if isinstance(self.idl[v], range):
+                            my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                        else:
+                            my_substring += ' (irregular range)'
+                        sublist.append(my_substring)
+
+                    my_string += '\n' + '\n'.join(sublist)
+                my_string_list.append(my_string)
+            print('\n'.join(my_string_list))
 
     def print(self, level=1):
         warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)

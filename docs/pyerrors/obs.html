@@ -117,9 +117,6 @@
                                 <a class="function" href="#Obs.gamma_method">gamma_method</a>
                         </li>
                         <li>
-                                <a class="function" href="#Obs.expand_deltas">expand_deltas</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Obs.calc_gamma">calc_gamma</a>
                         </li>
                         <li>
@@ -646,24 +643,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.</span>
-<span class="sd">           If idx is of type range, the deltas are not changed</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">range</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">deltas</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">ret</span>
-
     <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate Gamma_{AA} from the deltas, which are defined on idx.</span>
 <span class="sd">           idx is assumed to be a contiguous range (possibly with a stepsize != 1)</span>
@@ -678,7 +657,7 @@
 <span class="sd">                   the computation of the autocorrelation function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
-        <span class="n">deltas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
         <span class="n">new_shape</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fft</span><span class="p">:</span>
             <span class="n">max_gamma</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">)</span>
@@ -822,7 +801,7 @@
             <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">expand</span><span class="p">:</span>
-                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
+                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
@@ -1144,6 +1123,28 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;CObs[&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.</span>
+<span class="sd">       If idx is of type range, the deltas are not changed</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    deltas : list</span>
+<span class="sd">        List of fluctuations</span>
+<span class="sd">    idx : list</span>
+<span class="sd">        List or range of configs on which the deltas are defined.</span>
+<span class="sd">    shape : int</span>
+<span class="sd">        Number of configs in idx.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">range</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">deltas</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+            <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
 
 <span class="k">def</span> <span class="nf">_merge_idx</span><span class="p">(</span><span class="n">idl</span><span class="p">):</span>
@@ -2150,24 +2151,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.</span>
-<span class="sd">           If idx is of type range, the deltas are not changed</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">range</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">deltas</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">ret</span>
-
     <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate Gamma_{AA} from the deltas, which are defined on idx.</span>
 <span class="sd">           idx is assumed to be a contiguous range (possibly with a stepsize != 1)</span>
@@ -2182,7 +2165,7 @@
 <span class="sd">                   the computation of the autocorrelation function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
-        <span class="n">deltas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
         <span class="n">new_shape</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fft</span><span class="p">:</span>
             <span class="n">max_gamma</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">)</span>
@@ -2326,7 +2309,7 @@
             <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">expand</span><span class="p">:</span>
-                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
+                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
@@ -3081,51 +3064,6 @@ of the autocorrelation function (default True)</li>
 
 
                             </div>
-                            <div id="Obs.expand_deltas" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Obs.expand_deltas">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">expand_deltas</span><span class="signature">(self, deltas, idx, shape)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.</span>
-<span class="sd">           If idx is of type range, the deltas are not changed</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">range</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">deltas</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-                <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">ret</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-   If idx is of type range, the deltas are not changed</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>deltas  -- List of fluctuations</strong></li>
-<li><strong>idx     -- List or range of configs on which the deltas are defined.</strong></li>
-<li><strong>shape   -- Number of configs in idx.</strong></li>
-</ul>
-</div>
-
-
-                            </div>
                             <div id="Obs.calc_gamma" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Obs.calc_gamma">#&nbsp;&nbsp</a>
 
@@ -3150,7 +3088,7 @@ of the autocorrelation function (default True)</li>
 <span class="sd">                   the computation of the autocorrelation function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
-        <span class="n">deltas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
         <span class="n">new_shape</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fft</span><span class="p">:</span>
             <span class="n">max_gamma</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">)</span>
@@ -3449,7 +3387,7 @@ of the autocorrelation function (default True)</li>
             <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">expand</span><span class="p">:</span>
-                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
+                    <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_expand_deltas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
                 <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>

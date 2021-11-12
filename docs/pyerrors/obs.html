@@ -117,9 +117,6 @@
                                 <a class="function" href="#Obs.gamma_method">gamma_method</a>
                         </li>
                         <li>
-                                <a class="function" href="#Obs.calc_gamma">calc_gamma</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Obs.print">print</a>
                         </li>
                         <li>
@@ -574,11 +571,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">e_drho</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
 
             <span class="n">gamma_div</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
             <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">/=</span> <span class="n">gamma_div</span><span class="p">[:</span><span class="n">w_max</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span><span class="p">:</span>  <span class="c1"># Prevent division by zero</span>
@@ -643,18 +640,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate Gamma_{AA} from the deltas, which are defined on idx.</span>
 <span class="sd">           idx is assumed to be a contiguous range (possibly with a stepsize != 1)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        w_max   -- Upper bound for the summation window</span>
-<span class="sd">        fft     -- boolean, which determines whether the fft algorithm is used for</span>
-<span class="sd">                   the computation of the autocorrelation function</span>
+<span class="sd">        deltas : list</span>
+<span class="sd">            List of fluctuations</span>
+<span class="sd">        idx : list</span>
+<span class="sd">            List or range of configs on which the deltas are defined.</span>
+<span class="sd">        shape : int</span>
+<span class="sd">            Number of configs in idx.</span>
+<span class="sd">        w_max : int</span>
+<span class="sd">            Upper bound for the summation window.</span>
+<span class="sd">        fft : bool</span>
+<span class="sd">            determines whether the fft algorithm is used for the computation</span>
+<span class="sd">            of the autocorrelation function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
@@ -2082,11 +2084,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">e_drho</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
 
             <span class="n">gamma_div</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
             <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">/=</span> <span class="n">gamma_div</span><span class="p">[:</span><span class="n">w_max</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span><span class="p">:</span>  <span class="c1"># Prevent division by zero</span>
@@ -2151,18 +2153,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddvalue</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dvalue</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate Gamma_{AA} from the deltas, which are defined on idx.</span>
 <span class="sd">           idx is assumed to be a contiguous range (possibly with a stepsize != 1)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        w_max   -- Upper bound for the summation window</span>
-<span class="sd">        fft     -- boolean, which determines whether the fft algorithm is used for</span>
-<span class="sd">                   the computation of the autocorrelation function</span>
+<span class="sd">        deltas : list</span>
+<span class="sd">            List of fluctuations</span>
+<span class="sd">        idx : list</span>
+<span class="sd">            List or range of configs on which the deltas are defined.</span>
+<span class="sd">        shape : int</span>
+<span class="sd">            Number of configs in idx.</span>
+<span class="sd">        w_max : int</span>
+<span class="sd">            Upper bound for the summation window.</span>
+<span class="sd">        fft : bool</span>
+<span class="sd">            determines whether the fft algorithm is used for the computation</span>
+<span class="sd">            of the autocorrelation function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
@@ -2969,11 +2976,11 @@ already subtracted from the samples</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">e_drho</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
 
             <span class="n">gamma_div</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
+                <span class="n">gamma_div</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_gamma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">r_name</span><span class="p">],</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">)</span>
             <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">/=</span> <span class="n">gamma_div</span><span class="p">[:</span><span class="n">w_max</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span><span class="p">:</span>  <span class="c1"># Prevent division by zero</span>
@@ -3059,63 +3066,6 @@ attached to the autocorrelation function (default 1)</li>
 <li><strong>fft</strong> (bool):
 determines whether the fft algorithm is used for the computation
 of the autocorrelation function (default True)</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="Obs.calc_gamma" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Obs.calc_gamma">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">calc_gamma</span><span class="signature">(self, deltas, idx, shape, w_max, fft)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">,</span> <span class="n">fft</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate Gamma_{AA} from the deltas, which are defined on idx.</span>
-<span class="sd">           idx is assumed to be a contiguous range (possibly with a stepsize != 1)</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        w_max   -- Upper bound for the summation window</span>
-<span class="sd">        fft     -- boolean, which determines whether the fft algorithm is used for</span>
-<span class="sd">                   the computation of the autocorrelation function</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">w_max</span><span class="p">)</span>
-        <span class="n">deltas</span> <span class="o">=</span> <span class="n">_expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-        <span class="n">new_shape</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">fft</span><span class="p">:</span>
-            <span class="n">max_gamma</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">w_max</span><span class="p">)</span>
-            <span class="c1"># The padding for the fft has to be even</span>
-            <span class="n">padding</span> <span class="o">=</span> <span class="n">new_shape</span> <span class="o">+</span> <span class="n">max_gamma</span> <span class="o">+</span> <span class="p">(</span><span class="n">new_shape</span> <span class="o">+</span> <span class="n">max_gamma</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
-            <span class="n">gamma</span><span class="p">[:</span><span class="n">max_gamma</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">padding</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)[:</span><span class="n">max_gamma</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w_max</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">new_shape</span> <span class="o">-</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">gamma</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">deltas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">new_shape</span> <span class="o">-</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">new_shape</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">gamma</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Calculate Gamma_{AA} from the deltas, which are defined on idx.
-   idx is assumed to be a contiguous range (possibly with a stepsize != 1)</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>deltas  -- List of fluctuations</strong></li>
-<li><strong>idx     -- List or range of configs on which the deltas are defined.</strong></li>
-<li><strong>shape   -- Number of configs in idx.</strong></li>
-<li><strong>w_max   -- Upper bound for the summation window</strong></li>
-<li><strong>fft     -- boolean, which determines whether the fft algorithm is used for</strong>: the computation of the autocorrelation function</li>
 </ul>
 </div>
 

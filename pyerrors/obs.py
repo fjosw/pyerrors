@@ -28,11 +28,14 @@ class Obs:
         exists this overwrites the standard value for that ensemble.
     tau_exp_global : float
         Standard value for tau_exp (default 0.0)
-    tau_exp_dict :dict
+    tau_exp_dict : dict
         Dictionary for tau_exp values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
     N_sigma_global : float
         Standard value for N_sigma (default 1.0)
+    N_sigma_dict : dict
+        Dictionary for N_sigma values. If an entry for a given ensemble exists
+        this overwrites the standard value for that ensemble.
     """
     __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
@@ -45,6 +48,7 @@ class Obs:
     tau_exp_global = 0.0
     tau_exp_dict = {}
     N_sigma_global = 1.0
+    N_sigma_dict = {}
     filter_eps = 1e-10
 
     def __init__(self, samples, names, idl=None, means=None, **kwargs):
@@ -183,6 +187,7 @@ class Obs:
 
         self.S = {}
         self.tau_exp = {}
+        self.N_sigma = {}
 
         if kwargs.get('fft') is False:
             fft = False
@@ -193,8 +198,8 @@ class Obs:
             if kwarg_name in kwargs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
-                    if tmp <= 0:
-                        raise Exception(kwarg_name + ' has to be larger than 0.')
+                    if tmp < 0:
+                        raise Exception(kwarg_name + ' has to be larger or equal to 0.')
                     for e, e_name in enumerate(self.e_names):
                         getattr(self, kwarg_name)[e_name] = tmp
                 else:
@@ -208,13 +213,7 @@ class Obs:
 
         _parse_kwarg('S')
         _parse_kwarg('tau_exp')
-
-        if 'N_sigma' in kwargs:
-            self.N_sigma = kwargs.get('N_sigma')
-            if not isinstance(self.N_sigma, (int, float)):
-                raise TypeError('N_sigma is not a number.')
-        else:
-            self.N_sigma = Obs.N_sigma_global
+        _parse_kwarg('N_sigma')
 
         for e, e_name in enumerate(self.e_names):
 
@@ -267,7 +266,7 @@ class Obs:
                 # Critical slowing down analysis
                 for n in range(1, w_max // 2):
                     _compute_drho(n + 1)
-                    if (self.e_rho[e_name][n] - self.N_sigma * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
+                    if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
                         self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
                         self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
@@ -358,7 +357,7 @@ class Obs:
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
                 if self.tau_exp[e_name] > 0:
-                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
                 else:
                     print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
         if self.tag is not None:

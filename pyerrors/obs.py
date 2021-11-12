@@ -367,7 +367,13 @@ class Obs:
         self.details(level > 1)
 
     def details(self, ens_content=True):
-        """Output detailed properties of the Obs."""
+        """Output detailed properties of the Obs.
+
+        Parameters
+        ----------
+        ens_content : bool
+            print details about the ensembles and replica if true.
+        """
         if self.value == 0.0:
             percentage = np.nan
         else:
@@ -396,6 +402,11 @@ class Obs:
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
 
+        Parameters
+        ----------
+        sigma : int
+            Number of standard errors used for the check.
+
         Works only properly when the gamma method was run.
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
@@ -405,7 +416,13 @@ class Obs:
         return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
 
     def plot_tauint(self, save=None):
-        """Plot integrated autocorrelation time for each ensemble."""
+        """Plot integrated autocorrelation time for each ensemble.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
@@ -482,7 +499,13 @@ class Obs:
             plt.draw()
 
     def plot_history(self, expand=True):
-        """Plot derived Monte Carlo history for each ensemble."""
+        """Plot derived Monte Carlo history for each ensemble
+
+        Parameters
+        ----------
+        expand : bool
+            show expanded history for irregular Monte Carlo chains (default: True).
+        """
         if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
@@ -525,6 +548,8 @@ class Obs:
 
         Parameters
         ----------
+        name : str
+            name of the file to be saved.
         path : str
             specifies a custom path for the file (default '.')
         """
@@ -1201,6 +1226,10 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
     Parameters
     ----------
+    obs1 : Obs
+        First Obs
+    obs2 : Obs
+        Second Obs
     correlation : bool
         if true the correlation instead of the covariance is
         returned (default False)
@@ -1434,7 +1463,16 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
 def pseudo_Obs(value, dvalue, name, samples=1000):
     """Generate a pseudo Obs with given value, dvalue and name
 
-    The standard number of samples is a 1000. This can be adjusted.
+    Parameters
+    ----------
+    value : float
+        central value of the Obs to be generated.
+    dvalue : float
+        error of the Obs to be generated.
+    name : str
+        name of the ensemble for which the Obs is to be generated.
+    samples: int
+        number of samples for the Obs (default 1000).
     """
     if dvalue <= 0.0:
         return Obs([np.zeros(samples) + value], [name])
@@ -1475,7 +1513,13 @@ def dump_object(obj, name, **kwargs):
 
 
 def load_object(path):
-    """Load object from pickle file. """
+    """Load object from pickle file.
+
+    Parameters
+    ----------
+    path : str
+        path to the file
+    """
     with open(path, 'rb') as file:
         return pickle.load(file)
 

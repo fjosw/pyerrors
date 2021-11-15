@@ -28,11 +28,14 @@ class Obs:
         exists this overwrites the standard value for that ensemble.
     tau_exp_global : float
         Standard value for tau_exp (default 0.0)
-    tau_exp_dict :dict
+    tau_exp_dict : dict
         Dictionary for tau_exp values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
     N_sigma_global : float
         Standard value for N_sigma (default 1.0)
+    N_sigma_dict : dict
+        Dictionary for N_sigma values. If an entry for a given ensemble exists
+        this overwrites the standard value for that ensemble.
     """
     __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
@@ -45,6 +48,7 @@ class Obs:
     tau_exp_global = 0.0
     tau_exp_dict = {}
     N_sigma_global = 1.0
+    N_sigma_dict = {}
     filter_eps = 1e-10
 
     def __init__(self, samples, names, idl=None, means=None, **kwargs):
@@ -55,7 +59,7 @@ class Obs:
         samples : list
             list of numpy arrays containing the Monte Carlo samples
         names : list
-            list of strings labeling the indivdual samples
+            list of strings labeling the individual samples
         idl : list, optional
             list of ranges or lists on which the samples are defined
         means : list, optional
@@ -66,12 +70,15 @@ class Obs:
         if means is None:
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
+            if idl is not None:
+                if len(idl) != len(names):
+                    raise Exception('Length of idl incompatible with samples and names.')
             if len(names) != len(set(names)):
-                raise Exception('Names are not unique.')
+                raise Exception('names are not unique.')
             if not all(isinstance(x, str) for x in names):
                 raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
-                raise Exception('Samples have to have at least 4 entries.')
+                raise Exception('Samples have to have at least 5 entries.')
 
         self.names = sorted(names)
         self.shape = {}
@@ -183,72 +190,39 @@ class Obs:
 
         self.S = {}
         self.tau_exp = {}
+        self.N_sigma = {}
 
         if kwargs.get('fft') is False:
             fft = False
         else:
             fft = True
 
-        if 'S' in kwargs:
-            tmp = kwargs.get('S')
-            if isinstance(tmp, list):
-                if len(tmp) != len(self.e_names):
-                    raise Exception('Length of S array does not match ensembles.')
-                for e, e_name in enumerate(self.e_names):
-                    if tmp[e] <= 0:
-                        raise Exception('S has to be larger than 0.')
-                    self.S[e_name] = tmp[e]
-            else:
-                if isinstance(tmp, (int, float)):
-                    if tmp <= 0:
-                        raise Exception('S has to be larger than 0.')
-                    for e, e_name in enumerate(self.e_names):
-                        self.S[e_name] = tmp
-                else:
-                    raise TypeError('S is not in proper format.')
-        else:
-            for e, e_name in enumerate(self.e_names):
-                if e_name in Obs.S_dict:
-                    self.S[e_name] = Obs.S_dict[e_name]
-                else:
-                    self.S[e_name] = Obs.S_global
-
-        if 'tau_exp' in kwargs:
-            tmp = kwargs.get('tau_exp')
-            if isinstance(tmp, list):
-                if len(tmp) != len(self.e_names):
-                    raise Exception('Length of tau_exp array does not match ensembles.')
-                for e, e_name in enumerate(self.e_names):
-                    if tmp[e] < 0:
-                        raise Exception('tau_exp smaller than 0.')
-                    self.tau_exp[e_name] = tmp[e]
-            else:
+        def _parse_kwarg(kwarg_name):
+            if kwarg_name in kwargs:
+                tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
                     if tmp < 0:
-                        raise Exception('tau_exp smaller than 0.')
+                        raise Exception(kwarg_name + ' has to be larger or equal to 0.')
                     for e, e_name in enumerate(self.e_names):
-                        self.tau_exp[e_name] = tmp
+                        getattr(self, kwarg_name)[e_name] = tmp
                 else:
-                    raise TypeError('tau_exp is not in proper format.')
-        else:
-            for e, e_name in enumerate(self.e_names):
-                if e_name in Obs.tau_exp_dict:
-                    self.tau_exp[e_name] = Obs.tau_exp_dict[e_name]
-                else:
-                    self.tau_exp[e_name] = Obs.tau_exp_global
+                    raise TypeError(kwarg_name + ' is not in proper format.')
+            else:
+                for e, e_name in enumerate(self.e_names):
+                    if e_name in getattr(Obs, kwarg_name + '_dict'):
+                        getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_dict')[e_name]
+                    else:
+                        getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_global')
 
-        if 'N_sigma' in kwargs:
-            self.N_sigma = kwargs.get('N_sigma')
-            if not isinstance(self.N_sigma, (int, float)):
-                raise TypeError('N_sigma is not a number.')
-        else:
-            self.N_sigma = Obs.N_sigma_global
+        _parse_kwarg('S')
+        _parse_kwarg('tau_exp')
+        _parse_kwarg('N_sigma')
 
         for e, e_name in enumerate(self.e_names):
 
             r_length = []
             for r_name in e_content[e_name]:
-                if self.idl[r_name] is range:
+                if isinstance(self.idl[r_name], range):
                     r_length.append(len(self.idl[r_name]))
                 else:
                     r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
@@ -260,11 +234,11 @@ class Obs:
             self.e_drho[e_name] = np.zeros(w_max)
 
             for r_name in e_content[e_name]:
-                e_gamma[e_name] += self.calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
+                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
-                gamma_div += self.calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
             e_gamma[e_name] /= gamma_div[:w_max]
 
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
@@ -293,9 +267,11 @@ class Obs:
                 # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
                 #    texp /= self.idl[e_name].step
                 # Critical slowing down analysis
+                if w_max // 2 <= 1:
+                    raise Exception("Need at least 8 samples for tau_exp error analysis")
                 for n in range(1, w_max // 2):
                     _compute_drho(n + 1)
-                    if (self.e_rho[e_name][n] - self.N_sigma * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
+                    if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
                         self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
                         self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
@@ -329,39 +305,26 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
         return
 
-    def expand_deltas(self, deltas, idx, shape):
-        """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-           If idx is of type range, the deltas are not changed
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        """
-        if type(idx) is range:
-            return deltas
-        else:
-            ret = np.zeros(idx[-1] - idx[0] + 1)
-            for i in range(shape):
-                ret[idx[i] - idx[0]] = deltas[i]
-            return ret
-
-    def calc_gamma(self, deltas, idx, shape, w_max, fft):
+    def _calc_gamma(self, deltas, idx, shape, w_max, fft):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
 
         Parameters
         ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-        shape   -- Number of configs in idx.
-        w_max   -- Upper bound for the summation window
-        fft     -- boolean, which determines whether the fft algorithm is used for
-                   the computation of the autocorrelation function
+        deltas : list
+            List of fluctuations
+        idx : list
+            List or range of configurations on which the deltas are defined.
+        shape : int
+            Number of configurations in idx.
+        w_max : int
+            Upper bound for the summation window.
+        fft : bool
+            determines whether the fft algorithm is used for the computation
+            of the autocorrelation function.
         """
         gamma = np.zeros(w_max)
-        deltas = self.expand_deltas(deltas, idx, shape)
+        deltas = _expand_deltas(deltas, idx, shape)
         new_shape = len(deltas)
         if fft:
             max_gamma = min(new_shape, w_max)
@@ -375,12 +338,16 @@ class Obs:
 
         return gamma
 
-    def print(self, level=1):
-        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level > 1)
-
     def details(self, ens_content=True):
-        """Output detailed properties of the Obs."""
+        """Output detailed properties of the Obs.
+
+        Parameters
+        ----------
+        ens_content : bool
+            print details about the ensembles and replica if true.
+        """
+        if self.tag is not None:
+            print("Description:", self.tag)
         if self.value == 0.0:
             percentage = np.nan
         else:
@@ -393,21 +360,49 @@ class Obs:
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
                 if self.tau_exp[e_name] > 0:
-                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma))
+                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
                 else:
                     print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
-        if self.tag is not None:
-            print("Description:", self.tag)
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
             else:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
-            m = max(map(len, list(self.e_content.keys()))) + 1
-            print('\n'.join(['  ' + key.rjust(m) + ': ' + str(value) for key, value in sorted(self.e_content.items())]))
+            my_string_list = []
+            for key, value in sorted(self.e_content.items()):
+                my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
+                if len(value) == 1:
+                    my_string += f': {self.shape[value[0]]} configurations'
+                    if isinstance(self.idl[value[0]], range):
+                        my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
+                    else:
+                        my_string += ' (irregular range)'
+                else:
+                    sublist = []
+                    for v in value:
+                        my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
+                        my_substring += f': {self.shape[v]} configurations'
+                        if isinstance(self.idl[v], range):
+                            my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                        else:
+                            my_substring += ' (irregular range)'
+                        sublist.append(my_substring)
+
+                    my_string += '\n' + '\n'.join(sublist)
+                my_string_list.append(my_string)
+            print('\n'.join(my_string_list))
+
+    def print(self, level=1):
+        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
+        self.details(level > 1)
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
+
+        Parameters
+        ----------
+        sigma : int
+            Number of standard errors used for the check.
 
         Works only properly when the gamma method was run.
         """
@@ -418,7 +413,13 @@ class Obs:
         return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
 
     def plot_tauint(self, save=None):
-        """Plot integrated autocorrelation time for each ensemble."""
+        """Plot integrated autocorrelation time for each ensemble.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
@@ -495,7 +496,13 @@ class Obs:
             plt.draw()
 
     def plot_history(self, expand=True):
-        """Plot derived Monte Carlo history for each ensemble."""
+        """Plot derived Monte Carlo history for each ensemble
+
+        Parameters
+        ----------
+        expand : bool
+            show expanded history for irregular Monte Carlo chains (default: True).
+        """
         if not hasattr(self, 'e_names'):
             raise Exception('Run the gamma method first.')
 
@@ -505,7 +512,7 @@ class Obs:
             tmp = []
             for r, r_name in enumerate(self.e_content[e_name]):
                 if expand:
-                    tmp.append(self.expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
+                    tmp.append(_expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
                 else:
                     tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 r_length.append(len(tmp[-1]))
@@ -538,6 +545,8 @@ class Obs:
 
         Parameters
         ----------
+        name : str
+            name of the file to be saved.
         path : str
             specifies a custom path for the file (default '.')
         """
@@ -547,6 +556,34 @@ class Obs:
             file_name = name + '.p'
         with open(file_name, 'wb') as fb:
             pickle.dump(self, fb)
+
+    def export_jackknife(self):
+        """Export jackknife samples from the Obs
+
+        Returns
+        -------
+        numpy.ndarray
+            Returns a numpy array of length N + 1 where N is the number of samples
+            for the given ensemble and replicum. The zeroth entry of the array contains
+            the mean value of the Obs, entries 1 to N contain the N jackknife samples
+            derived from the Obs. The current implementation only works for observables
+            defined on exactly one ensemble and replicum. The derived jackknife samples
+            should agree with samples from a full jackknife analysis up to O(1/N).
+        """
+
+        if len(self.names) != 1:
+            raise Exception("'export_jackknife' is only implemented for Obs defined on one ensemble and replicum.")
+
+        name = self.names[0]
+        full_data = self.deltas[name] + self.r_values[name]
+        n = full_data.size
+        mean = np.mean(full_data)
+        tmp_jacks = np.zeros(n + 1)
+        tmp_jacks[0] = self.value
+        for i in range(n):
+            tmp_jacks[i + 1] = (n * mean - full_data[i]) / (n - 1)
+
+        return tmp_jacks
 
     def __float__(self):
         return float(self.value)
@@ -829,6 +866,28 @@ class CObs:
         return 'CObs[' + str(self) + ']'
 
 
+def _expand_deltas(deltas, idx, shape):
+    """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
+       If idx is of type range, the deltas are not changed
+
+    Parameters
+    ----------
+    deltas : list
+        List of fluctuations
+    idx : list
+        List or range of configs on which the deltas are defined.
+    shape : int
+        Number of configs in idx.
+    """
+    if isinstance(idx, range):
+        return deltas
+    else:
+        ret = np.zeros(idx[-1] - idx[0] + 1)
+        for i in range(shape):
+            ret[idx[i] - idx[0]] = deltas[i]
+        return ret
+
+
 def _merge_idx(idl):
     """Returns the union of all lists in idl
 
@@ -1078,7 +1137,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
         Has to be a subset of idx_old.
     """
     if not len(deltas) == len(idx_old):
-        raise Exception('Lenght of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
+        raise Exception('Length of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas
@@ -1192,6 +1251,10 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
     Parameters
     ----------
+    obs1 : Obs
+        First Obs
+    obs2 : Obs
+        Second Obs
     correlation : bool
         if true the correlation instead of the covariance is
         returned (default False)
@@ -1307,7 +1370,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
             if r_name not in obs2.e_content[e_name]:
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
-            if idl_d[r_name] is range:
+            if isinstance(idl_d[r_name], range):
                 r_length.append(len(idl_d[r_name]))
             else:
                 r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
@@ -1425,7 +1488,16 @@ def covariance3(obs1, obs2, correlation=False, **kwargs):
 def pseudo_Obs(value, dvalue, name, samples=1000):
     """Generate a pseudo Obs with given value, dvalue and name
 
-    The standard number of samples is a 1000. This can be adjusted.
+    Parameters
+    ----------
+    value : float
+        central value of the Obs to be generated.
+    dvalue : float
+        error of the Obs to be generated.
+    name : str
+        name of the ensemble for which the Obs is to be generated.
+    samples: int
+        number of samples for the Obs (default 1000).
     """
     if dvalue <= 0.0:
         return Obs([np.zeros(samples) + value], [name])
@@ -1466,7 +1538,13 @@ def dump_object(obj, name, **kwargs):
 
 
 def load_object(path):
-    """Load object from pickle file. """
+    """Load object from pickle file.
+
+    Parameters
+    ----------
+    path : str
+        path to the file
+    """
     with open(path, 'rb') as file:
         return pickle.load(file)
 

@@ -86,7 +86,7 @@ def derived_array(func, data, **kwargs):
     for name in new_names:
         d_extracted[name] = []
         for i_dat, dat in enumerate(data):
-            ens_length = new_idl_d[name][-1] - new_idl_d[name][0] + 1
+            ens_length = len(new_idl_d[name])
             d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
@@ -175,7 +175,7 @@ def inv(x):
 
 
 def cholesky(x):
-    """Cholesky decompostion of Obs or CObs valued matrices."""
+    """Cholesky decomposition of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 

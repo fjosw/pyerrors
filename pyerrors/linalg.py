@@ -175,7 +175,7 @@ def inv(x):
 
 
 def cholesky(x):
-    """Cholesky decompostion of Obs or CObs valued matrices."""
+    """Cholesky decomposition of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 

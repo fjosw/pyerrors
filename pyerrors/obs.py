@@ -59,7 +59,7 @@ class Obs:
         samples : list
             list of numpy arrays containing the Monte Carlo samples
         names : list
-            list of strings labeling the indivdual samples
+            list of strings labeling the individual samples
         idl : list, optional
             list of ranges or lists on which the samples are defined
         means : list, optional
@@ -314,9 +314,9 @@ class Obs:
         deltas : list
             List of fluctuations
         idx : list
-            List or range of configs on which the deltas are defined.
+            List or range of configurations on which the deltas are defined.
         shape : int
-            Number of configs in idx.
+            Number of configurations in idx.
         w_max : int
             Upper bound for the summation window.
         fft : bool
@@ -1109,7 +1109,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
         Has to be a subset of idx_old.
     """
     if not len(deltas) == len(idx_old):
-        raise Exception('Lenght of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
+        raise Exception('Length of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas

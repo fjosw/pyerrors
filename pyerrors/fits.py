@@ -21,7 +21,7 @@ class Fit_result(Sequence):
     ----------
     fit_parameters : list
         results for the individual fit parameters,
-        also accesible via indices.
+        also accessible via indices.
     """
 
     def __init__(self):
@@ -427,7 +427,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         raise Exception('x and y input have to have the same length')
 
     if len(x.shape) > 2:
-        raise Exception('Unkown format for x values')
+        raise Exception('Unknown format for x values')
 
     if not callable(func):
         raise TypeError('func has to be a function.')

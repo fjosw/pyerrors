@@ -132,7 +132,9 @@ def test_total_least_squares():
     assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
     
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
-    assert((out.fit_parameters[0] - beta[0]).is_zero())
+
+    diff = out.fit_parameters[0] - beta[0]
+    assert(diff / beta[0] < 1e-3 * beta[0].dvalue)
     assert((out.fit_parameters[1] - beta[1]).is_zero())
     pe.Obs.e_tag_global = 0
 

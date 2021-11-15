@@ -67,6 +67,10 @@ Example:
 ```python
 my_sum.gamma_method()
 my_sum.details()
+> Result	 1.70000000e+00 +/- 3.89934513e+00 +/- 5.84901770e-01 (229.373%)
+>  t_int	 3.72133617e+00 +/- 9.81032454e-01 S = 2.00
+> 1000 samples in 1 ensemble:
+>   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 ```
 
 The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
@@ -75,6 +79,11 @@ Example:
 ```python
 my_sum.gamma_method(S=3.0)
 my_sum.details()
+> Result	 1.70000000e+00 +/- 3.77151850e+00 +/- 6.47779576e-01 (221.854%)
+>  t_int	 3.48135280e+00 +/- 1.06547679e+00 S = 3.00
+> 1000 samples in 1 ensemble:
+>   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
+
 ```
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´pyerrors.obs.Obs.plot_tauint` and ´pyerrors.obs.Obs.plot_tauint`.
@@ -91,8 +100,12 @@ Slow modes in the Monte Carlo history can be accounted for by attaching and expo
 
 Example:
 ```python
-my_sum.gamma_method(tau_exp=4.2)
+my_sum.gamma_method(tau_exp=7.2)
 my_sum.details()
+> Result	 1.70000000e+00 +/- 3.77806247e+00 +/- 3.48320149e-01 (222.239%)
+>  t_int	 3.49344429e+00 +/- 7.62747210e-01 tau_exp = 7.20,  N_sigma = 1
+> 1000 samples in 1 ensemble:
+>   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 ```
 
 For the full API see `pyerrors.obs.Obs.gamma_method`
@@ -140,6 +153,10 @@ pe.Obs.S_dict['ensemble1'] = 2.5
 pe.Obs.tau_exp_dict['ensemble2'] = 8.0
 pe.Obs.tau_exp_dict['ensemble3'] = 2.0
 ```
+
+In case the `gamma_method` is called without any parameters it will use the values specified in the dictionaries for the respective ensembles.
+Passing arguments to the `gamma_method` still dominates over the dictionaries.
+
 
 ## Irregular Monte Carlo chains
 

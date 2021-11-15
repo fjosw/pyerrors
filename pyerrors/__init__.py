@@ -5,7 +5,7 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 - **automatic differentiation** as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package)
 - **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)
 - coherent **error propagation** for data from **different Markov chains**
-- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289]
+- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
 - **real and complex matrix operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
 
 ## Getting started
@@ -23,7 +23,7 @@ print(my_new_obs)
 # The `Obs` class
 
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An `Obs` object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.
+An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
@@ -59,9 +59,9 @@ my_m_eff = np.log(my_obs1 / my_obs2)
 
 ## Error estimation
 
-The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
+The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 
-After having arrived at
+After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.
 
 Example:
 ```python
@@ -96,7 +96,7 @@ my_sum.plot_rho()
 
 ### Exponential tails
 
-Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.
+Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.
 
 Example:
 ```python
@@ -112,7 +112,7 @@ For the full API see `pyerrors.obs.Obs.gamma_method`
 
 ## Multiple ensembles/replica
 
-Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their `name`.
+Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their `name`.
 
 Example:
 ```python
@@ -145,7 +145,7 @@ obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
 ### Error estimation for multiple ensembles
 
-In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.
+In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.
 
 Example:
 ```python
@@ -160,7 +160,7 @@ Passing arguments to the `gamma_method` still dominates over the dictionaries.
 
 ## Irregular Monte Carlo chains
 
-Irregular Monte Carlo chains can be initilized with the parameter `idl`.
+Irregular Monte Carlo chains can be initialized with the parameter `idl`.
 
 Example:
 ```python
@@ -175,7 +175,7 @@ obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
 ```
 
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
-Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
+Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
 
 For the full API see `pyerrors.obs.Obs`
 

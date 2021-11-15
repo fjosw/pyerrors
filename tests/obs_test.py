@@ -519,3 +519,6 @@ def test_jackknife():
         tmp_jacks[i + 1] = (n * mean - full_data[i]) / (n - 1)
 
     assert np.allclose(tmp_jacks, my_obs.export_jackknife())
+    my_new_obs = my_obs + pe.Obs([full_data], ['test2'])
+    with pytest.raises(Exception):
+        my_new_obs.export_jackknife()

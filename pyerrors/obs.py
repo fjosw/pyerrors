@@ -567,7 +567,8 @@ class Obs:
             for the given ensemble and replicum. The zeroth entry of the array contains
             the mean value of the Obs, entries 1 to N contain the N jackknife samples
             derived from the Obs. The current implementation only works for observables
-            defined on exactly one ensemble and replicum.
+            defined on exactly one ensemble and replicum. The derived jackknife samples
+            should agree with samples from a full jackknife analysis up to O(1/N).
         """
 
         if len(self.names) != 1:

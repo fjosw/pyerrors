@@ -204,8 +204,6 @@
 <span class="sd">        priors has to be a list with an entry for every parameter in the fit. The entries can either be</span>
 <span class="sd">        Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like</span>
 <span class="sd">        0.548(23), 500(40) or 0.5(0.4)</span>
-<span class="sd">        It is important for the subsequent error estimation that the e_tag for the gamma method is large</span>
-<span class="sd">        enough.</span>
 <span class="sd">    silent : bool, optional</span>
 <span class="sd">        If true all output to the console is omitted (default False).</span>
 <span class="sd">    initial_guess : list</span>
@@ -438,9 +436,6 @@
     <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
 
     <span class="n">output</span><span class="o">.</span><span class="n">fit_function</span> <span class="o">=</span> <span class="n">func</span>
-
-    <span class="k">if</span> <span class="n">Obs</span><span class="o">.</span><span class="n">e_tag_global</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
 
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
@@ -1172,8 +1167,6 @@ also accessible via indices.</li>
 <span class="sd">        priors has to be a list with an entry for every parameter in the fit. The entries can either be</span>
 <span class="sd">        Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like</span>
 <span class="sd">        0.548(23), 500(40) or 0.5(0.4)</span>
-<span class="sd">        It is important for the subsequent error estimation that the e_tag for the gamma method is large</span>
-<span class="sd">        enough.</span>
 <span class="sd">    silent : bool, optional</span>
 <span class="sd">        If true all output to the console is omitted (default False).</span>
 <span class="sd">    initial_guess : list</span>
@@ -1236,9 +1229,7 @@ will not work</p></li>
 <li><strong>priors</strong> (list, optional):
 priors has to be a list with an entry for every parameter in the fit. The entries can either be
 Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
-0.548(23), 500(40) or 0.5(0.4)
-It is important for the subsequent error estimation that the e_tag for the gamma method is large
-enough.</li>
+0.548(23), 500(40) or 0.5(0.4)</li>
 <li><strong>silent</strong> (bool, optional):
 If true all output to the console is omitted (default False).</li>
 <li><strong>initial_guess</strong> (list):

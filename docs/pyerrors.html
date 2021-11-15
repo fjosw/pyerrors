@@ -173,6 +173,10 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.89934513e+00</span> <span class="o">+/-</span> <span class="mf">5.84901770e-01</span> <span class="p">(</span><span class="mf">229.373</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.72133617e+00</span> <span class="o">+/-</span> <span class="mf">9.81032454e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">2.00</span>
+<span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
 
 <p>The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the <code>gamma_method</code> as parameter.</p>
@@ -181,6 +185,10 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.77151850e+00</span> <span class="o">+/-</span> <span class="mf">6.47779576e-01</span> <span class="p">(</span><span class="mf">221.854</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.48135280e+00</span> <span class="o">+/-</span> <span class="mf">1.06547679e+00</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">3.00</span>
+<span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´<a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a><code>and ´<a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
@@ -197,8 +205,12 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <p>Example:</p>
 
-<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">4.2</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">7.2</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.77806247e+00</span> <span class="o">+/-</span> <span class="mf">3.48320149e-01</span> <span class="p">(</span><span class="mf">222.239</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.49344429e+00</span> <span class="o">+/-</span> <span class="mf">7.62747210e-01</span> <span class="n">tau_exp</span> <span class="o">=</span> <span class="mf">7.20</span><span class="p">,</span>  <span class="n">N_sigma</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
 
 <p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
@@ -246,6 +258,9 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">8.0</span>
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
 </code></pre></div>
+
+<p>In case the <code>gamma_method</code> is called without any parameters it will use the values specified in the dictionaries for the respective ensembles.
+Passing arguments to the <code>gamma_method</code> still dominates over the dictionaries.</p>
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
 
@@ -361,6 +376,10 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method()</span>
 <span class="sd">my_sum.details()</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.89934513e+00 +/- 5.84901770e-01 (229.373%)</span>
+<span class="sd">&gt;  t_int	 3.72133617e+00 +/- 9.81032454e-01 S = 2.00</span>
+<span class="sd">&gt; 1000 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">```</span>
 
 <span class="sd">The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.</span>
@@ -369,6 +388,11 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method(S=3.0)</span>
 <span class="sd">my_sum.details()</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.77151850e+00 +/- 6.47779576e-01 (221.854%)</span>
+<span class="sd">&gt;  t_int	 3.48135280e+00 +/- 1.06547679e+00 S = 3.00</span>
+<span class="sd">&gt; 1000 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
+
 <span class="sd">```</span>
 
 <span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´pyerrors.obs.Obs.plot_tauint` and ´pyerrors.obs.Obs.plot_tauint`.</span>
@@ -385,8 +409,12 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
-<span class="sd">my_sum.gamma_method(tau_exp=4.2)</span>
+<span class="sd">my_sum.gamma_method(tau_exp=7.2)</span>
 <span class="sd">my_sum.details()</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.77806247e+00 +/- 3.48320149e-01 (222.239%)</span>
+<span class="sd">&gt;  t_int	 3.49344429e+00 +/- 7.62747210e-01 tau_exp = 7.20,  N_sigma = 1</span>
+<span class="sd">&gt; 1000 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">```</span>
 
 <span class="sd">For the full API see `pyerrors.obs.Obs.gamma_method`</span>
@@ -434,6 +462,10 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">pe.Obs.tau_exp_dict[&#39;ensemble2&#39;] = 8.0</span>
 <span class="sd">pe.Obs.tau_exp_dict[&#39;ensemble3&#39;] = 2.0</span>
 <span class="sd">```</span>
+
+<span class="sd">In case the `gamma_method` is called without any parameters it will use the values specified in the dictionaries for the respective ensembles.</span>
+<span class="sd">Passing arguments to the `gamma_method` still dominates over the dictionaries.</span>
+
 
 <span class="sd">## Irregular Monte Carlo chains</span>
 

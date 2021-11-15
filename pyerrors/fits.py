@@ -109,12 +109,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
-    correlated_fit : int
+    correlated_fit : bool
         If true, use the full correlation matrix in the definition of the chisquare 
         (only works for prior==None and when no method is given, at the moment).
     const_par : list, optional
-        List of N Obs that are used to constrain the last N fit parameters of func and
-        to take into account the correlations.
+        List of N Obs that are used to constrain the last N fit parameters of func.
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -161,8 +160,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         This can take a while as the full correlation matrix
         has to be calculated (default False).
     const_par : list, optional
-        List of N Obs that are used to constrain the last N fit parameters of func and
-        to take into account the correlations.
+        List of N Obs that are used to constrain the last N fit parameters of func.
 
     Based on the orthogonal distance regression module of scipy
     '''

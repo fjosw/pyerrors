@@ -584,18 +584,16 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
 
     if kwargs.get('expected_chisquare') is True:
-        if kwargs.get('correlated_fit') is True:
-            output.chisquare_by_expected_chisquare = output.chisquare_by_dof
-        else:
+        if kwargs.get('correlated_fit') is not True:
             W = np.diag(1 / np.asarray(dy_f))
             cov = covariance_matrix(y)
             A = W @ jacobian(func)(fit_result.x, x)
             P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
-        if not silent:
-            print('chisquare/expected_chisquare:',
-                  output.chisquare_by_expected_chisquare)
+            if not silent:
+                print('chisquare/expected_chisquare:',
+                      output.chisquare_by_expected_chisquare)
 
     fitp = np.concatenate((fit_result.x, [o.value for o in const_par]))
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc_aug))(fitp))

@@ -44,8 +44,8 @@ def test_least_squares():
     assert math.isclose(chi2_pyerrors, chi2_scipy, abs_tol=1e-10)
 
     out = pe.least_squares(x, oy, func, const_par=[beta[1]])
-    assert((out.fit_parameters[0] - beta[0]).is_zero)
-    assert((out.fit_parameters[1] - beta[1]).is_zero)
+    assert((out.fit_parameters[0] - beta[0]).is_zero())
+    assert((out.fit_parameters[1] - beta[1]).is_zero())
 
     num_samples = 400
     N = 10
@@ -88,7 +88,9 @@ def test_least_squares():
         
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
         for i in range(2):
-            assert((fitp[i] - fitpc[i]).is_zero_within_error)
+            diff = fitp[i] - fitpc[i]
+            diff.gamma_method()
+            assert(diff.is_zero_within_error(sigma=1.5))
 
 
 def test_total_least_squares():
@@ -130,8 +132,8 @@ def test_total_least_squares():
     assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
     
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
-    assert((out.fit_parameters[0] - beta[0]).is_zero)
-    assert((out.fit_parameters[1] - beta[1]).is_zero)
+    assert((out.fit_parameters[0] - beta[0]).is_zero())
+    assert((out.fit_parameters[1] - beta[1]).is_zero())
     pe.Obs.e_tag_global = 0
 
 

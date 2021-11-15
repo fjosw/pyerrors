@@ -884,7 +884,8 @@
 <span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
 <span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
 <span class="sd">            derived from the Obs. The current implementation only works for observables</span>
-<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">            defined on exactly one ensemble and replicum. The derived jackknife samples</span>
+<span class="sd">            should agree with samples from a full jackknife analysis up to O(1/N).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -2465,7 +2466,8 @@
 <span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
 <span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
 <span class="sd">            derived from the Obs. The current implementation only works for observables</span>
-<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">            defined on exactly one ensemble and replicum. The derived jackknife samples</span>
+<span class="sd">            should agree with samples from a full jackknife analysis up to O(1/N).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -3634,7 +3636,8 @@ specifies a custom path for the file (default '.')</li>
 <span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
 <span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
 <span class="sd">            derived from the Obs. The current implementation only works for observables</span>
-<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">            defined on exactly one ensemble and replicum. The derived jackknife samples</span>
+<span class="sd">            should agree with samples from a full jackknife analysis up to O(1/N).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -3663,7 +3666,8 @@ specifies a custom path for the file (default '.')</li>
 for the given ensemble and replicum. The zeroth entry of the array contains
 the mean value of the Obs, entries 1 to N contain the N jackknife samples
 derived from the Obs. The current implementation only works for observables
-defined on exactly one ensemble and replicum.</li>
+defined on exactly one ensemble and replicum. The derived jackknife samples
+should agree with samples from a full jackknife analysis up to O(1/N).</li>
 </ul>
 </div>
 

@@ -115,7 +115,7 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <li><strong>treatment of slow modes</strong> in the simulation as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a></li>
 <li>coherent <strong>error propagation</strong> for data from <strong>different Markov chains</strong></li>
 <li><strong>non-linear fits with x- and y-errors</strong> and exact linear error propagation based on automatic differentiation as introduced in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a></li>
-<li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
+<li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
 </ul>
 
 <h2 id="getting-started">Getting started</h2>
@@ -174,16 +174,17 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <h2 id="error-estimation">Error estimation</h2>
 
-<p>The error estimation within <code><a href="">pyerrors</a></code> is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
-
-<p>After having arrived at the derived quantity of interest the <code>gamma_method</code> can be called as detailed in the following example.</p>
+<p>The error estimation within <code><a href="">pyerrors</a></code> is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
+After having arrived at the derived quantity of interest the <code>gamma_method</code> can be called as detailed in the following example.</p>
 
 <p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_sum</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mf">1.70</span><span class="p">(</span><span class="mi">57</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.89934513e+00</span> <span class="o">+/-</span> <span class="mf">5.84901770e-01</span> <span class="p">(</span><span class="mf">229.373</span><span class="o">%</span><span class="p">)</span>
-<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.72133617e+00</span> <span class="o">+/-</span> <span class="mf">9.81032454e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">2.00</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">5.72046658e-01</span> <span class="o">+/-</span> <span class="mf">7.56746598e-02</span> <span class="p">(</span><span class="mf">33.650</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">2.71422900e+00</span> <span class="o">+/-</span> <span class="mf">6.40320983e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">2.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
@@ -194,8 +195,8 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.77151850e+00</span> <span class="o">+/-</span> <span class="mf">6.47779576e-01</span> <span class="p">(</span><span class="mf">221.854</span><span class="o">%</span><span class="p">)</span>
-<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.48135280e+00</span> <span class="o">+/-</span> <span class="mf">1.06547679e+00</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">3.00</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.30675201e-01</span> <span class="o">+/-</span> <span class="mf">1.04585650e-01</span> <span class="p">(</span><span class="mf">37.099</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.29909703e+00</span> <span class="o">+/-</span> <span class="mf">9.77310102e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">3.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
@@ -216,8 +217,8 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">7.2</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">3.77806247e+00</span> <span class="o">+/-</span> <span class="mf">3.48320149e-01</span> <span class="p">(</span><span class="mf">222.239</span><span class="o">%</span><span class="p">)</span>
-<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.49344429e+00</span> <span class="o">+/-</span> <span class="mf">7.62747210e-01</span> <span class="n">tau_exp</span> <span class="o">=</span> <span class="mf">7.20</span><span class="p">,</span>  <span class="n">N_sigma</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.28097762e-01</span> <span class="o">+/-</span> <span class="mf">5.79077524e-02</span> <span class="p">(</span><span class="mf">36.947</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.27218667e+00</span> <span class="o">+/-</span> <span class="mf">7.99583654e-01</span> <span class="n">tau_exp</span> <span class="o">=</span> <span class="mf">7.20</span><span class="p">,</span>  <span class="n">N_sigma</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
@@ -353,7 +354,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)</span>
 <span class="sd">- coherent **error propagation** for data from **different Markov chains**</span>
 <span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
-<span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
+<span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
 
 <span class="sd">## Getting started</span>
 
@@ -413,17 +414,19 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">## Error estimation</span>
 
 <span class="sd">The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
-
 <span class="sd">After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method()</span>
+<span class="sd">print(my_sum)</span>
+<span class="sd">&gt; 1.70(57)</span>
 <span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.89934513e+00 +/- 5.84901770e-01 (229.373%)</span>
-<span class="sd">&gt;  t_int	 3.72133617e+00 +/- 9.81032454e-01 S = 2.00</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 5.72046658e-01 +/- 7.56746598e-02 (33.650%)</span>
+<span class="sd">&gt;  t_int	 2.71422900e+00 +/- 6.40320983e-01 S = 2.00</span>
 <span class="sd">&gt; 1000 samples in 1 ensemble:</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
+
 <span class="sd">```</span>
 
 <span class="sd">The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.</span>
@@ -432,8 +435,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method(S=3.0)</span>
 <span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.77151850e+00 +/- 6.47779576e-01 (221.854%)</span>
-<span class="sd">&gt;  t_int	 3.48135280e+00 +/- 1.06547679e+00 S = 3.00</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 6.30675201e-01 +/- 1.04585650e-01 (37.099%)</span>
+<span class="sd">&gt;  t_int	 3.29909703e+00 +/- 9.77310102e-01 S = 3.00</span>
 <span class="sd">&gt; 1000 samples in 1 ensemble:</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
 
@@ -455,8 +458,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method(tau_exp=7.2)</span>
 <span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result	 1.70000000e+00 +/- 3.77806247e+00 +/- 3.48320149e-01 (222.239%)</span>
-<span class="sd">&gt;  t_int	 3.49344429e+00 +/- 7.62747210e-01 tau_exp = 7.20,  N_sigma = 1</span>
+<span class="sd">&gt; Result	 1.70000000e+00 +/- 6.28097762e-01 +/- 5.79077524e-02 (36.947%)</span>
+<span class="sd">&gt;  t_int	 3.27218667e+00 +/- 7.99583654e-01 tau_exp = 7.20,  N_sigma = 1</span>
 <span class="sd">&gt; 1000 samples in 1 ensemble:</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">```</span>

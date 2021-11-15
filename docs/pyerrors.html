@@ -179,10 +179,10 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">2.00596631e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">2</span> <span class="n">ensembles</span><span class="p">:</span>
-<span class="o">&gt;</span>    <span class="n">ensemble1</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">]</span>
-<span class="o">&gt;</span>    <span class="n">ensemble2</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">]</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
 </code></pre></div>
 
 <p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the dataset.</p>
@@ -192,11 +192,13 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
 
-<span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
-<span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">2.00596631e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
+<span class="o">&gt;</span> <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>    <span class="n">ensemble1</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">,</span> <span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">]</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span>
+<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r02&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
@@ -322,11 +324,10 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">my_sum = obs1 + obs2</span>
 <span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
+<span class="sd">&gt; Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
 <span class="sd">&gt; 1500 samples in 2 ensembles:</span>
-<span class="sd">&gt;    ensemble1: [&#39;ensemble1&#39;]</span>
-<span class="sd">&gt;    ensemble2: [&#39;ensemble2&#39;]</span>
-
+<span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 1000 configurations (from 1 to 1000)</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble2&#39; : 500 configurations (from 1 to 500)</span>
 <span class="sd">```</span>
 
 <span class="sd">`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.</span>
@@ -336,11 +337,13 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1|r01&#39;])</span>
 <span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1|r02&#39;])</span>
 
-<span class="sd">my_sum = obs1 + obs2</span>
-<span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
+<span class="sd">&gt; my_sum = obs1 + obs2</span>
+<span class="sd">&gt; my_sum.details()</span>
+<span class="sd">&gt; Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
 <span class="sd">&gt; 1500 samples in 1 ensemble:</span>
-<span class="sd">&gt;    ensemble1: [&#39;ensemble1|r01&#39;, &#39;ensemble1|r02&#39;]</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble1&#39;</span>
+<span class="sd">&gt;     · Replicum &#39;r01&#39; : 1000 configurations (from 1 to 1000)</span>
+<span class="sd">&gt;     · Replicum &#39;r02&#39; : 500 configurations (from 1 to 500)</span>
 <span class="sd">```</span>
 <span class="sd">## Irregular Monte Carlo chains</span>
 

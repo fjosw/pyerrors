@@ -504,3 +504,18 @@ def test_covariance2_symmetry():
     cov_ba = pe.covariance2(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+
+
+def test_jackknife():
+    full_data = np.random.normal(1.1, 0.87, 5487)
+
+    my_obs = pe.Obs([full_data], ['test'])
+
+    n = full_data.size
+    mean = np.mean(full_data)
+    tmp_jacks = np.zeros(n + 1)
+    tmp_jacks[0] = mean
+    for i in range(n):
+        tmp_jacks[i + 1] = (n * mean - full_data[i]) / (n - 1)
+
+    assert np.allclose(tmp_jacks, my_obs.export_jackknife())

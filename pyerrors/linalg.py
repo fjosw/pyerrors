@@ -1,25 +1,27 @@
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs
+from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes
 
 from functools import partial
 from autograd.extend import defvjp
 
 
 def derived_array(func, data, **kwargs):
-    """Construct a derived Obs according to func(data, **kwargs) of matrix value data
-    using automatic differentiation.
+    """Construct a derived Obs for a matrix valued function according to func(data, **kwargs) using automatic differentiation.
 
     Parameters
     ----------
-    func -- arbitrary function of the form func(data, **kwargs). For the
-            automatic differentiation to work, all numpy functions have to have
-            the autograd wrapper (use 'import autograd.numpy as anp').
-    data -- list of Obs, e.g. [obs1, obs2, obs3].
-    man_grad -- manually supply a list or an array which contains the jacobian
-                of func. Use cautiously, supplying the wrong derivative will
-                not be intercepted.
+    func : object
+        arbitrary function of the form func(data, **kwargs). For the
+        automatic differentiation to work, all numpy functions have to have
+        the autograd wrapper (use 'import autograd.numpy as anp').
+    data : list
+        list of Obs, e.g. [obs1, obs2, obs3].
+    man_grad : list
+        manually supply a list or an array which contains the jacobian
+        of func. Use cautiously, supplying the wrong derivative will
+        not be intercepted.
     """
 
     data = np.asarray(data)
@@ -30,25 +32,29 @@ def derived_array(func, data, **kwargs):
         if isinstance(i_data, Obs):
             first_name = i_data.names[0]
             first_shape = i_data.shape[first_name]
+            first_idl = i_data.idl[first_name]
             break
 
     for i in range(len(raveled_data)):
         if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name])
+            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
 
-    new_shape = {}
-    for i_data in raveled_data:
-        for name in new_names:
-            tmp = i_data.shape.get(name)
+    is_merged = len(list(filter(lambda o: o.is_merged is True, raveled_data))) > 0
+    reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
+    new_idl_d = {}
+    for name in new_names:
+        idl = []
+        for i_data in raveled_data:
+            tmp = i_data.idl.get(name)
             if tmp is not None:
-                if new_shape.get(name) is None:
-                    new_shape[name] = tmp
-                else:
-                    if new_shape[name] != tmp:
-                        raise Exception('Shapes of ensemble', name, 'do not match.')
+                idl.append(tmp)
+        new_idl_d[name] = _merge_idx(idl)
+        if not is_merged:
+            is_merged = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
+
     if data.ndim == 1:
         values = np.array([o.value for o in data])
     else:
@@ -71,8 +77,6 @@ def derived_array(func, data, **kwargs):
         deriv = np.asarray(kwargs.get('man_grad'))
         if new_values.shape + data.shape != deriv.shape:
             raise Exception('Manual derivative does not have correct shape.')
-    elif kwargs.get('num_grad') is True:
-        raise Exception('Multi mode currently not supported for numerical derivative')
     else:
         deriv = jacobian(func)(values, **kwargs)
 
@@ -82,8 +86,8 @@ def derived_array(func, data, **kwargs):
     for name in new_names:
         d_extracted[name] = []
         for i_dat, dat in enumerate(data):
-            ens_length = dat.ravel()[0].shape[name]
-            d_extracted[name].append(np.array([o.deltas[name] for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+            ens_length = len(new_idl_d[name])
+            d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
@@ -95,12 +99,21 @@ def derived_array(func, data, **kwargs):
 
         new_samples = []
         new_means = []
-        for name in new_names:
-            new_samples.append(new_deltas[name])
+        new_idl = []
+        if is_merged:
+            filtered_names, filtered_deltas, filtered_idl_d = _filter_zeroes(new_names, new_deltas, new_idl_d)
+        else:
+            filtered_names = new_names
+            filtered_deltas = new_deltas
+            filtered_idl_d = new_idl_d
+        for name in filtered_names:
+            new_samples.append(filtered_deltas[name])
             new_means.append(new_r_values[name][i_val])
-
-        final_result[i_val] = Obs(new_samples, new_names, means=new_means)
+            new_idl.append(filtered_idl_d[name])
+        final_result[i_val] = Obs(new_samples, filtered_names, means=new_means, idl=new_idl)
         final_result[i_val]._value = new_val
+        final_result[i_val].is_merged = is_merged
+        final_result[i_val].reweighted = reweighted
 
     return final_result
 
@@ -162,7 +175,7 @@ def inv(x):
 
 
 def cholesky(x):
-    """Cholesky decompostion of Obs or CObs valued matrices."""
+    """Cholesky decomposition of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 

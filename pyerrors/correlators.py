@@ -14,7 +14,7 @@ class Corr:
 
     Everything, this class does, can be achieved using lists or arrays of Obs.
     But it is simply more convenient to have a dedicated object for correlators.
-    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient
+    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
     to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
@@ -79,16 +79,16 @@ class Corr:
         else:
             raise Exception("Reweighting status of correlator corrupted.")
 
-    def gamma_method(self):
+    def gamma_method(self, **kwargs):
         """Apply the gamma method to the content of the Corr."""
         for item in self.content:
             if not(item is None):
                 if self.N == 1:
-                    item[0].gamma_method()
+                    item[0].gamma_method(**kwargs)
                 else:
                     for i in range(self.N):
                         for j in range(self.N):
-                            item[i, j].gamma_method()
+                            item[i, j].gamma_method(**kwargs)
 
     # We need to project the Correlator with a Vector to get a single value at each timeslice.
     # The method can use one or two vectors.
@@ -238,7 +238,15 @@ class Corr:
         return Corr(self.content[::-1])
 
     def correlate(self, partner):
-        """Correlate the correlator with another correlator or Obs"""
+        """Correlate the correlator with another correlator or Obs
+
+        Parameters
+        ----------
+        partner : Obs or Corr
+            partner to correlate the correlator with.
+            Can either be an Obs which is correlated with all entries of the
+            correlator or a Corr of same length.
+        """
         new_content = []
         for x0, t_slice in enumerate(self.content):
             if t_slice is None:
@@ -309,7 +317,7 @@ class Corr:
         Parameters
         ----------
         symmetric : bool
-            decides whether symmertic of simple finite differences are used. Default: True
+            decides whether symmetric of simple finite differences are used. Default: True
         """
         if not symmetric:
             newcontent = []
@@ -350,10 +358,11 @@ class Corr:
         Parameters
         ----------
         variant : str
-            log: uses the standard effective mass log(C(t) / C(t+1))
-            cosh : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+            log : uses the standard effective mass log(C(t) / C(t+1))
+            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
             sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
             See, e.g., arXiv:1205.5380
+            arccosh : Uses the explicit form of the symmetrized correlator (not recommended)
         guess : float
             guess for the root finder, only relevant for the root variant
         """
@@ -406,7 +415,7 @@ class Corr:
             return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
 
         else:
-            raise Exception('Unkown variant.')
+            raise Exception('Unknown variant.')
 
     def fit(self, function, fitrange=None, silent=False, **kwargs):
         """Fits function to the data
@@ -424,7 +433,7 @@ class Corr:
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 
-        # The default behaviour is:
+        # The default behavior is:
         # 1 use explicit fitrange
         # if none is provided, use the range of the corr
         # if this is also not set, use the whole length of the corr (This could come with a warning!)
@@ -442,7 +451,7 @@ class Corr:
         return result
 
     def plateau(self, plateau_range=None, method="fit"):
-        """ Extract a plateu value from a Corr object
+        """ Extract a plateau value from a Corr object
 
         Parameters
         ----------
@@ -573,7 +582,7 @@ class Corr:
         return
 
     def dump(self, filename):
-        """Dumps the Corr into a pickel file
+        """Dumps the Corr into a pickle file
 
         Parameters
         ----------

@@ -2,6 +2,8 @@ import autograd.numpy as np
 import math
 import scipy.optimize
 from scipy.odr import ODR, Model, RealData
+from scipy.linalg import cholesky
+from scipy.stats import norm
 import pyerrors as pe
 import pytest
 
@@ -41,6 +43,55 @@ def test_least_squares():
     chi2_scipy = np.sum(((f(x, *popt) - y) / yerr) ** 2) / (len(x) - 2)
     assert math.isclose(chi2_pyerrors, chi2_scipy, abs_tol=1e-10)
 
+    out = pe.least_squares(x, oy, func, const_par=[beta[1]])
+    assert((out.fit_parameters[0] - beta[0]).is_zero())
+    assert((out.fit_parameters[1] - beta[1]).is_zero())
+
+    num_samples = 400
+    N = 10
+
+    x = norm.rvs(size=(N, num_samples))
+
+    r = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            r[i, j] = np.exp(-0.1 * np.fabs(i - j))
+
+    errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2])
+    errl *= 4
+    for i in range(N):
+        for j in range(N):
+            r[i, j] *= errl[i] * errl[j]
+
+    c = cholesky(r, lower=True)
+    y = np.dot(c, x)
+
+    x = np.arange(N)
+    for linear in [True, False]:
+        data = []
+        for i in range(N):
+            if linear:
+                data.append(pe.Obs([[i + 1 + o for o in y[i]]], ['ens']))
+            else:
+                data.append(pe.Obs([[np.exp(-(i + 1)) + np.exp(-(i + 1)) * o for o in y[i]]], ['ens']))
+
+        [o.gamma_method() for o in data]
+
+        if linear:
+            def fitf(p, x):
+                return p[1] + p[0] * x
+        else:
+            def fitf(p, x):
+                return p[1] * np.exp(-p[0] * x)
+
+        fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
+        
+        fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
+        for i in range(2):
+            diff = fitp[i] - fitpc[i]
+            diff.gamma_method()
+            assert(diff.is_zero_within_error(sigma=1.5))
+
 
 def test_total_least_squares():
     dim = 10 + int(30 * np.random.rand())
@@ -79,6 +130,12 @@ def test_total_least_squares():
         assert math.isclose(beta[i].value, output.beta[i], rel_tol=1e-5)
         assert math.isclose(output.cov_beta[i, i], beta[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(beta[i].dvalue ** 2)
     assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    
+    out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
+
+    diff = out.fit_parameters[0] - beta[0]
+    assert(diff / beta[0] < 1e-3 * beta[0].dvalue)
+    assert((out.fit_parameters[1] - beta[1]).is_zero())
     pe.Obs.e_tag_global = 0
 
 

@@ -22,8 +22,8 @@ print(my_new_obs)
 
 iamzero = my_new_obs - my_new_obs
 iamzero.gamma_method()
-print(iamzero)
-> 0.0
+print(iamzero == 0.0)
+> True
 ```
 
 # The `Obs` class
@@ -189,7 +189,28 @@ For the full API see `pyerrors.obs.Obs`
 For the full API see `pyerrors.correlators.Corr`
 
 # Complex observables
-`pyerrors.obs.CObs`
+
+`pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.
+`CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.
+
+Example:
+```python
+my_real_part = pe.Obs([samples1], ['ensemble1'])
+my_imag_part = pe.Obs([samples2], ['ensemble1'])
+
+my_cobs = pe.CObs(my_real_part, my_imag_part)
+my_cobs.gamma_method()
+print(my_cobs)
+> (0.9959(91)+0.659(28)j)
+```
+
+Elementary mathematical operations are overloaded and samples are properly propagated as for the `Obs` class.
+```python
+my_derived_cobs = (my_cobs + my_cobs.conjugate()) / np.abs(my_cobs)
+my_derived_cobs.gamma_method()
+print(my_derived_cobs)
+> (1.668(23)+0.0j)
+```
 
 # Optimization / fits / roots
 `pyerrors.fits`

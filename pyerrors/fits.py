@@ -110,7 +110,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         This can take a while as the full correlation matrix
         has to be calculated (default False).
     correlated_fit : bool
-        If true, use the full correlation matrix in the definition of the chisquare 
+        If true, use the full correlation matrix in the definition of the chisquare
         (only works for prior==None and when no method is given, at the moment).
     const_par : list, optional
         List of N Obs that are used to constrain the last N fit parameters of func.
@@ -181,7 +181,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         const_par = kwargs['const_par']
         if isinstance(const_par, Obs):
             const_par = [const_par]
-            
+
         def func(p, x):
             return func_aug(np.concatenate((p, [o.value for o in const_par])), x)
     else:
@@ -511,23 +511,23 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         chol = np.linalg.cholesky(corr)
         chol_inv = np.linalg.inv(chol)
         chol_inv = np.dot(chol_inv, covdiag)
-        
+
         def chisqfunc(p):
             model = func(p, x)
             chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
             return chisq
-        
+
         def chisqfunc_aug(p):
             model = func_aug(np.concatenate((p, [o.value for o in const_par])), x)
             chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
             return chisq
-        
+
     else:
         def chisqfunc(p):
             model = func(p, x)
             chisq = anp.sum(((y_f - model) / dy_f) ** 2)
             return chisq
-        
+
         def chisqfunc_aug(p):
             model = func_aug(np.concatenate((p, [o.value for o in const_par])), x)
             chisq = anp.sum(((y_f - model) / dy_f) ** 2)
@@ -557,7 +557,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
                 model = func(p, x)
                 chisq = anp.dot(chol_inv, (y_f - model))
                 return chisq
-        
+
         else:
             def chisqfunc_residuals(p):
                 model = func(p, x)
@@ -606,7 +606,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             model = func_aug(d[:n_parms_aug], x)
             chisq = anp.sum(anp.dot(chol_inv, (d[n_parms_aug:] - model)) ** 2)
             return chisq
-    
+
     else:
         def chisqfunc_compact(d):
             model = func_aug(d[:n_parms_aug], x)

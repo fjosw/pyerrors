@@ -183,7 +183,7 @@ def test_covariance_is_variance():
     test_obs.gamma_method()
     assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
     test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
-    test_obs.gamma_method(e_tag=0)
+    test_obs.gamma_method()
     assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
 
 
@@ -221,7 +221,7 @@ def test_gamma_method():
     test_obs = pe.pseudo_Obs(value, dvalue, 't', int(1000 * (1 + np.random.rand())))
 
     # Test if the error is processed correctly
-    test_obs.gamma_method(e_tag=1)
+    test_obs.gamma_method()
     assert np.abs(test_obs.value - value) < 1e-12
     assert abs(test_obs.dvalue - dvalue) < 1e-10 * dvalue
 
@@ -241,7 +241,7 @@ def test_derived_observables():
     assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float64).eps * d_Obs_ad.dvalue
 
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
-    i_am_one.gamma_method(e_tag=1)
+    i_am_one.gamma_method()
 
     assert i_am_one.value == 1.0
     assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
@@ -290,7 +290,7 @@ def test_overloaded_functions():
     for i, item in enumerate(funcs):
         ad_obs = item(test_obs)
         fd_obs = pe.derived_observable(lambda x, **kwargs: item(x[0]), [test_obs], num_grad=True)
-        ad_obs.gamma_method(S=0.01, e_tag=1)
+        ad_obs.gamma_method(S=0.01)
         assert np.max((ad_obs.deltas['t'] - fd_obs.deltas['t']) / ad_obs.deltas['t']) < 1e-8, item.__name__
         assert np.abs((ad_obs.value - item(val)) / ad_obs.value) < 1e-10, item.__name__
         assert np.abs(ad_obs.dvalue - dval * np.abs(deriv[i](val))) < 1e-6, item.__name__
@@ -447,8 +447,8 @@ def test_gamma_method_irregular():
     idx2 = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr, zero_arr2], ['a1', 'a2'], idl=[idx, idx2])
 
-    afull.gamma_method(e_tag=1)
-    a.gamma_method(e_tag=1)
+    afull.gamma_method()
+    a.gamma_method()
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
@@ -462,13 +462,13 @@ def test_gamma_method_irregular():
     arr = np.random.normal(1, .2, size=N)
     carr = gen_autocorrelated_array(arr, .346)
     a = pe.Obs([carr], ['a'])
-    a.gamma_method(e_tag=1)
+    a.gamma_method()
 
     ae = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 0]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 0]])
-    ae.gamma_method(e_tag=1)
+    ae.gamma_method()
 
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
-    ao.gamma_method(e_tag=1)
+    ao.gamma_method()
 
     assert(ae.e_tauint['a'] < a.e_tauint['a'])
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))

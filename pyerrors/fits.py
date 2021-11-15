@@ -88,8 +88,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         priors has to be a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
         0.548(23), 500(40) or 0.5(0.4)
-        It is important for the subsequent error estimation that the e_tag for the gamma method is large
-        enough.
     silent : bool, optional
         If true all output to the console is omitted (default False).
     initial_guess : list
@@ -322,9 +320,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     output = Fit_result()
 
     output.fit_function = func
-
-    if Obs.e_tag_global < 4:
-        warnings.warn("e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors", RuntimeWarning)
 
     x = np.asarray(x)
 

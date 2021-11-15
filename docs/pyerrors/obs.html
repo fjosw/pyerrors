@@ -150,6 +150,9 @@
                                 <a class="function" href="#Obs.dump">dump</a>
                         </li>
                         <li>
+                                <a class="function" href="#Obs.export_jackknife">export_jackknife</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Obs.sqrt">sqrt</a>
                         </li>
                         <li>
@@ -870,6 +873,33 @@
             <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export_jackknife</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export jackknife samples from the Obs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Returns a numpy array of length N + 1 where N is the number of samples</span>
+<span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
+<span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
+<span class="sd">            derived from the Obs. The current implementation only works for observables</span>
+<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;export_jackknife&#39; is only implemented for Obs defined on one ensemble and replicum.&quot;</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">full_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">full_data</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">tmp_jacks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">full_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tmp_jacks</span>
 
     <span class="k">def</span> <span class="fm">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
@@ -2425,6 +2455,33 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">export_jackknife</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export jackknife samples from the Obs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Returns a numpy array of length N + 1 where N is the number of samples</span>
+<span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
+<span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
+<span class="sd">            derived from the Obs. The current implementation only works for observables</span>
+<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;export_jackknife&#39; is only implemented for Obs defined on one ensemble and replicum.&quot;</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">full_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">full_data</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">tmp_jacks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">full_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tmp_jacks</span>
+
     <span class="k">def</span> <span class="fm">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
@@ -3552,6 +3609,61 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 name of the file to be saved.</li>
 <li><strong>path</strong> (str):
 specifies a custom path for the file (default '.')</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Obs.export_jackknife" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Obs.export_jackknife">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">export_jackknife</span><span class="signature">(self)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">export_jackknife</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export jackknife samples from the Obs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Returns a numpy array of length N + 1 where N is the number of samples</span>
+<span class="sd">            for the given ensemble and replicum. The zeroth entry of the array contains</span>
+<span class="sd">            the mean value of the Obs, entries 1 to N contain the N jackknife samples</span>
+<span class="sd">            derived from the Obs. The current implementation only works for observables</span>
+<span class="sd">            defined on exactly one ensemble and replicum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;export_jackknife&#39; is only implemented for Obs defined on one ensemble and replicum.&quot;</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">full_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">full_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">full_data</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tmp_jacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">tmp_jacks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">full_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tmp_jacks</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Export jackknife samples from the Obs</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>np.ndarray</strong>: Returns a numpy array of length N + 1 where N is the number of samples
+for the given ensemble and replicum. The zeroth entry of the array contains
+the mean value of the Obs, entries 1 to N contain the N jackknife samples
+derived from the Obs. The current implementation only works for observables
+defined on exactly one ensemble and replicum.</li>
 </ul>
 </div>
 

@@ -1196,6 +1196,8 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
         if true the correlation instead of the covariance is
         returned (default False)
     """
+    if set(obs1.names).isdisjoint(set(obs2.names)):
+        return 0.
 
     for name in sorted(set(obs1.names + obs2.names)):
         if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
@@ -1286,6 +1288,9 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         gamma[:max_gamma] += (np.fft.irfft(np.fft.rfft(deltas1, padding) * np.conjugate(np.fft.rfft(deltas2, padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(deltas2, padding) * np.conjugate(np.fft.rfft(deltas1, padding)))[:max_gamma]) / 2.0
 
         return gamma
+
+    if set(obs1.names).isdisjoint(set(obs2.names)):
+        return 0.
 
     if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
         raise Exception('The gamma method has to be applied to both Obs first.')

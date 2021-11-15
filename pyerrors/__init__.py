@@ -15,11 +15,17 @@ import numpy as np
 import pyerrors as pe
 
 my_obs = pe.Obs([samples], ['ensemble_name'])
-my_new_obs = 2 * np.log(my_obs) / my_obs
+my_new_obs = 2 * np.log(my_obs) / my_obs ** 2
 my_new_obs.gamma_method()
-my_new_obs.details()
 print(my_new_obs)
+> 0.31498(72)
+
+iamzero = my_new_obs - my_new_obs
+iamzero.gamma_method()
+print(iamzero)
+> 0.0
 ```
+
 # The `Obs` class
 
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.

@@ -58,7 +58,10 @@
     <ul>
       <li><a href="#exponential-tails">Exponential tails</a></li>
     </ul></li>
-    <li><a href="#multiple-ensemblesreplica">Multiple ensembles/replica</a></li>
+    <li><a href="#multiple-ensemblesreplica">Multiple ensembles/replica</a>
+    <ul>
+      <li><a href="#error-estimation-for-multiple-ensembles">Error estimation for multiple ensembles</a></li>
+    </ul></li>
     <li><a href="#irregular-monte-carlo-chains">Irregular Monte Carlo chains</a></li>
   </ul></li>
   <li><a href="#correlators">Correlators</a></li>
@@ -164,9 +167,41 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <p>The error propagation is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
 
-<p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
+<p>After having arrived at</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+</code></pre></div>
+
+<p>The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the <code>gamma_method</code> as parameter.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+</code></pre></div>
+
+<p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´<a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a><code>and ´<a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">plot_tauint</span><span class="p">()</span>
+<span class="n">my_sum</span><span class="o">.</span><span class="n">plot_rho</span><span class="p">()</span>
+</code></pre></div>
 
 <h3 id="exponential-tails">Exponential tails</h3>
+
+<p>Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">4.2</span><span class="p">)</span>
+<span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+</code></pre></div>
+
+<p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
 
 <h2 id="multiple-ensemblesreplica">Multiple ensembles/replica</h2>
 
@@ -199,6 +234,17 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span>
 <span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r02&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="error-estimation-for-multiple-ensembles">Error estimation for multiple ensembles</h3>
+
+<p>In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">S_dict</span><span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">8.0</span>
+<span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
 </code></pre></div>
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
@@ -309,9 +355,41 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 
+<span class="sd">After having arrived at</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">my_sum.gamma_method()</span>
+<span class="sd">my_sum.details()</span>
+<span class="sd">```</span>
+
+<span class="sd">The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">my_sum.gamma_method(S=3.0)</span>
+<span class="sd">my_sum.details()</span>
+<span class="sd">```</span>
+
+<span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´pyerrors.obs.Obs.plot_tauint` and ´pyerrors.obs.Obs.plot_tauint`.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">my_sum.plot_tauint()</span>
+<span class="sd">my_sum.plot_rho()</span>
+<span class="sd">```</span>
+
+<span class="sd">### Exponential tails</span>
+
+<span class="sd">Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">my_sum.gamma_method(tau_exp=4.2)</span>
+<span class="sd">my_sum.details()</span>
+<span class="sd">```</span>
 
 <span class="sd">For the full API see `pyerrors.obs.Obs.gamma_method`</span>
-<span class="sd">### Exponential tails</span>
 
 <span class="sd">## Multiple ensembles/replica</span>
 
@@ -345,6 +423,18 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">&gt;     · Replicum &#39;r01&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">&gt;     · Replicum &#39;r02&#39; : 500 configurations (from 1 to 500)</span>
 <span class="sd">```</span>
+
+<span class="sd">### Error estimation for multiple ensembles</span>
+
+<span class="sd">In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">pe.Obs.S_dict[&#39;ensemble1&#39;] = 2.5</span>
+<span class="sd">pe.Obs.tau_exp_dict[&#39;ensemble2&#39;] = 8.0</span>
+<span class="sd">pe.Obs.tau_exp_dict[&#39;ensemble3&#39;] = 2.0</span>
+<span class="sd">```</span>
+
 <span class="sd">## Irregular Monte Carlo chains</span>
 
 <span class="sd">Irregular Monte Carlo chains can be initilized with the parameter `idl`.</span>

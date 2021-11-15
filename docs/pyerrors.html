@@ -120,10 +120,15 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
-<span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span>
+<span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span> <span class="o">**</span> <span class="mi">2</span>
 <span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
-<span class="n">my_new_obs</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mf">0.31498</span><span class="p">(</span><span class="mi">72</span><span class="p">)</span>
+
+<span class="n">iamzero</span> <span class="o">=</span> <span class="n">my_new_obs</span> <span class="o">-</span> <span class="n">my_new_obs</span>
+<span class="n">iamzero</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mf">0.0</span>
 </code></pre></div>
 
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
@@ -324,11 +329,17 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <span class="sd">import pyerrors as pe</span>
 
 <span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;])</span>
-<span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs</span>
+<span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs ** 2</span>
 <span class="sd">my_new_obs.gamma_method()</span>
-<span class="sd">my_new_obs.details()</span>
 <span class="sd">print(my_new_obs)</span>
+<span class="sd">&gt; 0.31498(72)</span>
+
+<span class="sd">iamzero = my_new_obs - my_new_obs</span>
+<span class="sd">iamzero.gamma_method()</span>
+<span class="sd">print(iamzero)</span>
+<span class="sd">&gt; 0.0</span>
 <span class="sd">```</span>
+
 <span class="sd"># The `Obs` class</span>
 
 <span class="sd">`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.</span>

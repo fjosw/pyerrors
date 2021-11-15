@@ -131,8 +131,8 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 
 <span class="n">iamzero</span> <span class="o">=</span> <span class="n">my_new_obs</span> <span class="o">-</span> <span class="n">my_new_obs</span>
 <span class="n">iamzero</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span><span class="p">)</span>
-<span class="o">&gt;</span> <span class="mf">0.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="kc">True</span>
 </code></pre></div>
 
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
@@ -298,7 +298,27 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h1 id="complex-observables">Complex observables</h1>
 
-<p><code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code></p>
+<p><code><a href="">pyerrors</a></code> can handle complex valued observables via the class <code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code>.
+<code>CObs</code> are initialized with a real and an imaginary part which both can be <code>Obs</code> valued.</p>
+
+<p>Example:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_real_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
+<span class="n">my_imag_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
+
+<span class="n">my_cobs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">CObs</span><span class="p">(</span><span class="n">my_real_part</span><span class="p">,</span> <span class="n">my_imag_part</span><span class="p">)</span>
+<span class="n">my_cobs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_cobs</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="p">(</span><span class="mf">0.9959</span><span class="p">(</span><span class="mi">91</span><span class="p">)</span><span class="o">+</span><span class="mf">0.659</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span><span class="n">j</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Elementary mathematical operations are overloaded and samples are properly propagated as for the <code>Obs</code> class.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_derived_cobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">my_cobs</span> <span class="o">+</span> <span class="n">my_cobs</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">my_cobs</span><span class="p">)</span>
+<span class="n">my_derived_cobs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_derived_cobs</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="p">(</span><span class="mf">1.668</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span><span class="o">+</span><span class="mf">0.0</span><span class="n">j</span><span class="p">)</span>
+</code></pre></div>
 
 <h1 id="optimization-fits-roots">Optimization / fits / roots</h1>
 
@@ -349,8 +369,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">iamzero = my_new_obs - my_new_obs</span>
 <span class="sd">iamzero.gamma_method()</span>
-<span class="sd">print(iamzero)</span>
-<span class="sd">&gt; 0.0</span>
+<span class="sd">print(iamzero == 0.0)</span>
+<span class="sd">&gt; True</span>
 <span class="sd">```</span>
 
 <span class="sd"># The `Obs` class</span>
@@ -516,7 +536,28 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">For the full API see `pyerrors.correlators.Corr`</span>
 
 <span class="sd"># Complex observables</span>
-<span class="sd">`pyerrors.obs.CObs`</span>
+
+<span class="sd">`pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.</span>
+<span class="sd">`CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">```python</span>
+<span class="sd">my_real_part = pe.Obs([samples1], [&#39;ensemble1&#39;])</span>
+<span class="sd">my_imag_part = pe.Obs([samples2], [&#39;ensemble1&#39;])</span>
+
+<span class="sd">my_cobs = pe.CObs(my_real_part, my_imag_part)</span>
+<span class="sd">my_cobs.gamma_method()</span>
+<span class="sd">print(my_cobs)</span>
+<span class="sd">&gt; (0.9959(91)+0.659(28)j)</span>
+<span class="sd">```</span>
+
+<span class="sd">Elementary mathematical operations are overloaded and samples are properly propagated as for the `Obs` class.</span>
+<span class="sd">```python</span>
+<span class="sd">my_derived_cobs = (my_cobs + my_cobs.conjugate()) / np.abs(my_cobs)</span>
+<span class="sd">my_derived_cobs.gamma_method()</span>
+<span class="sd">print(my_derived_cobs)</span>
+<span class="sd">&gt; (1.668(23)+0.0j)</span>
+<span class="sd">```</span>
 
 <span class="sd"># Optimization / fits / roots</span>
 <span class="sd">`pyerrors.fits`</span>

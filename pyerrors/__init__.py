@@ -76,11 +76,10 @@ obs2 = pe.Obs([samples2], ['ensemble2'])
 
 my_sum = obs1 + obs2
 my_sum.details()
-> Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
 > 1500 samples in 2 ensembles:
->    ensemble1: ['ensemble1']
->    ensemble2: ['ensemble2']
-
+>   · Ensemble 'ensemble1' : 1000 configurations (from 1 to 1000)
+>   · Ensemble 'ensemble2' : 500 configurations (from 1 to 500)
 ```
 
 `pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.
@@ -90,11 +89,13 @@ Example:
 obs1 = pe.Obs([samples1], ['ensemble1|r01'])
 obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
-my_sum = obs1 + obs2
-my_sum.details()
-> Result	 2.00596631e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> my_sum = obs1 + obs2
+> my_sum.details()
+> Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
 > 1500 samples in 1 ensemble:
->    ensemble1: ['ensemble1|r01', 'ensemble1|r02']
+>   · Ensemble 'ensemble1'
+>     · Replicum 'r01' : 1000 configurations (from 1 to 1000)
+>     · Replicum 'r02' : 500 configurations (from 1 to 500)
 ```
 ## Irregular Monte Carlo chains
 

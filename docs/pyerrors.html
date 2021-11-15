@@ -110,7 +110,7 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <li><strong>automatic differentiation</strong> as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a> (partly based on the <a href="https://github.com/HIPS/autograd">autograd</a> package)</li>
 <li><strong>treatment of slow modes</strong> in the simulation as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a></li>
 <li>coherent <strong>error propagation</strong> for data from <strong>different Markov chains</strong></li>
-<li><strong>non-linear fits with x- and y-errors</strong> and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289]</li>
+<li><strong>non-linear fits with x- and y-errors</strong> and exact linear error propagation based on automatic differentiation as introduced in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a></li>
 <li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
 </ul>
 
@@ -129,7 +129,7 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
 
 <p><code><a href="">pyerrors</a></code> introduces a new datatype, <code>Obs</code>, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An <code>Obs</code> object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.
+An <code>Obs</code> object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</p>
 
@@ -165,9 +165,9 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <h2 id="error-estimation">Error estimation</h2>
 
-<p>The error propagation is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
+<p>The error estimation within <code><a href="">pyerrors</a></code> is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
 
-<p>After having arrived at</p>
+<p>After having arrived at the derived quantity of interest the <code>gamma_method</code> can be called as detailed in the following example.</p>
 
 <p>Example:</p>
 
@@ -201,7 +201,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <h3 id="exponential-tails">Exponential tails</h3>
 
-<p>Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
+<p>Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
 
 <p>Example:</p>
 
@@ -217,7 +217,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <h2 id="multiple-ensemblesreplica">Multiple ensembles/replica</h2>
 
-<p>Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their <code>name</code>.</p>
+<p>Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their <code>name</code>.</p>
 
 <p>Example:</p>
 
@@ -250,7 +250,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 
 <h3 id="error-estimation-for-multiple-ensembles">Error estimation for multiple ensembles</h3>
 
-<p>In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</p>
+<p>In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</p>
 
 <p>Example:</p>
 
@@ -264,7 +264,7 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
 
-<p>Irregular Monte Carlo chains can be initilized with the parameter <code>idl</code>.</p>
+<p>Irregular Monte Carlo chains can be initialized with the parameter <code>idl</code>.</p>
 
 <p>Example:</p>
 
@@ -279,7 +279,7 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 </code></pre></div>
 
 <p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
-Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
+Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
 <p>For the full API see <code><a href="pyerrors/obs.html#Obs">pyerrors.obs.Obs</a></code></p>
 
@@ -314,7 +314,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">- **automatic differentiation** as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package)</span>
 <span class="sd">- **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)</span>
 <span class="sd">- coherent **error propagation** for data from **different Markov chains**</span>
-<span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289]</span>
+<span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
 <span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
 
 <span class="sd">## Getting started</span>
@@ -332,7 +332,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd"># The `Obs` class</span>
 
 <span class="sd">`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.</span>
-<span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containining the samples for an Observable from a Monte Carlo chain.</span>
+<span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.</span>
 <span class="sd">The samples can either be provided as python list or as numpy array.</span>
 <span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</span>
 
@@ -368,9 +368,9 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">## Error estimation</span>
 
-<span class="sd">The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
+<span class="sd">The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 
-<span class="sd">After having arrived at</span>
+<span class="sd">After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -405,7 +405,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">### Exponential tails</span>
 
-<span class="sd">Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</span>
+<span class="sd">Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -421,7 +421,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">## Multiple ensembles/replica</span>
 
-<span class="sd">Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handeled automatically. Ensembles are uniquely identified by their `name`.</span>
+<span class="sd">Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their `name`.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -454,7 +454,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">### Error estimation for multiple ensembles</span>
 
-<span class="sd">In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</span>
+<span class="sd">In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -469,7 +469,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 
 <span class="sd">## Irregular Monte Carlo chains</span>
 
-<span class="sd">Irregular Monte Carlo chains can be initilized with the parameter `idl`.</span>
+<span class="sd">Irregular Monte Carlo chains can be initialized with the parameter `idl`.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -484,7 +484,7 @@ Make sure to check the with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">
 <span class="sd">```</span>
 
 <span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>
-<span class="sd">Make sure to check the with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
+<span class="sd">Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
 
 <span class="sd">For the full API see `pyerrors.obs.Obs`</span>
 

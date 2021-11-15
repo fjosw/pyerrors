@@ -68,6 +68,10 @@
   <li><a href="#complex-observables">Complex observables</a></li>
   <li><a href="#optimization-fits-roots">Optimization / fits / roots</a></li>
   <li><a href="#matrix-operations">Matrix operations</a></li>
+  <li><a href="#export-data">Export data</a>
+  <ul>
+    <li><a href="#jackknife-samples">Jackknife samples</a></li>
+  </ul></li>
   <li><a href="#input">Input</a></li>
 </ul>
 
@@ -237,7 +241,7 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
 </code></pre></div>
 
-<p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the dataset.</p>
+<p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the data set.</p>
 
 <p>Example:</p>
 
@@ -304,6 +308,15 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <h1 id="matrix-operations">Matrix operations</h1>
 
 <p><code><a href="pyerrors/linalg.html">pyerrors.linalg</a></code></p>
+
+<h1 id="export-data">Export data</h1>
+
+<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is</p>
+
+<h2 id="jackknife-samples">Jackknife samples</h2>
+
+<p>For comparison with other analysis workflows <code><a href="">pyerrors</a></code> can generate jackknife samples from an <code>Obs</code> object.
+See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.export_jackknife</a></code> for details.</p>
 
 <h1 id="input">Input</h1>
 
@@ -447,7 +460,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <span class="sd">&gt;   · Ensemble &#39;ensemble2&#39; : 500 configurations (from 1 to 500)</span>
 <span class="sd">```</span>
 
-<span class="sd">`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.</span>
+<span class="sd">`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.</span>
 
 <span class="sd">Example:</span>
 <span class="sd">```python</span>
@@ -511,6 +524,13 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <span class="sd"># Matrix operations</span>
 <span class="sd">`pyerrors.linalg`</span>
+
+<span class="sd"># Export data</span>
+<span class="sd">The preferred exported file format within `pyerrors` is</span>
+
+<span class="sd">## Jackknife samples</span>
+<span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object.</span>
+<span class="sd">See `pyerrors.obs.Obs.export_jackknife` for details.</span>
 
 <span class="sd"># Input</span>
 <span class="sd">`pyerrors.input`</span>

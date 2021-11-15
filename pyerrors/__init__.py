@@ -97,7 +97,7 @@ my_sum.details()
 
 ```
 
-The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´pyerrors.obs.Obs.plot_tauint` and ´pyerrors.obs.Obs.plot_tauint`.
+The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
 Example:
 ```python

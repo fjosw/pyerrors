@@ -343,3 +343,131 @@ def _read_array_openQCD2(fp):
 
     arr = _parse_array_openQCD2(d, n, size, tmp, quadrupel=True)
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
+
+
+def read_qtop(path, prefix, version = "1.2",**kwargs):
+    """Read qtop format from given folder structure.
+
+    Parameters
+    ----------
+    target -- specifies the topological sector to be reweighted to (default 0)
+    full -- if true read the charge instead of the reweighting factor.
+    """
+    dtr_cnfg = 4
+    L = 20
+    c = 0.35
+    target = 0
+    full = False
+    
+    if 'target' in kwargs:
+        target = kwargs.get('target')
+    
+
+    if kwargs.get('full'):
+        full = True
+    
+    if "r_start" in kwargs:
+        r_start = kwargs.get("r_start")
+    if "r_stop" in kwargs:
+        r_stop = kwargs.get("r_stop")
+    #if one wants to read specific files with this method...
+    if "files" in kwargs:
+        files = kwargs.get("files")
+    else:
+        #find files in path
+        found = []
+        files = []
+        for (dirpath, dirnames, filenames) in os.walk(path+"/"):
+            #print(filenames)
+            found.extend(filenames)
+            break
+        for f in found:
+            if fnmatch.fnmatch(f, prefix+"*"+".ms.dat"):
+                files.append(f)
+        print(files)
+    #now that we found our files, we dechiffer them...
+    rep_names = []
+    
+    deltas = []
+    for rep,file in enumerate(files):
+        
+        with open(path+"/"+file, "rb") as fp:
+            #this, for now, is only for version 1.2
+            #header
+            t = fp.read(12)
+            header = struct.unpack('iii', t)
+            dn = header[0]
+            nn = header[1]
+            tmax = header[2]
+            print('dn:', dn)
+            print('nn:', nn)
+            print('tmax:', tmax)
+            t = fp.read(8)
+            eps = struct.unpack('d', t)[0]
+            print('eps:', eps)
+
+            Q = []
+            i = 1
+            while 0 < 1:
+                t = fp.read(4)
+                if(len(t) < 4):
+                    break
+                nc = struct.unpack('i',t)[0]
+                if(nc != i):
+                    print("WARNING: possible missing config:" +str(i))    
+                    #raise Exception('Config missing?')
+                else:
+                    t = fp.read(8 * tmax * (nn + 1))
+                    t = fp.read(8 * tmax * (nn + 1))
+                    t = fp.read(8 * tmax * (nn + 1))
+                    tmpd = struct.unpack('d' * tmax * (nn + 1), t)
+                    Q.append(tmpd)
+                i += 1
+                #print(tmp)            
+
+        print('max_t:', dn * (nn) * eps)
+
+        t_aim = (c * L) ** 2 / 8
+
+        print('t_aim:', t_aim)
+        index_aim = round(t_aim / eps / dn)
+        print('index_aim:', index_aim)
+
+
+        Q_sum = []
+        for i, item in enumerate(Q):
+            Q_sum.append([sum(item[current:current + tmax]) for current in range(0, len(item), tmax)])
+        Q_round = []
+        for i in range(len(Q) // dtr_cnfg):
+            Q_round.append(round(Q_sum[dtr_cnfg * i][index_aim]))
+
+        replica = len(files)
+
+        tmp = []
+        for q in Q_round:
+            #floats = list(map(float, line.split()))
+            if full:
+                tmp.append(q) #round(Q_sum[dtr_cnfg * i][index_aim])
+            else:
+                if int(q) == target: #round(Q_sum[dtr_cnfg * i][index_aim])
+                    tmp.append(1.0)
+                else:
+                    tmp.append(0.0)
+        
+        truncated_file = file[:-7] #as seen in previous examples, this could lead to some weird behaviour... maybe -7 fixes this.
+        print(truncated_file)
+        idx = truncated_file.index('r')
+        #print(truncated_file[idx:])
+        # this might be a quite fishy way to find out which replicum we are actually talking about...
+        if "r_start" in kwargs:
+            tmp = tmp[r_start[int(truncated_file[idx+1:])-1]:]
+        if "r_stop" in kwargs:
+            tmp = tmp[:r_stop[int(truncated_file[idx+1:])-1]]
+
+        rep_names.append(truncated_file[:idx] + '|' + truncated_file[idx:])
+        
+        deltas.append(np.array(tmp))
+
+        
+    result = Obs(deltas, rep_names)
+    return result

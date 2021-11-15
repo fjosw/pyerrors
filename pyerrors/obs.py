@@ -562,7 +562,7 @@ class Obs:
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Returns a numpy array of length N + 1 where N is the number of samples
             for the given ensemble and replicum. The zeroth entry of the array contains
             the mean value of the Obs, entries 1 to N contain the N jackknife samples

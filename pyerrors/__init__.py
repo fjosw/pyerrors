@@ -61,9 +61,41 @@ my_m_eff = np.log(my_obs1 / my_obs2)
 
 The error propagation is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 
+After having arrived at
+
+Example:
+```python
+my_sum.gamma_method()
+my_sum.details()
+```
+
+The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
+
+Example:
+```python
+my_sum.gamma_method(S=3.0)
+my_sum.details()
+```
+
+The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods ´pyerrors.obs.Obs.plot_tauint` and ´pyerrors.obs.Obs.plot_tauint`.
+
+Example:
+```python
+my_sum.plot_tauint()
+my_sum.plot_rho()
+```
+
+### Exponential tails
+
+Slow modes in the Monte Carlo history can be accounted for by attaching and exponntial tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.
+
+Example:
+```python
+my_sum.gamma_method(tau_exp=4.2)
+my_sum.details()
+```
 
 For the full API see `pyerrors.obs.Obs.gamma_method`
-### Exponential tails
 
 ## Multiple ensembles/replica
 
@@ -97,6 +129,18 @@ obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 >     · Replicum 'r01' : 1000 configurations (from 1 to 1000)
 >     · Replicum 'r02' : 500 configurations (from 1 to 500)
 ```
+
+### Error estimation for multiple ensembles
+
+In order to keep track of different error analyis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.
+
+Example:
+```python
+pe.Obs.S_dict['ensemble1'] = 2.5
+pe.Obs.tau_exp_dict['ensemble2'] = 8.0
+pe.Obs.tau_exp_dict['ensemble3'] = 2.0
+```
+
 ## Irregular Monte Carlo chains
 
 Irregular Monte Carlo chains can be initilized with the parameter `idl`.

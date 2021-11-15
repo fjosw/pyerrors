@@ -133,7 +133,7 @@ my_sum.details()
 >   · Ensemble 'ensemble2' : 500 configurations (from 1 to 500)
 ```
 
-`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the dataset.
+`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.
 
 Example:
 ```python
@@ -197,6 +197,13 @@ For the full API see `pyerrors.correlators.Corr`
 
 # Matrix operations
 `pyerrors.linalg`
+
+# Export data
+The preferred exported file format within `pyerrors` is
+
+## Jackknife samples
+For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object.
+See `pyerrors.obs.Obs.export_jackknife` for details.
 
 # Input
 `pyerrors.input`

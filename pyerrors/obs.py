@@ -557,6 +557,33 @@ class Obs:
         with open(file_name, 'wb') as fb:
             pickle.dump(self, fb)
 
+    def export_jackknife(self):
+        """Export jackknife samples from the Obs
+
+        Returns
+        -------
+        np.ndarray
+            Returns a numpy array of length N + 1 where N is the number of samples
+            for the given ensemble and replicum. The zeroth entry of the array contains
+            the mean value of the Obs, entries 1 to N contain the N jackknife samples
+            derived from the Obs. The current implementation only works for observables
+            defined on exactly one ensemble and replicum.
+        """
+
+        if len(self.names) != 1:
+            raise Exception("'export_jackknife' is only implemented for Obs defined on one ensemble and replicum.")
+
+        name = self.names[0]
+        full_data = self.deltas[name] + self.r_values[name]
+        n = full_data.size
+        mean = np.mean(full_data)
+        tmp_jacks = np.zeros(n + 1)
+        tmp_jacks[0] = self.value
+        for i in range(n):
+            tmp_jacks[i + 1] = (n * mean - full_data[i]) / (n - 1)
+
+        return tmp_jacks
+
     def __float__(self):
         return float(self.value)
 

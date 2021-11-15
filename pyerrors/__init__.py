@@ -6,7 +6,7 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 - **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)
 - coherent **error propagation** for data from **different Markov chains**
 - **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
-- **real and complex matrix operations** and their error propagation based on automatic differentiation (cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
+- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
 
 ## Getting started
 
@@ -66,17 +66,19 @@ my_m_eff = np.log(my_obs1 / my_obs2)
 ## Error estimation
 
 The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
-
 After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.
 
 Example:
 ```python
 my_sum.gamma_method()
+print(my_sum)
+> 1.70(57)
 my_sum.details()
-> Result	 1.70000000e+00 +/- 3.89934513e+00 +/- 5.84901770e-01 (229.373%)
->  t_int	 3.72133617e+00 +/- 9.81032454e-01 S = 2.00
+> Result	 1.70000000e+00 +/- 5.72046658e-01 +/- 7.56746598e-02 (33.650%)
+>  t_int	 2.71422900e+00 +/- 6.40320983e-01 S = 2.00
 > 1000 samples in 1 ensemble:
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
+
 ```
 
 The standard value for the automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
@@ -85,8 +87,8 @@ Example:
 ```python
 my_sum.gamma_method(S=3.0)
 my_sum.details()
-> Result	 1.70000000e+00 +/- 3.77151850e+00 +/- 6.47779576e-01 (221.854%)
->  t_int	 3.48135280e+00 +/- 1.06547679e+00 S = 3.00
+> Result	 1.70000000e+00 +/- 6.30675201e-01 +/- 1.04585650e-01 (37.099%)
+>  t_int	 3.29909703e+00 +/- 9.77310102e-01 S = 3.00
 > 1000 samples in 1 ensemble:
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 
@@ -108,8 +110,8 @@ Example:
 ```python
 my_sum.gamma_method(tau_exp=7.2)
 my_sum.details()
-> Result	 1.70000000e+00 +/- 3.77806247e+00 +/- 3.48320149e-01 (222.239%)
->  t_int	 3.49344429e+00 +/- 7.62747210e-01 tau_exp = 7.20,  N_sigma = 1
+> Result	 1.70000000e+00 +/- 6.28097762e-01 +/- 5.79077524e-02 (36.947%)
+>  t_int	 3.27218667e+00 +/- 7.99583654e-01 tau_exp = 7.20,  N_sigma = 1
 > 1000 samples in 1 ensemble:
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 ```

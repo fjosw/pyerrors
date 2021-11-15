@@ -37,7 +37,6 @@ def test_least_squares():
         assert math.isclose(beta[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], beta[i].dvalue ** 2, abs_tol=1e-3)
     assert math.isclose(pe.covariance(beta[0], beta[1]), pcov[0, 1], abs_tol=1e-3)
-    pe.Obs.e_tag_global = 0
 
     chi2_pyerrors = np.sum(((f(x, *[o.value for o in beta]) - y) / yerr) ** 2) / (len(x) - 2)
     chi2_scipy = np.sum(((f(x, *popt) - y) / yerr) ** 2) / (len(x) - 2)
@@ -124,19 +123,17 @@ def test_total_least_squares():
     out = pe.total_least_squares(ox, oy, func)
     beta = out.fit_parameters
 
-    pe.Obs.e_tag_global = 5
     for i in range(2):
-        beta[i].gamma_method(e_tag=5, S=1.0)
+        beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, output.beta[i], rel_tol=1e-5)
         assert math.isclose(output.cov_beta[i, i], beta[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(beta[i].dvalue ** 2)
     assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
-    
+
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
 
     diff = out.fit_parameters[0] - beta[0]
     assert(diff / beta[0] < 1e-3 * beta[0].dvalue)
     assert((out.fit_parameters[1] - beta[1]).is_zero())
-    pe.Obs.e_tag_global = 0
 
 
 def test_odr_derivatives():

@@ -211,7 +211,7 @@
 
 <span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 <span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
-<span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient</span>
+<span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient</span>
 <span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
@@ -514,7 +514,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
-<span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
+<span class="sd">            decides whether symmetric of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -612,7 +612,7 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unkown variant.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
@@ -630,7 +630,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
-        <span class="c1"># The default behaviour is:</span>
+        <span class="c1"># The default behavior is:</span>
         <span class="c1"># 1 use explicit fitrange</span>
         <span class="c1"># if none is provided, use the range of the corr</span>
         <span class="c1"># if this is also not set, use the whole length of the corr (This could come with a warning!)</span>
@@ -648,7 +648,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
+        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -779,7 +779,7 @@
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1019,7 +1019,7 @@
 
 <span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 <span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
-<span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient</span>
+<span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient</span>
 <span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
@@ -1322,7 +1322,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
-<span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
+<span class="sd">            decides whether symmetric of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1420,7 +1420,7 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unkown variant.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
@@ -1438,7 +1438,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
-        <span class="c1"># The default behaviour is:</span>
+        <span class="c1"># The default behavior is:</span>
         <span class="c1"># 1 use explicit fitrange</span>
         <span class="c1"># if none is provided, use the range of the corr</span>
         <span class="c1"># if this is also not set, use the whole length of the corr (This could come with a warning!)</span>
@@ -1456,7 +1456,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
+        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1587,7 +1587,7 @@
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1814,7 +1814,7 @@
 
 <p>Everything, this class does, can be achieved using lists or arrays of Obs.
 But it is simply more convenient to have a dedicated object for correlators.
-One often wants to add or multiply correlators of the same length at every timeslice and it is inconvinient
+One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
 to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</p>
 
 <p>The correlator can have two types of content: An Obs at every timeslice OR a GEVP
@@ -2420,7 +2420,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        symmetric : bool</span>
-<span class="sd">            decides whether symmertic of simple finite differences are used. Default: True</span>
+<span class="sd">            decides whether symmetric of simple finite differences are used. Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2452,7 +2452,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
 
 <ul>
 <li><strong>symmetric</strong> (bool):
-decides whether symmertic of simple finite differences are used. Default: True</li>
+decides whether symmetric of simple finite differences are used. Default: True</li>
 </ul>
 </div>
 
@@ -2561,7 +2561,7 @@ decides whether symmertic of simple finite differences are used. Default: True</
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unkown variant.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2610,7 +2610,7 @@ guess for the root finder, only relevant for the root variant</li>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
-        <span class="c1"># The default behaviour is:</span>
+        <span class="c1"># The default behavior is:</span>
         <span class="c1"># 1 use explicit fitrange</span>
         <span class="c1"># if none is provided, use the range of the corr</span>
         <span class="c1"># if this is also not set, use the whole length of the corr (This could come with a warning!)</span>
@@ -2658,7 +2658,7 @@ Decides whether output is printed to the standard output.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Extract a plateu value from a Corr object</span>
+        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2694,7 +2694,7 @@ Decides whether output is printed to the standard output.</li>
 
         </details>
 
-            <div class="docstring"><p>Extract a plateu value from a Corr object</p>
+            <div class="docstring"><p>Extract a plateau value from a Corr object</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2884,7 +2884,7 @@ path to file in which the figure should be saved</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickel file</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2897,7 +2897,7 @@ path to file in which the figure should be saved</li>
 
         </details>
 
-            <div class="docstring"><p>Dumps the Corr into a pickel file</p>
+            <div class="docstring"><p>Dumps the Corr into a pickle file</p>
 
 <h6 id="parameters">Parameters</h6>
 

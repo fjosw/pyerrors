@@ -373,7 +373,7 @@
 <span class="sd">        samples : list</span>
 <span class="sd">            list of numpy arrays containing the Monte Carlo samples</span>
 <span class="sd">        names : list</span>
-<span class="sd">            list of strings labeling the indivdual samples</span>
+<span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
 <span class="sd">        means : list, optional</span>
@@ -628,9 +628,9 @@
 <span class="sd">        deltas : list</span>
 <span class="sd">            List of fluctuations</span>
 <span class="sd">        idx : list</span>
-<span class="sd">            List or range of configs on which the deltas are defined.</span>
+<span class="sd">            List or range of configurations on which the deltas are defined.</span>
 <span class="sd">        shape : int</span>
-<span class="sd">            Number of configs in idx.</span>
+<span class="sd">            Number of configurations in idx.</span>
 <span class="sd">        w_max : int</span>
 <span class="sd">            Upper bound for the summation window.</span>
 <span class="sd">        fft : bool</span>
@@ -1423,7 +1423,7 @@
 <span class="sd">        Has to be a subset of idx_old.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Lenght of deltas and idx_old have to be the same: </span><span class="si">%d</span><span class="s1"> != </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Length of deltas and idx_old have to be the same: </span><span class="si">%d</span><span class="s1"> != </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">deltas</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)))</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx_new</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">idx_old</span> <span class="o">==</span> <span class="n">idx_new</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">deltas</span>
@@ -1927,7 +1927,7 @@
 <span class="sd">        samples : list</span>
 <span class="sd">            list of numpy arrays containing the Monte Carlo samples</span>
 <span class="sd">        names : list</span>
-<span class="sd">            list of strings labeling the indivdual samples</span>
+<span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
 <span class="sd">        means : list, optional</span>
@@ -2182,9 +2182,9 @@
 <span class="sd">        deltas : list</span>
 <span class="sd">            List of fluctuations</span>
 <span class="sd">        idx : list</span>
-<span class="sd">            List or range of configs on which the deltas are defined.</span>
+<span class="sd">            List or range of configurations on which the deltas are defined.</span>
 <span class="sd">        shape : int</span>
-<span class="sd">            Number of configs in idx.</span>
+<span class="sd">            Number of configurations in idx.</span>
 <span class="sd">        w_max : int</span>
 <span class="sd">            Upper bound for the summation window.</span>
 <span class="sd">        fft : bool</span>
@@ -2649,7 +2649,7 @@ this overwrites the standard value for that ensemble.</li>
 <span class="sd">        samples : list</span>
 <span class="sd">            list of numpy arrays containing the Monte Carlo samples</span>
 <span class="sd">        names : list</span>
-<span class="sd">            list of strings labeling the indivdual samples</span>
+<span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
 <span class="sd">        means : list, optional</span>
@@ -2734,7 +2734,7 @@ this overwrites the standard value for that ensemble.</li>
 <li><strong>samples</strong> (list):
 list of numpy arrays containing the Monte Carlo samples</li>
 <li><strong>names</strong> (list):
-list of strings labeling the indivdual samples</li>
+list of strings labeling the individual samples</li>
 <li><strong>idl</strong> (list, optional):
 list of ranges or lists on which the samples are defined</li>
 <li><strong>means</strong> (list, optional):

@@ -232,7 +232,7 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">2</span> <span class="n">ensembles</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
@@ -247,7 +247,7 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 
 <span class="o">&gt;</span> <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
 <span class="o">&gt;</span> <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
-<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="o">+/-</span> <span class="mf">0.00000000e+00</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span>
 <span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
@@ -276,12 +276,24 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
 <span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
+<span class="n">obs1</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">9.98319881e-01</span>
+<span class="o">&gt;</span> <span class="mi">500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">20</span> <span class="n">to</span> <span class="mi">519</span><span class="p">)</span>
 
 <span class="c1"># Observable defined on every second configuration between 5 and 1003</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1005</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="n">obs2</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">9.99100712e-01</span>
+<span class="o">&gt;</span> <span class="mi">500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">5</span> <span class="n">to</span> <span class="mi">1003</span> <span class="ow">in</span> <span class="n">steps</span> <span class="n">of</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
 <span class="n">obs3</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">501</span><span class="p">]])</span>
+<span class="n">obs3</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.01718064e+00</span>
+<span class="o">&gt;</span> <span class="mi">5</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">5</span> <span class="n">configurations</span> <span class="p">(</span><span class="n">irregular</span> <span class="nb">range</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
@@ -469,7 +481,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">my_sum = obs1 + obs2</span>
 <span class="sd">my_sum.details()</span>
-<span class="sd">&gt; Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
+<span class="sd">&gt; Result   2.00697958e+00</span>
 <span class="sd">&gt; 1500 samples in 2 ensembles:</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble2&#39; : 500 configurations (from 1 to 500)</span>
@@ -484,7 +496,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">&gt; my_sum = obs1 + obs2</span>
 <span class="sd">&gt; my_sum.details()</span>
-<span class="sd">&gt; Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)</span>
+<span class="sd">&gt; Result   2.00697958e+00</span>
 <span class="sd">&gt; 1500 samples in 1 ensemble:</span>
 <span class="sd">&gt;   · Ensemble &#39;ensemble1&#39;</span>
 <span class="sd">&gt;     · Replicum &#39;r01&#39; : 1000 configurations (from 1 to 1000)</span>
@@ -514,12 +526,25 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```python</span>
 <span class="sd"># Observable defined on configurations 20 to 519</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;], idl=[range(20, 520)])</span>
+<span class="sd">obs1.details()</span>
+<span class="sd">&gt; Result	 9.98319881e-01</span>
+<span class="sd">&gt; 500 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 500 configurations (from 20 to 519)</span>
 
 <span class="sd"># Observable defined on every second configuration between 5 and 1003</span>
 <span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1&#39;], idl=[range(5, 1005, 2)])</span>
+<span class="sd">obs2.details()</span>
+<span class="sd">&gt; Result	 9.99100712e-01</span>
+<span class="sd">&gt; 500 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 500 configurations (from 5 to 1003 in steps of 2)</span>
 
 <span class="sd"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
 <span class="sd">obs3 = pe.Obs([samples3], [&#39;ensemble1&#39;], idl=[[2, 9, 28, 29, 501]])</span>
+<span class="sd">obs3.details()</span>
+<span class="sd">&gt; Result	 1.01718064e+00</span>
+<span class="sd">&gt; 5 samples in 1 ensemble:</span>
+<span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 5 configurations (irregular range)</span>
+
 <span class="sd">```</span>
 
 <span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>

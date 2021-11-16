@@ -978,7 +978,7 @@ def _filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
     if new_names:
         return (new_names, new_deltas, new_idl)
     else:
-        return (new_names, new_deltas, new_idl)
+        return (names, deltas, idl)
 
 
 def derived_observable(func, data, **kwargs):

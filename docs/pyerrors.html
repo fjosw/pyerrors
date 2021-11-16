@@ -49,7 +49,7 @@
                     <ul>
   <li><a href="#what-is-pyerrors">What is pyerrors?</a>
   <ul>
-    <li><a href="#getting-started">Getting started</a></li>
+    <li><a href="#basic-example">Basic example</a></li>
   </ul></li>
   <li><a href="#the-obs-class">The <code>Obs</code> class</a>
   <ul>
@@ -118,21 +118,16 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
 </ul>
 
-<h2 id="getting-started">Getting started</h2>
+<h2 id="basic-example">Basic example</h2>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
-<span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
-<span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span> <span class="o">**</span> <span class="mi">2</span>
-<span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span>
+<span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span> <span class="c1"># Initialize an Obs object with Monte Carlo samples</span>
+<span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span> <span class="o">**</span> <span class="mi">2</span> <span class="c1"># Construct derived Obs object</span>
+<span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="c1"># Estimate the error with the gamma_method</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span> <span class="c1"># Print the result to stdout</span>
 <span class="o">&gt;</span> <span class="mf">0.31498</span><span class="p">(</span><span class="mi">72</span><span class="p">)</span>
-
-<span class="n">iamzero</span> <span class="o">=</span> <span class="n">my_new_obs</span> <span class="o">-</span> <span class="n">my_new_obs</span>
-<span class="n">iamzero</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
-<span class="o">&gt;</span> <span class="kc">True</span>
 </code></pre></div>
 
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
@@ -152,7 +147,7 @@ The second argument is a list containing the names of the respective Monte Carlo
 <h2 id="error-propagation">Error propagation</h2>
 
 <p>When performing mathematical operations on <code>Obs</code> objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
-$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$
+$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
 
 <p>The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
@@ -170,6 +165,11 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">my_obs1</span> <span class="o">+</span> <span class="n">my_obs2</span>
 
 <span class="n">my_m_eff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs1</span> <span class="o">/</span> <span class="n">my_obs2</span><span class="p">)</span>
+
+<span class="n">iamzero</span> <span class="o">=</span> <span class="n">my_m_eff</span> <span class="o">-</span> <span class="n">my_m_eff</span>
+<span class="c1"># Check that value and fluctuations are zero within machine precision</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="kc">True</span>
 </code></pre></div>
 
 <h2 id="error-estimation">Error estimation</h2>
@@ -190,7 +190,7 @@ After having arrived at the derived quantity of interest the <code>gamma_method<
 </code></pre></div>
 
 <p>We use the following definition of the integrated autocorrelation time established in <a href="https://link.springer.com/article/10.1007/BF01022990">Madras &amp; Sokal 1988</a>
-$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}$$
+$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
 The window $W$ is determined via the automatic windowing procedure described in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the <code>gamma_method</code> as parameter.</p>
 
@@ -205,12 +205,6 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 </code></pre></div>
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code> and <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
-
-<p>Example:</p>
-
-<div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">plot_tauint</span><span class="p">()</span>
-<span class="n">my_sum</span><span class="o">.</span><span class="n">plot_rho</span><span class="p">()</span>
-</code></pre></div>
 
 <h3 id="exponential-tails">Exponential tails</h3>
 
@@ -359,22 +353,17 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
 <span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
 
-<span class="sd">## Getting started</span>
+<span class="sd">## Basic example</span>
 
 <span class="sd">```python</span>
 <span class="sd">import numpy as np</span>
 <span class="sd">import pyerrors as pe</span>
 
-<span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;])</span>
-<span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs ** 2</span>
-<span class="sd">my_new_obs.gamma_method()</span>
-<span class="sd">print(my_new_obs)</span>
+<span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;]) # Initialize an Obs object with Monte Carlo samples</span>
+<span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs ** 2 # Construct derived Obs object</span>
+<span class="sd">my_new_obs.gamma_method() # Estimate the error with the gamma_method</span>
+<span class="sd">print(my_new_obs) # Print the result to stdout</span>
 <span class="sd">&gt; 0.31498(72)</span>
-
-<span class="sd">iamzero = my_new_obs - my_new_obs</span>
-<span class="sd">iamzero.gamma_method()</span>
-<span class="sd">print(iamzero == 0.0)</span>
-<span class="sd">&gt; True</span>
 <span class="sd">```</span>
 
 <span class="sd"># The `Obs` class</span>
@@ -394,7 +383,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">## Error propagation</span>
 
 <span class="sd">When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion</span>
-<span class="sd">$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$</span>
+<span class="sd">$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$</span>
 <span class="sd">as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 
 <span class="sd">The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
@@ -412,6 +401,11 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">my_sum = my_obs1 + my_obs2</span>
 
 <span class="sd">my_m_eff = np.log(my_obs1 / my_obs2)</span>
+
+<span class="sd">iamzero = my_m_eff - my_m_eff</span>
+<span class="sd"># Check that value and fluctuations are zero within machine precision</span>
+<span class="sd">print(iamzero == 0.0)</span>
+<span class="sd">&gt; True</span>
 <span class="sd">```</span>
 
 <span class="sd">## Error estimation</span>
@@ -433,7 +427,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```</span>
 
 <span class="sd">We use the following definition of the integrated autocorrelation time established in [Madras &amp; Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)</span>
-<span class="sd">$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}$$</span>
+<span class="sd">$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$</span>
 <span class="sd">The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017)</span>
 <span class="sd">The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.</span>
 
@@ -449,12 +443,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```</span>
 
 <span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">```python</span>
-<span class="sd">my_sum.plot_tauint()</span>
-<span class="sd">my_sum.plot_rho()</span>
-<span class="sd">```</span>
 
 <span class="sd">### Exponential tails</span>
 

@@ -505,9 +505,6 @@ class Obs:
         expand : bool
             show expanded history for irregular Monte Carlo chains (default: True).
         """
-        if not hasattr(self, 'e_dvalue'):
-            raise Exception('Run the gamma method first.')
-
         for e, e_name in enumerate(self.e_names):
             plt.figure()
             r_length = []

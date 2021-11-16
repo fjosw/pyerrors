@@ -14,10 +14,10 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 import numpy as np
 import pyerrors as pe
 
-my_obs = pe.Obs([samples], ['ensemble_name']) # Initialize an Obs object with Monte Carlo samples
+my_obs = pe.Obs([samples], ['ensemble_name']) # Initialize an Obs object
 my_new_obs = 2 * np.log(my_obs) / my_obs ** 2 # Construct derived Obs object
-my_new_obs.gamma_method() # Estimate the error with the gamma_method
-print(my_new_obs) # Print the result to stdout
+my_new_obs.gamma_method()                     # Estimate the statistical error
+print(my_new_obs)                             # Print the result to stdout
 > 0.31498(72)
 ```
 
@@ -40,7 +40,6 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
-
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
 
 The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.

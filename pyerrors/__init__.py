@@ -125,7 +125,7 @@ obs2 = pe.Obs([samples2], ['ensemble2'])
 
 my_sum = obs1 + obs2
 my_sum.details()
-> Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> Result   2.00697958e+00
 > 1500 samples in 2 ensembles:
 >   · Ensemble 'ensemble1' : 1000 configurations (from 1 to 1000)
 >   · Ensemble 'ensemble2' : 500 configurations (from 1 to 500)
@@ -140,7 +140,7 @@ obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
 > my_sum = obs1 + obs2
 > my_sum.details()
-> Result   2.00697958e+00 +/- 0.00000000e+00 +/- 0.00000000e+00 (0.000%)
+> Result   2.00697958e+00
 > 1500 samples in 1 ensemble:
 >   · Ensemble 'ensemble1'
 >     · Replicum 'r01' : 1000 configurations (from 1 to 1000)
@@ -170,12 +170,25 @@ Example:
 ```python
 # Observable defined on configurations 20 to 519
 obs1 = pe.Obs([samples1], ['ensemble1'], idl=[range(20, 520)])
+obs1.details()
+> Result	 9.98319881e-01
+> 500 samples in 1 ensemble:
+>   · Ensemble 'ensemble1' : 500 configurations (from 20 to 519)
 
 # Observable defined on every second configuration between 5 and 1003
 obs2 = pe.Obs([samples2], ['ensemble1'], idl=[range(5, 1005, 2)])
+obs2.details()
+> Result	 9.99100712e-01
+> 500 samples in 1 ensemble:
+>   · Ensemble 'ensemble1' : 500 configurations (from 5 to 1003 in steps of 2)
 
 # Observable defined on configurations 2, 9, 28, 29 and 501
 obs3 = pe.Obs([samples3], ['ensemble1'], idl=[[2, 9, 28, 29, 501]])
+obs3.details()
+> Result	 1.01718064e+00
+> 5 samples in 1 ensemble:
+>   · Ensemble 'ensemble1' : 5 configurations (irregular range)
+
 ```
 
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.

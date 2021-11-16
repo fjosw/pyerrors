@@ -348,12 +348,14 @@ class Obs:
         """
         if self.tag is not None:
             print("Description:", self.tag)
-        if self.value == 0.0:
-            percentage = np.nan
+        if not hasattr(self, 'e_dvalue'):
+            print('Result\t %3.8e' % (self.value))
         else:
-            percentage = np.abs(self.dvalue / self.value) * 100
-        print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
-        if hasattr(self, 'e_dvalue'):
+            if self.value == 0.0:
+                percentage = np.nan
+            else:
+                percentage = np.abs(self.dvalue / self.value) * 100
+            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
             for e_name in self.e_names:
@@ -420,7 +422,7 @@ class Obs:
         save : str
             saves the figure to a file named 'save' if.
         """
-        if not hasattr(self, 'e_names'):
+        if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
 
         fig = plt.figure()
@@ -453,7 +455,7 @@ class Obs:
 
     def plot_rho(self):
         """Plot normalized autocorrelation function time for each ensemble."""
-        if not hasattr(self, 'e_names'):
+        if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             plt.xlabel('W')
@@ -475,7 +477,7 @@ class Obs:
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
-        if not hasattr(self, 'e_names'):
+        if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.e_names):
             if len(self.e_content[e_name]) == 1:
@@ -503,7 +505,7 @@ class Obs:
         expand : bool
             show expanded history for irregular Monte Carlo chains (default: True).
         """
-        if not hasattr(self, 'e_names'):
+        if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
 
         for e, e_name in enumerate(self.e_names):
@@ -527,7 +529,7 @@ class Obs:
     def plot_piechart(self):
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions."""
-        if not hasattr(self, 'e_names'):
+        if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         if self.dvalue == 0.0:
             raise Exception('Error is 0.0')

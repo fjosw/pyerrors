@@ -9,13 +9,14 @@ and create your own branch
 cd pyerrors
 git checkout -b feature/my_feature
 ```
-I find it convenient to install the package in editable mode in the local python environment
+It can be convenient to install the package in editable mode in the local python environment when developing new features
 ```
 pip install -e .
 ```
 Please send any pull requests to the `develop` branch.
+
 ### Documentation
-Please add docstrings to any new function, class or method you implement.
+Please add docstrings to any new function, class or method you implement. The documentation is automatically generated from these docstrings. The startpage of the documentation is generated from the docstring of `pyerrors/__init__.py`.
 
 ### Tests
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
@@ -23,7 +24,7 @@ When implementing a new feature or fixing a bug please add meaningful tests to t
 ### Continous integration
 For all pull requests tests are executed for the most recent python releases via
 ```
-pytest --cov=pyerrors -v
+pytest --cov=pyerrors -vv
 ```
 requiring `pytest`, `pytest-cov` and `pytest-benchmark`
 and the linter `flake8` is executed with the command

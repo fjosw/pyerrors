@@ -8,22 +8,17 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 - **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
 - **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
 
-## Getting started
+## Basic example
 
 ```python
 import numpy as np
 import pyerrors as pe
 
-my_obs = pe.Obs([samples], ['ensemble_name'])
-my_new_obs = 2 * np.log(my_obs) / my_obs ** 2
-my_new_obs.gamma_method()
-print(my_new_obs)
+my_obs = pe.Obs([samples], ['ensemble_name']) # Initialize an Obs object with Monte Carlo samples
+my_new_obs = 2 * np.log(my_obs) / my_obs ** 2 # Construct derived Obs object
+my_new_obs.gamma_method() # Estimate the error with the gamma_method
+print(my_new_obs) # Print the result to stdout
 > 0.31498(72)
-
-iamzero = my_new_obs - my_new_obs
-iamzero.gamma_method()
-print(iamzero == 0.0)
-> True
 ```
 
 # The `Obs` class
@@ -43,7 +38,7 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 ## Error propagation
 
 When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
-$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha$$
+$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -61,6 +56,11 @@ my_obs2 = pe.Obs([samples2], ['ensemble_name'])
 my_sum = my_obs1 + my_obs2
 
 my_m_eff = np.log(my_obs1 / my_obs2)
+
+iamzero = my_m_eff - my_m_eff
+# Check that value and fluctuations are zero within machine precision
+print(iamzero == 0.0)
+> True
 ```
 
 ## Error estimation
@@ -82,7 +82,7 @@ my_sum.details()
 ```
 
 We use the following definition of the integrated autocorrelation time established in [Madras & Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)
-$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}$$
+$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
 The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017)
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
 
@@ -98,12 +98,6 @@ my_sum.details()
 ```
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
-
-Example:
-```python
-my_sum.plot_tauint()
-my_sum.plot_rho()
-```
 
 ### Exponential tails
 

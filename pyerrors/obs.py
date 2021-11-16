@@ -511,7 +511,7 @@ class Obs:
             tmp = []
             for r, r_name in enumerate(self.e_content[e_name]):
                 if expand:
-                    tmp.append(_expand_deltas(self.deltas[r_name], self.idl[r_name], self.shape[r_name]) + self.r_values[r_name])
+                    tmp.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
                 else:
                     tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 r_length.append(len(tmp[-1]))

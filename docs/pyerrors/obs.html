@@ -1292,7 +1292,10 @@
             <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">new_deltas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nd</span><span class="p">)</span>
             <span class="n">new_idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ni</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_deltas</span><span class="p">,</span> <span class="n">new_idl</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">derived_observable</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

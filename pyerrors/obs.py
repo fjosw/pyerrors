@@ -975,7 +975,10 @@ def _filter_zeroes(names, deltas, idl, eps=Obs.filter_eps):
             new_names.append(name)
             new_deltas[name] = np.array(nd)
             new_idl[name] = ni
-    return (new_names, new_deltas, new_idl)
+    if new_names:
+        return (new_names, new_deltas, new_idl)
+    else:
+        return (names, deltas, idl)
 
 
 def derived_observable(func, data, **kwargs):

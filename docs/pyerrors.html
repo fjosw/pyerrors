@@ -123,10 +123,10 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
-<span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span> <span class="c1"># Initialize an Obs object with Monte Carlo samples</span>
+<span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span> <span class="c1"># Initialize an Obs object</span>
 <span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span> <span class="o">**</span> <span class="mi">2</span> <span class="c1"># Construct derived Obs object</span>
-<span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="c1"># Estimate the error with the gamma_method</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span> <span class="c1"># Print the result to stdout</span>
+<span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>                     <span class="c1"># Estimate the statistical error</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span>                             <span class="c1"># Print the result to stdout</span>
 <span class="o">&gt;</span> <span class="mf">0.31498</span><span class="p">(</span><span class="mi">72</span><span class="p">)</span>
 </code></pre></div>
 
@@ -148,9 +148,8 @@ The second argument is a list containing the names of the respective Monte Carlo
 
 <p>When performing mathematical operations on <code>Obs</code> objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
-as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.</p>
-
-<p>The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
+as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
+The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
 
 <p>The <code>Obs</code> class is designed such that mathematical numpy functions can be used on <code>Obs</code> just as for regular floats.</p>
 
@@ -359,10 +358,10 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">import numpy as np</span>
 <span class="sd">import pyerrors as pe</span>
 
-<span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;]) # Initialize an Obs object with Monte Carlo samples</span>
+<span class="sd">my_obs = pe.Obs([samples], [&#39;ensemble_name&#39;]) # Initialize an Obs object</span>
 <span class="sd">my_new_obs = 2 * np.log(my_obs) / my_obs ** 2 # Construct derived Obs object</span>
-<span class="sd">my_new_obs.gamma_method() # Estimate the error with the gamma_method</span>
-<span class="sd">print(my_new_obs) # Print the result to stdout</span>
+<span class="sd">my_new_obs.gamma_method()                     # Estimate the statistical error</span>
+<span class="sd">print(my_new_obs)                             # Print the result to stdout</span>
 <span class="sd">&gt; 0.31498(72)</span>
 <span class="sd">```</span>
 
@@ -385,7 +384,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion</span>
 <span class="sd">$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$</span>
 <span class="sd">as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
-
 <span class="sd">The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
 
 <span class="sd">The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.</span>

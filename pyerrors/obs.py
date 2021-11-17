@@ -1017,9 +1017,7 @@ def derived_observable(func, data, **kwargs):
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
 
-    is_merged = {}
-    for name in list(set().union(*[o.names for o in raveled_data])):
-        is_merged[name] = len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0
+    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
     new_idl_d = {}
     for name in new_names:
@@ -1095,21 +1093,19 @@ def derived_observable(func, data, **kwargs):
         new_samples = []
         new_means = []
         new_idl = []
-        filtered_names = []
         filtered_deltas = {}
         filtered_idl_d = {}
         for name in new_names:
-            filtered_names.append(name)
             if is_merged[name]:
                 filtered_deltas[name], filtered_idl_d[name] = _filter_zeroes(new_deltas[name], new_idl_d[name])
             else:
                 filtered_deltas[name] = new_deltas[name]
                 filtered_idl_d[name] = new_idl_d[name]
-        for name in filtered_names:
+        for name in new_names:
             new_samples.append(filtered_deltas[name])
             new_means.append(new_r_values[name][i_val])
             new_idl.append(filtered_idl_d[name])
-        final_result[i_val] = Obs(new_samples, filtered_names, means=new_means, idl=new_idl)
+        final_result[i_val] = Obs(new_samples, new_names, means=new_means, idl=new_idl)
         final_result[i_val]._value = new_val
         final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted

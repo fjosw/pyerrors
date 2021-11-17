@@ -294,6 +294,9 @@
                     <a class="function" href="#load_object">load_object</a>
             </li>
             <li>
+                    <a class="function" href="#import_jackknife">import_jackknife</a>
+            </li>
+            <li>
                     <a class="function" href="#merge_obs">merge_obs</a>
             </li>
     </ul>
@@ -1879,6 +1882,25 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">import_jackknife</span><span class="p">(</span><span class="n">jacks</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Imports jackknife samples and returns an Obs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jacks : numpy.ndarray</span>
+<span class="sd">        numpy array containing the mean value as zeroth entry and</span>
+<span class="sd">        the N jackknife samples as first to Nth entry.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble the samples are defined on.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">jacks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">prj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span> <span class="o">-</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">jacks</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">@</span> <span class="n">prj</span>
+    <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">new_obs</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">jacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_obs</span>
 
 
 <span class="k">def</span> <span class="nf">merge_obs</span><span class="p">(</span><span class="n">list_of_obs</span><span class="p">):</span>
@@ -5173,6 +5195,52 @@ specifies a custom path for the file (default '.')</li>
 <ul>
 <li><strong>path</strong> (str):
 path to the file</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="import_jackknife">
+                            <div class="attr function"><a class="headerlink" href="#import_jackknife">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">import_jackknife</span><span class="signature">(jacks, name)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">import_jackknife</span><span class="p">(</span><span class="n">jacks</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Imports jackknife samples and returns an Obs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jacks : numpy.ndarray</span>
+<span class="sd">        numpy array containing the mean value as zeroth entry and</span>
+<span class="sd">        the N jackknife samples as first to Nth entry.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble the samples are defined on.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">jacks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">prj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span> <span class="o">-</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">jacks</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">@</span> <span class="n">prj</span>
+    <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">new_obs</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">jacks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_obs</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Imports jackknife samples and returns an Obs</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>jacks</strong> (numpy.ndarray):
+numpy array containing the mean value as zeroth entry and
+the N jackknife samples as first to Nth entry.</li>
+<li><strong>name</strong> (str):
+name of the ensemble the samples are defined on.</li>
 </ul>
 </div>
 

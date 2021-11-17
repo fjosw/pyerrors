@@ -587,9 +587,7 @@ class Obs:
         mean = np.mean(full_data)
         tmp_jacks = np.zeros(n + 1)
         tmp_jacks[0] = self.value
-        for i in range(n):
-            tmp_jacks[i + 1] = (n * mean - full_data[i]) / (n - 1)
-
+        tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
     def __float__(self):

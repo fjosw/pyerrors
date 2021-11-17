@@ -1,7 +1,7 @@
 import numpy as np
 from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes
+from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes, import_jackknife
 
 from functools import partial
 from autograd.extend import defvjp
@@ -121,8 +121,13 @@ def derived_array(func, data, **kwargs):
 def matmul(*operands):
     """Matrix multiply all operands.
 
-       Supports real and complex valued matrices and is faster compared to
-       standard multiplication via the @ operator.
+    Parameters
+    ----------
+    operands : numpy.ndarray
+        Arbitrary number of 2d-numpy arrays which can be real or complex
+        Obs valued.
+
+    This implementation is faster compared to standard multiplication via the @ operator.
     """
     if any(isinstance(o[0, 0], CObs) for o in operands):
         extended_operands = []
@@ -167,6 +172,56 @@ def matmul(*operands):
                 stack = stack @ op
             return stack
         return derived_array(multi_dot, operands)
+
+
+def jack_matmul(a, b):
+    """Matrix multiply both operands making use of the jackknife approximation.
+
+    Parameters
+    ----------
+    a : numpy.ndarray
+        First matrix, can be real or complex Obs valued
+    b : numpy.ndarray
+        Second matrix, can be real or complex Obs valued
+
+    For large matrices this is considerably faster compared to matmul.
+    """
+
+    if any(isinstance(o[0, 0], CObs) for o in [a, b]):
+        def _exp_to_jack(matrix):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
+            return base_matrix
+
+        def _imp_from_jack(matrix, name):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = CObs(import_jackknife(entry.real, name),
+                                         import_jackknife(entry.imag, name))
+            return base_matrix
+
+        j_a = _exp_to_jack(a)
+        j_b = _exp_to_jack(b)
+        r = j_a @ j_b
+        return _imp_from_jack(r, a.ravel()[0].real.names[0])
+    else:
+        def _exp_to_jack(matrix):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = entry.export_jackknife()
+            return base_matrix
+
+        def _imp_from_jack(matrix, name):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = import_jackknife(entry, name)
+            return base_matrix
+
+        j_a = _exp_to_jack(a)
+        j_b = _exp_to_jack(b)
+        r = j_a @ j_b
+        return _imp_from_jack(r, a.ravel()[0].names[0])
 
 
 def inv(x):

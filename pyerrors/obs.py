@@ -1101,18 +1101,16 @@ def derived_observable(func, data, **kwargs):
         new_samples = []
         new_means = []
         new_idl = []
-        filtered_deltas = {}
-        filtered_idl_d = {}
         for name in new_names:
             if is_merged[name]:
-                filtered_deltas[name], filtered_idl_d[name] = _filter_zeroes(new_deltas[name], new_idl_d[name])
+                filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
             else:
-                filtered_deltas[name] = new_deltas[name]
-                filtered_idl_d[name] = new_idl_d[name]
-        for name in new_names:
-            new_samples.append(filtered_deltas[name])
+                filtered_deltas = new_deltas[name]
+                filtered_idl_d = new_idl_d[name]
+
+            new_samples.append(filtered_deltas)
+            new_idl.append(filtered_idl_d)
             new_means.append(new_r_values[name][i_val])
-            new_idl.append(filtered_idl_d[name])
         final_result[i_val] = Obs(new_samples, new_names, means=new_means, idl=new_idl)
         final_result[i_val]._value = new_val
         final_result[i_val].is_merged = is_merged

@@ -1564,6 +1564,25 @@ def load_object(path):
         return pickle.load(file)
 
 
+def import_jackknife(jacks, name):
+    """Imports jackknife samples and returns an Obs
+
+    Parameters
+    ----------
+    jacks : numpy.ndarray
+        numpy array containing the mean value as zeroth entry and
+        the N jackknife samples as first to Nth entry.
+    name : str
+        name of the ensemble the samples are defined on.
+    """
+    length = len(jacks) - 1
+    prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
+    samples = jacks[1:] @ prj
+    new_obs = Obs([samples], [name])
+    new_obs._value = jacks[0]
+    return new_obs
+
+
 def merge_obs(list_of_obs):
     """Combine all observables in list_of_obs into one new observable
 

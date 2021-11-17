@@ -534,3 +534,12 @@ def test_jackknife():
     my_new_obs = my_obs + pe.Obs([full_data], ['test2'])
     with pytest.raises(Exception):
         my_new_obs.export_jackknife()
+
+
+def test_import_jackknife():
+    full_data = np.random.normal(1.105, 0.021, 754)
+    my_obs = pe.Obs([full_data], ['test'])
+    my_jacks = my_obs.export_jackknife()
+    reconstructed_obs = pe.import_jackknife(my_jacks, 'test')
+    assert my_obs == reconstructed_obs
+

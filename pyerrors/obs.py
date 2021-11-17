@@ -155,20 +155,21 @@ class Obs:
         return res
 
     def gamma_method(self, **kwargs):
-        """Calculate the error and related properties of the Obs.
+        """Estimate the error and related properties of the Obs.
 
         Parameters
         ----------
         S : float
-            specifies a custom value for the parameter S (default 2.0), can be
-            a float or an array of floats for different ensembles
+            specifies a custom value for the parameter S (default 2.0).
+            If set to 0 it is assumed that the data exhibits no
+            autocorrelation. In this case the error estimates coincides
+            with the sample standard error.
         tau_exp : float
             positive value triggers the critical slowing down analysis
-            (default 0.0), can be a float or an array of floats for different
-            ensembles
+            (default 0.0).
         N_sigma : float
             number of standard deviations from zero until the tail is
-            attached to the autocorrelation function (default 1)
+            attached to the autocorrelation function (default 1).
         fft : bool
             determines whether the fft algorithm is used for the computation
             of the autocorrelation function (default True)
@@ -281,19 +282,26 @@ class Obs:
                         self.e_windowsize[e_name] = n
                         break
             else:
-                # Standard automatic windowing procedure
-                g_w = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
-                g_w = np.exp(- np.arange(1, w_max) / g_w) - g_w / np.sqrt(np.arange(1, w_max) * e_N)
-                for n in range(1, w_max):
-                    if n < w_max // 2 - 2:
-                        _compute_drho(n + 1)
-                    if g_w[n - 1] < 0 or n >= w_max - 1:
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
-                        self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
-                        self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
-                        self.e_windowsize[e_name] = n
-                        break
+                if self.S[e_name] == 0.0:
+                    self.e_tauint[e_name] = 0.5
+                    self.e_dtauint[e_name] = 0.0
+                    self.e_dvalue[e_name] = np.sqrt(e_gamma[e_name][0] / (e_N - 1))
+                    self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt(0.5 / e_N)
+                    self.e_windowsize[e_name] = 0
+                else:
+                    # Standard automatic windowing procedure
+                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
+                    g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
+                    for n in range(1, w_max):
+                        if n < w_max // 2 - 2:
+                            _compute_drho(n + 1)
+                        if g_w[n - 1] < 0 or n >= w_max - 1:
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                            self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
+                            self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
+                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
+                            self.e_windowsize[e_name] = n
+                            break
 
             self._dvalue += self.e_dvalue[e_name] ** 2
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
@@ -1545,6 +1553,25 @@ def load_object(path):
     """
     with open(path, 'rb') as file:
         return pickle.load(file)
+
+
+def import_jackknife(jacks, name):
+    """Imports jackknife samples and returns an Obs
+
+    Parameters
+    ----------
+    jacks : numpy.ndarray
+        numpy array containing the mean value as zeroth entry and
+        the N jackknife samples as first to Nth entry.
+    name : str
+        name of the ensemble the samples are defined on.
+    """
+    length = len(jacks) - 1
+    prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
+    samples = jacks[1:] @ prj
+    new_obs = Obs([samples], [name])
+    new_obs._value = jacks[0]
+    return new_obs
 
 
 def merge_obs(list_of_obs):

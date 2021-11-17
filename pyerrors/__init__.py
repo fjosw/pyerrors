@@ -98,6 +98,9 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
+If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+In this case the error estimate is identical to the sample standard error.
+
 ### Exponential tails
 
 Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.

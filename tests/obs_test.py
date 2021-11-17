@@ -95,6 +95,18 @@ def test_gamma_method():
         assert test_obs.e_tauint['t'] - 10.5 <= test_obs.e_dtauint['t']
 
 
+def test_gamma_method_no_windowing():
+    for iteration in range(50):
+        obs = pe.Obs([np.random.normal(1.02, 0.02, 733 + np.random.randint(1000))], ['ens'])
+        obs.gamma_method(S=0)
+        assert obs.e_tauint['ens'] == 0.5
+        assert np.isclose(np.sqrt(np.var(obs.deltas['ens'], ddof=1) / obs.shape['ens']), obs.dvalue)
+        obs.gamma_method(S=1.1)
+        assert obs.e_tauint['ens'] > 0.5
+    with pytest.raises(Exception):
+        obs.gamma_method(S=-0.2)
+
+
 def test_gamma_method_persistance():
     my_obs = pe.Obs([np.random.rand(730)], ['t'])
     my_obs.gamma_method()
@@ -522,3 +534,12 @@ def test_jackknife():
     my_new_obs = my_obs + pe.Obs([full_data], ['test2'])
     with pytest.raises(Exception):
         my_new_obs.export_jackknife()
+
+
+def test_import_jackknife():
+    full_data = np.random.normal(1.105, 0.021, 754)
+    my_obs = pe.Obs([full_data], ['test'])
+    my_jacks = my_obs.export_jackknife()
+    reconstructed_obs = pe.import_jackknife(my_jacks, 'test')
+    assert my_obs == reconstructed_obs
+

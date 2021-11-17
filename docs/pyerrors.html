@@ -205,6 +205,9 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code> and <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
+<p>If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+In this case the error estimate is identical to the sample standard error.</p>
+
 <h3 id="exponential-tails">Exponential tails</h3>
 
 <p>Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
@@ -453,6 +456,9 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```</span>
 
 <span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.</span>
+
+<span class="sd">If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.</span>
+<span class="sd">In this case the error estimate is identical to the sample standard error.</span>
 
 <span class="sd">### Exponential tails</span>
 

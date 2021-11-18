@@ -106,13 +106,10 @@
     <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
 
-<span class="sd">        Returns gamma_5 @ M.T.conj() @ gamma_5 and exchanges in and out going</span>
-<span class="sd">        momenta. Works only for 12x12 matrices.</span>
+<span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
+<span class="sd">        in and out momenta of the propagator are exchanged.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;g5H only works for 12x12 matrices.&#39;</span><span class="p">)</span>
-        <span class="n">extended_g5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">gamma5</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matmul</span><span class="p">(</span><span class="n">extended_g5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extended_g5</span><span class="p">),</span>
+        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">mom_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span><span class="p">,</span>
                           <span class="n">mom_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
 
@@ -220,13 +217,10 @@
     <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
 
-<span class="sd">        Returns gamma_5 @ M.T.conj() @ gamma_5 and exchanges in and out going</span>
-<span class="sd">        momenta. Works only for 12x12 matrices.</span>
+<span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
+<span class="sd">        in and out momenta of the propagator are exchanged.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;g5H only works for 12x12 matrices.&#39;</span><span class="p">)</span>
-        <span class="n">extended_g5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">gamma5</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matmul</span><span class="p">(</span><span class="n">extended_g5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extended_g5</span><span class="p">),</span>
+        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">mom_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span><span class="p">,</span>
                           <span class="n">mom_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
 
@@ -400,8 +394,8 @@ ndarray.</p>
 
             <div class="docstring"><p>Gamma_5 hermitean conjugate</p>
 
-<p>Returns gamma_5 @ M.T.conj() @ gamma_5 and exchanges in and out going
-momenta. Works only for 12x12 matrices.</p>
+<p>Uses the fact that the propagator is gamma5 hermitean, so just the
+in and out momenta of the propagator are exchanged.</p>
 </div>
 
 

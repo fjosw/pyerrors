@@ -29,10 +29,15 @@ def _get_files(path, filestem):
     for line in files:
         cnfg_numbers.append(get_cnfg_number(line))
 
-    if not all(np.diff(cnfg_numbers) == np.diff(cnfg_numbers)[0]):
+    dc = np.unique(np.diff(cnfg_numbers))
+    if np.any(dc < 0):
+        raise Exception("Unsorted files")
+    if len(dc) == 1:
+        idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
+    else:
         raise Exception('Configurations are not evenly spaced.')
 
-    return files, cnfg_numbers
+    return files, idx
 
 
 def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
@@ -55,7 +60,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
         from other modules with similar structures.
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem)
 
     corr_data = []
     infos = []
@@ -72,7 +77,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
 
     l_obs = []
     for c in corr_data.T:
-        l_obs.append(Obs([c], [ens_id], idl=[cnfg_numbers]))
+        l_obs.append(Obs([c], [ens_id], idl=[idx]))
 
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
@@ -92,7 +97,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
              'C' for the last index changing fastest (16 3x3 matrices),
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem)
 
     mom = None
 
@@ -110,8 +115,8 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
 
     matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
     for si, sj, ci, cj in np.ndindex(rolled_array.shape[:-1]):
-        real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
-        imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
+        real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[idx])
+        imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
         matrix[si, sj, ci, cj] = CObs(real, imag)
 
     return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)
@@ -130,7 +135,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
              'C' for the last index changing fastest (16 3x3 matrices),
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem)
 
     mom_in = None
     mom_out = None
@@ -160,8 +165,8 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
 
         matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
         for si, sj, ci, cj in np.ndindex(rolled_array.shape[:-1]):
-            real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
-            imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
+            real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[idx])
+            imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
             matrix[si, sj, ci, cj] = CObs(real, imag)
 
         result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom_in, mom_out=mom_out)

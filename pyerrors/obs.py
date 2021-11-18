@@ -1559,7 +1559,7 @@ def load_object(path):
         return pickle.load(file)
 
 
-def import_jackknife(jacks, name):
+def import_jackknife(jacks, name, idl=None):
     """Imports jackknife samples and returns an Obs
 
     Parameters
@@ -1573,7 +1573,7 @@ def import_jackknife(jacks, name):
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
     samples = jacks[1:] @ prj
-    new_obs = Obs([samples], [name])
+    new_obs = Obs([samples], [name], idl=idl)
     new_obs._value = jacks[0]
     return new_obs
 

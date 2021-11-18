@@ -99,6 +99,8 @@ def test_jack_multi_dot():
         tt = pe.linalg.jack_matmul(my_array, my_array, my_array) - pe.linalg.matmul(my_array, my_array, my_array)
 
         for t, e in np.ndenumerate(tt):
+            e.gamma_method()
+            assert e.is_zero_within_error(0.01)
             assert e.is_zero(atol=1e-1), t
             assert np.isclose(e.value, 0.0)
 

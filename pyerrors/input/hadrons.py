@@ -107,9 +107,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         file = h5py.File(path + '/' + hd5_file, "r")
         raw_data = file['ExternalLeg/corr'][0][0].view('complex')
         corr_data.append(raw_data)
-        if mom is not None:
-            assert np.allclose(mom, np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int))
-        else:
+        if mom is None:
             mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
         file.close()
     corr_data = np.array(corr_data)
@@ -121,7 +119,6 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
         imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
         matrix[si, sj, ci, cj] = CObs(real, imag)
-        matrix[si, sj, ci, cj].gamma_method()
 
     return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)
 
@@ -153,13 +150,9 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
                 corr_data[name] = []
             raw_data = file['Bilinear/Bilinear_' + str(i) + '/corr'][0][0].view('complex')
             corr_data[name].append(raw_data)
-            if mom_in is not None:
-                assert np.allclose(mom_in, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int))
-            else:
+            if mom_in is None:
                 mom_in = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
-            if mom_out is not None:
-                assert np.allclose(mom_out, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int))
-            else:
+            if mom_out is None:
                 mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
 
         file.close()

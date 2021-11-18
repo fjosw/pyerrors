@@ -205,7 +205,10 @@ def jack_matmul(*operands):
 
         r = _exp_to_jack(operands[0])
         for op in operands[1:]:
-            r = r @ _exp_to_jack(op)
+            if isinstance(op[0, 0], CObs):
+                r = r @ _exp_to_jack(op)
+            else:
+                r = r @ op
         return _imp_from_jack(r)
     else:
         name = operands[0][0, 0].names[0]
@@ -225,7 +228,10 @@ def jack_matmul(*operands):
 
         r = _exp_to_jack(operands[0])
         for op in operands[1:]:
-            r = r @ _exp_to_jack(op)
+            if isinstance(op[0, 0], Obs):
+                r = r @ _exp_to_jack(op)
+            else:
+                r = r @ op
         return _imp_from_jack(r)
 
 

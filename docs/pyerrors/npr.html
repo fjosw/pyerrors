@@ -188,6 +188,9 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">imag</span><span class="o">.</span><span class="n">is_zero_within_error</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Imaginary part of Zq is not zero within 5 sigma&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
+
+    <span class="n">res</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;Zq &#39;&quot;</span> <span class="o">+</span> <span class="n">fermion</span> <span class="o">+</span> <span class="s2">&quot;&#39;, p=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">inv_prop</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">real</span>
 </pre></div>
 
@@ -549,6 +552,9 @@ in and out momenta of the propagator are exchanged.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">imag</span><span class="o">.</span><span class="n">is_zero_within_error</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Imaginary part of Zq is not zero within 5 sigma&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
+
+    <span class="n">res</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;Zq &#39;&quot;</span> <span class="o">+</span> <span class="n">fermion</span> <span class="o">+</span> <span class="s2">&quot;&#39;, p=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">inv_prop</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">real</span>
 </pre></div>
 

@@ -174,20 +174,19 @@ def matmul(*operands):
         return derived_array(multi_dot, operands)
 
 
-def jack_matmul(a, b):
+def jack_matmul(*operands):
     """Matrix multiply both operands making use of the jackknife approximation.
 
     Parameters
     ----------
-    a : numpy.ndarray
-        First matrix, can be real or complex Obs valued
-    b : numpy.ndarray
-        Second matrix, can be real or complex Obs valued
+    operands : numpy.ndarray
+        Arbitrary number of 2d-numpy arrays which can be real or complex
+        Obs valued.
 
     For large matrices this is considerably faster compared to matmul.
     """
 
-    if any(isinstance(o[0, 0], CObs) for o in [a, b]):
+    if any(isinstance(o[0, 0], CObs) for o in operands):
         def _exp_to_jack(matrix):
             base_matrix = np.empty_like(matrix)
             for (n, m), entry in np.ndenumerate(matrix):
@@ -201,10 +200,10 @@ def jack_matmul(a, b):
                                          import_jackknife(entry.imag, name))
             return base_matrix
 
-        j_a = _exp_to_jack(a)
-        j_b = _exp_to_jack(b)
-        r = j_a @ j_b
-        return _imp_from_jack(r, a.ravel()[0].real.names[0])
+        r = _exp_to_jack(operands[0])
+        for op in operands[1:]:
+            r = r @ _exp_to_jack(op)
+        return _imp_from_jack(r, op.ravel()[0].real.names[0])
     else:
         def _exp_to_jack(matrix):
             base_matrix = np.empty_like(matrix)
@@ -218,10 +217,10 @@ def jack_matmul(a, b):
                 base_matrix[n, m] = import_jackknife(entry, name)
             return base_matrix
 
-        j_a = _exp_to_jack(a)
-        j_b = _exp_to_jack(b)
-        r = j_a @ j_b
-        return _imp_from_jack(r, a.ravel()[0].names[0])
+        r = _exp_to_jack(operands[0])
+        for op in operands[1:]:
+            r = r @ _exp_to_jack(op)
+        return _imp_from_jack(r, op.ravel()[0].names[0])
 
 
 def inv(x):

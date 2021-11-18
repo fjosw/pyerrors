@@ -1,7 +1,7 @@
 import warnings
 import numpy as np
 from .linalg import inv, matmul
-from .dirac import gamma, gamma5
+from .dirac import gamma
 
 
 L = None

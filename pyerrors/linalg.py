@@ -224,6 +224,92 @@ def jack_matmul(a, b):
         return _imp_from_jack(r, a.ravel()[0].names[0])
 
 
+def boot_matmul(a, b):
+    """Matrix multiply both operands making use of the bootstrap approximation.
+
+    Parameters
+    ----------
+    a : numpy.ndarray
+        First matrix, can be real or complex Obs valued
+    b : numpy.ndarray
+        Second matrix, can be real or complex Obs valued
+
+    For large matrices this is considerably faster compared to matmul.
+    """
+
+    def export_boot(obs):
+        ret = np.zeros(obs.N + 1)
+        ret[0] = obs.value
+        ret[1:] = proj @ obs.deltas[name]
+        return ret
+
+    def import_boot(boots):
+        samples = inv_proj @ boots[1:]
+        ret = Obs([samples], [name])
+        ret._value = boots[0]
+        return ret
+
+    if any(isinstance(o[0, 0], CObs) for o in [a, b]):
+        assert len(a[0, 0].real.names) == 1
+
+        name = a[0, 0].real.names[0]
+
+        length = a[0, 0].real.N
+
+        random_numbers = np.random.randint(0, length, (length, length))
+
+        proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]).T / length
+
+        inv_proj = np.linalg.inv(proj)
+
+        def _exp_to_boot(matrix):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = export_boot(entry.real) + 1j * export_boot(entry.imag)
+            return base_matrix
+
+        def _imp_from_boot(matrix, name):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = CObs(import_boot(entry.real),
+                                         import_boot(entry.imag))
+            return base_matrix
+
+        j_a = _exp_to_boot(a)
+        j_b = _exp_to_boot(b)
+        r = j_a @ j_b
+        return _imp_from_boot(r, a.ravel()[0].real.names[0])
+    else:
+        assert len(a[0, 0].names) == 1
+
+        name = a[0, 0].names[0]
+
+        length = a[0, 0].N
+
+        random_numbers = np.random.randint(0, length, (length, length))
+
+        proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]).T / length
+
+        inv_proj = np.linalg.inv(proj)
+
+        def _exp_to_boot(matrix):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = export_boot(entry)
+            return base_matrix
+
+        def _imp_from_boot(matrix, name):
+            base_matrix = np.empty_like(matrix)
+            for (n, m), entry in np.ndenumerate(matrix):
+                base_matrix[n, m] = import_boot(entry)
+            return base_matrix
+
+        j_a = _exp_to_boot(a)
+        j_b = _exp_to_boot(b)
+        r = j_a @ j_b
+        return _imp_from_boot(r, a.ravel()[0].names[0])
+
+
 def inv(x):
     """Inverse of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.inv, x)

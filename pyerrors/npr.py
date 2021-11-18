@@ -20,13 +20,10 @@ class Npr_matrix(np.ndarray):
     def g5H(self):
         """Gamma_5 hermitean conjugate
 
-        Returns gamma_5 @ M.T.conj() @ gamma_5 and exchanges in and out going
-        momenta. Works only for 12x12 matrices.
+        Uses the fact that the propagator is gamma5 hermitean, so just the
+        in and out momenta of the propagator are exchanged.
         """
-        if self.shape != (12, 12):
-            raise Exception('g5H only works for 12x12 matrices.')
-        extended_g5 = np.kron(np.eye(3, dtype=int), gamma5)
-        return Npr_matrix(matmul(extended_g5, self.conj().T, extended_g5),
+        return Npr_matrix(self,
                           mom_in=self.mom_out,
                           mom_out=self.mom_in)
 

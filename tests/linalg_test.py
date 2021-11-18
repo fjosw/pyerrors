@@ -92,6 +92,17 @@ def test_multi_dot():
             assert e.is_zero(), t
 
 
+def test_jack_multi_dot():
+    for dim in [2, 4, 8]:
+        my_array = get_real_matrix(dim)
+
+        tt = pe.linalg.jack_matmul(my_array, my_array, my_array) - pe.linalg.matmul(my_array, my_array, my_array)
+
+        for t, e in np.ndenumerate(tt):
+            assert e.is_zero(atol=1e-1), t
+            assert np.isclose(e.value, 0.0)
+
+
 def test_matmul_irregular_histories():
     dim = 2
     length = 500

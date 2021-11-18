@@ -102,4 +102,7 @@ def Zq(inv_prop, fermion='Wilson'):
     if not res.imag.is_zero_within_error(5):
         warnings.warn("Imaginary part of Zq is not zero within 5 sigma")
         return res
+
+    res.real.tag = "Zq '" + fermion + "', p=" + str(inv_prop.mom_in)
+
     return res.real

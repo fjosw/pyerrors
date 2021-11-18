@@ -278,20 +278,19 @@
         <span class="k">return</span> <span class="n">derived_array</span><span class="p">(</span><span class="n">multi_dot</span><span class="p">,</span> <span class="n">operands</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    a : numpy.ndarray</span>
-<span class="sd">        First matrix, can be real or complex Obs valued</span>
-<span class="sd">    b : numpy.ndarray</span>
-<span class="sd">        Second matrix, can be real or complex Obs valued</span>
+<span class="sd">    operands : numpy.ndarray</span>
+<span class="sd">        Arbitrary number of 2d-numpy arrays which can be real or complex</span>
+<span class="sd">        Obs valued.</span>
 
 <span class="sd">    For large matrices this is considerably faster compared to matmul.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">_exp_to_jack</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
             <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
@@ -305,10 +304,10 @@
                                          <span class="n">import_jackknife</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">base_matrix</span>
 
-        <span class="n">j_a</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">j_b</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">j_a</span> <span class="o">@</span> <span class="n">j_b</span>
-        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">@</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">_exp_to_jack</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
             <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
@@ -322,10 +321,10 @@
                 <span class="n">base_matrix</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">import_jackknife</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">base_matrix</span>
 
-        <span class="n">j_a</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">j_b</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">j_a</span> <span class="o">@</span> <span class="n">j_b</span>
-        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">@</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -942,25 +941,24 @@ Obs valued.</li>
 
         
             <span class="def">def</span>
-            <span class="name">jack_matmul</span><span class="signature">(a, b)</span>:
+            <span class="name">jack_matmul</span><span class="signature">(*operands)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    a : numpy.ndarray</span>
-<span class="sd">        First matrix, can be real or complex Obs valued</span>
-<span class="sd">    b : numpy.ndarray</span>
-<span class="sd">        Second matrix, can be real or complex Obs valued</span>
+<span class="sd">    operands : numpy.ndarray</span>
+<span class="sd">        Arbitrary number of 2d-numpy arrays which can be real or complex</span>
+<span class="sd">        Obs valued.</span>
 
 <span class="sd">    For large matrices this is considerably faster compared to matmul.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">_exp_to_jack</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
             <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
@@ -974,10 +972,10 @@ Obs valued.</li>
                                          <span class="n">import_jackknife</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">base_matrix</span>
 
-        <span class="n">j_a</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">j_b</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">j_a</span> <span class="o">@</span> <span class="n">j_b</span>
-        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">@</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">def</span> <span class="nf">_exp_to_jack</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
             <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
@@ -991,10 +989,10 @@ Obs valued.</li>
                 <span class="n">base_matrix</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">import_jackknife</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">base_matrix</span>
 
-        <span class="n">j_a</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">j_b</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">j_a</span> <span class="o">@</span> <span class="n">j_b</span>
-        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">@</span> <span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -1004,10 +1002,9 @@ Obs valued.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>a</strong> (numpy.ndarray):
-First matrix, can be real or complex Obs valued</li>
-<li><strong>b</strong> (numpy.ndarray):
-Second matrix, can be real or complex Obs valued</li>
+<li><strong>operands</strong> (numpy.ndarray):
+Arbitrary number of 2d-numpy arrays which can be real or complex
+Obs valued.</li>
 <li><strong>For large matrices this is considerably faster compared to matmul.</strong></li>
 </ul>
 </div>

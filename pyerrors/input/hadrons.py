@@ -176,7 +176,6 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
             real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
             imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
             matrix[si, sj, ci, cj] = CObs(real, imag)
-            matrix[si, sj, ci, cj].gamma_method()
 
         result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom_in, mom_out=mom_out)
 

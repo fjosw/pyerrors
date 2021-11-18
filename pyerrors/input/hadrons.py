@@ -10,16 +10,10 @@ from ..npr import Npr_matrix
 
 
 def _get_files(path, filestem):
-    ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        ls.extend(filenames)
-        break
+    ls = os.listdir(path)
 
     # Clean up file list
-    files = []
-    for line in ls:
-        if line.startswith(filestem):
-            files.append(line)
+    files = list(filter(lambda x: x.startswith(filestem), ls))
 
     if not files:
         raise Exception('No files starting with', filestem, 'in folder', path)

@@ -6,7 +6,6 @@ import h5py
 import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
-from ..npr import Npr_matrix
 
 
 def _get_files(path, filestem):
@@ -82,6 +81,46 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
     return corr
+
+
+class Npr_matrix(np.ndarray):
+
+    def __new__(cls, input_array, mom_in=None, mom_out=None):
+        obj = np.asarray(input_array).view(cls)
+        obj.mom_in = mom_in
+        obj.mom_out = mom_out
+        return obj
+
+    @property
+    def g5H(self):
+        """Gamma_5 hermitean conjugate
+
+        Uses the fact that the propagator is gamma5 hermitean, so just the
+        in and out momenta of the propagator are exchanged.
+        """
+        return Npr_matrix(self,
+                          mom_in=self.mom_out,
+                          mom_out=self.mom_in)
+
+    def _propagate_mom(self, other, name):
+        s_mom = getattr(self, name, None)
+        o_mom = getattr(other, name, None)
+        if s_mom is not None and o_mom is not None:
+            if not np.allclose(s_mom, o_mom):
+                raise Exception(name + ' does not match.')
+        return o_mom if o_mom is not None else s_mom
+
+    def __matmul__(self, other):
+        return self.__new__(Npr_matrix,
+                            super().__matmul__(other),
+                            self._propagate_mom(other, 'mom_in'),
+                            self._propagate_mom(other, 'mom_out'))
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.mom_in = getattr(obj, 'mom_in', None)
+        self.mom_out = getattr(obj, 'mom_out', None)
 
 
 def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):

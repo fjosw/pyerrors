@@ -51,6 +51,18 @@
                     <a class="function" href="#read_meson_hd5">read_meson_hd5</a>
             </li>
             <li>
+                    <a class="class" href="#Npr_matrix">Npr_matrix</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Npr_matrix.__init__">Npr_matrix</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Npr_matrix.g5H">g5H</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="function" href="#read_ExternalLeg_hd5">read_ExternalLeg_hd5</a>
             </li>
             <li>
@@ -83,7 +95,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">CObs</span>
 <span class="kn">from</span> <span class="nn">..correlators</span> <span class="kn">import</span> <span class="n">Corr</span>
-<span class="kn">from</span> <span class="nn">..npr</span> <span class="kn">import</span> <span class="n">Npr_matrix</span>
 
 
 <span class="k">def</span> <span class="nf">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">):</span>
@@ -159,6 +170,46 @@
     <span class="n">corr</span> <span class="o">=</span> <span class="n">Corr</span><span class="p">(</span><span class="n">l_obs</span><span class="p">)</span>
     <span class="n">corr</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">infos</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">corr</span>
+
+
+<span class="k">class</span> <span class="nc">Npr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_array</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">mom_in</span> <span class="o">=</span> <span class="n">mom_in</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">mom_out</span> <span class="o">=</span> <span class="n">mom_out</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
+
+<span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
+<span class="sd">        in and out momenta of the propagator are exchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                          <span class="n">mom_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span><span class="p">,</span>
+                          <span class="n">mom_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_propagate_mom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">s_mom</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">o_mom</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">o_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">s_mom</span><span class="p">,</span> <span class="n">o_mom</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; does not match.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">o_mom</span> <span class="k">if</span> <span class="n">o_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">s_mom</span>
+
+    <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Npr_matrix</span><span class="p">,</span>
+                            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__matmul__</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_mom</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s1">&#39;mom_in&#39;</span><span class="p">),</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_mom</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s1">&#39;mom_out&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mom_in&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mom_out&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">):</span>
@@ -332,6 +383,292 @@ from other modules with similar structures.</li>
 </div>
 
 
+                </section>
+                <section id="Npr_matrix">
+                                <div class="attr class">
+        <a class="headerlink" href="#Npr_matrix">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">Npr_matrix</span><wbr>(<span class="base">numpy.ndarray</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Npr_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_array</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">mom_in</span> <span class="o">=</span> <span class="n">mom_in</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">mom_out</span> <span class="o">=</span> <span class="n">mom_out</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
+
+<span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
+<span class="sd">        in and out momenta of the propagator are exchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                          <span class="n">mom_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span><span class="p">,</span>
+                          <span class="n">mom_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_propagate_mom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">s_mom</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">o_mom</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">o_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">s_mom</span><span class="p">,</span> <span class="n">o_mom</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; does not match.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">o_mom</span> <span class="k">if</span> <span class="n">o_mom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">s_mom</span>
+
+    <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Npr_matrix</span><span class="p">,</span>
+                            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__matmul__</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_mom</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s1">&#39;mom_in&#39;</span><span class="p">),</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_mom</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s1">&#39;mom_out&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mom_in</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mom_in&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mom_out&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>ndarray(shape, dtype=float, buffer=None, offset=0,
+        strides=None, order=None)</p>
+
+<p>An array object represents a multidimensional, homogeneous array
+of fixed-size items.  An associated data-type object describes the
+format of each element in the array (its byte-order, how many bytes it
+occupies in memory, whether it is an integer, a floating point number,
+or something else, etc.)</p>
+
+<p>Arrays should be constructed using <code>array</code>, <code>zeros</code> or <code>empty</code> (refer
+to the See Also section below).  The parameters given here refer to
+a low-level method (<code>ndarray(...)</code>) for instantiating an array.</p>
+
+<p>For more information, refer to the <code>numpy</code> module and examine the
+methods and attributes of an array.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>(for the __new__ method; see Notes below)</strong></li>
+<li><strong>shape</strong> (tuple of ints):
+Shape of created array.</li>
+<li><strong>dtype</strong> (data-type, optional):
+Any object that can be interpreted as a numpy data type.</li>
+<li><strong>buffer</strong> (object exposing buffer interface, optional):
+Used to fill the array with data.</li>
+<li><strong>offset</strong> (int, optional):
+Offset of array data in buffer.</li>
+<li><strong>strides</strong> (tuple of ints, optional):
+Strides of data in memory.</li>
+<li><strong>order</strong> ({'C', 'F'}, optional):
+Row-major (C-style) or column-major (Fortran-style) order.</li>
+</ul>
+
+<h6 id="attributes">Attributes</h6>
+
+<ul>
+<li><strong>T</strong> (ndarray):
+Transpose of the array.</li>
+<li><strong>data</strong> (buffer):
+The array's elements, in memory.</li>
+<li><strong>dtype</strong> (dtype object):
+Describes the format of the elements in the array.</li>
+<li><strong>flags</strong> (dict):
+Dictionary containing information related to memory use, e.g.,
+'C_CONTIGUOUS', 'OWNDATA', 'WRITEABLE', etc.</li>
+<li><strong>flat</strong> (numpy.flatiter object):
+Flattened version of the array as an iterator.  The iterator
+allows assignments, e.g., <code>x.flat = 3</code> (See <code>ndarray.flat</code> for
+assignment examples; TODO).</li>
+<li><strong>imag</strong> (ndarray):
+Imaginary part of the array.</li>
+<li><strong>real</strong> (ndarray):
+Real part of the array.</li>
+<li><strong>size</strong> (int):
+Number of elements in the array.</li>
+<li><strong>itemsize</strong> (int):
+The memory use of each array element in bytes.</li>
+<li><strong>nbytes</strong> (int):
+The total number of bytes required to store the array data,
+i.e., <code>itemsize * size</code>.</li>
+<li><strong>ndim</strong> (int):
+The array's number of dimensions.</li>
+<li><strong>shape</strong> (tuple of ints):
+Shape of the array.</li>
+<li><strong>strides</strong> (tuple of ints):
+The step-size required to move from one element to the next in
+memory. For example, a contiguous <code>(3, 4)</code> array of type
+<code>int16</code> in C-order has strides <code>(8, 2)</code>.  This implies that
+to move from element to element in memory requires jumps of 2 bytes.
+To move from row-to-row, one needs to jump 8 bytes at a time
+(<code>2 * 4</code>).</li>
+<li><strong>ctypes</strong> (ctypes object):
+Class containing properties of the array needed for interaction
+with ctypes.</li>
+<li><strong>base</strong> (ndarray):
+If the array is a view into another array, that array is its <code><a href="#Npr_matrix.base">base</a></code>
+(unless that array is also a view).  The <code><a href="#Npr_matrix.base">base</a></code> array is where the
+array data is actually stored.</li>
+</ul>
+
+<h6 id="see-also">See Also</h6>
+
+<p><code>array</code>:  Construct an array. <br />
+<code>zeros</code>:  Create an array, each element of which is zero. <br />
+<code>empty</code>:  Create an array, but leave its allocated memory unchanged (i.e.,
+it contains "garbage"). <br />
+<code><a href="#Npr_matrix.dtype">dtype</a></code>:  Create a data-type. <br />
+<code>numpy.typing.NDArray</code>:  A :term:<code>generic &lt;generic type&gt;</code> version
+of ndarray.  </p>
+
+<h6 id="notes">Notes</h6>
+
+<p>There are two modes of creating an array using <code>__new__</code>:</p>
+
+<ol>
+<li>If <code>buffer</code> is None, then only <code><a href="#Npr_matrix.shape">shape</a></code>, <code><a href="#Npr_matrix.dtype">dtype</a></code>, and <code>order</code>
+are used.</li>
+<li>If <code>buffer</code> is an object exposing the buffer interface, then
+all keywords are interpreted.</li>
+</ol>
+
+<p>No <code><a href="#Npr_matrix.__init__">__init__</a></code> method is needed because the array is fully initialized
+after the <code>__new__</code> method.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p>These examples illustrate the low-level <code>ndarray</code> constructor.  Refer
+to the <code>See Also</code> section above for easier ways of constructing an
+ndarray.</p>
+
+<p>First mode, <code>buffer</code> is None:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+<span class="go">array([[0.0e+000, 0.0e+000], # random</span>
+<span class="go">       [     nan, 2.5e-323]])</span>
+</code></pre></div>
+
+<p>Second mode:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">2</span><span class="p">,),</span> <span class="n">buffer</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]),</span>
+<span class="gp">... </span>           <span class="n">offset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">()</span><span class="o">.</span><span class="n">itemsize</span><span class="p">,</span>
+<span class="gp">... </span>           <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># offset = 1*itemsize, i.e. skip first element</span>
+<span class="go">array([2, 3])</span>
+</code></pre></div>
+</div>
+
+
+                            <div id="Npr_matrix.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Npr_matrix.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">Npr_matrix</span><span class="signature">()</span>
+    </div>
+
+        
+    
+
+                            </div>
+                            <div id="Npr_matrix.g5H" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Npr_matrix.g5H">#&nbsp;&nbsp</a>
+
+        <span class="name">g5H</span>
+    </div>
+
+            <div class="docstring"><p>Gamma_5 hermitean conjugate</p>
+
+<p>Uses the fact that the propagator is gamma5 hermitean, so just the
+in and out momenta of the propagator are exchanged.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>numpy.ndarray</dt>
+                                <dd id="Npr_matrix.dumps" class="function">dumps</dd>
+                <dd id="Npr_matrix.dump" class="function">dump</dd>
+                <dd id="Npr_matrix.all" class="function">all</dd>
+                <dd id="Npr_matrix.any" class="function">any</dd>
+                <dd id="Npr_matrix.argmax" class="function">argmax</dd>
+                <dd id="Npr_matrix.argmin" class="function">argmin</dd>
+                <dd id="Npr_matrix.argpartition" class="function">argpartition</dd>
+                <dd id="Npr_matrix.argsort" class="function">argsort</dd>
+                <dd id="Npr_matrix.astype" class="function">astype</dd>
+                <dd id="Npr_matrix.byteswap" class="function">byteswap</dd>
+                <dd id="Npr_matrix.choose" class="function">choose</dd>
+                <dd id="Npr_matrix.clip" class="function">clip</dd>
+                <dd id="Npr_matrix.compress" class="function">compress</dd>
+                <dd id="Npr_matrix.conj" class="function">conj</dd>
+                <dd id="Npr_matrix.conjugate" class="function">conjugate</dd>
+                <dd id="Npr_matrix.copy" class="function">copy</dd>
+                <dd id="Npr_matrix.cumprod" class="function">cumprod</dd>
+                <dd id="Npr_matrix.cumsum" class="function">cumsum</dd>
+                <dd id="Npr_matrix.diagonal" class="function">diagonal</dd>
+                <dd id="Npr_matrix.dot" class="function">dot</dd>
+                <dd id="Npr_matrix.fill" class="function">fill</dd>
+                <dd id="Npr_matrix.flatten" class="function">flatten</dd>
+                <dd id="Npr_matrix.getfield" class="function">getfield</dd>
+                <dd id="Npr_matrix.item" class="function">item</dd>
+                <dd id="Npr_matrix.itemset" class="function">itemset</dd>
+                <dd id="Npr_matrix.max" class="function">max</dd>
+                <dd id="Npr_matrix.mean" class="function">mean</dd>
+                <dd id="Npr_matrix.min" class="function">min</dd>
+                <dd id="Npr_matrix.newbyteorder" class="function">newbyteorder</dd>
+                <dd id="Npr_matrix.nonzero" class="function">nonzero</dd>
+                <dd id="Npr_matrix.partition" class="function">partition</dd>
+                <dd id="Npr_matrix.prod" class="function">prod</dd>
+                <dd id="Npr_matrix.ptp" class="function">ptp</dd>
+                <dd id="Npr_matrix.put" class="function">put</dd>
+                <dd id="Npr_matrix.ravel" class="function">ravel</dd>
+                <dd id="Npr_matrix.repeat" class="function">repeat</dd>
+                <dd id="Npr_matrix.reshape" class="function">reshape</dd>
+                <dd id="Npr_matrix.resize" class="function">resize</dd>
+                <dd id="Npr_matrix.round" class="function">round</dd>
+                <dd id="Npr_matrix.searchsorted" class="function">searchsorted</dd>
+                <dd id="Npr_matrix.setfield" class="function">setfield</dd>
+                <dd id="Npr_matrix.setflags" class="function">setflags</dd>
+                <dd id="Npr_matrix.sort" class="function">sort</dd>
+                <dd id="Npr_matrix.squeeze" class="function">squeeze</dd>
+                <dd id="Npr_matrix.std" class="function">std</dd>
+                <dd id="Npr_matrix.sum" class="function">sum</dd>
+                <dd id="Npr_matrix.swapaxes" class="function">swapaxes</dd>
+                <dd id="Npr_matrix.take" class="function">take</dd>
+                <dd id="Npr_matrix.tobytes" class="function">tobytes</dd>
+                <dd id="Npr_matrix.tofile" class="function">tofile</dd>
+                <dd id="Npr_matrix.tolist" class="function">tolist</dd>
+                <dd id="Npr_matrix.tostring" class="function">tostring</dd>
+                <dd id="Npr_matrix.trace" class="function">trace</dd>
+                <dd id="Npr_matrix.transpose" class="function">transpose</dd>
+                <dd id="Npr_matrix.var" class="function">var</dd>
+                <dd id="Npr_matrix.view" class="function">view</dd>
+                <dd id="Npr_matrix.ndim" class="variable">ndim</dd>
+                <dd id="Npr_matrix.flags" class="variable">flags</dd>
+                <dd id="Npr_matrix.shape" class="variable">shape</dd>
+                <dd id="Npr_matrix.strides" class="variable">strides</dd>
+                <dd id="Npr_matrix.data" class="variable">data</dd>
+                <dd id="Npr_matrix.itemsize" class="variable">itemsize</dd>
+                <dd id="Npr_matrix.size" class="variable">size</dd>
+                <dd id="Npr_matrix.nbytes" class="variable">nbytes</dd>
+                <dd id="Npr_matrix.base" class="variable">base</dd>
+                <dd id="Npr_matrix.dtype" class="variable">dtype</dd>
+                <dd id="Npr_matrix.real" class="variable">real</dd>
+                <dd id="Npr_matrix.imag" class="variable">imag</dd>
+                <dd id="Npr_matrix.flat" class="variable">flat</dd>
+                <dd id="Npr_matrix.ctypes" class="variable">ctypes</dd>
+                <dd id="Npr_matrix.T" class="variable">T</dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
                 <section id="read_ExternalLeg_hd5">
                             <div class="attr function"><a class="headerlink" href="#read_ExternalLeg_hd5">#&nbsp;&nbsp</a>

@@ -87,17 +87,14 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># coding: utf-8</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
+            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">CObs</span>
 <span class="kn">from</span> <span class="nn">..correlators</span> <span class="kn">import</span> <span class="n">Corr</span>
 
 
-<span class="k">def</span> <span class="nf">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">):</span>
     <span class="n">ls</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
     <span class="c1"># Clean up file list</span>
@@ -112,11 +109,19 @@
     <span class="c1"># Sort according to configuration number</span>
     <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">get_cnfg_number</span><span class="p">)</span>
 
-    <span class="c1"># Check that configurations are evenly spaced</span>
     <span class="n">cnfg_numbers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">filtered_files</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-        <span class="n">cnfg_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_cnfg_number</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">no</span> <span class="o">=</span> <span class="n">get_cnfg_number</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">no</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">idl</span><span class="p">):</span>
+                <span class="n">filtered_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">cnfg_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">no</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">cnfg_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">no</span><span class="p">)</span>
 
+    <span class="c1"># Check that configurations are evenly spaced</span>
     <span class="n">dc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">cnfg_numbers</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsorted files&quot;</span><span class="p">)</span>
@@ -125,10 +130,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Configurations are not evenly spaced.&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">files</span><span class="p">,</span> <span class="n">idx</span>
+    <span class="k">return</span> <span class="n">filtered_files</span><span class="p">,</span> <span class="n">idx</span>
 
 
-<span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="s1">&#39;meson&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="s1">&#39;meson&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
 
 <span class="sd">    Parameters</span>
@@ -146,9 +151,11 @@
 <span class="sd">        Label of the upmost directory in the hdf5 file, default &#39;meson&#39;</span>
 <span class="sd">        for outputs of the Meson module. Can be altered to read input</span>
 <span class="sd">        from other modules with similar structures.</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">corr_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">infos</span> <span class="o">=</span> <span class="p">[]</span>
@@ -212,7 +219,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mom_out</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mom_out&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
 
 <span class="sd">    Parameters</span>
@@ -223,9 +230,11 @@
 <span class="sd">    order -- order in which the array is to be reshaped,</span>
 <span class="sd">             &#39;F&#39; for the first index changing fastest (9 4x4 matrices) default.</span>
 <span class="sd">             &#39;C&#39; for the last index changing fastest (16 3x3 matrices),</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">mom</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -250,7 +259,7 @@
     <span class="k">return</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">),</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
 
 <span class="sd">    Parameters</span>
@@ -261,9 +270,11 @@
 <span class="sd">    order -- order in which the array is to be reshaped,</span>
 <span class="sd">             &#39;F&#39; for the first index changing fastest (9 4x4 matrices) default.</span>
 <span class="sd">             &#39;C&#39; for the last index changing fastest (16 3x3 matrices),</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">mom_in</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">mom_out</span> <span class="o">=</span> <span class="kc">None</span>
@@ -310,12 +321,12 @@
 
         
             <span class="def">def</span>
-            <span class="name">read_meson_hd5</span><span class="signature">(path, filestem, ens_id, meson=&#39;meson_0&#39;, tree=&#39;meson&#39;)</span>:
+            <span class="name">read_meson_hd5</span><span class="signature">(path, filestem, ens_id, meson=&#39;meson_0&#39;, tree=&#39;meson&#39;, idl=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="s1">&#39;meson&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="s1">&#39;meson&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
 
 <span class="sd">    Parameters</span>
@@ -333,9 +344,11 @@
 <span class="sd">        Label of the upmost directory in the hdf5 file, default &#39;meson&#39;</span>
 <span class="sd">        for outputs of the Meson module. Can be altered to read input</span>
 <span class="sd">        from other modules with similar structures.</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">corr_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">infos</span> <span class="o">=</span> <span class="p">[]</span>
@@ -379,6 +392,8 @@ corresponds to the pseudoscalar pseudoscalar two-point function.</li>
 Label of the upmost directory in the hdf5 file, default 'meson'
 for outputs of the Meson module. Can be altered to read input
 from other modules with similar structures.</li>
+<li><strong>idl</strong> (range):
+If specified only conifgurations in the given range are read in.</li>
 </ul>
 </div>
 
@@ -675,12 +690,12 @@ in and out momenta of the propagator are exchanged.</p>
 
         
             <span class="def">def</span>
-            <span class="name">read_ExternalLeg_hd5</span><span class="signature">(path, filestem, ens_id, order=&#39;F&#39;)</span>:
+            <span class="name">read_ExternalLeg_hd5</span><span class="signature">(path, filestem, ens_id, order=&#39;F&#39;, idl=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
 
 <span class="sd">    Parameters</span>
@@ -691,9 +706,11 @@ in and out momenta of the propagator are exchanged.</p>
 <span class="sd">    order -- order in which the array is to be reshaped,</span>
 <span class="sd">             &#39;F&#39; for the first index changing fastest (9 4x4 matrices) default.</span>
 <span class="sd">             &#39;C&#39; for the last index changing fastest (16 3x3 matrices),</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">mom</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -730,6 +747,8 @@ in and out momenta of the propagator are exchanged.</p>
 <li><strong>ens_id -- name of the ensemble, required for internal bookkeeping</strong></li>
 <li><strong>order -- order in which the array is to be reshaped,</strong>: 'F' for the first index changing fastest (9 4x4 matrices) default.
 'C' for the last index changing fastest (16 3x3 matrices),</li>
+<li><strong>idl</strong> (range):
+If specified only conifgurations in the given range are read in.</li>
 </ul>
 </div>
 
@@ -740,12 +759,12 @@ in and out momenta of the propagator are exchanged.</p>
 
         
             <span class="def">def</span>
-            <span class="name">read_Bilinear_hd5</span><span class="signature">(path, filestem, ens_id, order=&#39;F&#39;)</span>:
+            <span class="name">read_Bilinear_hd5</span><span class="signature">(path, filestem, ens_id, order=&#39;F&#39;, idl=None)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
 
 <span class="sd">    Parameters</span>
@@ -756,9 +775,11 @@ in and out momenta of the propagator are exchanged.</p>
 <span class="sd">    order -- order in which the array is to be reshaped,</span>
 <span class="sd">             &#39;F&#39; for the first index changing fastest (9 4x4 matrices) default.</span>
 <span class="sd">             &#39;C&#39; for the last index changing fastest (16 3x3 matrices),</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only conifgurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">)</span>
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 
     <span class="n">mom_in</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">mom_out</span> <span class="o">=</span> <span class="kc">None</span>
@@ -809,6 +830,8 @@ in and out momenta of the propagator are exchanged.</p>
 <li><strong>ens_id -- name of the ensemble, required for internal bookkeeping</strong></li>
 <li><strong>order -- order in which the array is to be reshaped,</strong>: 'F' for the first index changing fastest (9 4x4 matrices) default.
 'C' for the last index changing fastest (16 3x3 matrices),</li>
+<li><strong>idl</strong> (range):
+If specified only conifgurations in the given range are read in.</li>
 </ul>
 </div>
 

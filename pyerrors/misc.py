@@ -40,12 +40,17 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
 
     Parameters
     ----------
-    means -- list containing the mean value of each observable.
-    cov -- covariance matrix for the data to be geneated.
-    name -- ensemble name for the data to be geneated.
-    tau -- can either be a real number or a list with an entry for
-           every dataset.
-    samples -- number of samples to be generated for each observable.
+    means : list
+        list containing the mean value of each observable.
+    cov : numpy.ndarray
+        covariance matrix for the data to be generated.
+    name : str
+        ensemble name for the data to be geneated.
+    tau : float or list
+        can either be a real number or a list with an entry for
+        every dataset.
+    samples : int
+        number of samples to be generated for each observable.
     """
 
     assert len(means) == cov.shape[-1]

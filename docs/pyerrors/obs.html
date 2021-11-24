@@ -288,12 +288,6 @@
                     <a class="function" href="#pseudo_Obs">pseudo_Obs</a>
             </li>
             <li>
-                    <a class="function" href="#dump_object">dump_object</a>
-            </li>
-            <li>
-                    <a class="function" href="#load_object">load_object</a>
-            </li>
-            <li>
                     <a class="function" href="#import_jackknife">import_jackknife</a>
             </li>
             <li>
@@ -1845,38 +1839,6 @@
         <span class="n">res</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">res</span>
-
-
-<span class="k">def</span> <span class="nf">dump_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dump object into pickle file.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    obj : object</span>
-<span class="sd">        object to be saved in the pickle file</span>
-<span class="sd">    name : str</span>
-<span class="sd">        name of the file</span>
-<span class="sd">    path : str</span>
-<span class="sd">        specifies a custom path for the file (default &#39;.&#39;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load object from pickle file.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        path to the file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">import_jackknife</span><span class="p">(</span><span class="n">jacks</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -5127,90 +5089,6 @@ error of the Obs to be generated.</li>
 name of the ensemble for which the Obs is to be generated.</li>
 <li><strong>samples</strong> (int):
 number of samples for the Obs (default 1000).</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="dump_object">
-                            <div class="attr function"><a class="headerlink" href="#dump_object">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">dump_object</span><span class="signature">(obj, name, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dump_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dump object into pickle file.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    obj : object</span>
-<span class="sd">        object to be saved in the pickle file</span>
-<span class="sd">    name : str</span>
-<span class="sd">        name of the file</span>
-<span class="sd">    path : str</span>
-<span class="sd">        specifies a custom path for the file (default &#39;.&#39;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Dump object into pickle file.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>obj</strong> (object):
-object to be saved in the pickle file</li>
-<li><strong>name</strong> (str):
-name of the file</li>
-<li><strong>path</strong> (str):
-specifies a custom path for the file (default '.')</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="load_object">
-                            <div class="attr function"><a class="headerlink" href="#load_object">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">load_object</span><span class="signature">(path)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_object</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load object from pickle file.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        path to the file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Load object from pickle file.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>path</strong> (str):
-path to the file</li>
 </ul>
 </div>
 

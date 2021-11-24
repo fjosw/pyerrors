@@ -117,12 +117,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    means -- list containing the mean value of each observable.</span>
-<span class="sd">    cov -- covariance matrix for the data to be geneated.</span>
-<span class="sd">    name -- ensemble name for the data to be geneated.</span>
-<span class="sd">    tau -- can either be a real number or a list with an entry for</span>
-<span class="sd">           every dataset.</span>
-<span class="sd">    samples -- number of samples to be generated for each observable.</span>
+<span class="sd">    means : list</span>
+<span class="sd">        list containing the mean value of each observable.</span>
+<span class="sd">    cov : numpy.ndarray</span>
+<span class="sd">        covariance matrix for the data to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        ensemble name for the data to be geneated.</span>
+<span class="sd">    tau : float or list</span>
+<span class="sd">        can either be a real number or a list with an entry for</span>
+<span class="sd">        every dataset.</span>
+<span class="sd">    samples : int</span>
+<span class="sd">        number of samples to be generated for each observable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">means</span><span class="p">)</span> <span class="o">==</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -246,12 +251,17 @@ path to the file</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    means -- list containing the mean value of each observable.</span>
-<span class="sd">    cov -- covariance matrix for the data to be geneated.</span>
-<span class="sd">    name -- ensemble name for the data to be geneated.</span>
-<span class="sd">    tau -- can either be a real number or a list with an entry for</span>
-<span class="sd">           every dataset.</span>
-<span class="sd">    samples -- number of samples to be generated for each observable.</span>
+<span class="sd">    means : list</span>
+<span class="sd">        list containing the mean value of each observable.</span>
+<span class="sd">    cov : numpy.ndarray</span>
+<span class="sd">        covariance matrix for the data to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        ensemble name for the data to be geneated.</span>
+<span class="sd">    tau : float or list</span>
+<span class="sd">        can either be a real number or a list with an entry for</span>
+<span class="sd">        every dataset.</span>
+<span class="sd">    samples : int</span>
+<span class="sd">        number of samples to be generated for each observable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">means</span><span class="p">)</span> <span class="o">==</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -280,11 +290,17 @@ path to the file</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>means -- list containing the mean value of each observable.</strong></li>
-<li><strong>cov -- covariance matrix for the data to be geneated.</strong></li>
-<li><strong>name -- ensemble name for the data to be geneated.</strong></li>
-<li><strong>tau -- can either be a real number or a list with an entry for</strong>: every dataset.</li>
-<li><strong>samples -- number of samples to be generated for each observable.</strong></li>
+<li><strong>means</strong> (list):
+list containing the mean value of each observable.</li>
+<li><strong>cov</strong> (numpy.ndarray):
+covariance matrix for the data to be generated.</li>
+<li><strong>name</strong> (str):
+ensemble name for the data to be geneated.</li>
+<li><strong>tau</strong> (float or list):
+can either be a real number or a list with an entry for
+every dataset.</li>
+<li><strong>samples</strong> (int):
+number of samples to be generated for each observable.</li>
 </ul>
 </div>
 

@@ -246,10 +246,10 @@ See `pyerrors.obs.Obs.export_jackknife` for details.
 from .obs import *
 from .correlators import *
 from .fits import *
+from .misc import *
 from . import dirac
 from . import input
 from . import linalg
-from . import misc
 from . import mpm
 from . import roots
 

@@ -130,7 +130,7 @@ class Npr_matrix(np.ndarray):
         self.mom_out = getattr(obj, 'mom_out', None)
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id, order='F', idl=None):
+def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
@@ -138,9 +138,6 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F', idl=None):
     path -- path to the files to read
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
     idl : range
         If specified only conifgurations in the given range are read in.
     """
@@ -167,10 +164,10 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F', idl=None):
         imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
         matrix[si, sj, ci, cj] = CObs(real, imag)
 
-    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)
+    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom)
 
 
-def read_Bilinear_hd5(path, filestem, ens_id, order='F', idl=None):
+def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons Bilinear hdf5 file and output an array of CObs
 
     Parameters
@@ -178,9 +175,6 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F', idl=None):
     path -- path to the files to read
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
     idl : range
         If specified only conifgurations in the given range are read in.
     """
@@ -219,6 +213,6 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F', idl=None):
             imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
             matrix[si, sj, ci, cj] = CObs(real, imag)
 
-        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom_in, mom_out=mom_out)
+        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
 
     return result_dict

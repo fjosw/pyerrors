@@ -17,3 +17,15 @@ def test_root_linear():
     assert np.isclose(my_root.value, value)
     difference = my_obs - my_root
     assert difference.is_zero()
+
+
+def test_root_linear_idl():
+
+    def root_function(x, d):
+        return x - d
+
+    my_obs = pe.Obs([np.random.rand(50)], ['t'], idl=[range(20, 120, 2)])
+    my_root = pe.roots.find_root(my_obs, root_function)
+
+    difference = my_obs - my_root
+    assert difference.is_zero()

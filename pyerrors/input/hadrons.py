@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import h5py
 import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
-from ..npr import Npr_matrix
 
 
-def _get_files(path, filestem):
+def _get_files(path, filestem, idl):
     ls = os.listdir(path)
 
     # Clean up file list
@@ -24,11 +20,19 @@ def _get_files(path, filestem):
     # Sort according to configuration number
     files.sort(key=get_cnfg_number)
 
-    # Check that configurations are evenly spaced
     cnfg_numbers = []
+    filtered_files = []
     for line in files:
-        cnfg_numbers.append(get_cnfg_number(line))
+        no = get_cnfg_number(line)
+        if idl:
+            if no in list(idl):
+                filtered_files.append(line)
+                cnfg_numbers.append(no)
+        else:
+            filtered_files.append(line)
+            cnfg_numbers.append(no)
 
+    # Check that configurations are evenly spaced
     dc = np.unique(np.diff(cnfg_numbers))
     if np.any(dc < 0):
         raise Exception("Unsorted files")
@@ -37,10 +41,10 @@ def _get_files(path, filestem):
     else:
         raise Exception('Configurations are not evenly spaced.')
 
-    return files, idx
+    return filtered_files, idx
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=None):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
@@ -58,9 +62,11 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
         Label of the upmost directory in the hdf5 file, default 'meson'
         for outputs of the Meson module. Can be altered to read input
         from other modules with similar structures.
+    idl : range
+        If specified only conifgurations in the given range are read in.
     """
 
-    files, idx = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
     corr_data = []
     infos = []
@@ -84,7 +90,47 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     return corr
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
+class Npr_matrix(np.ndarray):
+
+    def __new__(cls, input_array, mom_in=None, mom_out=None):
+        obj = np.asarray(input_array).view(cls)
+        obj.mom_in = mom_in
+        obj.mom_out = mom_out
+        return obj
+
+    @property
+    def g5H(self):
+        """Gamma_5 hermitean conjugate
+
+        Uses the fact that the propagator is gamma5 hermitean, so just the
+        in and out momenta of the propagator are exchanged.
+        """
+        return Npr_matrix(self,
+                          mom_in=self.mom_out,
+                          mom_out=self.mom_in)
+
+    def _propagate_mom(self, other, name):
+        s_mom = getattr(self, name, None)
+        o_mom = getattr(other, name, None)
+        if s_mom is not None and o_mom is not None:
+            if not np.allclose(s_mom, o_mom):
+                raise Exception(name + ' does not match.')
+        return o_mom if o_mom is not None else s_mom
+
+    def __matmul__(self, other):
+        return self.__new__(Npr_matrix,
+                            super().__matmul__(other),
+                            self._propagate_mom(other, 'mom_in'),
+                            self._propagate_mom(other, 'mom_out'))
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.mom_in = getattr(obj, 'mom_in', None)
+        self.mom_out = getattr(obj, 'mom_out', None)
+
+
+def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
@@ -92,12 +138,11 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
     path -- path to the files to read
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
+    idl : range
+        If specified only conifgurations in the given range are read in.
     """
 
-    files, idx = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
     mom = None
 
@@ -119,10 +164,10 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
         matrix[si, sj, ci, cj] = CObs(real, imag)
 
-    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)
+    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom)
 
 
-def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
+def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons Bilinear hdf5 file and output an array of CObs
 
     Parameters
@@ -130,12 +175,11 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
     path -- path to the files to read
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
+    idl : range
+        If specified only conifgurations in the given range are read in.
     """
 
-    files, idx = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
     mom_in = None
     mom_out = None
@@ -169,6 +213,6 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
             imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
             matrix[si, sj, ci, cj] = CObs(real, imag)
 
-        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom_in, mom_out=mom_out)
+        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
 
     return result_dict

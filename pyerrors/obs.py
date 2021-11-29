@@ -6,6 +6,7 @@ from autograd import jacobian
 import matplotlib.pyplot as plt
 import numdifftools as nd
 from itertools import groupby
+from .covobs import Covobs
 
 
 class Obs:
@@ -37,11 +38,11 @@ class Obs:
         Dictionary for N_sigma values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
     """
-    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
-                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
-                 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'is_merged', 'tag', '__dict__']
+    #__slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
+    #             'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
+    #             'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+    #             'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+    #             'idl', 'is_merged', 'tag', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -51,7 +52,7 @@ class Obs:
     N_sigma_dict = {}
     filter_eps = 1e-10
 
-    def __init__(self, samples, names, idl=None, means=None, **kwargs):
+    def __init__(self, samples, names, idl=None, means=None, covobs=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -67,7 +68,7 @@ class Obs:
             already subtracted from the samples
         """
 
-        if means is None:
+        if means is None and not kwargs.get('empty', False):
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
@@ -79,53 +80,66 @@ class Obs:
                 raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
+        
+        if kwargs.get('empty', False):
+            self.names = []
+        else:
+            self.names = sorted(names)
 
-        self.names = sorted(names)
         self.shape = {}
         self.r_values = {}
         self.deltas = {}
+        if covobs is None:
+            self.covobs = {}
+        else:
+            self.covobs = covobs
 
         self.idl = {}
-        if idl is not None:
-            for name, idx in sorted(zip(names, idl)):
-                if isinstance(idx, range):
-                    self.idl[name] = idx
-                elif isinstance(idx, (list, np.ndarray)):
-                    dc = np.unique(np.diff(idx))
-                    if np.any(dc < 0):
-                        raise Exception("Unsorted idx for idl[%s]" % (name))
-                    if len(dc) == 1:
-                        self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
+        if not kwargs.get('empty', False):
+            if idl is not None:
+                for name, idx in sorted(zip(names, idl)):
+                    if isinstance(idx, range):
+                        self.idl[name] = idx
+                    elif isinstance(idx, (list, np.ndarray)):
+                        dc = np.unique(np.diff(idx))
+                        if np.any(dc < 0):
+                            raise Exception("Unsorted idx for idl[%s]" % (name))
+                        if len(dc) == 1:
+                            self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
+                        else:
+                            self.idl[name] = list(idx)
                     else:
-                        self.idl[name] = list(idx)
-                else:
-                    raise Exception('incompatible type for idl[%s].' % (name))
-        else:
-            for name, sample in sorted(zip(names, samples)):
-                self.idl[name] = range(1, len(sample) + 1)
+                        raise Exception('incompatible type for idl[%s].' % (name))
+            else:
+                for name, sample in sorted(zip(names, samples)):
+                    self.idl[name] = range(1, len(sample) + 1)
 
-        if means is not None:
-            for name, sample, mean in sorted(zip(names, samples, means)):
-                self.shape[name] = len(self.idl[name])
-                if len(sample) != self.shape[name]:
-                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                self.r_values[name] = mean
-                self.deltas[name] = sample
-        else:
-            for name, sample in sorted(zip(names, samples)):
-                self.shape[name] = len(self.idl[name])
-                if len(sample) != self.shape[name]:
-                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                self.r_values[name] = np.mean(sample)
-                self.deltas[name] = sample - self.r_values[name]
-        self.is_merged = {}
-        self.N = sum(list(self.shape.values()))
+            if means is not None:
+                for name, sample, mean in sorted(zip(names, samples, means)):
+                    self.shape[name] = len(self.idl[name])
+                    if len(sample) != self.shape[name]:
+                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                    self.r_values[name] = mean
+                    self.deltas[name] = sample
+            else:
+                for name, sample in sorted(zip(names, samples)):
+                    self.shape[name] = len(self.idl[name])
+                    if len(sample) != self.shape[name]:
+                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                    self.r_values[name] = np.mean(sample)
+                    self.deltas[name] = sample - self.r_values[name]
+            self.is_merged = {}
+            self.N = sum(list(self.shape.values()))
 
-        self._value = 0
-        if means is None:
-            for name in self.names:
-                self._value += self.shape[name] * self.r_values[name]
-            self._value /= self.N
+            self._value = 0
+            if means is None:
+                for name in self.names:
+                    self._value += self.shape[name] * self.r_values[name]
+                self._value /= self.N
+        else:
+            self._value = 0
+            self.is_merged = {}
+            self.N = 0
 
         self._dvalue = 0.0
         self.ddvalue = 0.0
@@ -220,91 +234,96 @@ class Obs:
         _parse_kwarg('N_sigma')
 
         for e, e_name in enumerate(self.e_names):
+            if e_name not in self.covobs:
+                r_length = []
+                for r_name in e_content[e_name]:
+                    if isinstance(self.idl[r_name], range):
+                        r_length.append(len(self.idl[r_name]))
+                    else:
+                        r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
 
-            r_length = []
-            for r_name in e_content[e_name]:
-                if isinstance(self.idl[r_name], range):
-                    r_length.append(len(self.idl[r_name]))
-                else:
-                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
+                e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
+                w_max = max(r_length) // 2
+                e_gamma[e_name] = np.zeros(w_max)
+                self.e_rho[e_name] = np.zeros(w_max)
+                self.e_drho[e_name] = np.zeros(w_max)
 
-            e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
-            w_max = max(r_length) // 2
-            e_gamma[e_name] = np.zeros(w_max)
-            self.e_rho[e_name] = np.zeros(w_max)
-            self.e_drho[e_name] = np.zeros(w_max)
+                for r_name in e_content[e_name]:
+                    e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
-            for r_name in e_content[e_name]:
-                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
+                gamma_div = np.zeros(w_max)
+                for r_name in e_content[e_name]:
+                    gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+                e_gamma[e_name] /= gamma_div[:w_max]
 
-            gamma_div = np.zeros(w_max)
-            for r_name in e_content[e_name]:
-                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
-            e_gamma[e_name] /= gamma_div[:w_max]
-
-            if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
-                self.e_tauint[e_name] = 0.5
-                self.e_dtauint[e_name] = 0.0
-                self.e_dvalue[e_name] = 0.0
-                self.e_ddvalue[e_name] = 0.0
-                self.e_windowsize[e_name] = 0
-                continue
-
-            self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
-            # Make sure no entry of tauint is smaller than 0.5
-            self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
-            # hep-lat/0306017 eq. (42)
-            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
-            self.e_n_dtauint[e_name][0] = 0.0
-
-            def _compute_drho(i):
-                tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
-                self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
-
-            _compute_drho(1)
-            if self.tau_exp[e_name] > 0:
-                texp = self.tau_exp[e_name]
-                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
-                #    texp /= self.idl[e_name].step
-                # Critical slowing down analysis
-                if w_max // 2 <= 1:
-                    raise Exception("Need at least 8 samples for tau_exp error analysis")
-                for n in range(1, w_max // 2):
-                    _compute_drho(n + 1)
-                    if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
-                        # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
-                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
-                        # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
-                        self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
-                        self.e_windowsize[e_name] = n
-                        break
-            else:
-                if self.S[e_name] == 0.0:
+                if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
                     self.e_tauint[e_name] = 0.5
                     self.e_dtauint[e_name] = 0.0
-                    self.e_dvalue[e_name] = np.sqrt(e_gamma[e_name][0] / (e_N - 1))
-                    self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt(0.5 / e_N)
+                    self.e_dvalue[e_name] = 0.0
+                    self.e_ddvalue[e_name] = 0.0
                     self.e_windowsize[e_name] = 0
-                else:
-                    # Standard automatic windowing procedure
-                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
-                    g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
-                    for n in range(1, w_max):
-                        if n < w_max // 2 - 2:
-                            _compute_drho(n + 1)
-                        if g_w[n - 1] < 0 or n >= w_max - 1:
-                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
-                            self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
+                    continue
+
+                self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
+                self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
+                # Make sure no entry of tauint is smaller than 0.5
+                self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
+                # hep-lat/0306017 eq. (42)
+                self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
+                self.e_n_dtauint[e_name][0] = 0.0
+
+                def _compute_drho(i):
+                    tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
+                    self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
+
+                _compute_drho(1)
+                if self.tau_exp[e_name] > 0:
+                    texp = self.tau_exp[e_name]
+                    # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
+                    #    texp /= self.idl[e_name].step
+                    # Critical slowing down analysis
+                    if w_max // 2 <= 1:
+                        raise Exception("Need at least 8 samples for tau_exp error analysis")
+                    for n in range(1, w_max // 2):
+                        _compute_drho(n + 1)
+                        if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
+                            # Bias correction hep-lat/0306017 eq. (49) included
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
+                            self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
+                            # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
                             self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
                             self.e_windowsize[e_name] = n
                             break
+                else:
+                    if self.S[e_name] == 0.0:
+                        self.e_tauint[e_name] = 0.5
+                        self.e_dtauint[e_name] = 0.0
+                        self.e_dvalue[e_name] = np.sqrt(e_gamma[e_name][0] / (e_N - 1))
+                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt(0.5 / e_N)
+                        self.e_windowsize[e_name] = 0
+                    else:
+                        # Standard automatic windowing procedure
+                        tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
+                        g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
+                        for n in range(1, w_max):
+                            if n < w_max // 2 - 2:
+                                _compute_drho(n + 1)
+                            if g_w[n - 1] < 0 or n >= w_max - 1:
+                                self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                                self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
+                                self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
+                                self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
+                                self.e_windowsize[e_name] = n
+                                break
 
-            self._dvalue += self.e_dvalue[e_name] ** 2
-            self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
+                self._dvalue += self.e_dvalue[e_name] ** 2
+                self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
+
+            else:
+                self.e_dvalue[e_name] = np.sqrt(self.covobs[e_name].errsq())
+                self.e_ddvalue[e_name] = 0
+                self._dvalue += self.e_dvalue[e_name]**2
 
         self._dvalue = np.sqrt(self.dvalue)
         if self._dvalue == 0.0:
@@ -367,12 +386,15 @@ class Obs:
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
             for e_name in self.e_names:
-                if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                if self.tau_exp[e_name] > 0:
-                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
+                if e_name not in self.covobs:
+                    if len(self.e_names) > 1:
+                        print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                    if self.tau_exp[e_name] > 0:
+                        print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
+                    else:
+                        print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
                 else:
-                    print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+                    print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
@@ -380,25 +402,28 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
             my_string_list = []
             for key, value in sorted(self.e_content.items()):
-                my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
-                if len(value) == 1:
-                    my_string += f': {self.shape[value[0]]} configurations'
-                    if isinstance(self.idl[value[0]], range):
-                        my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
-                    else:
-                        my_string += ' (irregular range)'
-                else:
-                    sublist = []
-                    for v in value:
-                        my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
-                        my_substring += f': {self.shape[v]} configurations'
-                        if isinstance(self.idl[v], range):
-                            my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                if key not in self.covobs:
+                    my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
+                    if len(value) == 1:
+                        my_string += f': {self.shape[value[0]]} configurations'
+                        if isinstance(self.idl[value[0]], range):
+                            my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
                         else:
-                            my_substring += ' (irregular range)'
-                        sublist.append(my_substring)
+                            my_string += ' (irregular range)'
+                    else:
+                        sublist = []
+                        for v in value:
+                            my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
+                            my_substring += f': {self.shape[v]} configurations'
+                            if isinstance(self.idl[v], range):
+                                my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                            else:
+                                my_substring += ' (irregular range)'
+                            sublist.append(my_substring)
 
-                    my_string += '\n' + '\n'.join(sublist)
+                        my_string += '\n' + '\n'.join(sublist)
+                else:
+                    my_string = '  ' + "\u00B7 Covobs   '" + key + "' "
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
@@ -1028,6 +1053,15 @@ def derived_observable(func, data, **kwargs):
         if isinstance(raveled_data[i], (int, float)):
             raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
 
+    allcov = {}
+    for o in raveled_data:
+        for name in o.covobs:
+            if name in allcov:
+                if not np.array_equal(allcov[name], o.covobs[name].cov):
+                    raise Exception('Inconsistent covariance matrices for %s!' % (name))
+            else:
+                allcov[name] = o.covobs[name].cov
+
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
 
@@ -1100,24 +1134,41 @@ def derived_observable(func, data, **kwargs):
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
+        new_grad = {}
         for j_obs, obs in np.ndenumerate(data):
             for name in obs.names:
-                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+                if name in obs.covobs:
+                    if name in new_grad:
+                        new_grad[name] += deriv[i_val + j_obs] * obs.covobs[name].grad
+                    else:
+                        new_grad[name] = deriv[i_val + j_obs] * obs.covobs[name].grad
+                else:
+                    new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+
+            new_covobs = {name: Covobs(obs.covobs[name].value, obs.covobs[name].cov, obs.covobs[name].name, grad=new_grad[name]) for name in new_grad}
 
         new_samples = []
         new_means = []
         new_idl = []
+        new_names_obs = []
         for name in new_names:
-            if is_merged[name]:
-                filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
-            else:
-                filtered_deltas = new_deltas[name]
-                filtered_idl_d = new_idl_d[name]
+            if name not in new_covobs:
+                if is_merged[name]:
+                    filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
+                else:
+                    filtered_deltas = new_deltas[name]
+                    filtered_idl_d = new_idl_d[name]
 
-            new_samples.append(filtered_deltas)
-            new_idl.append(filtered_idl_d)
-            new_means.append(new_r_values[name][i_val])
-        final_result[i_val] = Obs(new_samples, new_names, means=new_means, idl=new_idl)
+                new_samples.append(filtered_deltas)
+                new_idl.append(filtered_idl_d)
+                new_means.append(new_r_values[name][i_val])
+                new_names_obs.append(name)
+        final_result[i_val] = Obs(new_samples, new_names_obs, means=new_means, idl=new_idl)
+        for name in new_covobs:
+            final_result[i_val].names.append(name)
+            final_result[i_val].shape[name] = 1
+            final_result[i_val].idl[name] = []
+        final_result[i_val].covobs = new_covobs
         final_result[i_val]._value = new_val
         final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted
@@ -1603,3 +1654,63 @@ def merge_obs(list_of_obs):
     o.is_merged = {name: np.any([oi.is_merged.get(name, False) for oi in list_of_obs]) for name in o.names}
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
+
+
+def covobs_to_obs(co):
+    """Make an Obs out of a Covobs
+
+    Parameters
+    ----------
+    co : Covobs
+        Covobs to be embedded into the Obs
+    """
+    o = Obs(None, None, empty=True)
+    o._value = co.value
+    o.names.append(co.name)
+    o.covobs[co.name] = co
+    o._dvalue = np.sqrt(co.errsq())
+    o.shape[co.name] = 1
+    o.idl[co.name] = []
+    return o
+
+
+def create_Covobs(mean, cov, name, pos=None, grad=None):
+    """Make an Obs based on a Covobs
+
+    Parameters
+    ----------
+    mean : float
+        Mean value of the new Obs
+    cov : list or array
+        2d Covariance matrix or 1d diagonal entries
+    name : str
+        identifier for the covariance matrix
+    pos : int
+        Position of the variance belonging to mean in cov.
+        Is taken to be 1 if cov is 0-dimensional
+    grad : list or array
+        Gradient of the Covobs wrt. the means belonging to cov.
+    """
+    return covobs_to_obs(Covobs(mean, cov, name, pos=pos, grad=grad))
+
+
+def create_Covobs_list(means, cov, name, grad=None):
+    """Make a list of Obs based Covobs
+
+    Parameters
+    ----------
+    mean : list of floats
+        N mean values of the new Obs
+    cov : list or array
+        2d (NxN) Covariance matrix or 1d diagonal entries
+    name : str
+        identifier for the covariance matrix
+    grad : list or array
+        Gradient of the Covobs wrt. the means belonging to cov.
+    """
+    ol = []
+    for i in range(len(means)):
+        ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
+    if ol[0].covobs[name].N != len(means):
+        raise Exception('You have to provide %d mean values!' % (ol[0].N))
+    return ol

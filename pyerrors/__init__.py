@@ -8,6 +8,11 @@ It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/ab
 - **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
 - **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
 
+There exist similar publicly available implementations of gamma method error analysis suites in
+- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)
+- [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)
+- [Python](https://github.com/mbruno46/pyobs)
+
 ## Basic example
 
 ```python

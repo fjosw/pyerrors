@@ -4,20 +4,33 @@ All notable changes to this project will be documented in this file.
 
 ## [2.0.0] - 2021-??-??
 ### Added
-- `CObs` class added which can handle complex valued Markov chain Monte Carlo data and the corresponding error propagation
-- Matrix to matrix operations like the matrix inverse now also work for complex matrices and matrices containing entries that are not `Obs` but `float` or `int`
-- `Obs` objects now have methods `is_zero` and `is_zero_within_error`
+- `CObs` class added which can handle complex valued Markov chain Monte Carlo data and the corresponding error propagation.
+- Matrix to matrix operations like the matrix inverse now also work for complex matrices and matrices containing entries that are not `Obs` but `float` or `int`.
+- The possibility to work with Monte Carlo histories which are evenly or unevenly spaced was added.
+- The Corr class now has additional methods like `reverse`, `T_symmetry`, `correlate` and `reweight`.
+- `linalg` module now has explicit functions `inv` and `cholesky`.
+- `Obs` objects now have methods `is_zero` and `is_zero_within_error` as well as overloaded comparison operations.
+- Functions to convert Obs data to or from jackknife was added.
+- Alternative matrix multiplication routine `jack_matmul` was added to `linalg` module which makes use of the jackknife approximation and is much faster for large matrices.
+- Additional input routines for npr data added to `input.hadrons`.
+- Version number added.
 
 ### Changed
-- Additional attributes can no longer be added to existing `Obs`. This makes it no longer possible to import `Obs` created with previous versions of pyerrors
-- The default value for `Corr.prange` is now `None`
-- The `input` module was restructured to contain one submodule per data source
+- The internal bookkeeping system for ensembles/replica was changed. The separator for replica is now `|`.
+- The fit functions were renamed to `least_squares` and `total_least_squares`.
+- The fit functions can now deal with provided covariance matrices.
+- The convention for the fit range in the Corr class has been changed.
+- Obs.print was renamed to Obs.details and the output was improved.
+- The default value for `Corr.prange` is now `None`.
+- The `input` module was restructured to contain one submodule per data source.
+- Performance of Obs.__init__ improved.
 
 ### Deprecated
 - The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`
 - The kwarg `bias_correction` in `derived_observable` was removed
 - Obs no longer have an attribute `e_Q`
 - Removed `fits.fit_exp`
+- Removed jackknife module
 
 ## [1.1.0] - 2021-10-11
 ### Added
@@ -77,7 +90,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.7.0] - 2020-03-10
 ### Added
-- New fit funtions for fitting with and without x-errors added which use automatic differentiation and should be more reliable than the old ones.
+- New fit functions for fitting with and without x-errors added which use automatic differentiation and should be more reliable than the old ones.
 - Fitting with Bayesian priors added.
 - New functions for visualization of fits which can be activated via the kwargs resplot and qqplot.
 - chisquare/expected_chisquared which takes into account correlations in the data and non-linearities in the fit function can now be activated with the kwarg expected_chisquare.

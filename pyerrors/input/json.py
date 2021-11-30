@@ -7,10 +7,12 @@ import datetime
 from .. import version as pyerrorsversion
 import platform
 import numpy as np
+import warnings
 
 
-def dump_to_json(ol, fname, description='', indent=4):
-    """Export a list of Obs or structures containing Obs to a .json.gz file
+def create_json_string(ol, fname, description='', indent=1):
+    """Generate the string for the export of a list of Obs or structures containing Obs
+    to a .json(.gz) file
 
     Parameters
     -----------------
@@ -147,25 +149,59 @@ def dump_to_json(ol, fname, description='', indent=4):
             d['obsdata'].append(write_List_to_dict(io))
         elif isinstance(io, np.ndarray):
             d['obsdata'].append(write_Array_to_dict(io))
-    if not fname.endswith('.json') and not fname.endswith('.gz'):
-        fname += '.json'
-    if not fname.endswith('.gz'):
-        fname += '.gz'
+
     jsonstring = json.dumps(d, indent=indent, cls=my_encoder)
     # workaround for un-indentation of delta lists
-    jsonstring = jsonstring.replace('"[', '[').replace(']"', ']')
-    fp = gzip.open(fname, 'wb')
-    fp.write(jsonstring.encode('utf-8'))
+    jsonstring = jsonstring.replace('    "[', '    [').replace(']",', '],').replace(']"\n', ']\n')
+
+    return jsonstring
+
+
+def dump_to_json(ol, fname, description='', indent=1, gz=True):
+    """Export a list of Obs or structures containing Obs to a .json(.gz) file
+
+    Parameters
+    -----------------
+    ol : list
+        List of objects that will be exported. At the moments, these objects can be
+        either of: Obs, list, np.ndarray
+        All Obs inside a structure have to be defined on the same set of configurations.
+    fname : str
+        Filename of the output file
+    description : str
+        Optional string that describes the contents of the json file
+    indent : int
+        Specify the indentation level of the json file. None or 0 is permissible and
+        saves disk space.
+    gz : bool
+        If True, the output is a gzipped json. If False, the output is a json file.
+    """
+
+    jsonstring = create_json_string(ol, fname, description, indent)
+
+    if not fname.endswith('.json') and not fname.endswith('.gz'):
+        fname += '.json'
+
+    if gz:
+        if not fname.endswith('.gz'):
+            fname += '.gz'
+
+        fp = gzip.open(fname, 'wb')
+        fp.write(jsonstring.encode('utf-8'))
+    else:
+        fp = open(fname, 'w')
+        fp.write(jsonstring)
     fp.close()
 
-    # this would be nicer, since it does not need a string
+    # this would be nicer, since it does not need a string but uses serialization (less memory!)
     # with gzip.open(fname, 'wt', encoding='UTF-8') as zipfile:
     #    json.dump(d, zipfile, indent=indent)
 
 
-def load_json(fname, verbose=True):
-    """Import a list of Obs or structures containing Obs to a .json.gz file.
+def load_json(fname, verbose=True, gz=True):
+    """Import a list of Obs or structures containing Obs from a .json.gz file.
     The following structures are supported: Obs, list, np.ndarray
+    If the list contains only one element, it is unpacked from the list.
 
     Parameters
     -----------------
@@ -173,6 +209,8 @@ def load_json(fname, verbose=True):
         Filename of the input file
     verbose : bool
         Print additional information that was written to the file.
+    gz : bool
+        If True, assumes that data is gzipped. If False, assumes JSON file.
     """
 
     def _gen_obsd_from_datad(d):
@@ -220,7 +258,7 @@ def load_json(fname, verbose=True):
 
     def get_Array_from_dict(o):
         layouts = o.get('layout', '1').strip()
-        layout = [int(ls.strip()) for ls in layouts.split(',')]
+        layout = [int(ls.strip()) for ls in layouts.split(',') if len(ls) > 0]
         values = o['value']
         od = _gen_obsd_from_datad(o['data'])
 
@@ -234,10 +272,17 @@ def load_json(fname, verbose=True):
 
     if not fname.endswith('.json') and not fname.endswith('.gz'):
         fname += '.json'
-    if not fname.endswith('.gz'):
-        fname += '.gz'
-    with gzip.open(fname, 'r') as fin:
-        d = json.loads(fin.read().decode('utf-8'))
+    if gz:
+        if not fname.endswith('.gz'):
+            fname += '.gz'
+        with gzip.open(fname, 'r') as fin:
+            d = json.loads(fin.read().decode('utf-8'))
+    else:
+        if fname.endswith('.gz'):
+            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
+        with open(fname, 'r') as fin:
+            d = json.loads(fin.read())
+
     prog = d.get('program', '')
     version = d.get('version', '')
     who = d.get('who', '')
@@ -262,4 +307,7 @@ def load_json(fname, verbose=True):
             ol.append(get_List_from_dict(io))
         elif io['type'] == 'Array':
             ol.append(get_Array_from_dict(io))
+
+    if len(obsdata) == 1:
+        ol = ol[0]
     return ol

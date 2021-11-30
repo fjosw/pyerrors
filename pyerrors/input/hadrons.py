@@ -134,10 +134,13 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
     """
@@ -171,10 +174,13 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons Bilinear hdf5 file and output an array of CObs
 
     Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
     """
@@ -222,10 +228,13 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
 
     Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
     """

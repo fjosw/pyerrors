@@ -16,9 +16,3 @@ to install the most recent release run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@master
 ```
-
-## Other implementations
-There exist similar publicly available implementations of gamma method error analysis suites in
-- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)
-- [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)
-- [Python](https://github.com/mbruno46/pyobs)

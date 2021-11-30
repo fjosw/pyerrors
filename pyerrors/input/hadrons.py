@@ -63,7 +63,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=No
         for outputs of the Meson module. Can be altered to read input
         from other modules with similar structures.
     idl : range
-        If specified only conifgurations in the given range are read in.
+        If specified only configurations in the given range are read in.
     """
 
     files, idx = _get_files(path, filestem, idl)
@@ -139,7 +139,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
     idl : range
-        If specified only conifgurations in the given range are read in.
+        If specified only configurations in the given range are read in.
     """
 
     files, idx = _get_files(path, filestem, idl)
@@ -176,7 +176,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     filestem -- namestem of the files to read
     ens_id -- name of the ensemble, required for internal bookkeeping
     idl : range
-        If specified only conifgurations in the given range are read in.
+        If specified only configurations in the given range are read in.
     """
 
     files, idx = _get_files(path, filestem, idl)
@@ -214,5 +214,61 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
             matrix[si, sj, ci, cj] = CObs(real, imag)
 
         result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
+
+    return result_dict
+
+
+def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
+    """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
+
+    Parameters
+    -----------------
+    path -- path to the files to read
+    filestem -- namestem of the files to read
+    ens_id -- name of the ensemble, required for internal bookkeeping
+    idl : range
+        If specified only configurations in the given range are read in.
+    """
+
+    files, idx = _get_files(path, filestem, idl)
+
+    mom_in = None
+    mom_out = None
+
+    corr_data = {}
+
+    tree = 'FourQuarkFullyConnected/FourQuarkFullyConnected_'
+
+    for hd5_file in files:
+        file = h5py.File(path + '/' + hd5_file, "r")
+
+        for i in range(1):
+            name = file[tree + str(i) + '/info'].attrs['gammaA'][0].decode('UTF-8') + '_' + file[tree + str(i) + '/info'].attrs['gammaB'][0].decode('UTF-8')
+            if name not in corr_data:
+                corr_data[name] = []
+            raw_data = file[tree + str(i) + '/corr'][0][0].view('complex')
+            corr_data[name].append(raw_data)
+            if mom_in is None:
+                mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+            if mom_out is None:
+                mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
+
+        file.close()
+
+    result_dict = {}
+
+    for key, data in corr_data.items():
+        local_data = np.array(data)
+
+        rolled_array = np.moveaxis(local_data, 0, 8)
+
+        matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
+        for index in np.ndindex(rolled_array.shape[:-1]):
+            real = Obs([rolled_array[index].real], [ens_id], idl=[idx])
+            imag = Obs([rolled_array[index].imag], [ens_id], idl=[idx])
+            matrix[index] = CObs(real, imag)
+
+        result_dict[key] = Npr_matrix(matrix, mom_in=mom_in, mom_out=mom_out)
+        # result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
 
     return result_dict

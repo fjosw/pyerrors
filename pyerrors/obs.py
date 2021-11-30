@@ -38,11 +38,11 @@ class Obs:
         Dictionary for N_sigma values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
     """
-    #__slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
-    #             'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
-    #             'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-    #             'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-    #             'idl', 'is_merged', 'tag', '__dict__']
+    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
+                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
+                 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
+                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
+                 'idl', 'is_merged', 'tag', 'covobs', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -68,7 +68,7 @@ class Obs:
             already subtracted from the samples
         """
 
-        if means is None and not kwargs.get('empty', False):
+        if means is None and samples is not None:
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
@@ -81,10 +81,10 @@ class Obs:
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
         
-        if kwargs.get('empty', False):
-            self.names = []
-        else:
+        if names:
             self.names = sorted(names)
+        else:
+            self.names = []
 
         self.shape = {}
         self.r_values = {}
@@ -95,7 +95,7 @@ class Obs:
             self.covobs = covobs
 
         self.idl = {}
-        if not kwargs.get('empty', False):
+        if samples is not None:
             if idl is not None:
                 for name, idx in sorted(zip(names, idl)):
                     if isinstance(idx, range):
@@ -158,6 +158,14 @@ class Obs:
     @property
     def e_names(self):
         return sorted(set([o.split('|')[0] for o in self.names]))
+
+    @property
+    def cov_names(self):
+        return sorted(set([o for o in self.covobs.keys()]))
+
+    @property
+    def mc_names(self):
+        return sorted(set([o.split('|')[0] for o in self.names if o not in self.cov_names]))
 
     @property
     def e_content(self):
@@ -233,97 +241,96 @@ class Obs:
         _parse_kwarg('tau_exp')
         _parse_kwarg('N_sigma')
 
-        for e, e_name in enumerate(self.e_names):
-            if e_name not in self.covobs:
-                r_length = []
-                for r_name in e_content[e_name]:
-                    if isinstance(self.idl[r_name], range):
-                        r_length.append(len(self.idl[r_name]))
-                    else:
-                        r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
+        for e, e_name in enumerate(self.mc_names):
+            r_length = []
+            for r_name in e_content[e_name]:
+                if isinstance(self.idl[r_name], range):
+                    r_length.append(len(self.idl[r_name]))
+                else:
+                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
 
-                e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
-                w_max = max(r_length) // 2
-                e_gamma[e_name] = np.zeros(w_max)
-                self.e_rho[e_name] = np.zeros(w_max)
-                self.e_drho[e_name] = np.zeros(w_max)
+            e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
+            w_max = max(r_length) // 2
+            e_gamma[e_name] = np.zeros(w_max)
+            self.e_rho[e_name] = np.zeros(w_max)
+            self.e_drho[e_name] = np.zeros(w_max)
 
-                for r_name in e_content[e_name]:
-                    e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
+            for r_name in e_content[e_name]:
+                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
 
-                gamma_div = np.zeros(w_max)
-                for r_name in e_content[e_name]:
-                    gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
-                e_gamma[e_name] /= gamma_div[:w_max]
+            gamma_div = np.zeros(w_max)
+            for r_name in e_content[e_name]:
+                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+            e_gamma[e_name] /= gamma_div[:w_max]
 
-                if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
+            if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
+                self.e_tauint[e_name] = 0.5
+                self.e_dtauint[e_name] = 0.0
+                self.e_dvalue[e_name] = 0.0
+                self.e_ddvalue[e_name] = 0.0
+                self.e_windowsize[e_name] = 0
+                continue
+
+            self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
+            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
+            # Make sure no entry of tauint is smaller than 0.5
+            self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
+            # hep-lat/0306017 eq. (42)
+            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
+            self.e_n_dtauint[e_name][0] = 0.0
+
+            def _compute_drho(i):
+                tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
+                self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
+
+            _compute_drho(1)
+            if self.tau_exp[e_name] > 0:
+                texp = self.tau_exp[e_name]
+                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
+                #    texp /= self.idl[e_name].step
+                # Critical slowing down analysis
+                if w_max // 2 <= 1:
+                    raise Exception("Need at least 8 samples for tau_exp error analysis")
+                for n in range(1, w_max // 2):
+                    _compute_drho(n + 1)
+                    if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
+                        # Bias correction hep-lat/0306017 eq. (49) included
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
+                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
+                        # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
+                        self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
+                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
+                        self.e_windowsize[e_name] = n
+                        break
+            else:
+                if self.S[e_name] == 0.0:
                     self.e_tauint[e_name] = 0.5
                     self.e_dtauint[e_name] = 0.0
-                    self.e_dvalue[e_name] = 0.0
-                    self.e_ddvalue[e_name] = 0.0
+                    self.e_dvalue[e_name] = np.sqrt(e_gamma[e_name][0] / (e_N - 1))
+                    self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt(0.5 / e_N)
                     self.e_windowsize[e_name] = 0
-                    continue
-
-                self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-                self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
-                # Make sure no entry of tauint is smaller than 0.5
-                self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
-                # hep-lat/0306017 eq. (42)
-                self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
-                self.e_n_dtauint[e_name][0] = 0.0
-
-                def _compute_drho(i):
-                    tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
-                    self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
-
-                _compute_drho(1)
-                if self.tau_exp[e_name] > 0:
-                    texp = self.tau_exp[e_name]
-                    # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
-                    #    texp /= self.idl[e_name].step
-                    # Critical slowing down analysis
-                    if w_max // 2 <= 1:
-                        raise Exception("Need at least 8 samples for tau_exp error analysis")
-                    for n in range(1, w_max // 2):
-                        _compute_drho(n + 1)
-                        if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
-                            # Bias correction hep-lat/0306017 eq. (49) included
-                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
-                            self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
-                            # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
+                else:
+                    # Standard automatic windowing procedure
+                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
+                    g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
+                    for n in range(1, w_max):
+                        if n < w_max // 2 - 2:
+                            _compute_drho(n + 1)
+                        if g_w[n - 1] < 0 or n >= w_max - 1:
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                            self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
                             self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
                             self.e_windowsize[e_name] = n
                             break
-                else:
-                    if self.S[e_name] == 0.0:
-                        self.e_tauint[e_name] = 0.5
-                        self.e_dtauint[e_name] = 0.0
-                        self.e_dvalue[e_name] = np.sqrt(e_gamma[e_name][0] / (e_N - 1))
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt(0.5 / e_N)
-                        self.e_windowsize[e_name] = 0
-                    else:
-                        # Standard automatic windowing procedure
-                        tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
-                        g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
-                        for n in range(1, w_max):
-                            if n < w_max // 2 - 2:
-                                _compute_drho(n + 1)
-                            if g_w[n - 1] < 0 or n >= w_max - 1:
-                                self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
-                                self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
-                                self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                                self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
-                                self.e_windowsize[e_name] = n
-                                break
 
                 self._dvalue += self.e_dvalue[e_name] ** 2
                 self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
-            else:
-                self.e_dvalue[e_name] = np.sqrt(self.covobs[e_name].errsq())
-                self.e_ddvalue[e_name] = 0
-                self._dvalue += self.e_dvalue[e_name]**2
+        for e_name in self.cov_names:
+            self.e_dvalue[e_name] = np.sqrt(self.covobs[e_name].errsq())
+            self.e_ddvalue[e_name] = 0
+            self._dvalue += self.e_dvalue[e_name]**2
 
         self._dvalue = np.sqrt(self.dvalue)
         if self._dvalue == 0.0:
@@ -385,16 +392,15 @@ class Obs:
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
-            for e_name in self.e_names:
-                if e_name not in self.covobs:
-                    if len(self.e_names) > 1:
-                        print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                    if self.tau_exp[e_name] > 0:
-                        print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
-                    else:
-                        print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+            for e_name in self.mc_names:
+                if len(self.e_names) > 1:
+                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                if self.tau_exp[e_name] > 0:
+                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
                 else:
-                    print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
+                    print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+            for e_name in self.cov_names:
+                print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
@@ -467,7 +473,7 @@ class Obs:
             raise Exception('Run the gamma method first.')
 
         fig = plt.figure()
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
             length = int(len(self.e_n_tauint[e_name]))
@@ -498,7 +504,7 @@ class Obs:
         """Plot normalized autocorrelation function time for each ensemble."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             plt.xlabel('W')
             plt.ylabel('rho')
             length = int(len(self.e_drho[e_name]))
@@ -520,7 +526,7 @@ class Obs:
         """Plot replica distribution for each ensemble with more than one replicum."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             if len(self.e_content[e_name]) == 1:
                 print('No replica distribution for a single replicum (', e_name, ')')
                 continue
@@ -546,7 +552,7 @@ class Obs:
         expand : bool
             show expanded history for irregular Monte Carlo chains (default: True).
         """
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             plt.figure()
             r_length = []
             tmp = []
@@ -1055,7 +1061,7 @@ def derived_observable(func, data, **kwargs):
 
     allcov = {}
     for o in raveled_data:
-        for name in o.covobs:
+        for name in o.cov_names:
             if name in allcov:
                 if not np.array_equal(allcov[name], o.covobs[name].cov):
                     raise Exception('Inconsistent covariance matrices for %s!' % (name))
@@ -1137,7 +1143,7 @@ def derived_observable(func, data, **kwargs):
         new_grad = {}
         for j_obs, obs in np.ndenumerate(data):
             for name in obs.names:
-                if name in obs.covobs:
+                if name in obs.cov_names:
                     if name in new_grad:
                         new_grad[name] += deriv[i_val + j_obs] * obs.covobs[name].grad
                     else:
@@ -1231,6 +1237,8 @@ def reweight(weight, obs, **kwargs):
     """
     result = []
     for i in range(len(obs)):
+        if len(obs[i].cov_names):
+            raise Exception('Error: Not possible to reweight an Obs that contains covobs!')
         if sorted(weight.names) != sorted(obs[i].names):
             raise Exception('Error: Ensembles do not fit')
         for name in weight.names:
@@ -1272,6 +1280,8 @@ def correlate(obs_a, obs_b):
 
     if sorted(obs_a.names) != sorted(obs_b.names):
         raise Exception('Ensembles do not fit')
+    if len(obs_a.cov_names) or len(obs_b.cov_names):
+        raise Exception('Error: Not possible to correlate Obs that contain covobs!')
     for name in obs_a.names:
         if obs_a.shape[name] != obs_b.shape[name]:
             raise Exception('Shapes of ensemble', name, 'do not fit')
@@ -1329,7 +1339,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
     dvalue = 0
 
-    for e_name in obs1.e_names:
+    for e_name in obs1.mc_names:
 
         if e_name not in obs2.e_names:
             continue
@@ -1348,6 +1358,13 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
         tau_combined = (obs1.e_tauint[e_name] + obs2.e_tauint[e_name]) / 2
         dvalue += gamma / e_N * (1 + 1 / e_N) / e_N * 2 * tau_combined
+
+    for e_name in obs1.cov_names:
+
+        if e_name not in obs2.cov_names:
+            continue
+
+        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
 
     if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
         dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
@@ -1420,9 +1437,9 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
     e_n_tauint = {}
     e_rho = {}
 
-    for e_name in obs1.e_names:
+    for e_name in obs1.mc_names:
 
-        if e_name not in obs2.e_names:
+        if e_name not in obs2.mc_names:
             continue
 
         idl_d = {}
@@ -1472,6 +1489,13 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
 
         dvalue += e_dvalue[e_name]
+
+    for e_name in obs1.cov_names:
+
+        if e_name not in obs2.cov_names:
+            continue
+
+        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
 
     if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
         dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
@@ -1610,6 +1634,8 @@ def merge_obs(list_of_obs):
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
         raise Exception('list_of_obs contains duplicate replica: %s' % (str(replist)))
+    if any([len(o.cov_names) for o in list_of_obs]):
+        raise Exception('Not possible to merge data that contains covobs!')
     new_dict = {}
     idl_dict = {}
     for o in list_of_obs:
@@ -1624,61 +1650,46 @@ def merge_obs(list_of_obs):
     return o
 
 
-def covobs_to_obs(co):
-    """Make an Obs out of a Covobs
+def cov_Obs(means, cov, name, grad=None):
+    """Create an Obs based on mean(s) and a covariance matrix
 
     Parameters
     ----------
-    co : Covobs
-        Covobs to be embedded into the Obs
-    """
-    o = Obs(None, None, empty=True)
-    o._value = co.value
-    o.names.append(co.name)
-    o.covobs[co.name] = co
-    o._dvalue = np.sqrt(co.errsq())
-    o.shape[co.name] = 1
-    o.idl[co.name] = []
-    return o
-
-
-def create_Covobs(mean, cov, name, pos=None, grad=None):
-    """Make an Obs based on a Covobs
-
-    Parameters
-    ----------
-    mean : float
-        Mean value of the new Obs
+    mean : list of floats or float
+        N mean value(s) of the new Obs
     cov : list or array
-        2d Covariance matrix or 1d diagonal entries
-    name : str
-        identifier for the covariance matrix
-    pos : int
-        Position of the variance belonging to mean in cov.
-        Is taken to be 1 if cov is 0-dimensional
-    grad : list or array
-        Gradient of the Covobs wrt. the means belonging to cov.
-    """
-    return covobs_to_obs(Covobs(mean, cov, name, pos=pos, grad=grad))
-
-
-def create_Covobs_list(means, cov, name, grad=None):
-    """Make a list of Obs based Covobs
-
-    Parameters
-    ----------
-    mean : list of floats
-        N mean values of the new Obs
-    cov : list or array
-        2d (NxN) Covariance matrix or 1d diagonal entries
+        2d (NxN) Covariance matrix, 1d diagonal entries or 0d covariance
     name : str
         identifier for the covariance matrix
     grad : list or array
         Gradient of the Covobs wrt. the means belonging to cov.
     """
+
+    def covobs_to_obs(co):
+        """Make an Obs out of a Covobs
+
+        Parameters
+        ----------
+        co : Covobs
+            Covobs to be embedded into the Obs
+        """
+        o = Obs(None, None, empty=True)
+        o._value = co.value
+        o.names.append(co.name)
+        o.covobs[co.name] = co
+        o._dvalue = np.sqrt(co.errsq())
+        o.shape[co.name] = 1
+        o.idl[co.name] = []
+        return o
+
     ol = []
+    if isinstance(means, (float, int)):
+        means = [means]
+
     for i in range(len(means)):
         ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
     if ol[0].covobs[name].N != len(means):
         raise Exception('You have to provide %d mean values!' % (ol[0].N))
+    if len(ol) == 1:
+        return ol[0]
     return ol

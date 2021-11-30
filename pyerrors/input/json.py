@@ -227,7 +227,6 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
                 retd['idl'].append([di[0] for di in rep['deltas']])
                 retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))
                 retd['is_merged'][rep['name']] = rep.get('is_merged', False)
-        retd['deltas'] = np.array(retd['deltas'])
         return retd
 
     def get_Obs_from_dict(o):

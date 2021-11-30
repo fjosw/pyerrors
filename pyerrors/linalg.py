@@ -186,49 +186,49 @@ def jack_matmul(*operands):
     For large matrices this is considerably faster compared to matmul.
     """
 
-    if any(isinstance(o[0, 0], CObs) for o in operands):
-        name = operands[0][0, 0].real.names[0]
-        idl = operands[0][0, 0].real.idl[name]
+    if any(isinstance(o.flat[0], CObs) for o in operands):
+        name = operands[0].flat[0].real.names[0]
+        idl = operands[0].flat[0].real.idl[name]
 
         def _exp_to_jack(matrix):
             base_matrix = np.empty_like(matrix)
-            for (n, m), entry in np.ndenumerate(matrix):
-                base_matrix[n, m] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
+            for index, entry in np.ndenumerate(matrix):
+                base_matrix[index] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
             return base_matrix
 
         def _imp_from_jack(matrix):
             base_matrix = np.empty_like(matrix)
-            for (n, m), entry in np.ndenumerate(matrix):
-                base_matrix[n, m] = CObs(import_jackknife(entry.real, name, [idl]),
-                                         import_jackknife(entry.imag, name, [idl]))
+            for index, entry in np.ndenumerate(matrix):
+                base_matrix[index] = CObs(import_jackknife(entry.real, name, [idl]),
+                                          import_jackknife(entry.imag, name, [idl]))
             return base_matrix
 
         r = _exp_to_jack(operands[0])
         for op in operands[1:]:
-            if isinstance(op[0, 0], CObs):
+            if isinstance(op.flat[0], CObs):
                 r = r @ _exp_to_jack(op)
             else:
                 r = r @ op
         return _imp_from_jack(r)
     else:
-        name = operands[0][0, 0].names[0]
-        idl = operands[0][0, 0].idl[name]
+        name = operands[0].flat[0].names[0]
+        idl = operands[0].flat[0].idl[name]
 
         def _exp_to_jack(matrix):
             base_matrix = np.empty_like(matrix)
-            for (n, m), entry in np.ndenumerate(matrix):
-                base_matrix[n, m] = entry.export_jackknife()
+            for index, entry in np.ndenumerate(matrix):
+                base_matrix[index] = entry.export_jackknife()
             return base_matrix
 
         def _imp_from_jack(matrix):
             base_matrix = np.empty_like(matrix)
-            for (n, m), entry in np.ndenumerate(matrix):
-                base_matrix[n, m] = import_jackknife(entry, name, [idl])
+            for index, entry in np.ndenumerate(matrix):
+                base_matrix[index] = import_jackknife(entry, name, [idl])
             return base_matrix
 
         r = _exp_to_jack(operands[0])
         for op in operands[1:]:
-            if isinstance(op[0, 0], Obs):
+            if isinstance(op.flat[0], Obs):
                 r = r @ _exp_to_jack(op)
             else:
                 r = r @ op

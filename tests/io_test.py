@@ -19,7 +19,15 @@ def test_jsonio():
     arr = np.array([o3, o5])
     mat = np.array([[pe.pseudo_Obs(1.0, .1, 'mat'), pe.pseudo_Obs(0.3, .1, 'mat')], [pe.pseudo_Obs(0.2, .1, 'mat'), pe.pseudo_Obs(2.0, .4, 'mat')]])
 
-    ol = [o4, do, testl, mat, arr, np.array([o])]
+    tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
+    tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
+    tt3 = pe.Obs([np.random.rand(102)], ['qe'])
+
+    tt = tt1 + tt2 + tt3
+
+    tt.tag = 'Test Obs'
+
+    ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt]]
     fname = 'test_rw'
 
     jsonio.dump_to_json(ol, fname, indent=1)

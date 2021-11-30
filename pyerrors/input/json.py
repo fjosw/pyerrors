@@ -120,7 +120,7 @@ def create_json_string(ol, fname, description='', indent=1):
         _assert_equal_properties(ol)
         d = {}
         d['type'] = 'Array'
-        d['layout'] = str(oa.shape).lstrip('(').rstrip(')')
+        d['layout'] = str(oa.shape).lstrip('(').rstrip(')').rstrip(',')
         if ol[0].tag:
             d['tag'] = ol[0].tag
             if isinstance(ol[0].tag, str):
@@ -153,7 +153,7 @@ def create_json_string(ol, fname, description='', indent=1):
         elif isinstance(io, np.ndarray):
             d['obsdata'].append(write_Array_to_dict(io))
 
-    jsonstring = json.dumps(d, indent=indent, cls=my_encoder)
+    jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
     # workaround for un-indentation of delta lists
     jsonstring = jsonstring.replace('    "[', '    [').replace(']",', '],').replace(']"\n', ']\n')
 
@@ -192,13 +192,9 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
         fp = gzip.open(fname, 'wb')
         fp.write(jsonstring.encode('utf-8'))
     else:
-        fp = open(fname, 'w')
+        fp = open(fname, 'w', encoding='utf-8')
         fp.write(jsonstring)
     fp.close()
-
-    # this would be nicer, since it does not need a string but uses serialization (less memory!)
-    # with gzip.open(fname, 'wt', encoding='UTF-8') as zipfile:
-    #    json.dump(d, zipfile, indent=indent)
 
 
 def load_json(fname, verbose=True, gz=True, full_output=False):
@@ -229,7 +225,7 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
             for rep in ens['replica']:
                 retd['names'].append(rep['name'])
                 retd['idl'].append([di[0] for di in rep['deltas']])
-                retd['deltas'].append([di[1:] for di in rep['deltas']])
+                retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))
                 retd['is_merged'][rep['name']] = rep.get('is_merged', False)
         retd['deltas'] = np.array(retd['deltas'])
         return retd
@@ -286,7 +282,7 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r') as fin:
+        with open(fname, 'r', encoding='utf-8') as fin:
             d = json.loads(fin.read())
 
     prog = d.get('program', '')
@@ -303,7 +299,7 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
     description = d.get('description', '')
     if description and verbose:
         print()
-        print(description)
+        print('Description: ', description)
     obsdata = d['obsdata']
     ol = []
     for io in obsdata:

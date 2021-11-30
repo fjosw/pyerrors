@@ -88,7 +88,8 @@ def create_json_string(ol, fname, description='', indent=1):
         d = {}
         d['type'] = 'Obs'
         d['layout'] = '1'
-        d['tag'] = o.tag
+        if o.tag:
+            d['tag'] = o.tag
         if o.reweighted:
             d['reweighted'] = o.reweighted
         d['value'] = [o.value]
@@ -100,12 +101,13 @@ def create_json_string(ol, fname, description='', indent=1):
         d = {}
         d['type'] = 'List'
         d['layout'] = '%d' % len(ol)
-        if len(set([o.tag for o in ol])) > 1:
-            d['tag'] = ''
-            for o in ol:
-                d['tag'] += '%s\n' % (o.tag)
-        else:
+        if ol[0].tag:
             d['tag'] = ol[0].tag
+            if isinstance(ol[0].tag, str):
+                if len(set([o.tag for o in ol])) > 1:
+                    d['tag'] = ''
+                    for o in ol:
+                        d['tag'] += '%s\n' % (o.tag)
         if ol[0].reweighted:
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
@@ -119,12 +121,13 @@ def create_json_string(ol, fname, description='', indent=1):
         d = {}
         d['type'] = 'Array'
         d['layout'] = str(oa.shape).lstrip('(').rstrip(')')
-        if len(set([o.tag for o in ol])) > 1:
-            d['tag'] = ''
-            for o in ol:
-                d['tag'] += '%s\n' % (o.tag)
-        else:
+        if ol[0].tag:
             d['tag'] = ol[0].tag
+            if isinstance(ol[0].tag, str):
+                if len(set([o.tag for o in ol])) > 1:
+                    d['tag'] = ''
+                    for o in ol:
+                        d['tag'] += '%s\n' % (o.tag)
         if ol[0].reweighted:
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
@@ -198,7 +201,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     #    json.dump(d, zipfile, indent=indent)
 
 
-def load_json(fname, verbose=True, gz=True):
+def load_json(fname, verbose=True, gz=True, full_output=False):
     """Import a list of Obs or structures containing Obs from a .json.gz file.
     The following structures are supported: Obs, list, np.ndarray
     If the list contains only one element, it is unpacked from the list.
@@ -211,6 +214,9 @@ def load_json(fname, verbose=True, gz=True):
         Print additional information that was written to the file.
     gz : bool
         If True, assumes that data is gzipped. If False, assumes JSON file.
+    full_output : bool
+        If True, a dict containing auxiliary information and the data is returned.
+        If False, only the data is returned.
     """
 
     def _gen_obsd_from_datad(d):
@@ -239,7 +245,7 @@ def load_json(fname, verbose=True, gz=True):
         ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
         ret.reweighted = o.get('reweighted', False)
         ret.is_merged = od['is_merged']
-        ret.tag = o.get('tag', '')
+        ret.tag = o.get('tag', None)
         return ret
 
     def get_List_from_dict(o):
@@ -253,7 +259,7 @@ def load_json(fname, verbose=True, gz=True):
             ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
-            ret[-1].tag = o.get('tag', '')
+            ret[-1].tag = o.get('tag', None)
         return ret
 
     def get_Array_from_dict(o):
@@ -267,7 +273,7 @@ def load_json(fname, verbose=True, gz=True):
             ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
-            ret[-1].tag = o.get('tag', '')
+            ret[-1].tag = o.get('tag', None)
         return np.reshape(ret, layout)
 
     if not fname.endswith('.json') and not fname.endswith('.gz'):
@@ -308,6 +314,19 @@ def load_json(fname, verbose=True, gz=True):
         elif io['type'] == 'Array':
             ol.append(get_Array_from_dict(io))
 
-    if len(obsdata) == 1:
-        ol = ol[0]
-    return ol
+    if full_output:
+        retd = {}
+        retd['program'] = prog
+        retd['version'] = version
+        retd['who'] = who
+        retd['date'] = date
+        retd['host'] = host
+        retd['description'] = description
+        retd['obsdata'] = ol
+
+        return retd
+    else:
+        if len(obsdata) == 1:
+            ol = ol[0]
+
+        return ol

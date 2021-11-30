@@ -224,7 +224,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     return result_dict
 
 
-def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
+def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
     """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
 
     Parameters
@@ -237,12 +237,19 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
         name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
+    vertices : list
+        Vertex functions to be extracted.
     """
 
     files, idx = _get_files(path, filestem, idl)
 
     mom_in = None
     mom_out = None
+
+    vertex_names = []
+    for vertex in vertices:
+        vertex_names += _get_lorentz_names(vertex)
+    print(vertex_names)
 
     corr_data = {}
 
@@ -251,25 +258,35 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
     for hd5_file in files:
         file = h5py.File(path + '/' + hd5_file, "r")
 
-        for i in range(1):
-            name = file[tree + str(i) + '/info'].attrs['gammaA'][0].decode('UTF-8') + '_' + file[tree + str(i) + '/info'].attrs['gammaB'][0].decode('UTF-8')
-            if name not in corr_data:
-                corr_data[name] = []
-            raw_data = file[tree + str(i) + '/corr'][0][0].view('complex')
-            corr_data[name].append(raw_data)
-            if mom_in is None:
-                mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
-            if mom_out is None:
-                mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
+        for i in range(32):
+            name = (file[tree + str(i) + '/info'].attrs['gammaA'][0].decode('UTF-8'), file[tree + str(i) + '/info'].attrs['gammaB'][0].decode('UTF-8'))
+            if name in vertex_names:
+                if name not in corr_data:
+                    corr_data[name] = []
+                raw_data = file[tree + str(i) + '/corr'][0][0].view('complex')
+                corr_data[name].append(raw_data)
+                if mom_in is None:
+                    mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+                if mom_out is None:
+                    mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
 
         file.close()
 
+    intermediate_dict = {}
+
+    for vertex in vertices:
+        lorentz_names = _get_lorentz_names(vertex)
+        for v_name in lorentz_names:
+            if vertex not in intermediate_dict:
+                intermediate_dict[vertex] = np.array(corr_data[v_name])
+            else:
+                intermediate_dict[vertex] += np.array(corr_data[v_name])
+
     result_dict = {}
 
-    for key, data in corr_data.items():
-        local_data = np.array(data)
+    for key, data in intermediate_dict.items():
 
-        rolled_array = np.moveaxis(local_data, 0, 8)
+        rolled_array = np.moveaxis(data, 0, 8)
 
         matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
         for index in np.ndindex(rolled_array.shape[:-1]):
@@ -281,3 +298,36 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None):
         # result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
 
     return result_dict
+
+
+def _get_lorentz_names(name):
+    assert len(name) == 2
+
+    res = []
+
+    if not set(name) <= set(['S', 'P', 'V', 'A', 'T']):
+        raise Exception("Name can only contain 'S', 'P', 'V', 'A' or 'T'")
+
+    if 'S' in name or 'P' in name:
+        if not set(name) <= set(['S', 'P']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+
+        g_names = {'S': 'Identity',
+                   'P': 'Gamma5'}
+
+        res.append((g_names[name[0]], g_names[name[1]]))
+
+    elif 'T' in name:
+        if not set(name) <= set(['T']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+        raise Exception("Tensor operators not yet implemented.")
+    else:
+        if not set(name) <= set(['V', 'A']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+        lorentz_index = ['X', 'Y', 'Z', 'T']
+
+        for ind in lorentz_index:
+            res.append(('Gamma' + ind + (name[0] == 'A') * 'Gamma5',
+                        'Gamma' + ind + (name[1] == 'A') * 'Gamma5'))
+
+    return res

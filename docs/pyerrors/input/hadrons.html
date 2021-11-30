@@ -341,7 +341,6 @@
     <span class="n">vertex_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">vertex_names</span> <span class="o">+=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">vertex_names</span><span class="p">)</span>
 
     <span class="n">corr_data</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -387,7 +386,6 @@
             <span class="n">matrix</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">CObs</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">)</span>
 
         <span class="n">result_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom_in</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="n">mom_out</span><span class="p">)</span>
-        <span class="c1"># result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=&#39;F&#39;), mom_in=mom_in, mom_out=mom_out)</span>
 
     <span class="k">return</span> <span class="n">result_dict</span>
 
@@ -986,7 +984,6 @@ If specified only configurations in the given range are read in.</li>
     <span class="n">vertex_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">vertex_names</span> <span class="o">+=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">vertex_names</span><span class="p">)</span>
 
     <span class="n">corr_data</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1032,7 +1029,6 @@ If specified only configurations in the given range are read in.</li>
             <span class="n">matrix</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">CObs</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">)</span>
 
         <span class="n">result_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom_in</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="n">mom_out</span><span class="p">)</span>
-        <span class="c1"># result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=&#39;F&#39;), mom_in=mom_in, mom_out=mom_out)</span>
 
     <span class="k">return</span> <span class="n">result_dict</span>
 </pre></div>

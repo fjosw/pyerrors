@@ -68,6 +68,9 @@
             <li>
                     <a class="function" href="#read_Bilinear_hd5">read_Bilinear_hd5</a>
             </li>
+            <li>
+                    <a class="function" href="#read_Fourquark_hd5">read_Fourquark_hd5</a>
+            </li>
     </ul>
 
 
@@ -152,7 +155,7 @@
 <span class="sd">        for outputs of the Meson module. Can be altered to read input</span>
 <span class="sd">        from other modules with similar structures.</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -228,7 +231,7 @@
 <span class="sd">    filestem -- namestem of the files to read</span>
 <span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -265,7 +268,7 @@
 <span class="sd">    filestem -- namestem of the files to read</span>
 <span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -305,6 +308,62 @@
         <span class="n">result_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom_in</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="n">mom_out</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result_dict</span>
+
+
+<span class="k">def</span> <span class="nf">read_Fourquark_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    path -- path to the files to read</span>
+<span class="sd">    filestem -- namestem of the files to read</span>
+<span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+
+    <span class="n">mom_in</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mom_out</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">corr_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="s1">&#39;FourQuarkFullyConnected/FourQuarkFullyConnected_&#39;</span>
+
+    <span class="k">for</span> <span class="n">hd5_file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">hd5_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;gammaA&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;gammaB&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">corr_data</span><span class="p">:</span>
+                <span class="n">corr_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s1">&#39;complex&#39;</span><span class="p">)</span>
+            <span class="n">corr_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mom_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mom_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;pIn&#39;</span><span class="p">])[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mom_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mom_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;pOut&#39;</span><span class="p">])[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">corr_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">local_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">rolled_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">local_data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">rolled_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">rolled_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">rolled_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">],</span> <span class="p">[</span><span class="n">ens_id</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">rolled_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">],</span> <span class="p">[</span><span class="n">ens_id</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">CObs</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">)</span>
+
+        <span class="n">result_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom_in</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="n">mom_out</span><span class="p">)</span>
+        <span class="c1"># result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=&#39;F&#39;), mom_in=mom_in, mom_out=mom_out)</span>
+
+    <span class="k">return</span> <span class="n">result_dict</span>
 </pre></div>
 
         </details>
@@ -339,7 +398,7 @@
 <span class="sd">        for outputs of the Meson module. Can be altered to read input</span>
 <span class="sd">        from other modules with similar structures.</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -387,7 +446,7 @@ Label of the upmost directory in the hdf5 file, default 'meson'
 for outputs of the Meson module. Can be altered to read input
 from other modules with similar structures.</li>
 <li><strong>idl</strong> (range):
-If specified only conifgurations in the given range are read in.</li>
+If specified only configurations in the given range are read in.</li>
 </ul>
 </div>
 
@@ -698,7 +757,7 @@ in and out momenta of the propagator are exchanged.</p>
 <span class="sd">    filestem -- namestem of the files to read</span>
 <span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -737,7 +796,7 @@ in and out momenta of the propagator are exchanged.</p>
 <li><strong>filestem -- namestem of the files to read</strong></li>
 <li><strong>ens_id -- name of the ensemble, required for internal bookkeeping</strong></li>
 <li><strong>idl</strong> (range):
-If specified only conifgurations in the given range are read in.</li>
+If specified only configurations in the given range are read in.</li>
 </ul>
 </div>
 
@@ -762,7 +821,7 @@ If specified only conifgurations in the given range are read in.</li>
 <span class="sd">    filestem -- namestem of the files to read</span>
 <span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
 <span class="sd">    idl : range</span>
-<span class="sd">        If specified only conifgurations in the given range are read in.</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
@@ -815,7 +874,90 @@ If specified only conifgurations in the given range are read in.</li>
 <li><strong>filestem -- namestem of the files to read</strong></li>
 <li><strong>ens_id -- name of the ensemble, required for internal bookkeeping</strong></li>
 <li><strong>idl</strong> (range):
-If specified only conifgurations in the given range are read in.</li>
+If specified only configurations in the given range are read in.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="read_Fourquark_hd5">
+                            <div class="attr function"><a class="headerlink" href="#read_Fourquark_hd5">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">read_Fourquark_hd5</span><span class="signature">(path, filestem, ens_id, idl=None)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_Fourquark_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    path -- path to the files to read</span>
+<span class="sd">    filestem -- namestem of the files to read</span>
+<span class="sd">    ens_id -- name of the ensemble, required for internal bookkeeping</span>
+<span class="sd">    idl : range</span>
+<span class="sd">        If specified only configurations in the given range are read in.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+
+    <span class="n">mom_in</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mom_out</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">corr_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="s1">&#39;FourQuarkFullyConnected/FourQuarkFullyConnected_&#39;</span>
+
+    <span class="k">for</span> <span class="n">hd5_file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">hd5_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;gammaA&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;gammaB&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">corr_data</span><span class="p">:</span>
+                <span class="n">corr_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/corr&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s1">&#39;complex&#39;</span><span class="p">)</span>
+            <span class="n">corr_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mom_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mom_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;pIn&#39;</span><span class="p">])[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mom_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mom_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="n">tree</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;pOut&#39;</span><span class="p">])[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">corr_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">local_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">rolled_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">local_data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">rolled_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">rolled_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">rolled_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">],</span> <span class="p">[</span><span class="n">ens_id</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">rolled_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">],</span> <span class="p">[</span><span class="n">ens_id</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">CObs</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">)</span>
+
+        <span class="n">result_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Npr_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">mom_in</span><span class="o">=</span><span class="n">mom_in</span><span class="p">,</span> <span class="n">mom_out</span><span class="o">=</span><span class="n">mom_out</span><span class="p">)</span>
+        <span class="c1"># result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=&#39;F&#39;), mom_in=mom_in, mom_out=mom_out)</span>
+
+    <span class="k">return</span> <span class="n">result_dict</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>path -- path to the files to read</strong></li>
+<li><strong>filestem -- namestem of the files to read</strong></li>
+<li><strong>ens_id -- name of the ensemble, required for internal bookkeeping</strong></li>
+<li><strong>idl</strong> (range):
+If specified only configurations in the given range are read in.</li>
 </ul>
 </div>
 

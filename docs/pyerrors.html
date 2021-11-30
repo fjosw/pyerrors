@@ -117,6 +117,14 @@ It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/
 <li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
 </ul>
 
+<p>There exist similar publicly available implementations of gamma method error analysis suites in</p>
+
+<ul>
+<li><a href="https://gitlab.ift.uam-csic.es/alberto/aderrors">Fortran</a></li>
+<li><a href="https://gitlab.ift.uam-csic.es/alberto/aderrors.jl">Julia</a></li>
+<li><a href="https://github.com/mbruno46/pyobs">Python</a></li>
+</ul>
+
 <h2 id="basic-example">Basic example</h2>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -365,6 +373,11 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- coherent **error propagation** for data from **different Markov chains**</span>
 <span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
 <span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
+
+<span class="sd">There exist similar publicly available implementations of gamma method error analysis suites in</span>
+<span class="sd">- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)</span>
+<span class="sd">- [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)</span>
+<span class="sd">- [Python](https://github.com/mbruno46/pyobs)</span>
 
 <span class="sd">## Basic example</span>
 

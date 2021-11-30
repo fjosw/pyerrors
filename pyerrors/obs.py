@@ -80,7 +80,7 @@ class Obs:
                 raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
-        
+
         if names:
             self.names = sorted(names)
         else:
@@ -324,19 +324,19 @@ class Obs:
                             self.e_windowsize[e_name] = n
                             break
 
-                self._dvalue += self.e_dvalue[e_name] ** 2
-                self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
+            self._dvalue += self.e_dvalue[e_name] ** 2
+            self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
         for e_name in self.cov_names:
             self.e_dvalue[e_name] = np.sqrt(self.covobs[e_name].errsq())
             self.e_ddvalue[e_name] = 0
             self._dvalue += self.e_dvalue[e_name]**2
 
-        self._dvalue = np.sqrt(self.dvalue)
+        self._dvalue = np.sqrt(self._dvalue)
         if self._dvalue == 0.0:
             self.ddvalue = 0.0
         else:
-            self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
+            self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
         return
 
     def _calc_gamma(self, deltas, idx, shape, w_max, fft):
@@ -388,8 +388,8 @@ class Obs:
             if self.value == 0.0:
                 percentage = np.nan
             else:
-                percentage = np.abs(self.dvalue / self.value) * 100
-            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
+                percentage = np.abs(self._dvalue / self.value) * 100
+            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self._dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
             for e_name in self.mc_names:
@@ -447,7 +447,7 @@ class Obs:
 
         Works only properly when the gamma method was run.
         """
-        return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
+        return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
     def is_zero(self, rtol=1.e-5, atol=1.e-8):
         """Checks whether the observable is zero within a given tolerance.
@@ -575,10 +575,10 @@ class Obs:
         ensemble to the error and returns a dictionary containing the fractions."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        if self.dvalue == 0.0:
+        if self._dvalue == 0.0:
             raise Exception('Error is 0.0')
         labels = self.e_names
-        sizes = [i ** 2 for i in list(self.e_dvalue.values())] / self.dvalue ** 2
+        sizes = [i ** 2 for i in list(self.e_dvalue.values())] / self._dvalue ** 2
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
@@ -636,15 +636,15 @@ class Obs:
         return 'Obs[' + str(self) + ']'
 
     def __str__(self):
-        if self.dvalue == 0.0:
+        if self._dvalue == 0.0:
             return str(self.value)
-        fexp = np.floor(np.log10(self.dvalue))
+        fexp = np.floor(np.log10(self._dvalue))
         if fexp < 0.0:
-            return '{:{form}}({:2.0f})'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+            return '{:{form}}({:2.0f})'.format(self.value, self._dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
         elif fexp == 0.0:
-            return '{:.1f}({:1.1f})'.format(self.value, self.dvalue)
+            return '{:.1f}({:1.1f})'.format(self.value, self._dvalue)
         else:
-            return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
+            return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
 
     # Overload comparisons
     def __lt__(self, other):
@@ -1151,7 +1151,7 @@ def derived_observable(func, data, **kwargs):
                 else:
                     new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 
-            new_covobs = {name: Covobs(obs.covobs[name].value, obs.covobs[name].cov, obs.covobs[name].name, grad=new_grad[name]) for name in new_grad}
+        new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 
         new_samples = []
         new_means = []

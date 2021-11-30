@@ -41,7 +41,7 @@ class Covobs:
                     raise Exception('Have to specify position of cov-element belonging to mean!')
             else:
                 if pos > self.N:
-                    raise Exception('pos %d too large for covariance matrix with dimension %dx%d!' % (pos, self.N, self.N))   
+                    raise Exception('pos %d too large for covariance matrix with dimension %dx%d!' % (pos, self.N, self.N))
             self.grad = np.zeros((self.N, 1))
             self.grad[pos] = 1.
         else:

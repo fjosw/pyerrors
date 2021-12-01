@@ -3,7 +3,7 @@
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
 
 - **Documentation:** https://fjosw.github.io/pyerrors/pyerrors.html
-- **Examples**: https://github.com/fjosw/pyerrors/tree/develop/examples
+- **Examples**: https://github.com/fjosw/pyerrors/tree/develop/examples (Do not work properly at the moment)
 - **Contributing:** https://github.com/fjosw/pyerrors/blob/develop/CONTRIBUTING.md
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
@@ -16,9 +16,3 @@ to install the most recent release run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@master
 ```
-
-## Other implementations
-There exist similar publicly available implementations of gamma method error analysis suites in
-- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)
-- [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)
-- [Python](https://github.com/mbruno46/pyobs)

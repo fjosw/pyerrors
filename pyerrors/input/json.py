@@ -10,7 +10,7 @@ import numpy as np
 import warnings
 
 
-def create_json_string(ol, fname, description='', indent=1):
+def create_json_string(ol, description='', indent=1):
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .json(.gz) file
 
@@ -20,8 +20,6 @@ def create_json_string(ol, fname, description='', indent=1):
         List of objects that will be exported. At the moments, these objects can be
         either of: Obs, list, np.ndarray
         All Obs inside a structure have to be defined on the same set of configurations.
-    fname : str
-        Filename of the output file
     description : str
         Optional string that describes the contents of the json file
     indent : int
@@ -89,7 +87,7 @@ def create_json_string(ol, fname, description='', indent=1):
         d['type'] = 'Obs'
         d['layout'] = '1'
         if o.tag:
-            d['tag'] = o.tag
+            d['tag'] = [o.tag]
         if o.reweighted:
             d['reweighted'] = o.reweighted
         d['value'] = [o.value]
@@ -101,13 +99,9 @@ def create_json_string(ol, fname, description='', indent=1):
         d = {}
         d['type'] = 'List'
         d['layout'] = '%d' % len(ol)
-        if ol[0].tag:
-            d['tag'] = ol[0].tag
-            if isinstance(ol[0].tag, str):
-                if len(set([o.tag for o in ol])) > 1:
-                    d['tag'] = ''
-                    for o in ol:
-                        d['tag'] += '%s\n' % (o.tag)
+        taglist = [o.tag for o in ol]
+        if np.any([tag is not None for tag in taglist]):
+            d['tag'] = taglist
         if ol[0].reweighted:
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
@@ -121,13 +115,9 @@ def create_json_string(ol, fname, description='', indent=1):
         d = {}
         d['type'] = 'Array'
         d['layout'] = str(oa.shape).lstrip('(').rstrip(')').rstrip(',')
-        if ol[0].tag:
-            d['tag'] = ol[0].tag
-            if isinstance(ol[0].tag, str):
-                if len(set([o.tag for o in ol])) > 1:
-                    d['tag'] = ''
-                    for o in ol:
-                        d['tag'] += '%s\n' % (o.tag)
+        taglist = [o.tag for o in ol]
+        if np.any([tag is not None for tag in taglist]):
+            d['tag'] = taglist
         if ol[0].reweighted:
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
@@ -154,9 +144,22 @@ def create_json_string(ol, fname, description='', indent=1):
             d['obsdata'].append(write_Array_to_dict(io))
 
     jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
-    # workaround for un-indentation of delta lists
-    jsonstring = jsonstring.replace('    "[', '    [').replace(']",', '],').replace(']"\n', ']\n')
 
+    # workaround for un-quoting of delta lists, adds 5% of work
+    # but is save, compared to a simple replace that could destroy the structure
+    def remove_quotationmarks(s):
+        deltas = False
+        split = s.split('\n')
+        for i in range(len(split)):
+            if '"deltas":' in split[i]:
+                deltas = True
+            elif deltas:
+                split[i] = split[i].replace('"[', '[').replace(']"', ']')
+                if split[i][-1] == ']':
+                    deltas = False
+        return '\n'.join(split)
+
+    jsonstring = remove_quotationmarks(jsonstring)
     return jsonstring
 
 
@@ -180,7 +183,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
         If True, the output is a gzipped json. If False, the output is a json file.
     """
 
-    jsonstring = create_json_string(ol, fname, description, indent)
+    jsonstring = create_json_string(ol, description, indent)
 
     if not fname.endswith('.json') and not fname.endswith('.gz'):
         fname += '.json'
@@ -240,7 +243,7 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
         ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
         ret.reweighted = o.get('reweighted', False)
         ret.is_merged = od['is_merged']
-        ret.tag = o.get('tag', None)
+        ret.tag = o.get('tag', [None])[0]
         return ret
 
     def get_List_from_dict(o):
@@ -250,25 +253,28 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
         od = _gen_obsd_from_datad(o['data'])
 
         ret = []
+        taglist = o.get('tag', layout * [None])
         for i in range(layout):
             ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
-            ret[-1].tag = o.get('tag', None)
+            ret[-1].tag = taglist[i]
         return ret
 
     def get_Array_from_dict(o):
         layouts = o.get('layout', '1').strip()
         layout = [int(ls.strip()) for ls in layouts.split(',') if len(ls) > 0]
+        N = np.prod(layout)
         values = o['value']
         od = _gen_obsd_from_datad(o['data'])
 
         ret = []
-        for i in range(np.prod(layout)):
+        taglist = o.get('tag', N * [None])
+        for i in range(N):
             ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
-            ret[-1].tag = o.get('tag', None)
+            ret[-1].tag = taglist[i]
         return np.reshape(ret, layout)
 
     if not fname.endswith('.json') and not fname.endswith('.gz'):

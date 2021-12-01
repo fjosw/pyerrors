@@ -1479,6 +1479,8 @@
 
         <span class="n">new_covobs</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">Covobs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">allcov</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="n">new_grad</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">new_grad</span><span class="p">}</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">new_covobs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="n">new_deltas</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The same name has been used for deltas and covobs!&#39;</span><span class="p">)</span>
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_means</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_idl</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4716,6 +4718,8 @@ should agree with samples from a full jackknife analysis up to O(1/N).</li>
 
         <span class="n">new_covobs</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">Covobs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">allcov</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="n">new_grad</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">new_grad</span><span class="p">}</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">new_covobs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="n">new_deltas</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The same name has been used for deltas and covobs!&#39;</span><span class="p">)</span>
         <span class="n">new_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_means</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_idl</span> <span class="o">=</span> <span class="p">[]</span>

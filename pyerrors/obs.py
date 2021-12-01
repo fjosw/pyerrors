@@ -1153,6 +1153,8 @@ def derived_observable(func, data, **kwargs):
 
         new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 
+        if not set(new_covobs.keys()).isdisjoint(new_deltas.keys()):
+            raise Exception('The same name has been used for deltas and covobs!')
         new_samples = []
         new_means = []
         new_idl = []

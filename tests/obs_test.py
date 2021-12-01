@@ -581,3 +581,9 @@ def test_covobs():
 
     do = cl[0] * cl[1]
     assert(np.array_equal(do.covobs['rAP'].grad, np.transpose([pi[1], pi[0]]).reshape(2, 1)))
+
+
+def test_covobs_overloading():
+    covobs = pe.cov_Obs([0.5, 0.5], np.array([[0.02, 0.02], [0.02, 0.02]]), 'Zfactor')
+    assert (covobs[0] / covobs[1]) == 1
+    assert (covobs[0] - covobs[1]) == 0

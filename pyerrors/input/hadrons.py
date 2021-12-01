@@ -167,7 +167,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
         imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
         matrix[si, sj, ci, cj] = CObs(real, imag)
 
-    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom)
+    return Npr_matrix(matrix, mom_in=mom)
 
 
 def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
@@ -219,7 +219,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
             imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
             matrix[si, sj, ci, cj] = CObs(real, imag)
 
-        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order='F'), mom_in=mom_in, mom_out=mom_out)
+        result_dict[key] = Npr_matrix(matrix, mom_in=mom_in, mom_out=mom_out)
 
     return result_dict
 

@@ -298,7 +298,7 @@ def einsum(subscripts, *operands):
     if jack_einsum.dtype == complex:
         result = _imp_from_jack_c(jack_einsum, name, idl)
     elif jack_einsum.dtype == float:
-        result =_imp_from_jack(jack_einsum, name, idl)
+        result = _imp_from_jack(jack_einsum, name, idl)
     else:
         raise Exception("Result has unexpected datatype")
 

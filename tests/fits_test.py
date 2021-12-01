@@ -46,6 +46,19 @@ def test_least_squares():
     assert((out.fit_parameters[0] - beta[0]).is_zero())
     assert((out.fit_parameters[1] - beta[1]).is_zero())
 
+    oyc = []
+    for i, item in enumerate(x):
+        oyc.append(pe.cov_Obs(y[i], yerr[i]**2, 'cov' + str(i)))
+
+    outc = pe.least_squares(x, oyc, func)
+    betac = outc.fit_parameters
+    
+    for i in range(2):
+        betac[i].gamma_method(S=1.0)
+        assert math.isclose(betac[i].value, popt[i], abs_tol=1e-5)
+        assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
+    assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
+
     num_samples = 400
     N = 10
 
@@ -134,6 +147,44 @@ def test_total_least_squares():
     diff = out.fit_parameters[0] - beta[0]
     assert(diff / beta[0] < 1e-3 * beta[0].dvalue)
     assert((out.fit_parameters[1] - beta[1]).is_zero())
+
+    oxc = []
+    for i, item in enumerate(x):
+        oxc.append(pe.cov_Obs(x[i], xerr[i]**2, 'covx' + str(i)))
+
+    oyc = []
+    for i, item in enumerate(x):
+        oyc.append(pe.cov_Obs(y[i], yerr[i]**2, 'covy' + str(i)))
+
+    outc = pe.total_least_squares(oxc, oyc, func)
+    betac = outc.fit_parameters
+
+    for i in range(2):
+        betac[i].gamma_method(S=1.0)
+        assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
+        assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
+    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+
+    outc = pe.total_least_squares(oxc, oyc, func, const_par=[betac[1]])
+
+    diffc = outc.fit_parameters[0] - betac[0]
+    assert(diffc / betac[0] < 1e-3 * betac[0].dvalue)
+    assert((outc.fit_parameters[1] - betac[1]).is_zero())
+    
+    outc = pe.total_least_squares(oxc, oy, func)
+    betac = outc.fit_parameters
+
+    for i in range(2):
+        betac[i].gamma_method(S=1.0)
+        assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
+        assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
+    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+
+    outc = pe.total_least_squares(oxc, oy, func, const_par=[betac[1]])
+
+    diffc = outc.fit_parameters[0] - betac[0]
+    assert(diffc / betac[0] < 1e-3 * betac[0].dvalue)
+    assert((outc.fit_parameters[1] - betac[1]).is_zero())
 
 
 def test_odr_derivatives():

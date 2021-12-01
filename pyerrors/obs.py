@@ -459,7 +459,7 @@ class Obs:
         atol : float
             Absolute tolerance (for details see numpy documentation).
         """
-        return np.isclose(0.0, self.value, rtol, atol) and all(np.allclose(0.0, delta, rtol, atol) for delta in self.deltas.values())
+        return (np.isclose(0.0, self.value, rtol, atol) and all(np.allclose(0.0, delta, rtol, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.grad, rtol, atol) for delta in self.covobs.values()))
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble.
@@ -578,7 +578,7 @@ class Obs:
         if self._dvalue == 0.0:
             raise Exception('Error is 0.0')
         labels = self.e_names
-        sizes = [i ** 2 for i in list(self.e_dvalue.values())] / self._dvalue ** 2
+        sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')

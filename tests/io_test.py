@@ -12,12 +12,17 @@ def test_jsonio():
     otag = 'This has been merged!'
     o4.tag = otag
     do = o - .2 * o4
+    do.tag = {'A': 2}
 
     o5 = pe.pseudo_Obs(0.8, .1, 'two|r2')
+    o5.tag = 2*otag
     testl = [o3, o5]
 
     arr = np.array([o3, o5])
     mat = np.array([[pe.pseudo_Obs(1.0, .1, 'mat'), pe.pseudo_Obs(0.3, .1, 'mat')], [pe.pseudo_Obs(0.2, .1, 'mat'), pe.pseudo_Obs(2.0, .4, 'mat')]])
+    mat[0][1].tag = ['This', 'is', 2, None]
+    mat[1][0].tag = '{testt}'
+    mat[1][1].tag = '[tag]'
 
     tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
     tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
@@ -25,12 +30,12 @@ def test_jsonio():
 
     tt = tt1 + tt2 + tt3
 
-    tt.tag = 'Test Obs'
+    tt.tag = 'Test Obs: Ä'
 
     ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt]]
     fname = 'test_rw'
 
-    jsonio.dump_to_json(ol, fname, indent=1)
+    jsonio.dump_to_json(ol, fname, indent=1, description='[I am a tricky description]')
 
     rl = jsonio.load_json(fname)
 
@@ -48,7 +53,7 @@ def test_jsonio():
             assert(o.is_zero())
 
     description = {'I': {'Am': {'a': 'nested dictionary!'}}}
-    jsonio.dump_to_json(ol, fname, indent=1, gz=False, description=description)
+    jsonio.dump_to_json(ol, fname, indent=0, gz=False, description=description)
 
     rl = jsonio.load_json(fname, gz=False, full_output=True)
 

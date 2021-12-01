@@ -57,6 +57,9 @@
                     <a class="function" href="#jack_matmul">jack_matmul</a>
             </li>
             <li>
+                    <a class="function" href="#einsum">einsum</a>
+            </li>
+            <li>
                     <a class="function" href="#inv">inv</a>
             </li>
             <li>
@@ -341,6 +344,44 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">@</span> <span class="n">op</span>
         <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">operands</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subscripts : str</span>
+<span class="sd">        Subscripts for summation (see numpy documentation for details)</span>
+<span class="sd">    operands : numpy.ndarray</span>
+<span class="sd">        Arbitrary number of 2d-numpy arrays which can be real or complex</span>
+<span class="sd">        Obs valued.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idl</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idl</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="n">conv_operands</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">):</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_exp_to_jack_c</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Obs</span><span class="p">):</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">conv_operands</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">complex</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack_c</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Result has unexpected datatype&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -1009,6 +1050,71 @@ Obs valued.</li>
 Arbitrary number of 2d-numpy arrays which can be real or complex
 Obs valued.</li>
 <li><strong>For large matrices this is considerably faster compared to matmul.</strong></li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="einsum">
+                            <div class="attr function"><a class="headerlink" href="#einsum">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">einsum</span><span class="signature">(subscripts, *operands)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">operands</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subscripts : str</span>
+<span class="sd">        Subscripts for summation (see numpy documentation for details)</span>
+<span class="sd">    operands : numpy.ndarray</span>
+<span class="sd">        Arbitrary number of 2d-numpy arrays which can be real or complex</span>
+<span class="sd">        Obs valued.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idl</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idl</span> <span class="o">=</span> <span class="n">operands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="n">conv_operands</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CObs</span><span class="p">):</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_exp_to_jack_c</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Obs</span><span class="p">):</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_exp_to_jack</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conv_operands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">conv_operands</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">complex</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack_c</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_imp_from_jack</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Result has unexpected datatype&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Wrapper for numpy.einsum</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>subscripts</strong> (str):
+Subscripts for summation (see numpy documentation for details)</li>
+<li><strong>operands</strong> (numpy.ndarray):
+Arbitrary number of 2d-numpy arrays which can be real or complex
+Obs valued.</li>
 </ul>
 </div>
 

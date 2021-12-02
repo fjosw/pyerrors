@@ -584,6 +584,20 @@ def test_covobs():
 
 
 def test_covobs_overloading():
-    covobs = pe.cov_Obs([0.5, 0.5], np.array([[0.02, 0.02], [0.02, 0.02]]), 'Zfactor')
+    covobs = pe.cov_Obs([0.5, 0.5], np.array([[0.02, 0.02], [0.02, 0.02]]), 'test')
     assert (covobs[0] / covobs[1]) == 1
     assert (covobs[0] - covobs[1]) == 0
+
+    my_obs = pe.pseudo_Obs(2.3, 0.2, 'obs')
+
+    assert (my_obs * covobs[0] / covobs[1]) == my_obs
+
+    covobs = pe.cov_Obs(0.0, 0.3, 'test')
+    assert not covobs.is_zero()
+
+
+def test_covobs_name_collision():
+    covobs = pe.cov_Obs(0.5, 0.002, 'test')
+    my_obs = pe.pseudo_Obs(2.3, 0.2, 'test')
+    with pytest.raises(Exception):
+        summed_obs = my_obs + covobs

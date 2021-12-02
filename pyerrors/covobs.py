@@ -32,6 +32,8 @@ class Covobs:
                 raise Exception('Covariance matrix has to be a square matrix!')
         else:
             raise Exception('Covariance matrix has to be a 2 dimensional square matrix!')
+        if '|' in name:
+            raise Exception("Covobs name must not contain replica separator '|'.")
         self.name = name
         if grad is None:
             if pos is None:

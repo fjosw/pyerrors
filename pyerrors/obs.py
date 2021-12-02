@@ -1144,10 +1144,7 @@ def derived_observable(func, data, **kwargs):
         for j_obs, obs in np.ndenumerate(data):
             for name in obs.names:
                 if name in obs.cov_names:
-                    if name in new_grad:
-                        new_grad[name] += deriv[i_val + j_obs] * obs.covobs[name].grad
-                    else:
-                        new_grad[name] = deriv[i_val + j_obs] * obs.covobs[name].grad
+                    new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
                 else:
                     new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 

@@ -1,13 +1,13 @@
 import json
 import gzip
-from ..obs import Obs
+import numpy as np
 import getpass
 import socket
 import datetime
-from .. import version as pyerrorsversion
 import platform
-import numpy as np
 import warnings
+from ..obs import Obs
+from .. import version as pyerrorsversion
 
 
 def create_json_string(ol, description='', indent=1):
@@ -15,13 +15,13 @@ def create_json_string(ol, description='', indent=1):
     to a .json(.gz) file
 
     Parameters
-    -----------------
+    ----------
     ol : list
         List of objects that will be exported. At the moments, these objects can be
-        either of: Obs, list, np.ndarray
+        either of: Obs, list, numpy.ndarray.
         All Obs inside a structure have to be defined on the same set of configurations.
     description : str
-        Optional string that describes the contents of the json file
+        Optional string that describes the contents of the json file.
     indent : int
         Specify the indentation level of the json file. None or 0 is permissible and
         saves disk space.
@@ -72,15 +72,17 @@ def create_json_string(ol, description='', indent=1):
     def _assert_equal_properties(ol, otype=Obs):
         for o in ol:
             if not isinstance(o, otype):
-                raise Exception('Wrong data type in list!')
+                raise Exception("Wrong data type in list.")
         for o in ol[1:]:
             if not ol[0].is_merged == o.is_merged:
-                raise Exception('All Obs in list have to be defined on the same set of configs!')
+                raise Exception("All Obs in list have to be defined on the same set of configs.")
             if not ol[0].reweighted == o.reweighted:
-                raise Exception('All Obs in list have to have the same property .reweighted!')
+                raise Exception("All Obs in list have to have the same property 'reweighted'.")
             if not ol[0].e_content == o.e_content:
-                raise Exception('All Obs in list have to be defined on the same set of configs!')
-            # more stringend tests --> compare idl?
+                raise Exception("All Obs in list have to be defined on the same set of configs.")
+            if not ol[0].idl == o.idl:
+                raise Exception("All Obs in list have to be defined on the same set of configurations.")
+            # TODO: more stringend tests --> compare idl?
 
     def write_Obs_to_dict(o):
         d = {}
@@ -123,13 +125,14 @@ def create_json_string(ol, description='', indent=1):
         d['value'] = [o.value for o in ol]
         d['data'] = _gen_data_d_from_list(ol)
         return d
+
     if not isinstance(ol, list):
         ol = [ol]
     d = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
     d['version'] = '0.1'
     d['who'] = getpass.getuser()
-    d['date'] = str(datetime.datetime.now())[:-7]
+    d['date'] = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')
     d['host'] = socket.gethostname() + ', ' + platform.platform()
 
     if description:
@@ -167,15 +170,15 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     """Export a list of Obs or structures containing Obs to a .json(.gz) file
 
     Parameters
-    -----------------
+    ----------
     ol : list
         List of objects that will be exported. At the moments, these objects can be
-        either of: Obs, list, np.ndarray
+        either of: Obs, list, numpy.ndarray.
         All Obs inside a structure have to be defined on the same set of configurations.
     fname : str
-        Filename of the output file
+        Filename of the output file.
     description : str
-        Optional string that describes the contents of the json file
+        Optional string that describes the contents of the json file.
     indent : int
         Specify the indentation level of the json file. None or 0 is permissible and
         saves disk space.
@@ -202,13 +205,13 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
 
 def load_json(fname, verbose=True, gz=True, full_output=False):
     """Import a list of Obs or structures containing Obs from a .json.gz file.
-    The following structures are supported: Obs, list, np.ndarray
+    The following structures are supported: Obs, list, numpy.ndarray
     If the list contains only one element, it is unpacked from the list.
 
     Parameters
-    -----------------
+    ----------
     fname : str
-        Filename of the input file
+        Filename of the input file.
     verbose : bool
         Print additional information that was written to the file.
     gz : bool

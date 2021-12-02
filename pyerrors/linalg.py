@@ -1,121 +1,9 @@
 import numpy as np
-from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes, import_jackknife
+from .obs import derived_observable, CObs, Obs, import_jackknife
 
 from functools import partial
 from autograd.extend import defvjp
-
-
-def derived_array(func, data, **kwargs):
-    """Construct a derived Obs for a matrix valued function according to func(data, **kwargs) using automatic differentiation.
-
-    Parameters
-    ----------
-    func : object
-        arbitrary function of the form func(data, **kwargs). For the
-        automatic differentiation to work, all numpy functions have to have
-        the autograd wrapper (use 'import autograd.numpy as anp').
-    data : list
-        list of Obs, e.g. [obs1, obs2, obs3].
-    man_grad : list
-        manually supply a list or an array which contains the jacobian
-        of func. Use cautiously, supplying the wrong derivative will
-        not be intercepted.
-    """
-
-    data = np.asarray(data)
-    raveled_data = data.ravel()
-
-    # Workaround for matrix operations containing non Obs data
-    for i_data in raveled_data:
-        if isinstance(i_data, Obs):
-            first_name = i_data.names[0]
-            first_shape = i_data.shape[first_name]
-            first_idl = i_data.idl[first_name]
-            break
-
-    for i in range(len(raveled_data)):
-        if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
-
-    n_obs = len(raveled_data)
-    new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
-
-    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_names}
-    reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
-    new_idl_d = {}
-    for name in new_names:
-        idl = []
-        for i_data in raveled_data:
-            tmp = i_data.idl.get(name)
-            if tmp is not None:
-                idl.append(tmp)
-        new_idl_d[name] = _merge_idx(idl)
-        if not is_merged[name]:
-            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
-
-    if data.ndim == 1:
-        values = np.array([o.value for o in data])
-    else:
-        values = np.vectorize(lambda x: x.value)(data)
-
-    new_values = func(values, **kwargs)
-
-    new_r_values = {}
-    for name in new_names:
-        tmp_values = np.zeros(n_obs)
-        for i, item in enumerate(raveled_data):
-            tmp = item.r_values.get(name)
-            if tmp is None:
-                tmp = item.value
-            tmp_values[i] = tmp
-        tmp_values = np.array(tmp_values).reshape(data.shape)
-        new_r_values[name] = func(tmp_values, **kwargs)
-
-    if 'man_grad' in kwargs:
-        deriv = np.asarray(kwargs.get('man_grad'))
-        if new_values.shape + data.shape != deriv.shape:
-            raise Exception('Manual derivative does not have correct shape.')
-    else:
-        deriv = jacobian(func)(values, **kwargs)
-
-    final_result = np.zeros(new_values.shape, dtype=object)
-
-    d_extracted = {}
-    for name in new_names:
-        d_extracted[name] = []
-        for i_dat, dat in enumerate(data):
-            ens_length = len(new_idl_d[name])
-            d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
-
-    for i_val, new_val in np.ndenumerate(new_values):
-        new_deltas = {}
-        for name in new_names:
-            ens_length = d_extracted[name][0].shape[-1]
-            new_deltas[name] = np.zeros(ens_length)
-            for i_dat, dat in enumerate(d_extracted[name]):
-                new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
-
-        new_samples = []
-        new_means = []
-        new_idl = []
-        for name in new_names:
-            if is_merged[name]:
-                filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
-            else:
-                filtered_deltas = new_deltas[name]
-                filtered_idl_d = new_idl_d[name]
-
-            new_samples.append(filtered_deltas)
-            new_idl.append(filtered_idl_d)
-            new_means.append(new_r_values[name][i_val])
-        final_result[i_val] = Obs(new_samples, new_names, means=new_means, idl=new_idl)
-        final_result[i_val]._value = new_val
-        final_result[i_val].is_merged = is_merged
-        final_result[i_val].reweighted = reweighted
-
-    return final_result
 
 
 def matmul(*operands):
@@ -157,8 +45,8 @@ def matmul(*operands):
         def multi_dot_i(operands):
             return multi_dot(operands, 'Imag')
 
-        Nr = derived_array(multi_dot_r, extended_operands)
-        Ni = derived_array(multi_dot_i, extended_operands)
+        Nr = derived_observable(multi_dot_r, extended_operands, array_mode=True)
+        Ni = derived_observable(multi_dot_i, extended_operands, array_mode=True)
 
         res = np.empty_like(Nr)
         for (n, m), entry in np.ndenumerate(Nr):
@@ -171,7 +59,7 @@ def matmul(*operands):
             for op in operands[1:]:
                 stack = stack @ op
             return stack
-        return derived_array(multi_dot, operands)
+        return derived_observable(multi_dot, operands, array_mode=True)
 
 
 def jack_matmul(*operands):
@@ -360,7 +248,7 @@ def _mat_mat_op(op, obs, **kwargs):
         if kwargs.get('num_grad') is True:
             op_big_matrix = _num_diff_mat_mat_op(op, big_matrix, **kwargs)
         else:
-            op_big_matrix = derived_array(lambda x, **kwargs: op(x), [big_matrix])[0]
+            op_big_matrix = derived_observable(lambda x, **kwargs: op(x), [big_matrix], array_mode=True)[0]
         dim = op_big_matrix.shape[0]
         op_A = op_big_matrix[0: dim // 2, 0: dim // 2]
         op_B = op_big_matrix[dim // 2:, 0: dim // 2]
@@ -371,7 +259,7 @@ def _mat_mat_op(op, obs, **kwargs):
     else:
         if kwargs.get('num_grad') is True:
             return _num_diff_mat_mat_op(op, obs, **kwargs)
-        return derived_array(lambda x, **kwargs: op(x), [obs])[0]
+        return derived_observable(lambda x, **kwargs: op(x), [obs], array_mode=True)[0]
 
 
 def eigh(obs, **kwargs):

@@ -33,7 +33,7 @@ def create_json_string(ol, description='', indent=1):
     _default.default = json.JSONEncoder().default
     my_encoder.default = _default
 
-    class deltalist:
+    class Deltalist:
         def __init__(self, li):
             self.cnfg = li[0]
             self.deltas = li[1:]
@@ -64,7 +64,7 @@ def create_json_string(ol, description='', indent=1):
                     rd['deltas'].append([ol[0].idl[r_name][i]])
                     for o in ol:
                         rd['deltas'][-1].append(o.deltas[r_name][i])
-                    rd['deltas'][-1] = deltalist(rd['deltas'][-1])
+                    rd['deltas'][-1] = Deltalist(rd['deltas'][-1])
                 ed['replica'].append(rd)
             dl.append(ed)
         return dl
@@ -82,7 +82,6 @@ def create_json_string(ol, description='', indent=1):
                 raise Exception("All Obs in list have to be defined on the same set of configs.")
             if not ol[0].idl == o.idl:
                 raise Exception("All Obs in list have to be defined on the same set of configurations.")
-            # TODO: more stringend tests --> compare idl?
 
     def write_Obs_to_dict(o):
         d = {}
@@ -108,7 +107,6 @@ def create_json_string(ol, description='', indent=1):
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
         d['data'] = _gen_data_d_from_list(ol)
-
         return d
 
     def write_Array_to_dict(oa):
@@ -128,6 +126,7 @@ def create_json_string(ol, description='', indent=1):
 
     if not isinstance(ol, list):
         ol = [ol]
+
     d = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
     d['version'] = '0.1'
@@ -148,9 +147,10 @@ def create_json_string(ol, description='', indent=1):
 
     jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
 
-    # workaround for un-quoting of delta lists, adds 5% of work
-    # but is save, compared to a simple replace that could destroy the structure
     def remove_quotationmarks(s):
+        """Workaround for un-quoting of delta lists, adds 5% of work
+           but is save, compared to a simple replace that could destroy the structure
+        """
         deltas = False
         split = s.split('\n')
         for i in range(len(split)):
@@ -205,6 +205,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
 
 def load_json(fname, verbose=True, gz=True, full_output=False):
     """Import a list of Obs or structures containing Obs from a .json.gz file.
+
     The following structures are supported: Obs, list, numpy.ndarray
     If the list contains only one element, it is unpacked from the list.
 

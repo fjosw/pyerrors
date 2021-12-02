@@ -77,14 +77,14 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">gzip</span>
-<span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">pyerrorsversion</span>
 <span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">pyerrorsversion</span>
 
 
 <span class="k">def</span> <span class="nf">create_json_string</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -92,13 +92,13 @@
 <span class="sd">    to a .json(.gz) file</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, np.ndarray</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    description : str</span>
-<span class="sd">        Optional string that describes the contents of the json file</span>
+<span class="sd">        Optional string that describes the contents of the json file.</span>
 <span class="sd">    indent : int</span>
 <span class="sd">        Specify the indentation level of the json file. None or 0 is permissible and</span>
 <span class="sd">        saves disk space.</span>
@@ -110,7 +110,7 @@
     <span class="n">_default</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">default</span>
     <span class="n">my_encoder</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_default</span>
 
-    <span class="k">class</span> <span class="nc">deltalist</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">Deltalist</span><span class="p">:</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cnfg</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -141,7 +141,7 @@
                     <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
                     <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">:</span>
                         <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-                    <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltalist</span><span class="p">(</span><span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Deltalist</span><span class="p">(</span><span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">ed</span><span class="p">[</span><span class="s1">&#39;replica&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rd</span><span class="p">)</span>
             <span class="n">dl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ed</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dl</span>
@@ -149,15 +149,16 @@
     <span class="k">def</span> <span class="nf">_assert_equal_properties</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="n">Obs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">otype</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong data type in list!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Wrong data type in list.&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">is_merged</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to be defined on the same set of configs!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configs.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">reweighted</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to have the same property .reweighted!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to have the same property &#39;reweighted&#39;.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">e_content</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">e_content</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to be defined on the same set of configs!&#39;</span><span class="p">)</span>
-            <span class="c1"># more stringend tests --&gt; compare idl?</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configs.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">idl</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configurations.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">write_Obs_to_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
@@ -183,7 +184,6 @@
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;reweighted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_gen_data_d_from_list</span><span class="p">(</span><span class="n">ol</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="k">def</span> <span class="nf">write_Array_to_dict</span><span class="p">(</span><span class="n">oa</span><span class="p">):</span>
@@ -200,13 +200,15 @@
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_gen_data_d_from_list</span><span class="p">(</span><span class="n">ol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">ol</span> <span class="o">=</span> <span class="p">[</span><span class="n">ol</span><span class="p">]</span>
+
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;program&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pyerrors </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pyerrorsversion</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.1&#39;</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;who&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S %Z&#39;</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="n">platform</span><span class="o">.</span><span class="n">platform</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
@@ -222,9 +224,10 @@
 
     <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">my_encoder</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># workaround for un-quoting of delta lists, adds 5% of work</span>
-    <span class="c1"># but is save, compared to a simple replace that could destroy the structure</span>
     <span class="k">def</span> <span class="nf">remove_quotationmarks</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Workaround for un-quoting of delta lists, adds 5% of work</span>
+<span class="sd">           but is save, compared to a simple replace that could destroy the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">split</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)):</span>
@@ -244,15 +247,15 @@
     <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, np.ndarray</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    fname : str</span>
-<span class="sd">        Filename of the output file</span>
+<span class="sd">        Filename of the output file.</span>
 <span class="sd">    description : str</span>
-<span class="sd">        Optional string that describes the contents of the json file</span>
+<span class="sd">        Optional string that describes the contents of the json file.</span>
 <span class="sd">    indent : int</span>
 <span class="sd">        Specify the indentation level of the json file. None or 0 is permissible and</span>
 <span class="sd">        saves disk space.</span>
@@ -279,13 +282,14 @@
 
 <span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json.gz file.</span>
-<span class="sd">    The following structures are supported: Obs, list, np.ndarray</span>
+
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    fname : str</span>
-<span class="sd">        Filename of the input file</span>
+<span class="sd">        Filename of the input file.</span>
 <span class="sd">    verbose : bool</span>
 <span class="sd">        Print additional information that was written to the file.</span>
 <span class="sd">    gz : bool</span>
@@ -428,13 +432,13 @@
 <span class="sd">    to a .json(.gz) file</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, np.ndarray</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    description : str</span>
-<span class="sd">        Optional string that describes the contents of the json file</span>
+<span class="sd">        Optional string that describes the contents of the json file.</span>
 <span class="sd">    indent : int</span>
 <span class="sd">        Specify the indentation level of the json file. None or 0 is permissible and</span>
 <span class="sd">        saves disk space.</span>
@@ -446,7 +450,7 @@
     <span class="n">_default</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">default</span>
     <span class="n">my_encoder</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_default</span>
 
-    <span class="k">class</span> <span class="nc">deltalist</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">Deltalist</span><span class="p">:</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cnfg</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -477,7 +481,7 @@
                     <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">r_name</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
                     <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">:</span>
                         <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-                    <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltalist</span><span class="p">(</span><span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Deltalist</span><span class="p">(</span><span class="n">rd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">ed</span><span class="p">[</span><span class="s1">&#39;replica&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rd</span><span class="p">)</span>
             <span class="n">dl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ed</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dl</span>
@@ -485,15 +489,16 @@
     <span class="k">def</span> <span class="nf">_assert_equal_properties</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">otype</span><span class="o">=</span><span class="n">Obs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">otype</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong data type in list!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Wrong data type in list.&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">is_merged</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to be defined on the same set of configs!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configs.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">reweighted</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to have the same property .reweighted!&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to have the same property &#39;reweighted&#39;.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">e_content</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">e_content</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;All Obs in list have to be defined on the same set of configs!&#39;</span><span class="p">)</span>
-            <span class="c1"># more stringend tests --&gt; compare idl?</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configs.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span> <span class="o">==</span> <span class="n">o</span><span class="o">.</span><span class="n">idl</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;All Obs in list have to be defined on the same set of configurations.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">write_Obs_to_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
@@ -519,7 +524,6 @@
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;reweighted&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_gen_data_d_from_list</span><span class="p">(</span><span class="n">ol</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="k">def</span> <span class="nf">write_Array_to_dict</span><span class="p">(</span><span class="n">oa</span><span class="p">):</span>
@@ -536,13 +540,15 @@
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ol</span><span class="p">]</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_gen_data_d_from_list</span><span class="p">(</span><span class="n">ol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">ol</span> <span class="o">=</span> <span class="p">[</span><span class="n">ol</span><span class="p">]</span>
+
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;program&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pyerrors </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pyerrorsversion</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.1&#39;</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;who&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
-    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S %Z&#39;</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="n">platform</span><span class="o">.</span><span class="n">platform</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
@@ -558,9 +564,10 @@
 
     <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">my_encoder</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># workaround for un-quoting of delta lists, adds 5% of work</span>
-    <span class="c1"># but is save, compared to a simple replace that could destroy the structure</span>
     <span class="k">def</span> <span class="nf">remove_quotationmarks</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Workaround for un-quoting of delta lists, adds 5% of work</span>
+<span class="sd">           but is save, compared to a simple replace that could destroy the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">split</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)):</span>
@@ -586,10 +593,10 @@ to a .json(.gz) file</p>
 <ul>
 <li><strong>ol</strong> (list):
 List of objects that will be exported. At the moments, these objects can be
-either of: Obs, list, np.ndarray
+either of: Obs, list, numpy.ndarray.
 All Obs inside a structure have to be defined on the same set of configurations.</li>
 <li><strong>description</strong> (str):
-Optional string that describes the contents of the json file</li>
+Optional string that describes the contents of the json file.</li>
 <li><strong>indent</strong> (int):
 Specify the indentation level of the json file. None or 0 is permissible and
 saves disk space.</li>
@@ -612,15 +619,15 @@ saves disk space.</li>
     <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, np.ndarray</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    fname : str</span>
-<span class="sd">        Filename of the output file</span>
+<span class="sd">        Filename of the output file.</span>
 <span class="sd">    description : str</span>
-<span class="sd">        Optional string that describes the contents of the json file</span>
+<span class="sd">        Optional string that describes the contents of the json file.</span>
 <span class="sd">    indent : int</span>
 <span class="sd">        Specify the indentation level of the json file. None or 0 is permissible and</span>
 <span class="sd">        saves disk space.</span>
@@ -654,12 +661,12 @@ saves disk space.</li>
 <ul>
 <li><strong>ol</strong> (list):
 List of objects that will be exported. At the moments, these objects can be
-either of: Obs, list, np.ndarray
+either of: Obs, list, numpy.ndarray.
 All Obs inside a structure have to be defined on the same set of configurations.</li>
 <li><strong>fname</strong> (str):
-Filename of the output file</li>
+Filename of the output file.</li>
 <li><strong>description</strong> (str):
-Optional string that describes the contents of the json file</li>
+Optional string that describes the contents of the json file.</li>
 <li><strong>indent</strong> (int):
 Specify the indentation level of the json file. None or 0 is permissible and
 saves disk space.</li>
@@ -682,13 +689,14 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json.gz file.</span>
-<span class="sd">    The following structures are supported: Obs, list, np.ndarray</span>
+
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    -----------------</span>
+<span class="sd">    ----------</span>
 <span class="sd">    fname : str</span>
-<span class="sd">        Filename of the input file</span>
+<span class="sd">        Filename of the input file.</span>
 <span class="sd">    verbose : bool</span>
 <span class="sd">        Print additional information that was written to the file.</span>
 <span class="sd">    gz : bool</span>
@@ -815,15 +823,16 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
 
         </details>
 
-            <div class="docstring"><p>Import a list of Obs or structures containing Obs from a .json.gz file.
-The following structures are supported: Obs, list, np.ndarray
+            <div class="docstring"><p>Import a list of Obs or structures containing Obs from a .json.gz file.</p>
+
+<p>The following structures are supported: Obs, list, numpy.ndarray
 If the list contains only one element, it is unpacked from the list.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>fname</strong> (str):
-Filename of the input file</li>
+Filename of the input file.</li>
 <li><strong>verbose</strong> (bool):
 Print additional information that was written to the file.</li>
 <li><strong>gz</strong> (bool):

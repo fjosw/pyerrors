@@ -1238,22 +1238,22 @@ def reweight(weight, obs, **kwargs):
     for i in range(len(obs)):
         if len(obs[i].cov_names):
             raise Exception('Error: Not possible to reweight an Obs that contains covobs!')
-        if sorted(weight.names) != sorted(obs[i].names):
+        if not set(obs[i].names).issubset(weight.names):
             raise Exception('Error: Ensembles do not fit')
-        for name in weight.names:
+        for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise Exception('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
         new_samples = []
         w_deltas = {}
-        for name in sorted(weight.names):
+        for name in sorted(obs[i].names):
             w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
-        tmp_obs = Obs(new_samples, sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+        tmp_obs = Obs(new_samples, sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         if kwargs.get('all_configs'):
             new_weight = weight
         else:
-            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(weight.names)], sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(obs[i].names)], sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, new_weight], **kwargs))
         result[-1].reweighted = True

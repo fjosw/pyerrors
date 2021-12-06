@@ -189,7 +189,7 @@ def test_matmul_irregular_histories():
     standard_array = []
     for i in range(dim ** 2):
         standard_array.append(pe.Obs([np.random.normal(1.1, 0.2, length)], ['ens1']))
-    standard_matrix = np.array(standard_array).reshape((dim, dim)) * pe.pseudo_Obs(0.1, 0.002, 'qr')
+    standard_matrix = np.array(standard_array).reshape((dim, dim))  # * pe.pseudo_Obs(0.1, 0.002, 'qr')
 
     for idl in [range(1, 501, 2), range(250, 273), [2, 8, 19, 20, 78]]:
         irregular_array = []

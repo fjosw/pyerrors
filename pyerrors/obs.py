@@ -623,9 +623,9 @@ class Obs:
         name = self.names[0]
         full_data = self.deltas[name] + self.r_values[name]
         n = full_data.size
-        mean = np.mean(full_data)
+        mean = self.value
         tmp_jacks = np.zeros(n + 1)
-        tmp_jacks[0] = self.value
+        tmp_jacks[0] = mean
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 

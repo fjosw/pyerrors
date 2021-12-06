@@ -1157,7 +1157,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for name in new_cov_names:
             g_extracted[name] = []
             for i_dat, dat in enumerate(data):
-                g_extracted[name].append(np.array([obs.covobs[name]]).reshape(dat.shape + (1, )))
+                g_extracted[name].append(np.array([o.covobs[name].grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (1, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}

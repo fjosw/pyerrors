@@ -33,6 +33,5 @@ def find_root(d, func, guess=1.0, **kwargs):
     da = jacobian(lambda u, v: func(v, u))(d.value, root[0])
     deriv = - da / dx
 
-    res = derived_observable(lambda x, **kwargs: x[0], [d], man_grad=[deriv])
-    res._value = root[0]
+    res = derived_observable(lambda x, **kwargs: x[0] / d.value * root[0], [d], man_grad=[deriv])
     return res

@@ -74,10 +74,15 @@ class Obs:
             if idl is not None:
                 if len(idl) != len(names):
                     raise Exception('Length of idl incompatible with samples and names.')
-            if len(names) != len(set(names)):
-                raise Exception('names are not unique.')
-            if not all(isinstance(x, str) for x in names):
-                raise TypeError('All names have to be strings.')
+            name_length = len(names)
+            if name_length > 1:
+                if name_length != len(set(names)):
+                    raise Exception('names are not unique.')
+                if not all(isinstance(x, str) for x in names):
+                    raise TypeError('All names have to be strings.')
+            else:
+                if not isinstance(names[0], str):
+                    raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
 
@@ -623,9 +628,9 @@ class Obs:
         name = self.names[0]
         full_data = self.deltas[name] + self.r_values[name]
         n = full_data.size
-        mean = np.mean(full_data)
+        mean = self.value
         tmp_jacks = np.zeros(n + 1)
-        tmp_jacks[0] = self.value
+        tmp_jacks[0] = mean
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
@@ -1259,22 +1264,22 @@ def reweight(weight, obs, **kwargs):
     for i in range(len(obs)):
         if len(obs[i].cov_names):
             raise Exception('Error: Not possible to reweight an Obs that contains covobs!')
-        if sorted(weight.names) != sorted(obs[i].names):
+        if not set(obs[i].names).issubset(weight.names):
             raise Exception('Error: Ensembles do not fit')
-        for name in weight.names:
+        for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise Exception('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
         new_samples = []
         w_deltas = {}
-        for name in sorted(weight.names):
+        for name in sorted(obs[i].names):
             w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
-        tmp_obs = Obs(new_samples, sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+        tmp_obs = Obs(new_samples, sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         if kwargs.get('all_configs'):
             new_weight = weight
         else:
-            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(weight.names)], sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(obs[i].names)], sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, new_weight], **kwargs))
         result[-1].reweighted = True

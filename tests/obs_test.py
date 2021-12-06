@@ -381,6 +381,16 @@ def test_merge_obs():
     assert diff == -(my_obs1.value + my_obs2.value) / 2
 
 
+def test_merge_obs_r_values():
+    a1 = pe.pseudo_Obs(1.1, .1, 'a|1')
+    a2 = pe.pseudo_Obs(1.2, .1, 'a|2')
+    a = pe.merge_obs([a1, a2])
+
+    assert np.isclose(a.r_values['a|1'], a1.value)
+    assert np.isclose(a.r_values['a|2'], a2.value)
+    assert np.isclose(a.value, np.mean([a1.value, a2.value]))
+
+
 def test_correlate():
     my_obs1 = pe.Obs([np.random.rand(100)], ['t'])
     my_obs2 = pe.Obs([np.random.rand(100)], ['t'])

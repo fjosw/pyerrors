@@ -52,7 +52,7 @@ def test_least_squares():
 
     outc = pe.least_squares(x, oyc, func)
     betac = outc.fit_parameters
-    
+
     for i in range(2):
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, popt[i], abs_tol=1e-5)
@@ -97,7 +97,7 @@ def test_least_squares():
                 return p[1] * np.exp(-p[0] * x)
 
         fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
-        
+
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
         for i in range(2):
             diff = fitp[i] - fitpc[i]
@@ -170,7 +170,7 @@ def test_total_least_squares():
     diffc = outc.fit_parameters[0] - betac[0]
     assert(diffc / betac[0] < 1e-3 * betac[0].dvalue)
     assert((outc.fit_parameters[1] - betac[1]).is_zero())
-    
+
     outc = pe.total_least_squares(oxc, oy, func)
     betac = outc.fit_parameters
 
@@ -208,3 +208,41 @@ def test_odr_derivatives():
         tfit = pe.fits.fit_general(x, y, func, base_step=0.1, step_ratio=1.1, num_steps=20)
     assert np.abs(np.max(np.array(list(fit1[1].deltas.values()))
                   - np.array(list(tfit[1].deltas.values())))) < 10e-8
+
+
+def test_r_value_persistence():
+    def f(a, x):
+        return a[0] + a[1] * x
+
+    a = pe.pseudo_Obs(1.1, .1, 'a')
+    assert np.isclose(a.value, a.r_values['a'])
+
+    a_2 = a ** 2
+    assert np.isclose(a_2.value, a_2.r_values['a'])
+
+    b = pe.pseudo_Obs(2.1, .2, 'b')
+
+    y = [a, b]
+    [o.gamma_method() for o in y]
+
+    fitp = pe.fits.least_squares([1, 2], y, f)
+
+    assert np.isclose(fitp[0].value, fitp[0].r_values['a'])
+    assert np.isclose(fitp[0].value, fitp[0].r_values['b'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['a'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['b'])
+
+    fitp = pe.fits.total_least_squares(y, y, f)
+
+    assert np.isclose(fitp[0].value, fitp[0].r_values['a'])
+    assert np.isclose(fitp[0].value, fitp[0].r_values['b'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['a'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['b'])
+
+    fitp = pe.fits.least_squares([1, 2], y, f, priors=y)
+
+    assert np.isclose(fitp[0].value, fitp[0].r_values['a'])
+    assert np.isclose(fitp[0].value, fitp[0].r_values['b'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['a'])
+    assert np.isclose(fitp[1].value, fitp[1].r_values['b'])
+

@@ -78,8 +78,11 @@ class Obs:
             if name_length > 1:
                 if name_length != len(set(names)):
                     raise Exception('names are not unique.')
-            if not all(isinstance(x, str) for x in names):
-                raise TypeError('All names have to be strings.')
+                if not all(isinstance(x, str) for x in names):
+                    raise TypeError('All names have to be strings.')
+            else:
+                if not isinstance(names[0], str):
+                    raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
 

@@ -1146,6 +1146,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     final_result = np.zeros(new_values.shape, dtype=object)
 
+    # TODO: array mode does not work when matrices are defined on differenet ensembles
     if array_mode is True:
         d_extracted = {}
         g_extracted = {}

@@ -153,7 +153,7 @@ def test_multi_dot():
         length = 1000 + np.random.randint(200)
         for i in range(dim ** 2):
             my_list.append(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']))
-        my_array = np.array(my_list).reshape((dim, dim))
+        my_array = pe.cov_Obs(1.0, 0.002, 'cov') * np.array(my_list).reshape((dim, dim))
         tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
         for t, e in np.ndenumerate(tt):
             assert e.is_zero(), t
@@ -163,7 +163,7 @@ def test_multi_dot():
         for i in range(dim ** 2):
             my_list.append(pe.CObs(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']),
                                    pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2'])))
-        my_array = np.array(my_list).reshape((dim, dim))
+        my_array = np.array(my_list).reshape((dim, dim)) * pe.cov_Obs(1.0, 0.002, 'cov')
         tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
         for t, e in np.ndenumerate(tt):
             assert e.is_zero(), t
@@ -189,7 +189,7 @@ def test_matmul_irregular_histories():
     standard_array = []
     for i in range(dim ** 2):
         standard_array.append(pe.Obs([np.random.normal(1.1, 0.2, length)], ['ens1']))
-    standard_matrix = np.array(standard_array).reshape((dim, dim))
+    standard_matrix = np.array(standard_array).reshape((dim, dim)) * pe.pseudo_Obs(0.1, 0.002, 'qr')
 
     for idl in [range(1, 501, 2), range(250, 273), [2, 8, 19, 20, 78]]:
         irregular_array = []

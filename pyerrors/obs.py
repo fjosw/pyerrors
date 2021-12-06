@@ -1148,11 +1148,16 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     if array_mode is True:
         d_extracted = {}
+        g_extracted = {}
         for name in new_sample_names:
             d_extracted[name] = []
             for i_dat, dat in enumerate(data):
                 ens_length = len(new_idl_d[name])
                 d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+        for name in new_cov_names:
+            g_extracted[name] = []
+            for i_dat, dat in enumerate(data):
+                g_extracted[name].append(np.array([obs.covobs[name]]).reshape(dat.shape + (1, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
@@ -1163,9 +1168,10 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                 new_deltas[name] = np.zeros(ens_length)
                 for i_dat, dat in enumerate(d_extracted[name]):
                     new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
-            for j_obs, obs in np.ndenumerate(data):
-                for name in obs.cov_names:
-                    new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
+            for name in new_cov_names:
+                new_grad[name] = 0
+                for i_dat, dat in enumerate(g_extracted[name]):
+                    new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
         else:
             for j_obs, obs in np.ndenumerate(data):
                 for name in obs.names:

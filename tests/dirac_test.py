@@ -30,3 +30,5 @@ def test_grid_dirac():
                   'SigmaYZ',
                   'SigmaZT']:
         pe.dirac.Grid_gamma(gamma)
+    with pytest.raises(Exception):
+        pe.dirac.Grid_gamma('Not a gamma matrix')

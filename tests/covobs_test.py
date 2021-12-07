@@ -62,6 +62,9 @@ def test_covobs_name_collision():
     my_obs = pe.pseudo_Obs(2.3, 0.2, 'test')
     with pytest.raises(Exception):
         summed_obs = my_obs + covobs
+    covobs2 = pe.cov_Obs(0.3, 0.001, 'test')
+    with pytest.raises(Exception):
+        summed_obs = covobs + covobs2
 
 
 def test_covobs_replica_separator():

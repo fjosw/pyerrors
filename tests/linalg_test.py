@@ -30,7 +30,7 @@ def get_complex_matrix(dimension):
 
 def test_matmul():
     for dim in [4, 6]:
-        for const in [1, pe.cov_Obs(1.0, 0.002, 'cov')]:
+        for const in [1, pe.cov_Obs([1.0, 1.0], [[0.001,0.0001], [0.0001, 0.002]], 'norm')[1]]:
             my_list = []
             length = 100 + np.random.randint(200)
             for i in range(dim ** 2):

@@ -1148,6 +1148,13 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     # TODO: array mode does not work when matrices are defined on differenet ensembles
     if array_mode is True:
+
+        class Zero_grad():
+            def __init__(self):
+                self.grad = 0
+
+        zero_grad = Zero_grad()
+
         d_extracted = {}
         g_extracted = {}
         for name in new_sample_names:
@@ -1158,7 +1165,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for name in new_cov_names:
             g_extracted[name] = []
             for i_dat, dat in enumerate(data):
-                g_extracted[name].append(np.array([o.covobs[name].grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (1, )))
+                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (1, )))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}

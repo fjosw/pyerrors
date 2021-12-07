@@ -9,6 +9,43 @@ import pytest
 np.random.seed(0)
 
 
+def test_Obs_exceptions():
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], ['1', '2'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], ['1'], idl=[])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10), np.random.rand(10)], ['1', '1'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10), np.random.rand(10)], ['1', 1])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], [1])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(4)], ['name'])
+
+    my_obs = pe.Obs([np.random.rand(6)], ['name'])
+    my_obs._value = 0.0
+    my_obs.details()
+    with pytest.raises(Exception):
+        my_obs.plot_tauint()
+    with pytest.raises(Exception):
+        my_obs.plot_rho()
+    with pytest.raises(Exception):
+        my_obs.plot_rep_dist()
+    with pytest.raises(Exception):
+        my_obs.plot_piechart()
+    with pytest.raises(Exception):
+        my_obs.gamma_method(S='2.3')
+    with pytest.raises(Exception):
+        my_obs.gamma_method(tau_exp=2.3)
+    my_obs.gamma_method()
+    my_obs.details()
+
+    my_obs += pe.Obs([np.random.rand(6)], ['name2|r1'])
+    my_obs += pe.Obs([np.random.rand(6)], ['name2|r2'])
+    my_obs.gamma_method()
+    my_obs.details()
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -311,6 +348,7 @@ def test_overloaded_functions():
 def test_utils():
     my_obs = pe.pseudo_Obs(1.0, 0.5, 't|r01')
     my_obs += pe.pseudo_Obs(1.0, 0.5, 't|r02')
+    str(my_obs)
     for tau_exp in [0, 5]:
         my_obs.gamma_method(tau_exp=tau_exp)
         my_obs.tag = "Test description"
@@ -325,6 +363,8 @@ def test_utils():
         my_obs.plot_piechart()
         assert my_obs > (my_obs - 1)
         assert my_obs < (my_obs + 1)
+        float(my_obs)
+        str(my_obs)
 
 
 def test_cobs():

@@ -195,7 +195,7 @@ def test_matmul_irregular_histories():
         irregular_array = []
         for i in range(dim ** 2):
             irregular_array.append(pe.Obs([np.random.normal(1.1, 0.2, len(idl))], ['ens1'], idl=[idl]))
-        irregular_matrix = np.array(irregular_array).reshape((dim, dim))
+        irregular_matrix = np.array(irregular_array).reshape((dim, dim)) * pe.cov_Obs([1.0, 1.0], [[0.001,0.0001], [0.0001, 0.002]], 'norm')[0]
 
         t1 = standard_matrix @ irregular_matrix
         t2 = pe.linalg.matmul(standard_matrix, irregular_matrix)
@@ -213,7 +213,7 @@ def test_irregular_matrix_inverse():
         irregular_array = []
         for i in range(dim ** 2):
             irregular_array.append(pe.Obs([np.random.normal(1.1, 0.2, len(idl)), np.random.normal(0.25, 0.1, 10)], ['ens1', 'ens2'], idl=[idl, range(1, 11)]))
-        irregular_matrix = np.array(irregular_array).reshape((dim, dim))
+        irregular_matrix = np.array(irregular_array).reshape((dim, dim)) * pe.cov_Obs(1.0, 0.002, 'cov') * pe.pseudo_Obs(1.0, 0.002, 'ens2|r23')
 
         invertible_irregular_matrix = np.identity(dim) + irregular_matrix @ irregular_matrix.T
 

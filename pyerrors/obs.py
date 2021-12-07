@@ -1020,7 +1020,7 @@ def _filter_zeroes(deltas, idx, eps=Obs.filter_eps):
         return deltas, idx
 
 
-def derived_observable(func, data, **kwargs):
+def derived_observable(func, data, array_mode=False, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
     Parameters
@@ -1053,6 +1053,7 @@ def derived_observable(func, data, **kwargs):
     raveled_data = data.ravel()
 
     # Workaround for matrix operations containing non Obs data
+    # TODO: Find more elegant solution here.
     for i_data in raveled_data:
         if isinstance(i_data, Obs):
             first_name = i_data.names[0]
@@ -1075,11 +1076,13 @@ def derived_observable(func, data, **kwargs):
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
+    new_cov_names = sorted(set([y for x in [o.cov_names for o in raveled_data] for y in x]))
+    new_sample_names = sorted(set(new_names) - set(new_cov_names))
 
-    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_names}
+    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_sample_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
     new_idl_d = {}
-    for name in new_names:
+    for name in new_sample_names:
         idl = []
         for i_data in raveled_data:
             tmp = i_data.idl.get(name)
@@ -1101,7 +1104,7 @@ def derived_observable(func, data, **kwargs):
         multi = 1
 
     new_r_values = {}
-    for name in new_names:
+    for name in new_sample_names:
         tmp_values = np.zeros(n_obs)
         for i, item in enumerate(raveled_data):
             tmp = item.r_values.get(name)
@@ -1143,15 +1146,48 @@ def derived_observable(func, data, **kwargs):
 
     final_result = np.zeros(new_values.shape, dtype=object)
 
+    if array_mode is True:
+
+        new_covobs_lengths = dict(set([y for x in [[(n, o.covobs[n].N) for n in o.cov_names] for o in raveled_data] for y in x]))
+
+        class _Zero_grad():
+            def __init__(self, N):
+                # self.grad = np.zeros(N)
+                self.grad = np.zeros((N, 1))
+
+        d_extracted = {}
+        g_extracted = {}
+        for name in new_sample_names:
+            d_extracted[name] = []
+            ens_length = len(new_idl_d[name])
+            for i_dat, dat in enumerate(data):
+                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+        for name in new_cov_names:
+            g_extracted[name] = []
+            zero_grad = _Zero_grad(new_covobs_lengths[name])
+            for i_dat, dat in enumerate(data):
+                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (new_covobs_lengths[name], 1)))
+
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
         new_grad = {}
-        for j_obs, obs in np.ndenumerate(data):
-            for name in obs.names:
-                if name in obs.cov_names:
-                    new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
-                else:
-                    new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+        if array_mode is True:
+            for name in new_sample_names:
+                ens_length = d_extracted[name][0].shape[-1]
+                new_deltas[name] = np.zeros(ens_length)
+                for i_dat, dat in enumerate(d_extracted[name]):
+                    new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+            for name in new_cov_names:
+                new_grad[name] = 0
+                for i_dat, dat in enumerate(g_extracted[name]):
+                    new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+        else:
+            for j_obs, obs in np.ndenumerate(data):
+                for name in obs.names:
+                    if name in obs.cov_names:
+                        new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
+                    else:
+                        new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 
         new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 

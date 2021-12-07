@@ -402,7 +402,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
 
-    if not m.get_fmin().is_valid:
+    if not m.fmin.is_valid:
         raise Exception('The minimization procedure did not converge.')
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(params))

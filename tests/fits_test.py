@@ -10,6 +10,26 @@ import pytest
 np.random.seed(0)
 
 
+def test_fit_lin():
+    x = [0, 2]
+    y = [pe.pseudo_Obs(0, 0.1, 'ensemble'),
+         pe.pseudo_Obs(2, 0.1, 'ensemble')]
+
+    res = pe.fits.fit_lin(x, y)
+
+    assert res[0] == y[0]
+    assert res[1] == (y[1] - y[0]) / (x[1] - x[0])
+
+    x = y = [pe.pseudo_Obs(0, 0.1, 'ensemble'),
+         pe.pseudo_Obs(2, 0.1, 'ensemble')]
+
+    res = pe.fits.fit_lin(x, y)
+
+    m = (y[1] - y[0]) / (x[1] - x[0])
+    assert res[0] == y[1] - x[1] * m
+    assert res[1] == m
+
+
 def test_least_squares():
     dim = 10 + int(30 * np.random.rand())
     x = np.arange(dim)
@@ -31,6 +51,10 @@ def test_least_squares():
 
     out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
     beta = out.fit_parameters
+
+    str(out)
+    repr(out)
+    len(out)
 
     for i in range(2):
         beta[i].gamma_method(S=1.0)
@@ -135,6 +159,10 @@ def test_total_least_squares():
 
     out = pe.total_least_squares(ox, oy, func, expected_chisquare=True)
     beta = out.fit_parameters
+
+    str(out)
+    repr(out)
+    len(out)
 
     for i in range(2):
         beta[i].gamma_method(S=1.0)

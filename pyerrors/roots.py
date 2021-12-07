@@ -1,3 +1,4 @@
+import numpy as np
 import scipy.optimize
 from autograd import jacobian
 from .obs import derived_observable
@@ -33,5 +34,5 @@ def find_root(d, func, guess=1.0, **kwargs):
     da = jacobian(lambda u, v: func(v, u))(d.value, root[0])
     deriv = - da / dx
 
-    res = derived_observable(lambda x, **kwargs: x[0] / d.value * root[0], [d], man_grad=[deriv])
+    res = derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (d.value + np.finfo(np.float64).eps) * root[0], [d], man_grad=[deriv])
     return res

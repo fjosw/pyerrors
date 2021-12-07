@@ -301,7 +301,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda my_var, **kwargs: my_var[0] / x.ravel()[0].value * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda my_var, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
 
     output.fit_parameters = result + const_par
 
@@ -418,7 +418,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0] / y[0].value * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
 
     output.fit_parameters = result
     output.chisquare = chisqfunc(np.asarray(params))
@@ -612,7 +612,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0] / y[0].value * fit_result.x[i], list(y), man_grad=list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * fit_result.x[i], list(y), man_grad=list(deriv[i])))
 
     output.fit_parameters = result + const_par
 

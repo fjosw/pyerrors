@@ -1069,7 +1069,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     for o in raveled_data:
         for name in o.cov_names:
             if name in allcov:
-                if not np.array_equal(allcov[name], o.covobs[name].cov):
+                if not np.allclose(allcov[name], o.covobs[name].cov, rtol=1e-14, atol=1e-14):
                     raise Exception('Inconsistent covariance matrices for %s!' % (name))
             else:
                 allcov[name] = o.covobs[name].cov

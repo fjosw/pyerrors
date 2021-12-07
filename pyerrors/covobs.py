@@ -23,6 +23,7 @@ class Covobs:
         self.cov = np.array(cov)
         if self.cov.ndim == 0:
             self.N = 1
+            self.cov = np.diag([self.cov])
         elif self.cov.ndim == 1:
             self.N = len(self.cov)
             self.cov = np.diag(self.cov)
@@ -48,6 +49,8 @@ class Covobs:
             self.grad[pos] = 1.
         else:
             self.grad = np.array(grad)
+            if self.grad.ndim == 1:
+                self.grad = np.reshape(self.grad, (self.N, 1))
         self.value = mean
 
     def errsq(self):

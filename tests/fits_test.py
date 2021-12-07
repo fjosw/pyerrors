@@ -29,7 +29,7 @@ def test_least_squares():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
-    out = pe.least_squares(x, oy, func)
+    out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
     beta = out.fit_parameters
 
     for i in range(2):
@@ -133,7 +133,7 @@ def test_total_least_squares():
     odr.set_job(fit_type=0, deriv=1)
     output = odr.run()
 
-    out = pe.total_least_squares(ox, oy, func)
+    out = pe.total_least_squares(ox, oy, func, expected_chisquare=True)
     beta = out.fit_parameters
 
     for i in range(2):

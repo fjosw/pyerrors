@@ -678,7 +678,7 @@ def qqplot(x, o_y, func, p):
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')
     plt.legend()
-    plt.show()
+    plt.draw()
 
 
 def residual_plot(x, y, func, fit_res):
@@ -707,7 +707,7 @@ def residual_plot(x, y, func, fit_res):
     ax1.set_xlim([xstart, xstop])
     ax1.set_ylabel('Residuals')
     plt.subplots_adjust(wspace=None, hspace=None)
-    plt.show()
+    plt.draw()
 
 
 def covariance_matrix(y):
@@ -782,7 +782,7 @@ def ks_test(obs=None):
     loc_max_diff = np.argmax(np.abs(diffs))
     loc = Xs[loc_max_diff]
     plt.annotate(s='', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
-    plt.show()
+    plt.draw()
 
     print(scipy.stats.kstest(Qs, 'uniform'))
 

@@ -119,9 +119,12 @@ class Obs:
                 for name, sample in sorted(zip(names, samples)):
                     self.idl[name] = range(1, len(sample) + 1)
 
+            self._value = 0
+            self.N = 0
             if means is not None:
                 for name, sample, mean in sorted(zip(names, samples, means)):
                     self.shape[name] = len(self.idl[name])
+                    self.N += self.shape[name]
                     if len(sample) != self.shape[name]:
                         raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                     self.r_values[name] = mean
@@ -129,18 +132,16 @@ class Obs:
             else:
                 for name, sample in sorted(zip(names, samples)):
                     self.shape[name] = len(self.idl[name])
+                    self.N += self.shape[name]
                     if len(sample) != self.shape[name]:
                         raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                     self.r_values[name] = np.mean(sample)
                     self.deltas[name] = sample - self.r_values[name]
-            self.is_merged = {}
-            self.N = sum(list(self.shape.values()))
-
-            self._value = 0
-            if means is None:
-                for name in self.names:
                     self._value += self.shape[name] * self.r_values[name]
                 self._value /= self.N
+
+            self.is_merged = {}
+
         else:
             self._value = 0
             self.is_merged = {}
@@ -1053,17 +1054,11 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     raveled_data = data.ravel()
 
     # Workaround for matrix operations containing non Obs data
-    # TODO: Find more elegant solution here.
-    for i_data in raveled_data:
-        if isinstance(i_data, Obs):
-            first_name = i_data.names[0]
-            first_shape = i_data.shape[first_name]
-            first_idl = i_data.idl[first_name]
-            break
-
-    for i in range(len(raveled_data)):
-        if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
+    if array_mode is True:
+        if not all(isinstance(x, Obs) for x in raveled_data):
+            for i in range(len(raveled_data)):
+                if isinstance(raveled_data[i], (int, float)):
+                    raveled_data[i] = cov_Obs(raveled_data[i], 0.0, "###dummy_covobs###")
 
     allcov = {}
     for o in raveled_data:
@@ -1081,16 +1076,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_sample_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
-    new_idl_d = {}
-    for name in new_sample_names:
-        idl = []
-        for i_data in raveled_data:
-            tmp = i_data.idl.get(name)
-            if tmp is not None:
-                idl.append(tmp)
-        new_idl_d[name] = _merge_idx(idl)
-        if not is_merged[name]:
-            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if data.ndim == 1:
         values = np.array([o.value for o in data])
@@ -1099,21 +1084,24 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     new_values = func(values, **kwargs)
 
-    multi = 0
-    if isinstance(new_values, np.ndarray):
-        multi = 1
+    multi = int(isinstance(new_values, np.ndarray))
 
     new_r_values = {}
+    new_idl_d = {}
     for name in new_sample_names:
+        idl = []
         tmp_values = np.zeros(n_obs)
         for i, item in enumerate(raveled_data):
-            tmp = item.r_values.get(name)
-            if tmp is None:
-                tmp = item.value
-            tmp_values[i] = tmp
+            tmp_values[i] = item.r_values.get(name, item.value)
+            tmp_idl = item.idl.get(name)
+            if tmp_idl is not None:
+                idl.append(tmp_idl)
         if multi > 0:
             tmp_values = np.array(tmp_values).reshape(data.shape)
         new_r_values[name] = func(tmp_values, **kwargs)
+        new_idl_d[name] = _merge_idx(idl)
+        if not is_merged[name]:
+            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
@@ -1148,13 +1136,11 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     if array_mode is True:
 
-        new_covobs_lengths = dict(set([y for x in [[(n, o.covobs[n].N) for n in o.cov_names] for o in raveled_data] for y in x]))
-
         class _Zero_grad():
             def __init__(self, N):
-                # self.grad = np.zeros(N)
                 self.grad = np.zeros((N, 1))
 
+        new_covobs_lengths = dict(set([y for x in [[(n, o.covobs[n].N) for n in o.cov_names] for o in raveled_data] for y in x]))
         d_extracted = {}
         g_extracted = {}
         for name in new_sample_names:

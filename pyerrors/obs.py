@@ -1053,17 +1053,9 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     raveled_data = data.ravel()
 
     # Workaround for matrix operations containing non Obs data
-    # TODO: Find more elegant solution here.
-    for i_data in raveled_data:
-        if isinstance(i_data, Obs):
-            first_name = i_data.names[0]
-            first_shape = i_data.shape[first_name]
-            first_idl = i_data.idl[first_name]
-            break
-
     for i in range(len(raveled_data)):
         if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
+            raveled_data[i] = cov_Obs(raveled_data[i], 0.0, "~#dummy_data#~")
 
     allcov = {}
     for o in raveled_data:

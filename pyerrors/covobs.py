@@ -20,7 +20,7 @@ class Covobs:
         grad : list or array
             Gradient of the Covobs wrt. the means belonging to cov.
         """
-        self.set_cov(cov)
+        self._set_cov(cov)
         if '|' in name:
             raise Exception("Covobs name must not contain replica separator '|'.")
         self.name = name
@@ -36,7 +36,7 @@ class Covobs:
             self._grad = np.zeros((self.N, 1))
             self._grad[pos] = 1.
         else:
-            self.set_grad(grad)
+            self._set_grad(grad)
         self.value = mean
 
     def errsq(self):
@@ -44,7 +44,7 @@ class Covobs:
         """
         return float(np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)))
 
-    def set_cov(self, cov):
+    def _set_cov(self, cov):
         self._cov = np.array(cov)
         if self._cov.ndim == 0:
             self.N = 1
@@ -59,7 +59,7 @@ class Covobs:
         else:
             raise Exception('Covariance matrix has to be a 2 dimensional square matrix!')
 
-    def set_grad(self, grad):
+    def _set_grad(self, grad):
         self._grad = np.array(grad)
         if self._grad.ndim in [0, 1]:
             self._grad = np.reshape(self._grad, (self.N, 1))

@@ -443,7 +443,7 @@ class Corr:
             if self.prange:
                 fitrange = self.prange
             else:
-                fitrange = [0, self.T]
+                fitrange = [0, self.T - 1]
 
         xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]

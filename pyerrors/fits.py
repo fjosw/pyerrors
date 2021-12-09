@@ -386,13 +386,15 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('Method: migrad')
 
-    m = iminuit.Minuit.from_array_func(chisqfunc, x0, error=np.asarray(x0) * 0.01, errordef=1, print_level=0)
+    m = iminuit.Minuit(chisqfunc, x0)
+    m.errordef = 1
+    m.print_level = 0
     if 'tol' in kwargs:
         m.tol = kwargs.get('tol')
     else:
         m.tol = 1e-4
     m.migrad()
-    params = np.asarray(m.values.values())
+    params = np.asarray(m.values)
 
     output.chisquare_by_dof = m.fval / len(x)
 

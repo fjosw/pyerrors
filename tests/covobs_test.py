@@ -11,6 +11,7 @@ def test_covobs():
     name = 'Covariance'
     co = pe.cov_Obs(val, cov, name)
     co.gamma_method()
+    co.details()
     assert (co.dvalue == np.sqrt(cov))
     assert (co.value == val)
 

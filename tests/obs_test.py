@@ -22,6 +22,12 @@ def test_Obs_exceptions():
         pe.Obs([np.random.rand(10)], [1])
     with pytest.raises(Exception):
         pe.Obs([np.random.rand(4)], ['name'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[5, 3, 2 ,4 ,1]])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=['t'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[range(1, 8)])
 
     my_obs = pe.Obs([np.random.rand(6)], ['name'])
     my_obs._value = 0.0
@@ -346,6 +352,7 @@ def test_overloaded_functions():
 
 
 def test_utils():
+    zero_pseudo_obs = pe.pseudo_Obs(1.0, 0.0, 'null')
     my_obs = pe.pseudo_Obs(1.0, 0.5, 't|r01')
     my_obs += pe.pseudo_Obs(1.0, 0.5, 't|r02')
     str(my_obs)
@@ -407,6 +414,15 @@ def test_cobs():
 def test_reweighting():
     my_obs = pe.Obs([np.random.rand(1000)], ['t'])
     assert not my_obs.reweighted
+    r_obs = pe.reweight(my_obs, [my_obs])
+    assert r_obs[0].reweighted
+    r_obs2 = r_obs[0] * my_obs
+    assert r_obs2.reweighted
+
+    my_irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[range(1, 1001, 2)])
+    assert not my_irregular_obs.reweighted
+    r_obs = pe.reweight(my_obs, [my_irregular_obs], all_configs=True)
+    r_obs = pe.reweight(my_obs, [my_irregular_obs], all_configs=False)
     r_obs = pe.reweight(my_obs, [my_obs])
     assert r_obs[0].reweighted
     r_obs2 = r_obs[0] * my_obs

@@ -125,8 +125,6 @@ class Obs:
                 for name, sample, mean in sorted(zip(names, samples, means)):
                     self.shape[name] = len(self.idl[name])
                     self.N += self.shape[name]
-                    if len(sample) != self.shape[name]:
-                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                     self.r_values[name] = mean
                     self.deltas[name] = sample
             else:

@@ -22,6 +22,12 @@ def test_Obs_exceptions():
         pe.Obs([np.random.rand(10)], [1])
     with pytest.raises(Exception):
         pe.Obs([np.random.rand(4)], ['name'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[5, 3, 2 ,4 ,1]])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=['t'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[range(1, 8)])
 
     my_obs = pe.Obs([np.random.rand(6)], ['name'])
     my_obs._value = 0.0

@@ -10,7 +10,7 @@ from scipy.odr import ODR, Model, RealData
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
-from .obs import Obs, derived_observable, covariance, pseudo_Obs
+from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
 class Fit_result(Sequence):
@@ -352,7 +352,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
             loc_priors.append(i_prior)
         else:
             loc_val, loc_dval = extract_val_and_dval(i_prior)
-            loc_priors.append(pseudo_Obs(loc_val, loc_dval, 'p' + str(i_n)))
+            loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
 
     output.priors = loc_priors
 

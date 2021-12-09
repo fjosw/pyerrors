@@ -92,9 +92,6 @@
             <li>
                     <a class="function" href="#ks_test">ks_test</a>
             </li>
-            <li>
-                    <a class="function" href="#fit_general">fit_general</a>
-            </li>
     </ul>
 
 
@@ -762,10 +759,10 @@
         <span class="k">return</span> <span class="n">y</span>
 
     <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">fit_parameters</span>
     <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">fit_parameters</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unsupported types for x&#39;</span><span class="p">)</span>
@@ -901,107 +898,6 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">Qs</span><span class="p">,</span> <span class="s1">&#39;uniform&#39;</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">fit_general</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
-
-<span class="sd">    Plausibility of the results should be checked. To control the numerical differentiation</span>
-<span class="sd">    the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.</span>
-
-<span class="sd">    func has to be of the form</span>
-
-<span class="sd">    def func(a, x):</span>
-<span class="sd">        y = a[0] + a[1] * x + a[2] * np.sinh(x)</span>
-<span class="sd">        return y</span>
-
-<span class="sd">    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
-<span class="sd">    x can either be a list of floats in which case no xerror is assumed, or</span>
-<span class="sd">    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    silent -- If true all output to the console is omitted (default False).</span>
-<span class="sd">    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear fits</span>
-<span class="sd">                     with many parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;New fit functions with exact error propagation are now available as alternative.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;func has to be a function.&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">break</span>
-    <span class="n">n_parms</span> <span class="o">=</span> <span class="n">i</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fit with&#39;</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
-
-    <span class="k">global</span> <span class="n">print_output</span><span class="p">,</span> <span class="n">beta0</span>
-    <span class="n">print_output</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="s1">&#39;initial_guess&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;initial_guess&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_parms</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Initial guess does not have the correct length.&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_parms</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y have to have the same length&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
-        <span class="n">x_constants</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">xerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">y</span>
-        <span class="n">x_constants</span> <span class="o">=</span> <span class="n">x</span>
-        <span class="n">xerr</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unsupported types for x&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">do_the_fit</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
-        <span class="k">global</span> <span class="n">print_output</span><span class="p">,</span> <span class="n">beta0</span>
-
-        <span class="n">func</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;function&#39;</span><span class="p">)</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;yerr&#39;</span><span class="p">)</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">yerr</span><span class="p">)</span>
-
-        <span class="n">xerr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;xerr&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="s1">&#39;x_constants&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">RealData</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x_constants&#39;</span><span class="p">),</span> <span class="n">obs</span><span class="p">,</span> <span class="n">sy</span><span class="o">=</span><span class="n">yerr</span><span class="p">)</span>
-            <span class="n">fit_type</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">length</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">RealData</span><span class="p">(</span><span class="n">obs</span><span class="p">[:</span><span class="n">length</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">length</span><span class="p">:],</span> <span class="n">sx</span><span class="o">=</span><span class="n">xerr</span><span class="p">,</span> <span class="n">sy</span><span class="o">=</span><span class="n">yerr</span><span class="p">)</span>
-            <span class="n">fit_type</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y do not fit together.&#39;</span><span class="p">)</span>
-
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-
-        <span class="n">odr</span> <span class="o">=</span> <span class="n">ODR</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta0</span><span class="p">,</span> <span class="n">partol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
-        <span class="n">odr</span><span class="o">.</span><span class="n">set_job</span><span class="p">(</span><span class="n">fit_type</span><span class="o">=</span><span class="n">fit_type</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">odr</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">print_output</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="o">.</span><span class="n">stopreason</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/d.o.f.:&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">res_var</span><span class="p">)</span>
-            <span class="n">print_output</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">beta</span>
-        <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)]</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_parms</span><span class="p">):</span>
-        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derived_observable</span><span class="p">(</span><span class="n">do_the_fit</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">x_constants</span><span class="o">=</span><span class="n">x_constants</span><span class="p">,</span> <span class="n">num_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">res</span>
 </pre></div>
 
         </details>
@@ -1590,10 +1486,10 @@ List of N Obs that are used to constrain the last N fit parameters of func.</li>
         <span class="k">return</span> <span class="n">y</span>
 
     <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">fit_parameters</span>
     <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">fit_parameters</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unsupported types for x&#39;</span><span class="p">)</span>
@@ -1828,143 +1724,6 @@ check if the residuals of the fit are gaussian distributed.</p>
 <p>If no list is given all Obs in memory are used.</p>
 
 <p>Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.</p>
-</div>
-
-
-                </section>
-                <section id="fit_general">
-                            <div class="attr function"><a class="headerlink" href="#fit_general">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">fit_general</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit_general</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
-
-<span class="sd">    Plausibility of the results should be checked. To control the numerical differentiation</span>
-<span class="sd">    the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.</span>
-
-<span class="sd">    func has to be of the form</span>
-
-<span class="sd">    def func(a, x):</span>
-<span class="sd">        y = a[0] + a[1] * x + a[2] * np.sinh(x)</span>
-<span class="sd">        return y</span>
-
-<span class="sd">    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
-<span class="sd">    x can either be a list of floats in which case no xerror is assumed, or</span>
-<span class="sd">    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
-
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    silent -- If true all output to the console is omitted (default False).</span>
-<span class="sd">    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear fits</span>
-<span class="sd">                     with many parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;New fit functions with exact error propagation are now available as alternative.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;func has to be a function.&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">break</span>
-    <span class="n">n_parms</span> <span class="o">=</span> <span class="n">i</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fit with&#39;</span><span class="p">,</span> <span class="n">n_parms</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">)</span>
-
-    <span class="k">global</span> <span class="n">print_output</span><span class="p">,</span> <span class="n">beta0</span>
-    <span class="n">print_output</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="s1">&#39;initial_guess&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;initial_guess&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_parms</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Initial guess does not have the correct length.&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_parms</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y have to have the same length&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
-        <span class="n">x_constants</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">xerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">y</span>
-        <span class="n">x_constants</span> <span class="o">=</span> <span class="n">x</span>
-        <span class="n">xerr</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unsupported types for x&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">do_the_fit</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
-        <span class="k">global</span> <span class="n">print_output</span><span class="p">,</span> <span class="n">beta0</span>
-
-        <span class="n">func</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;function&#39;</span><span class="p">)</span>
-        <span class="n">yerr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;yerr&#39;</span><span class="p">)</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">yerr</span><span class="p">)</span>
-
-        <span class="n">xerr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;xerr&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="s1">&#39;x_constants&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">RealData</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x_constants&#39;</span><span class="p">),</span> <span class="n">obs</span><span class="p">,</span> <span class="n">sy</span><span class="o">=</span><span class="n">yerr</span><span class="p">)</span>
-            <span class="n">fit_type</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">length</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">RealData</span><span class="p">(</span><span class="n">obs</span><span class="p">[:</span><span class="n">length</span><span class="p">],</span> <span class="n">obs</span><span class="p">[</span><span class="n">length</span><span class="p">:],</span> <span class="n">sx</span><span class="o">=</span><span class="n">xerr</span><span class="p">,</span> <span class="n">sy</span><span class="o">=</span><span class="n">yerr</span><span class="p">)</span>
-            <span class="n">fit_type</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;x and y do not fit together.&#39;</span><span class="p">)</span>
-
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-
-        <span class="n">odr</span> <span class="o">=</span> <span class="n">ODR</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta0</span><span class="p">,</span> <span class="n">partol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
-        <span class="n">odr</span><span class="o">.</span><span class="n">set_job</span><span class="p">(</span><span class="n">fit_type</span><span class="o">=</span><span class="n">fit_type</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">odr</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">print_output</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="o">.</span><span class="n">stopreason</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;chisquare/d.o.f.:&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">res_var</span><span class="p">)</span>
-            <span class="n">print_output</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">beta0</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">beta</span>
-        <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)]</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_parms</span><span class="p">):</span>
-        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derived_observable</span><span class="p">(</span><span class="n">do_the_fit</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xerr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">x_constants</span><span class="o">=</span><span class="n">x_constants</span><span class="p">,</span> <span class="n">num_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">res</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</p>
-
-<p>Plausibility of the results should be checked. To control the numerical differentiation
-the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.</p>
-
-<p>func has to be of the form</p>
-
-<p>def func(a, x):
-    y = a[0] + a[1] * x + a[2] * np.sinh(x)
-    return y</p>
-
-<p>y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-x can either be a list of floats in which case no xerror is assumed, or
-a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</p>
-
-<h6 id="keyword-arguments">Keyword arguments</h6>
-
-<p>silent -- If true all output to the console is omitted (default False).
-initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear fits
-                 with many parameters.</p>
 </div>
 
 

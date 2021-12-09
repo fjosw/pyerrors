@@ -37,6 +37,7 @@ def test_covobs():
         op.gamma_method()
         assert(np.isclose(oc.value, op.value, rtol=1e-14, atol=1e-14))
 
+    [o.gamma_method() for o in cl]
     assert(pe.covariance(cl[0], cl[1]) == cov[0][1])
     assert(pe.covariance2(cl[0], cl[1]) == cov[1][0])
 

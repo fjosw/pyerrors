@@ -1358,7 +1358,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
         if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
             raise Exception('Shapes of ensemble', name, 'do not fit')
 
-    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
+    if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1452,7 +1452,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
     if set(obs1.names).isdisjoint(set(obs2.names)):
         return 0.
 
-    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
+    if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0

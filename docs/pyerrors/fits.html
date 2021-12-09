@@ -89,9 +89,6 @@
             <li>
                     <a class="function" href="#error_band">error_band</a>
             </li>
-            <li>
-                    <a class="function" href="#ks_test">ks_test</a>
-            </li>
     </ul>
 
 
@@ -111,8 +108,7 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">anp</span>
@@ -852,52 +848,6 @@
     <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">err</span>
-
-
-<span class="k">def</span> <span class="nf">ks_test</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the Q-values of all fit object.</span>
-
-<span class="sd">    If no list is given all Obs in memory are used.</span>
-
-<span class="sd">    Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Not yet implemented&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">obs_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_objects</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
-                <span class="n">obs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">obs_list</span> <span class="o">=</span> <span class="n">obs</span>
-
-    <span class="c1"># TODO: Rework to apply to Q-values of all fits in memory</span>
-    <span class="n">Qs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">obs_i</span> <span class="ow">in</span> <span class="n">obs_list</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">ens</span> <span class="ow">in</span> <span class="n">obs_i</span><span class="o">.</span><span class="n">e_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">obs_i</span><span class="o">.</span><span class="n">e_Q</span><span class="p">[</span><span class="n">ens</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">Qs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_i</span><span class="o">.</span><span class="n">e_Q</span><span class="p">[</span><span class="n">ens</span><span class="p">])</span>
-
-    <span class="n">bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Qs</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Q value&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cumulative probability&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; Q values&#39;</span><span class="p">)</span>
-
-    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
-    <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">Qs</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-    <span class="n">diffs</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">Xs</span>
-    <span class="n">loc_max_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">))</span>
-    <span class="n">loc</span> <span class="o">=</span> <span class="n">Xs</span><span class="p">[</span><span class="n">loc_max_diff</span><span class="p">]</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">loc</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">loc</span> <span class="o">+</span> <span class="n">diffs</span><span class="p">[</span><span class="n">loc_max_diff</span><span class="p">]),</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;&lt;-&gt;&#39;</span><span class="p">,</span> <span class="n">shrinkA</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shrinkB</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">Qs</span><span class="p">,</span> <span class="s1">&#39;uniform&#39;</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1657,73 +1607,6 @@ check if the residuals of the fit are gaussian distributed.</p>
         </details>
 
             <div class="docstring"><p>Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.</p>
-</div>
-
-
-                </section>
-                <section id="ks_test">
-                            <div class="attr function"><a class="headerlink" href="#ks_test">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">ks_test</span><span class="signature">(obs=None)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ks_test</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the Q-values of all fit object.</span>
-
-<span class="sd">    If no list is given all Obs in memory are used.</span>
-
-<span class="sd">    Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Not yet implemented&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">obs_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">gc</span><span class="o">.</span><span class="n">get_objects</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
-                <span class="n">obs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">obs_list</span> <span class="o">=</span> <span class="n">obs</span>
-
-    <span class="c1"># TODO: Rework to apply to Q-values of all fits in memory</span>
-    <span class="n">Qs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">obs_i</span> <span class="ow">in</span> <span class="n">obs_list</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">ens</span> <span class="ow">in</span> <span class="n">obs_i</span><span class="o">.</span><span class="n">e_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">obs_i</span><span class="o">.</span><span class="n">e_Q</span><span class="p">[</span><span class="n">ens</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">Qs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_i</span><span class="o">.</span><span class="n">e_Q</span><span class="p">[</span><span class="n">ens</span><span class="p">])</span>
-
-    <span class="n">bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Qs</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Q value&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cumulative probability&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; Q values&#39;</span><span class="p">)</span>
-
-    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
-    <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">Qs</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-    <span class="n">diffs</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">Xs</span>
-    <span class="n">loc_max_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">))</span>
-    <span class="n">loc</span> <span class="o">=</span> <span class="n">Xs</span><span class="p">[</span><span class="n">loc_max_diff</span><span class="p">]</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">loc</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">loc</span> <span class="o">+</span> <span class="n">diffs</span><span class="p">[</span><span class="n">loc_max_diff</span><span class="p">]),</span> <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;&lt;-&gt;&#39;</span><span class="p">,</span> <span class="n">shrinkA</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shrinkB</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">kstest</span><span class="p">(</span><span class="n">Qs</span><span class="p">,</span> <span class="s1">&#39;uniform&#39;</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Performs a Kolmogorov–Smirnov test for the Q-values of all fit object.</p>
-
-<p>If no list is given all Obs in memory are used.</p>
-
-<p>Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.</p>
 </div>
 
 

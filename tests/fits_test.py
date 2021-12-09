@@ -274,6 +274,41 @@ def test_r_value_persistence():
     assert np.isclose(fitp[1].value, fitp[1].r_values['b'])
 
 
+def test_prior_fit():
+    def f(a, x):
+        return a[0] + a[1] * x
+
+    a = pe.pseudo_Obs(0.0, 0.1, 'a')
+    b = pe.pseudo_Obs(1.0, 0.2, 'a')
+
+    y = [a, b]
+    with pytest.raises(Exception):
+        fitp = pe.fits.least_squares([0, 1], 1 * np.array(y), f, priors=['0.0(8)', '1.0(8)'])
+
+    [o.gamma_method() for o in y]
+
+    fitp = pe.fits.least_squares([0, 1], y, f, priors=['0.0(8)', '1.0(8)'])
+    fitp = pe.fits.least_squares([0, 1], y, f, priors=y, resplot=True, qqplot=True)
+
+
+def test_error_band():
+    def f(a, x):
+        return a[0] + a[1] * x
+
+    a = pe.pseudo_Obs(0.0, 0.1, 'a')
+    b = pe.pseudo_Obs(1.0, 0.2, 'a')
+
+    x = [0, 1]
+    y = [a, b]
+
+    fitp = pe.fits.least_squares(x, y, f)
+
+    with pytest.raises(Exception):
+        pe.fits.error_band(x, f, fitp.fit_parameters)
+    fitp.gamma_method()
+    pe.fits.error_band(x, f, fitp.fit_parameters)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

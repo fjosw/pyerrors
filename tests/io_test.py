@@ -1,4 +1,4 @@
-import pyerrors.obs as pe
+import pyerrors as pe
 import pyerrors.input.json as jsonio
 import numpy as np
 import os
@@ -66,3 +66,10 @@ def test_jsonio():
         assert np.all(o == r)
 
     assert(description == rl['description'])
+
+
+def test_json_string_reconstruction():
+    my_obs = pe.Obs([np.random.rand(100)], ['name'])
+    json_string = pe.input.json.create_json_string(my_obs)
+    reconstructed_obs = pe.input.json.import_json_string(json_string)
+    assert my_obs == reconstructed_obs

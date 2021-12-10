@@ -279,22 +279,24 @@ def import_json_string(json_string, verbose=True, full_output=False):
             ret[-1].tag = taglist[i]
         return np.reshape(ret, layout)
 
-    prog = json_string.get('program', '')
-    version = json_string.get('version', '')
-    who = json_string.get('who', '')
-    date = json_string.get('date', '')
-    host = json_string.get('host', '')
+    json_dict = json.loads(json_string)
+
+    prog = json_dict.get('program', '')
+    version = json_dict.get('version', '')
+    who = json_dict.get('who', '')
+    date = json_dict.get('date', '')
+    host = json_dict.get('host', '')
     if prog and verbose:
         print('Data has been written using %s.' % (prog))
     if version and verbose:
         print('Format version %s' % (version))
     if np.any([who, date, host] and verbose):
         print('Written by %s on %s on host %s' % (who, date, host))
-    description = json_string.get('description', '')
+    description = json_dict.get('description', '')
     if description and verbose:
         print()
         print('Description: ', description)
-    obsdata = json_string['obsdata']
+    obsdata = json_dict['obsdata']
     ol = []
     for io in obsdata:
         if io['type'] == 'Obs':
@@ -346,11 +348,11 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname, 'r') as fin:
-            d = json.loads(fin.read().decode('utf-8'))
+            d = fin.read().decode('utf-8')
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         with open(fname, 'r', encoding='utf-8') as fin:
-            d = json.loads(fin.read())
+            d = fin.read()
 
     return import_json_string(d, verbose, full_output)

@@ -302,7 +302,7 @@ def test_matrix_functions():
 
     # Check eig function
     e2 = pe.linalg.eig(sym)
-    assert np.all(e == e2[::-1])
+    assert np.all(np.sort(e) == np.sort(e2))
 
     # Check svd
     u, v, vh = pe.linalg.svd(sym)

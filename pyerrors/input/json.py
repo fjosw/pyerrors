@@ -203,20 +203,18 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     fp.close()
 
 
-def load_json(fname, verbose=True, gz=True, full_output=False):
-    """Import a list of Obs or structures containing Obs from a .json.gz file.
+def import_json_string(json_string, verbose=True, full_output=False):
+    """Reconstruct a list of Obs or structures containing Obs from a json string.
 
     The following structures are supported: Obs, list, numpy.ndarray
     If the list contains only one element, it is unpacked from the list.
 
     Parameters
     ----------
-    fname : str
-        Filename of the input file.
+    json_string : str
+        json string containing the data.
     verbose : bool
         Print additional information that was written to the file.
-    gz : bool
-        If True, assumes that data is gzipped. If False, assumes JSON file.
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned.
@@ -281,35 +279,22 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
             ret[-1].tag = taglist[i]
         return np.reshape(ret, layout)
 
-    if not fname.endswith('.json') and not fname.endswith('.gz'):
-        fname += '.json'
-    if gz:
-        if not fname.endswith('.gz'):
-            fname += '.gz'
-        with gzip.open(fname, 'r') as fin:
-            d = json.loads(fin.read().decode('utf-8'))
-    else:
-        if fname.endswith('.gz'):
-            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r', encoding='utf-8') as fin:
-            d = json.loads(fin.read())
-
-    prog = d.get('program', '')
-    version = d.get('version', '')
-    who = d.get('who', '')
-    date = d.get('date', '')
-    host = d.get('host', '')
+    prog = json_string.get('program', '')
+    version = json_string.get('version', '')
+    who = json_string.get('who', '')
+    date = json_string.get('date', '')
+    host = json_string.get('host', '')
     if prog and verbose:
         print('Data has been written using %s.' % (prog))
     if version and verbose:
         print('Format version %s' % (version))
     if np.any([who, date, host] and verbose):
         print('Written by %s on %s on host %s' % (who, date, host))
-    description = d.get('description', '')
+    description = json_string.get('description', '')
     if description and verbose:
         print()
         print('Description: ', description)
-    obsdata = d['obsdata']
+    obsdata = json_string['obsdata']
     ol = []
     for io in obsdata:
         if io['type'] == 'Obs':
@@ -335,3 +320,37 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
             ol = ol[0]
 
         return ol
+
+
+def load_json(fname, verbose=True, gz=True, full_output=False):
+    """Import a list of Obs or structures containing Obs from a .json.gz file.
+
+    The following structures are supported: Obs, list, numpy.ndarray
+    If the list contains only one element, it is unpacked from the list.
+
+    Parameters
+    ----------
+    fname : str
+        Filename of the input file.
+    verbose : bool
+        Print additional information that was written to the file.
+    gz : bool
+        If True, assumes that data is gzipped. If False, assumes JSON file.
+    full_output : bool
+        If True, a dict containing auxiliary information and the data is returned.
+        If False, only the data is returned.
+    """
+    if not fname.endswith('.json') and not fname.endswith('.gz'):
+        fname += '.json'
+    if gz:
+        if not fname.endswith('.gz'):
+            fname += '.gz'
+        with gzip.open(fname, 'r') as fin:
+            d = json.loads(fin.read().decode('utf-8'))
+    else:
+        if fname.endswith('.gz'):
+            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
+        with open(fname, 'r', encoding='utf-8') as fin:
+            d = json.loads(fin.read())
+
+    return import_json_string(d, verbose, full_output)

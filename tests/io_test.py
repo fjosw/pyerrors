@@ -41,6 +41,9 @@ def test_jsonio():
 
     os.remove(fname + '.json.gz')
 
+    for o, r in zip(ol, rl):
+        assert np.all(o == r)
+
     for i in range(len(rl)):
         if isinstance(ol[i], pe.Obs):
             o = ol[i] - rl[i]
@@ -57,6 +60,9 @@ def test_jsonio():
 
     rl = jsonio.load_json(fname, gz=False, full_output=True)
 
-    assert(description == rl['description'])
-
     os.remove(fname + '.json')
+
+    for o, r in zip(ol, rl['obsdata']):
+        assert np.all(o == r)
+
+    assert(description == rl['description'])

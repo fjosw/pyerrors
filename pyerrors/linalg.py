@@ -300,31 +300,6 @@ def svd(obs, **kwargs):
     return (u, s, vh)
 
 
-def slogdet(obs, **kwargs):
-    """Computes the determinant of a matrix of Obs via np.linalg.slogdet."""
-    def _mat(x):
-        dim = int(np.sqrt(len(x)))
-        if np.sqrt(len(x)) != dim:
-            raise Exception('Input has to have dim**2 entries')
-
-        mat = []
-        for i in range(dim):
-            row = []
-            for j in range(dim):
-                row.append(x[j + dim * i])
-            mat.append(row)
-
-        (sign, logdet) = anp.linalg.slogdet(np.array(mat))
-        return sign * anp.exp(logdet)
-
-    if isinstance(obs, np.ndarray):
-        return derived_observable(_mat, (1 * (obs.ravel())).tolist(), **kwargs)
-    elif isinstance(obs, list):
-        return derived_observable(_mat, obs, **kwargs)
-    else:
-        raise TypeError('Unproper type of input.')
-
-
 # Variants for numerical differentiation
 
 def _num_diff_mat_mat_op(op, obs, **kwargs):

@@ -203,7 +203,12 @@ def cholesky(x):
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 
-def scalar_mat_op(op, obs, **kwargs):
+def det(x):
+    """Determinant of Obs valued matrices."""
+    return _scalar_mat_op(anp.linalg.det, x)
+
+
+def _scalar_mat_op(op, obs, **kwargs):
     """Computes the matrix to scalar operation op to a given matrix of Obs."""
     def _mat(x, **kwargs):
         dim = int(np.sqrt(len(x)))

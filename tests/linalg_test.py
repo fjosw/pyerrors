@@ -311,6 +311,9 @@ def test_matrix_functions():
     for (i, j), entry in np.ndenumerate(diff):
         assert entry.is_zero()
 
+    # Check determinant
+    assert pe.linalg.det(np.diag(np.diag(matrix))) == np.prod(np.diag(matrix))
+
 
 def test_complex_matrix_operations():
     dimension = 4

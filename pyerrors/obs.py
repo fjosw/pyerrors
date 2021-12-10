@@ -1632,7 +1632,7 @@ def cov_Obs(means, cov, name, grad=None):
         co : Covobs
             Covobs to be embedded into the Obs
         """
-        o = Obs(None, None, empty=True)
+        o = Obs(None, None)
         o._value = co.value
         o.names.append(co.name)
         o.covobs[co.name] = co

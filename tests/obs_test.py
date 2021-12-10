@@ -46,8 +46,9 @@ def test_Obs_exceptions():
         my_obs.gamma_method(tau_exp=2.3)
     my_obs.gamma_method()
     my_obs.details()
+    my_obs.plot_rep_dist()
 
-    my_obs += pe.Obs([np.random.rand(6)], ['name2|r1'])
+    my_obs += pe.Obs([np.random.rand(6)], ['name2|r1'], idl=[[1, 3, 4, 5, 6, 7]])
     my_obs += pe.Obs([np.random.rand(6)], ['name2|r2'])
     my_obs.gamma_method()
     my_obs.details()
@@ -475,6 +476,7 @@ def test_irregular_error_propagation():
                 pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]]),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[list(range(1, 26)) + list(range(50, 100, 2))])]
     for obs1 in obs_list:
+        obs1.details()
         for obs2 in obs_list:
             assert obs1 == (obs1 / obs2) * obs2
             assert obs1 == (obs1 * obs2) / obs2

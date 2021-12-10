@@ -68,9 +68,8 @@ class Obs:
             already subtracted from the samples
         """
 
-        sample_length = len(samples)
-        if means is None and sample_length:
-            if sample_length != len(names):
+        if means is None and len(samples):
+            if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
                 if len(idl) != len(names):
@@ -97,7 +96,7 @@ class Obs:
             self.covobs = covobs
 
         self.idl = {}
-        if sample_length:
+        if len(samples):
             if idl is not None:
                 for name, idx in sorted(zip(names, idl)):
                     if isinstance(idx, range):

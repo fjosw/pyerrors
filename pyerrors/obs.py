@@ -68,8 +68,9 @@ class Obs:
             already subtracted from the samples
         """
 
-        if means is None and samples is not None:
-            if len(samples) != len(names):
+        sample_length = len(samples)
+        if means is None and sample_length:
+            if sample_length != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
                 if len(idl) != len(names):
@@ -86,11 +87,7 @@ class Obs:
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
 
-        if names:
-            self.names = sorted(names)
-        else:
-            self.names = []
-
+        self.names = sorted(names)
         self.shape = {}
         self.r_values = {}
         self.deltas = {}
@@ -100,7 +97,7 @@ class Obs:
             self.covobs = covobs
 
         self.idl = {}
-        if samples is not None:
+        if sample_length:
             if idl is not None:
                 for name, idx in sorted(zip(names, idl)):
                     if isinstance(idx, range):
@@ -1632,7 +1629,7 @@ def cov_Obs(means, cov, name, grad=None):
         co : Covobs
             Covobs to be embedded into the Obs
         """
-        o = Obs(None, None)
+        o = Obs([], [])
         o._value = co.value
         o.names.append(co.name)
         o.covobs[co.name] = co

@@ -63,7 +63,7 @@
                     <a class="function" href="#cholesky">cholesky</a>
             </li>
             <li>
-                    <a class="function" href="#scalar_mat_op">scalar_mat_op</a>
+                    <a class="function" href="#det">det</a>
             </li>
             <li>
                     <a class="function" href="#eigh">eigh</a>
@@ -304,7 +304,12 @@
     <span class="k">return</span> <span class="n">_mat_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">scalar_mat_op</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_scalar_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_scalar_mat_op</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Computes the matrix to scalar operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_mat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
@@ -943,44 +948,24 @@ Obs valued.</li>
 
 
                 </section>
-                <section id="scalar_mat_op">
-                            <div class="attr function"><a class="headerlink" href="#scalar_mat_op">#&nbsp;&nbsp</a>
+                <section id="det">
+                            <div class="attr function"><a class="headerlink" href="#det">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">scalar_mat_op</span><span class="signature">(op, obs, **kwargs)</span>:
+            <span class="name">det</span><span class="signature">(x)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">scalar_mat_op</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the matrix to scalar operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_mat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">!=</span> <span class="n">dim</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Input has to have dim**2 entries&#39;</span><span class="p">)</span>
-
-        <span class="n">mat</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
-                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">dim</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span>
-            <span class="n">mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mat</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">raveled_obs</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">raveled_obs</span> <span class="o">=</span> <span class="n">obs</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unproper type of input.&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="n">_mat</span><span class="p">,</span> <span class="n">raveled_obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_scalar_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Computes the matrix to scalar operation op to a given matrix of Obs.</p>
+            <div class="docstring"><p>Determinant of Obs valued matrices.</p>
 </div>
 
 

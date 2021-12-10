@@ -1,7 +1,8 @@
+import os
+import gzip
+import numpy as np
 import pyerrors as pe
 import pyerrors.input.json as jsonio
-import numpy as np
-import os
 
 
 def test_jsonio():
@@ -70,6 +71,15 @@ def test_jsonio():
 
 def test_json_string_reconstruction():
     my_obs = pe.Obs([np.random.rand(100)], ['name'])
+
     json_string = pe.input.json.create_json_string(my_obs)
-    reconstructed_obs = pe.input.json.import_json_string(json_string)
-    assert my_obs == reconstructed_obs
+    reconstructed_obs1 = pe.input.json.import_json_string(json_string)
+    assert my_obs == reconstructed_obs1
+
+    compressed_string = gzip.compress(json_string.encode('utf-8'))
+
+    reconstructed_string = gzip.decompress(compressed_string).decode('utf-8')
+    reconstructed_obs2 = pe.input.json.import_json_string(reconstructed_string)
+
+    assert reconstructed_string == json_string
+    assert my_obs == reconstructed_obs2

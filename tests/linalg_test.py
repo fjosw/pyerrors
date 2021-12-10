@@ -300,6 +300,10 @@ def test_matrix_functions():
         for j in range(dim):
             assert tmp[j].is_zero()
 
+    # Check eig function
+    e2 = pe.linalg.eig(sym)
+    assert np.all(np.sort(e) == np.sort(e2))
+
     # Check svd
     u, v, vh = pe.linalg.svd(sym)
     diff = sym - u @ np.diag(v) @ vh

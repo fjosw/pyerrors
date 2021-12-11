@@ -586,6 +586,12 @@ def test_covariance2_symmetry():
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
+def test_empty_obs():
+    o = pe.Obs([np.random.rand(100)], ['test'])
+    q = o + pe.Obs([], [])
+    assert q == o
+
+
 def test_jackknife():
     full_data = np.random.normal(1.1, 0.87, 5487)
 

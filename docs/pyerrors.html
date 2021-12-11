@@ -108,23 +108,17 @@ pyerrors    </h1>
                         <div class="docstring"><h1 id="what-is-pyerrors">What is pyerrors?</h1>
 
 <p><code><a href="">pyerrors</a></code> is a python package for error computation and propagation of Markov chain Monte Carlo data.
-It is based on the <strong>gamma method</strong> <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>. Some of its features are:</p>
+It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>. Some of its features are:</p>
 
 <ul>
-<li><strong>automatic differentiation</strong> as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a> (partly based on the <a href="https://github.com/HIPS/autograd">autograd</a> package)</li>
-<li><strong>treatment of slow modes</strong> in the simulation as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a></li>
-<li>coherent <strong>error propagation</strong> for data from <strong>different Markov chains</strong></li>
-<li><strong>non-linear fits with x- and y-errors</strong> and exact linear error propagation based on automatic differentiation as introduced in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a></li>
-<li><strong>real and complex matrix operations</strong> and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</li>
+<li>automatic differentiation for exact liner error propagation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a> (partly based on the <a href="https://github.com/HIPS/autograd">autograd</a> package).</li>
+<li>treatment of slow modes in the simulation as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>.</li>
+<li>coherent error propagation for data from different Markov chains.</li>
+<li>non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</li>
+<li>real and complex matrix operations and their error propagation based on automatic differentiation (Matrix inverse, Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...).</li>
 </ul>
 
-<p>There exist similar publicly available implementations of gamma method error analysis suites in</p>
-
-<ul>
-<li><a href="https://gitlab.ift.uam-csic.es/alberto/aderrors">Fortran</a></li>
-<li><a href="https://gitlab.ift.uam-csic.es/alberto/aderrors.jl">Julia</a></li>
-<li><a href="https://github.com/mbruno46/pyobs">Python</a></li>
-</ul>
+<p>There exist similar publicly available implementations of gamma method error analysis suites in <a href="https://gitlab.ift.uam-csic.es/alberto/aderrors">Fortran</a>, <a href="https://gitlab.ift.uam-csic.es/alberto/aderrors.jl">Julia</a> and <a href="https://github.com/mbruno46/pyobs">Python</a>.</p>
 
 <h2 id="basic-example">Basic example</h2>
 
@@ -368,17 +362,14 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
             <div class="codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd"># What is pyerrors?</span>
 <span class="sd">`pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.</span>
-<span class="sd">It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:</span>
-<span class="sd">- **automatic differentiation** as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package)</span>
-<span class="sd">- **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)</span>
-<span class="sd">- coherent **error propagation** for data from **different Markov chains**</span>
-<span class="sd">- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)</span>
-<span class="sd">- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)</span>
+<span class="sd">It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:</span>
+<span class="sd">- automatic differentiation for exact liner error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).</span>
+<span class="sd">- treatment of slow modes in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228).</span>
+<span class="sd">- coherent error propagation for data from different Markov chains.</span>
+<span class="sd">- non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
+<span class="sd">- real and complex matrix operations and their error propagation based on automatic differentiation (Matrix inverse, Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...).</span>
 
-<span class="sd">There exist similar publicly available implementations of gamma method error analysis suites in</span>
-<span class="sd">- [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors)</span>
-<span class="sd">- [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl)</span>
-<span class="sd">- [Python](https://github.com/mbruno46/pyobs)</span>
+<span class="sd">There exist similar publicly available implementations of gamma method error analysis suites in [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors), [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl) and [Python](https://github.com/mbruno46/pyobs).</span>
 
 <span class="sd">## Basic example</span>
 

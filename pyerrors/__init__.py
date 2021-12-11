@@ -30,7 +30,6 @@ An `Obs` object can be initialized with two arguments, the first is a list conta
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
-Example:
 ```python
 import pyerrors as pe
 
@@ -46,7 +45,6 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 
 The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.
 
-Example:
 ```python
 import numpy as np
 import pyerrors as pe
@@ -69,7 +67,6 @@ print(iamzero == 0.0)
 The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.
 
-Example:
 ```python
 my_sum.gamma_method()
 print(my_sum)
@@ -84,10 +81,9 @@ my_sum.details()
 
 We use the following definition of the integrated autocorrelation time established in [Madras & Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)
 $$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
-The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017)
+The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
 
-Example:
 ```python
 my_sum.gamma_method(S=3.0)
 my_sum.details()
@@ -107,7 +103,6 @@ In this case the error estimate is identical to the sample standard error.
 
 Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.
 
-Example:
 ```python
 my_sum.gamma_method(tau_exp=7.2)
 my_sum.details()
@@ -117,13 +112,12 @@ my_sum.details()
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 ```
 
-For the full API see `pyerrors.obs.Obs.gamma_method`
+For the full API see `pyerrors.obs.Obs.gamma_method`.
 
 ## Multiple ensembles/replica
 
 Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their `name`.
 
-Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1'])
 obs2 = pe.Obs([samples2], ['ensemble2'])
@@ -138,7 +132,6 @@ my_sum.details()
 
 `pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.
 
-Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1|r01'])
 obs2 = pe.Obs([samples2], ['ensemble1|r02'])
@@ -156,7 +149,6 @@ obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
 In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.
 
-Example:
 ```python
 pe.Obs.S_dict['ensemble1'] = 2.5
 pe.Obs.tau_exp_dict['ensemble2'] = 8.0
@@ -171,7 +163,6 @@ Passing arguments to the `gamma_method` still dominates over the dictionaries.
 
 Irregular Monte Carlo chains can be initialized with the parameter `idl`.
 
-Example:
 ```python
 # Observable defined on configurations 20 to 519
 obs1 = pe.Obs([samples1], ['ensemble1'], idl=[range(20, 520)])
@@ -199,17 +190,16 @@ obs3.details()
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
 
-For the full API see `pyerrors.obs.Obs`
+For the full API see `pyerrors.obs.Obs`.
 
 # Correlators
-For the full API see `pyerrors.correlators.Corr`
+For the full API see `pyerrors.correlators.Corr`.
 
 # Complex observables
 
 `pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.
 `CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.
 
-Example:
 ```python
 my_real_part = pe.Obs([samples1], ['ensemble1'])
 my_imag_part = pe.Obs([samples2], ['ensemble1'])
@@ -239,8 +229,8 @@ print(my_derived_cobs)
 The preferred exported file format within `pyerrors` is
 
 ## Jackknife samples
-For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object.
-See `pyerrors.obs.Obs.export_jackknife` for details.
+For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
+See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 
 # Input
 `pyerrors.input`

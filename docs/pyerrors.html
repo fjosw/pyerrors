@@ -139,8 +139,6 @@ An <code>Obs</code> object can be initialized with two arguments, the first is a
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</p>
 
-<p>Example:</p>
-
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
@@ -154,8 +152,6 @@ as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
 
 <p>The <code>Obs</code> class is designed such that mathematical numpy functions can be used on <code>Obs</code> just as for regular floats.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
@@ -178,8 +174,6 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 <p>The error estimation within <code><a href="">pyerrors</a></code> is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
 After having arrived at the derived quantity of interest the <code>gamma_method</code> can be called as detailed in the following example.</p>
 
-<p>Example:</p>
-
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_sum</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mf">1.70</span><span class="p">(</span><span class="mi">57</span><span class="p">)</span>
@@ -192,10 +186,8 @@ After having arrived at the derived quantity of interest the <code>gamma_method<
 
 <p>We use the following definition of the integrated autocorrelation time established in <a href="https://link.springer.com/article/10.1007/BF01022990">Madras &amp; Sokal 1988</a>
 $$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
-The window $W$ is determined via the automatic windowing procedure described in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>
+The window $W$ is determined via the automatic windowing procedure described in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the <code>gamma_method</code> as parameter.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
@@ -214,8 +206,6 @@ In this case the error estimate is identical to the sample standard error.</p>
 
 <p>Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
 
-<p>Example:</p>
-
 <div class="codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">7.2</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.28097762e-01</span> <span class="o">+/-</span> <span class="mf">5.79077524e-02</span> <span class="p">(</span><span class="mf">36.947</span><span class="o">%</span><span class="p">)</span>
@@ -224,13 +214,11 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre></div>
 
-<p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code></p>
+<p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code>.</p>
 
 <h2 id="multiple-ensemblesreplica">Multiple ensembles/replica</h2>
 
 <p>Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their <code>name</code>.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">])</span>
@@ -244,8 +232,6 @@ In this case the error estimate is identical to the sample standard error.</p>
 </code></pre></div>
 
 <p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the data set.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
@@ -263,8 +249,6 @@ In this case the error estimate is identical to the sample standard error.</p>
 
 <p>In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</p>
 
-<p>Example:</p>
-
 <div class="codehilite"><pre><span></span><code><span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">S_dict</span><span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">8.0</span>
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
@@ -276,8 +260,6 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
 
 <p>Irregular Monte Carlo chains can be initialized with the parameter <code>idl</code>.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
 <span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
@@ -304,18 +286,16 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 <p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
-<p>For the full API see <code><a href="pyerrors/obs.html#Obs">pyerrors.obs.Obs</a></code></p>
+<p>For the full API see <code><a href="pyerrors/obs.html#Obs">pyerrors.obs.Obs</a></code>.</p>
 
 <h1 id="correlators">Correlators</h1>
 
-<p>For the full API see <code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code></p>
+<p>For the full API see <code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code>.</p>
 
 <h1 id="complex-observables">Complex observables</h1>
 
 <p><code><a href="">pyerrors</a></code> can handle complex valued observables via the class <code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code>.
 <code>CObs</code> are initialized with a real and an imaginary part which both can be <code>Obs</code> valued.</p>
-
-<p>Example:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">my_real_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 <span class="n">my_imag_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
@@ -349,8 +329,8 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h2 id="jackknife-samples">Jackknife samples</h2>
 
-<p>For comparison with other analysis workflows <code><a href="">pyerrors</a></code> can generate jackknife samples from an <code>Obs</code> object.
-See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.export_jackknife</a></code> for details.</p>
+<p>For comparison with other analysis workflows <code><a href="">pyerrors</a></code> can generate jackknife samples from an <code>Obs</code> object or import jackknife samples into an <code>Obs</code> object.
+See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.export_jackknife</a></code> and <code><a href="pyerrors/obs.html#import_jackknife">pyerrors.obs.import_jackknife</a></code> for details.</p>
 
 <h1 id="input">Input</h1>
 
@@ -391,7 +371,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">The samples can either be provided as python list or as numpy array.</span>
 <span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">import pyerrors as pe</span>
 
@@ -407,7 +386,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">import numpy as np</span>
 <span class="sd">import pyerrors as pe</span>
@@ -430,7 +408,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 <span class="sd">After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method()</span>
 <span class="sd">print(my_sum)</span>
@@ -445,10 +422,9 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">We use the following definition of the integrated autocorrelation time established in [Madras &amp; Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)</span>
 <span class="sd">$$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$</span>
-<span class="sd">The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017)</span>
+<span class="sd">The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 <span class="sd">The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method(S=3.0)</span>
 <span class="sd">my_sum.details()</span>
@@ -468,7 +444,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">my_sum.gamma_method(tau_exp=7.2)</span>
 <span class="sd">my_sum.details()</span>
@@ -478,13 +453,12 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">&gt;   · Ensemble &#39;ensemble_name&#39; : 1000 configurations (from 1 to 1000)</span>
 <span class="sd">```</span>
 
-<span class="sd">For the full API see `pyerrors.obs.Obs.gamma_method`</span>
+<span class="sd">For the full API see `pyerrors.obs.Obs.gamma_method`.</span>
 
 <span class="sd">## Multiple ensembles/replica</span>
 
 <span class="sd">Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their `name`.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;])</span>
 <span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble2&#39;])</span>
@@ -499,7 +473,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">`pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1|r01&#39;])</span>
 <span class="sd">obs2 = pe.Obs([samples2], [&#39;ensemble1|r02&#39;])</span>
@@ -517,7 +490,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">pe.Obs.S_dict[&#39;ensemble1&#39;] = 2.5</span>
 <span class="sd">pe.Obs.tau_exp_dict[&#39;ensemble2&#39;] = 8.0</span>
@@ -532,7 +504,6 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">Irregular Monte Carlo chains can be initialized with the parameter `idl`.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd"># Observable defined on configurations 20 to 519</span>
 <span class="sd">obs1 = pe.Obs([samples1], [&#39;ensemble1&#39;], idl=[range(20, 520)])</span>
@@ -560,17 +531,16 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>
 <span class="sd">Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
 
-<span class="sd">For the full API see `pyerrors.obs.Obs`</span>
+<span class="sd">For the full API see `pyerrors.obs.Obs`.</span>
 
 <span class="sd"># Correlators</span>
-<span class="sd">For the full API see `pyerrors.correlators.Corr`</span>
+<span class="sd">For the full API see `pyerrors.correlators.Corr`.</span>
 
 <span class="sd"># Complex observables</span>
 
 <span class="sd">`pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.</span>
 <span class="sd">`CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.</span>
 
-<span class="sd">Example:</span>
 <span class="sd">```python</span>
 <span class="sd">my_real_part = pe.Obs([samples1], [&#39;ensemble1&#39;])</span>
 <span class="sd">my_imag_part = pe.Obs([samples2], [&#39;ensemble1&#39;])</span>
@@ -600,8 +570,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">The preferred exported file format within `pyerrors` is</span>
 
 <span class="sd">## Jackknife samples</span>
-<span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object.</span>
-<span class="sd">See `pyerrors.obs.Obs.export_jackknife` for details.</span>
+<span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>
+<span class="sd">See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.</span>
 
 <span class="sd"># Input</span>
 <span class="sd">`pyerrors.input`</span>

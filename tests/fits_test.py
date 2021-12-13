@@ -83,6 +83,8 @@ def test_least_squares():
         assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
     assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
 
+
+def test_correlated_fit():
     num_samples = 400
     N = 10
 
@@ -101,7 +103,6 @@ def test_least_squares():
 
     c = cholesky(r, lower=True)
     y = np.dot(c, x)
-
     x = np.arange(N)
     for linear in [True, False]:
         data = []

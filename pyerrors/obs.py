@@ -1334,76 +1334,6 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     is constrained to the maximum value in order to make sure that covariance
     matrices are positive semidefinite.
 
-    Parameters
-    ----------
-    obs1 : Obs
-        First Obs
-    obs2 : Obs
-        Second Obs
-    correlation : bool
-        if true the correlation instead of the covariance is
-        returned (default False)
-    """
-    if set(obs1.names).isdisjoint(set(obs2.names)):
-        return 0.
-
-    for name in sorted(set(obs1.names + obs2.names)):
-        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-
-    if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
-        raise Exception('The gamma method has to be applied to both Obs first.')
-
-    dvalue = 0
-
-    for e_name in obs1.mc_names:
-
-        if e_name not in obs2.e_names:
-            continue
-
-        gamma = 0
-        r_length = []
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-
-            r_length.append(len(obs1.deltas[r_name]))
-
-            gamma += np.sum(obs1.deltas[r_name] * obs2.deltas[r_name])
-
-        e_N = np.sum(r_length)
-
-        tau_combined = (obs1.e_tauint[e_name] + obs2.e_tauint[e_name]) / 2
-        dvalue += gamma / e_N * (1 + 1 / e_N) / e_N * 2 * tau_combined
-
-    for e_name in obs1.cov_names:
-
-        if e_name not in obs2.cov_names:
-            continue
-
-        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
-
-    if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-        dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        dvalue = dvalue / obs1.dvalue / obs2.dvalue
-
-    return dvalue
-
-
-def covariance2(obs1, obs2, correlation=False, **kwargs):
-    """Alternative implementation of the covariance of two observables.
-
-    covariance(obs, obs) is equal to obs.dvalue ** 2
-    The gamma method has to be applied first to both observables.
-
-    If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value in order to make sure that covariance
-    matrices are positive semidefinite.
-
     Keyword arguments
     -----------------
     correlation -- if true the correlation instead of the covariance is
@@ -1503,7 +1433,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         # Make sure no entry of tauint is smaller than 0.5
         e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
 
-        window = max(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
+        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
         e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
 

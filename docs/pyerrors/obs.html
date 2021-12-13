@@ -288,9 +288,6 @@
                     <a class="function" href="#covariance">covariance</a>
             </li>
             <li>
-                    <a class="function" href="#covariance2">covariance2</a>
-            </li>
-            <li>
                     <a class="function" href="#pseudo_Obs">pseudo_Obs</a>
             </li>
             <li>
@@ -1657,76 +1654,6 @@
 <span class="sd">    is constrained to the maximum value in order to make sure that covariance</span>
 <span class="sd">    matrices are positive semidefinite.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    obs1 : Obs</span>
-<span class="sd">        First Obs</span>
-<span class="sd">    obs2 : Obs</span>
-<span class="sd">        Second Obs</span>
-<span class="sd">    correlation : bool</span>
-<span class="sd">        if true the correlation instead of the covariance is</span>
-<span class="sd">        returned (default False)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="mf">0.</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_dvalue&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_dvalue&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The gamma method has to be applied to both Obs first.&#39;</span><span class="p">)</span>
-
-    <span class="n">dvalue</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">mc_names</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">e_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_names</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">gamma</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">r_length</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">r_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="k">continue</span>
-
-            <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]))</span>
-
-            <span class="n">gamma</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">*</span> <span class="n">obs2</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
-
-        <span class="n">e_N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r_length</span><span class="p">)</span>
-
-        <span class="n">tau_combined</span> <span class="o">=</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="n">dvalue</span> <span class="o">+=</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">e_N</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">e_N</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_N</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tau_combined</span>
-
-    <span class="k">for</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">cov_names</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">e_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">cov_names</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">dvalue</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">cov</span><span class="p">,</span> <span class="n">obs2</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span><span class="p">)))</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="n">dvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">dvalue</span><span class="p">)</span> <span class="o">*</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">*</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span>
-
-    <span class="k">if</span> <span class="n">correlation</span><span class="p">:</span>
-        <span class="n">dvalue</span> <span class="o">=</span> <span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span>
-
-    <span class="k">return</span> <span class="n">dvalue</span>
-
-
-<span class="k">def</span> <span class="nf">covariance2</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Alternative implementation of the covariance of two observables.</span>
-
-<span class="sd">    covariance(obs, obs) is equal to obs.dvalue ** 2</span>
-<span class="sd">    The gamma method has to be applied first to both observables.</span>
-
-<span class="sd">    If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance</span>
-<span class="sd">    is constrained to the maximum value in order to make sure that covariance</span>
-<span class="sd">    matrices are positive semidefinite.</span>
-
 <span class="sd">    Keyword arguments</span>
 <span class="sd">    -----------------</span>
 <span class="sd">    correlation -- if true the correlation instead of the covariance is</span>
@@ -1826,7 +1753,7 @@
         <span class="c1"># Make sure no entry of tauint is smaller than 0.5</span>
         <span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.500000000001</span>
 
-        <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span>
         <span class="c1"># Bias correction hep-lat/0306017 eq. (49)</span>
         <span class="n">e_dvalue</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">window</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs1</span><span class="o">.</span><span class="n">tau_exp</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_rho</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_N</span><span class="p">)</span> <span class="o">*</span> <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">e_N</span>
 
@@ -4918,112 +4845,6 @@ Second observable</li>
 <span class="sd">    is constrained to the maximum value in order to make sure that covariance</span>
 <span class="sd">    matrices are positive semidefinite.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    obs1 : Obs</span>
-<span class="sd">        First Obs</span>
-<span class="sd">    obs2 : Obs</span>
-<span class="sd">        Second Obs</span>
-<span class="sd">    correlation : bool</span>
-<span class="sd">        if true the correlation instead of the covariance is</span>
-<span class="sd">        returned (default False)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="mf">0.</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">_merge_idx</span><span class="p">([</span><span class="n">obs1</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]])]]))):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Shapes of ensemble&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;do not fit&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="s1">&#39;e_dvalue&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obs2</span><span class="p">,</span> <span class="s1">&#39;e_dvalue&#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The gamma method has to be applied to both Obs first.&#39;</span><span class="p">)</span>
-
-    <span class="n">dvalue</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">mc_names</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">e_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_names</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">gamma</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">r_length</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">r_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">r_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_content</span><span class="p">[</span><span class="n">e_name</span><span class="p">]:</span>
-                <span class="k">continue</span>
-
-            <span class="n">r_length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]))</span>
-
-            <span class="n">gamma</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">]</span> <span class="o">*</span> <span class="n">obs2</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">r_name</span><span class="p">])</span>
-
-        <span class="n">e_N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r_length</span><span class="p">)</span>
-
-        <span class="n">tau_combined</span> <span class="o">=</span> <span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="n">dvalue</span> <span class="o">+=</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">e_N</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">e_N</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_N</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tau_combined</span>
-
-    <span class="k">for</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="n">obs1</span><span class="o">.</span><span class="n">cov_names</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">e_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obs2</span><span class="o">.</span><span class="n">cov_names</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">dvalue</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">cov</span><span class="p">,</span> <span class="n">obs2</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span><span class="p">)))</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="n">dvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">dvalue</span><span class="p">)</span> <span class="o">*</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">*</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span>
-
-    <span class="k">if</span> <span class="n">correlation</span><span class="p">:</span>
-        <span class="n">dvalue</span> <span class="o">=</span> <span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs1</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">/</span> <span class="n">obs2</span><span class="o">.</span><span class="n">dvalue</span>
-
-    <span class="k">return</span> <span class="n">dvalue</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Calculates the covariance of two observables.</p>
-
-<p>covariance(obs, obs) is equal to obs.dvalue ** 2
-The gamma method has to be applied first to both observables.</p>
-
-<p>If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance
-is constrained to the maximum value in order to make sure that covariance
-matrices are positive semidefinite.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>obs1</strong> (Obs):
-First Obs</li>
-<li><strong>obs2</strong> (Obs):
-Second Obs</li>
-<li><strong>correlation</strong> (bool):
-if true the correlation instead of the covariance is
-returned (default False)</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="covariance2">
-                            <div class="attr function"><a class="headerlink" href="#covariance2">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">covariance2</span><span class="signature">(obs1, obs2, correlation=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">covariance2</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Alternative implementation of the covariance of two observables.</span>
-
-<span class="sd">    covariance(obs, obs) is equal to obs.dvalue ** 2</span>
-<span class="sd">    The gamma method has to be applied first to both observables.</span>
-
-<span class="sd">    If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance</span>
-<span class="sd">    is constrained to the maximum value in order to make sure that covariance</span>
-<span class="sd">    matrices are positive semidefinite.</span>
-
 <span class="sd">    Keyword arguments</span>
 <span class="sd">    -----------------</span>
 <span class="sd">    correlation -- if true the correlation instead of the covariance is</span>
@@ -5123,7 +4944,7 @@ returned (default False)</li>
         <span class="c1"># Make sure no entry of tauint is smaller than 0.5</span>
         <span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.500000000001</span>
 
-        <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">],</span> <span class="n">obs2</span><span class="o">.</span><span class="n">e_windowsize</span><span class="p">[</span><span class="n">e_name</span><span class="p">])</span>
         <span class="c1"># Bias correction hep-lat/0306017 eq. (49)</span>
         <span class="n">e_dvalue</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">e_n_tauint</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">window</span><span class="p">]</span> <span class="o">+</span> <span class="n">obs1</span><span class="o">.</span><span class="n">tau_exp</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e_rho</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_N</span><span class="p">)</span> <span class="o">*</span> <span class="n">e_gamma</span><span class="p">[</span><span class="n">e_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">e_N</span>
 
@@ -5147,7 +4968,7 @@ returned (default False)</li>
 
         </details>
 
-            <div class="docstring"><p>Alternative implementation of the covariance of two observables.</p>
+            <div class="docstring"><p>Calculates the covariance of two observables.</p>
 
 <p>covariance(obs, obs) is equal to obs.dvalue ** 2
 The gamma method has to be applied first to both observables.</p>

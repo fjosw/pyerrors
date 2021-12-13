@@ -40,7 +40,7 @@ def test_covobs():
 
     [o.gamma_method() for o in cl]
     assert(pe.covariance(cl[0], cl[1]) == cov[0][1])
-    assert(pe.covariance2(cl[0], cl[1]) == cov[1][0])
+    assert(pe.covariance(cl[0], cl[1]) == cov[1][0])
 
     do = cl[0] * cl[1]
     assert(np.array_equal(do.covobs['rAP'].grad, np.transpose([pi[1], pi[0]]).reshape(2, 1)))

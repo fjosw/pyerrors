@@ -555,7 +555,7 @@ def test_gamma_method_irregular():
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
 
 
-def test_covariance2_symmetry():
+def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))
     test_obs1 = pe.pseudo_Obs(value1, dvalue1, 't')
@@ -564,8 +564,8 @@ def test_covariance2_symmetry():
     dvalue2 = np.abs(np.random.normal(0, 1))
     test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
     test_obs2.gamma_method()
-    cov_ab = pe.covariance2(test_obs1, test_obs2)
-    cov_ba = pe.covariance2(test_obs2, test_obs1)
+    cov_ab = pe.covariance(test_obs1, test_obs2)
+    cov_ba = pe.covariance(test_obs2, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
@@ -578,10 +578,10 @@ def test_covariance2_symmetry():
     idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr], ['t'], idl=[idx])
     a.gamma_method()
-    assert np.isclose(a.dvalue**2, pe.covariance2(a, a), atol=100, rtol=1e-4)
+    assert np.isclose(a.dvalue**2, pe.covariance(a, a), atol=100, rtol=1e-4)
 
-    cov_ab = pe.covariance2(test_obs1, a)
-    cov_ba = pe.covariance2(a, test_obs1)
+    cov_ab = pe.covariance(test_obs1, a)
+    cov_ba = pe.covariance(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 

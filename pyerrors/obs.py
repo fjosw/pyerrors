@@ -946,7 +946,7 @@ def _merge_idx(idl):
         g = groupby(idl)
         if next(g, True) and not next(g, False):
             return idl[0]
-    except:
+    except Exception:
         pass
 
     if np.all([type(idx) is range for idx in idl]):

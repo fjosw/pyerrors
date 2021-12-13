@@ -226,7 +226,7 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
         for key in keys:
             try:  # Try to convert key to integer
                 ids.append(int(key))
-            except:  # If not possible construct a hash
+            except Exception:  # If not possible construct a hash
                 ids.append(int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % 10 ** 8)
         print('ids', ids)
         nt = []

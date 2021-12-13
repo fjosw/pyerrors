@@ -187,7 +187,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break
@@ -328,7 +328,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     for i in range(100):
         try:
             func(np.arange(i), 0)
-        except:
+        except Exception:
             pass
         else:
             break
@@ -469,7 +469,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break

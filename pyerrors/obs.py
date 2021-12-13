@@ -1331,8 +1331,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     The gamma method has to be applied first to both observables.
 
     If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value in order to make sure that covariance
-    matrices are positive semidefinite.
+    is constrained to the maximum value.
 
     Keyword arguments
     -----------------

@@ -117,6 +117,9 @@
                                 <a class="variable" href="#Obs.e_content">e_content</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Obs.covobs">covobs</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Obs.gamma_method">gamma_method</a>
                         </li>
                         <li>
@@ -208,9 +211,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Obs.S">S</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Obs.covobs">covobs</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Obs.e_ddvalue">e_ddvalue</a>
@@ -362,7 +362,7 @@
                  <span class="s1">&#39;ddvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;reweighted&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;tau_exp&#39;</span><span class="p">,</span> <span class="s1">&#39;N_sigma&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;e_dvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;e_ddvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;e_tauint&#39;</span><span class="p">,</span> <span class="s1">&#39;e_dtauint&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;e_windowsize&#39;</span><span class="p">,</span> <span class="s1">&#39;e_rho&#39;</span><span class="p">,</span> <span class="s1">&#39;e_drho&#39;</span><span class="p">,</span> <span class="s1">&#39;e_n_tauint&#39;</span><span class="p">,</span> <span class="s1">&#39;e_n_dtauint&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;idl&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merged&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;covobs&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">]</span>
+                 <span class="s1">&#39;idl&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merged&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;_covobs&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">]</span>
 
     <span class="n">S_global</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="n">S_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -372,7 +372,7 @@
     <span class="n">N_sigma_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">filter_eps</span> <span class="o">=</span> <span class="mf">1e-10</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -410,10 +410,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">covobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="n">covobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">idl</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
@@ -495,6 +492,10 @@
             <span class="k">if</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                 <span class="n">res</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">covobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span>
 
     <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Estimate the error and related properties of the Obs.</span>
@@ -1511,9 +1512,7 @@
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">new_samples</span><span class="p">,</span> <span class="n">new_names_obs</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="n">new_means</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">new_idl</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">new_covobs</span><span class="p">:</span>
             <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="n">new_covobs</span>
+        <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="n">new_covobs</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">new_val</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">is_merged</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">reweighted</span>
@@ -1880,10 +1879,8 @@
         <span class="n">o</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([],</span> <span class="p">[])</span>
         <span class="n">o</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">value</span>
         <span class="n">o</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">co</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">_covobs</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">co</span>
         <span class="n">o</span><span class="o">.</span><span class="n">_dvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">co</span><span class="o">.</span><span class="n">errsq</span><span class="p">())</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">o</span>
 
     <span class="n">ol</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1946,7 +1943,7 @@
                  <span class="s1">&#39;ddvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;reweighted&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;tau_exp&#39;</span><span class="p">,</span> <span class="s1">&#39;N_sigma&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;e_dvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;e_ddvalue&#39;</span><span class="p">,</span> <span class="s1">&#39;e_tauint&#39;</span><span class="p">,</span> <span class="s1">&#39;e_dtauint&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;e_windowsize&#39;</span><span class="p">,</span> <span class="s1">&#39;e_rho&#39;</span><span class="p">,</span> <span class="s1">&#39;e_drho&#39;</span><span class="p">,</span> <span class="s1">&#39;e_n_tauint&#39;</span><span class="p">,</span> <span class="s1">&#39;e_n_dtauint&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;idl&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merged&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;covobs&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">]</span>
+                 <span class="s1">&#39;idl&#39;</span><span class="p">,</span> <span class="s1">&#39;is_merged&#39;</span><span class="p">,</span> <span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="s1">&#39;_covobs&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">]</span>
 
     <span class="n">S_global</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="n">S_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1956,7 +1953,7 @@
     <span class="n">N_sigma_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">filter_eps</span> <span class="o">=</span> <span class="mf">1e-10</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -1994,10 +1991,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">covobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="n">covobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">idl</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
@@ -2079,6 +2073,10 @@
             <span class="k">if</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                 <span class="n">res</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">covobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span>
 
     <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Estimate the error and related properties of the Obs.</span>
@@ -2744,12 +2742,12 @@ this overwrites the standard value for that ensemble.</li>
                                         <div class="attr function"><a class="headerlink" href="#Obs.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">Obs</span><span class="signature">(samples, names, idl=None, means=None, covobs=None, **kwargs)</span>
+            <span class="name">Obs</span><span class="signature">(samples, names, idl=None, means=None, **kwargs)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -2787,10 +2785,7 @@ this overwrites the standard value for that ensemble.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">covobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="n">covobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">idl</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
@@ -3050,6 +3045,15 @@ already subtracted from the samples</li>
                                             <div class="attr variable"><a class="headerlink" href="#Obs.e_content">#&nbsp;&nbsp</a>
 
         <span class="name">e_content</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Obs.covobs" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Obs.covobs">#&nbsp;&nbsp</a>
+
+        <span class="name">covobs</span>
     </div>
 
     
@@ -4098,15 +4102,6 @@ should agree with samples from a full jackknife analysis up to O(1/N).</li>
     
 
                             </div>
-                            <div id="Obs.covobs" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Obs.covobs">#&nbsp;&nbsp</a>
-
-        <span class="name">covobs</span>
-    </div>
-
-    
-
-                            </div>
                             <div id="Obs.e_ddvalue" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Obs.e_ddvalue">#&nbsp;&nbsp</a>
 
@@ -4632,9 +4627,7 @@ should agree with samples from a full jackknife analysis up to O(1/N).</li>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">new_samples</span><span class="p">,</span> <span class="n">new_names_obs</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="n">new_means</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">new_idl</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">new_covobs</span><span class="p">:</span>
             <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">covobs</span> <span class="o">=</span> <span class="n">new_covobs</span>
+        <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="n">new_covobs</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">new_val</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">is_merged</span>
         <span class="n">final_result</span><span class="p">[</span><span class="n">i_val</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">reweighted</span>
@@ -5180,10 +5173,8 @@ list of the Obs object to be combined</li>
         <span class="n">o</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([],</span> <span class="p">[])</span>
         <span class="n">o</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">value</span>
         <span class="n">o</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">co</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">_covobs</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">co</span>
         <span class="n">o</span><span class="o">.</span><span class="n">_dvalue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">co</span><span class="o">.</span><span class="n">errsq</span><span class="p">())</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">co</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">o</span>
 
     <span class="n">ol</span> <span class="o">=</span> <span class="p">[]</span>

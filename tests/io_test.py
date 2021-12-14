@@ -14,7 +14,8 @@ def test_jsonio():
     o4.tag = otag
     do = o - .2 * o4
     co1 = pe.cov_Obs(1., .123, 'cov1')
-    do *= co1
+    co3 = pe.cov_Obs(4., .1 ** 2, 'cov3')
+    do *= co1 / co3
     do.tag = {'A': 2}
 
     o5 = pe.pseudo_Obs(0.8, .1, 'two|r2')
@@ -38,7 +39,7 @@ def test_jsonio():
 
     tt.tag = 'Test Obs: Ä'
 
-    ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt], co1, co2, np.array(co2)]
+    ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt], co1, co2, np.array(co2), co1 / co2[0]]
     fname = 'test_rw'
 
     jsonio.dump_to_json(ol, fname, indent=1, description='[I am a tricky description]')

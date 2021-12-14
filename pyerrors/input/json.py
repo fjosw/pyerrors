@@ -7,6 +7,7 @@ import datetime
 import platform
 import warnings
 from ..obs import Obs
+from ..covobs import Covobs
 from .. import version as pyerrorsversion
 
 
@@ -50,7 +51,7 @@ def create_json_string(ol, description='', indent=1):
 
     def _gen_data_d_from_list(ol):
         dl = []
-        for name in ol[0].e_names:
+        for name in ol[0].mc_names:
             ed = {}
             ed['id'] = name
             ed['replica'] = []
@@ -66,6 +67,22 @@ def create_json_string(ol, description='', indent=1):
                         rd['deltas'][-1].append(o.deltas[r_name][i])
                     rd['deltas'][-1] = Deltalist(rd['deltas'][-1])
                 ed['replica'].append(rd)
+            dl.append(ed)
+        return dl
+
+    def _gen_cdata_d_from_list(ol):
+        dl = []
+        for name in ol[0].cov_names:
+            ed = {}
+            ed['id'] = name
+            ed['layout'] = str(ol[0].covobs[name].cov.shape).lstrip('(').rstrip(')').rstrip(',')
+            ed['cov'] = list(np.ravel(ol[0].covobs[name].cov))
+            ncov = ol[0].covobs[name].cov.shape[0]
+            ed['grad'] = []
+            for i in range(ncov):
+                ed['grad'].append([])
+                for o in ol:
+                    ed['grad'][-1].append(o.covobs[name].grad[i][0])
             dl.append(ed)
         return dl
 
@@ -93,6 +110,7 @@ def create_json_string(ol, description='', indent=1):
             d['reweighted'] = o.reweighted
         d['value'] = [o.value]
         d['data'] = _gen_data_d_from_list([o])
+        d['cdata'] = _gen_cdata_d_from_list([o])
         return d
 
     def write_List_to_dict(ol):
@@ -107,6 +125,7 @@ def create_json_string(ol, description='', indent=1):
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
         d['data'] = _gen_data_d_from_list(ol)
+        d['cdata'] = _gen_cdata_d_from_list(ol)
         return d
 
     def write_Array_to_dict(oa):
@@ -122,6 +141,7 @@ def create_json_string(ol, description='', indent=1):
             d['reweighted'] = ol[0].reweighted
         d['value'] = [o.value for o in ol]
         d['data'] = _gen_data_d_from_list(ol)
+        d['cdata'] = _gen_cdata_d_from_list(ol)
         return d
 
     if not isinstance(ol, list):
@@ -234,6 +254,22 @@ def import_json_string(json_string, verbose=True, full_output=False):
                 retd['is_merged'][rep['name']] = rep.get('is_merged', False)
         return retd
 
+    def _gen_covobsd_from_cdatad(d):
+        retd = {}
+        for ens in d:
+            retl = []
+            name = ens['id']
+            layouts = ens.get('layout', '1').strip()
+            layout = [int(ls.strip()) for ls in layouts.split(',') if len(ls) > 0]
+            cov = np.reshape(ens['cov'], layout)
+            grad = ens['grad']
+            nobs = len(grad[0])
+            print(nobs, grad)
+            for i in range(nobs):
+                retl.append({'name': name, 'cov': cov, 'grad': [g[i] for g in grad]})
+            retd[name] = retl
+        return retd
+
     def get_Obs_from_dict(o):
         layouts = o.get('layout', '1').strip()
         if layouts != '1':
@@ -241,8 +277,14 @@ def import_json_string(json_string, verbose=True, full_output=False):
 
         values = o['value']
         od = _gen_obsd_from_datad(o['data'])
+        cd = _gen_covobsd_from_cdatad(o['cdata'])
 
         ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
+        for name in cd:
+            co = cd[name][0]
+            ret._covobs[name] = Covobs(None, co['cov'], co['name'], grad=co['grad'])
+            ret.names.append(co['name'])
+
         ret.reweighted = o.get('reweighted', False)
         ret.is_merged = od['is_merged']
         ret.tag = o.get('tag', [None])[0]
@@ -253,11 +295,17 @@ def import_json_string(json_string, verbose=True, full_output=False):
         layout = int(layouts)
         values = o['value']
         od = _gen_obsd_from_datad(o['data'])
+        cd = _gen_covobsd_from_cdatad(o['cdata'])
 
         ret = []
         taglist = o.get('tag', layout * [None])
         for i in range(layout):
             ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
+            for name in cd:
+                co = cd[name][i]
+                ret[-1]._covobs[name] = Covobs(None, co['cov'], co['name'], grad=co['grad'])
+                ret[-1].names.append(co['name'])
+
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
             ret[-1].tag = taglist[i]
@@ -269,11 +317,16 @@ def import_json_string(json_string, verbose=True, full_output=False):
         N = np.prod(layout)
         values = o['value']
         od = _gen_obsd_from_datad(o['data'])
+        cd = _gen_covobsd_from_cdatad(o['cdata'])
 
         ret = []
         taglist = o.get('tag', N * [None])
         for i in range(N):
             ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
+            for name in cd:
+                co = cd[name][i]
+                ret[-1]._covobs[name] = Covobs(None, co['cov'], co['name'], grad=co['grad'])
+                ret[-1].names.append(co['name'])
             ret[-1].reweighted = o.get('reweighted', False)
             ret[-1].is_merged = od['is_merged']
             ret[-1].tag = taglist[i]

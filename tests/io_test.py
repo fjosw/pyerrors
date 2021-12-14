@@ -13,10 +13,15 @@ def test_jsonio():
     otag = 'This has been merged!'
     o4.tag = otag
     do = o - .2 * o4
+    co1 = pe.cov_Obs(1., .123, 'cov1')
+    do *= co1
     do.tag = {'A': 2}
 
     o5 = pe.pseudo_Obs(0.8, .1, 'two|r2')
-    o5.tag = 2*otag
+    co2 = pe.cov_Obs([1, 2], [[.12, .004], [.004, .02]], 'cov2')
+    o5 /= co2[0]
+    o3 /= co2[1]
+    o5.tag = 2 * otag
     testl = [o3, o5]
 
     arr = np.array([o3, o5])

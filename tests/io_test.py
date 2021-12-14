@@ -38,7 +38,7 @@ def test_jsonio():
 
     tt.tag = 'Test Obs: Ä'
 
-    ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt]]
+    ol = [o4, do, testl, mat, arr, np.array([o]), np.array([tt, tt]), [tt, tt], co1, co2, np.array(co2)]
     fname = 'test_rw'
 
     jsonio.dump_to_json(ol, fname, indent=1, description='[I am a tricky description]')
@@ -50,7 +50,7 @@ def test_jsonio():
     for o, r in zip(ol, rl):
         assert np.all(o == r)
 
-    for i in range(len(rl)):
+    for i in range(len(ol)):
         if isinstance(ol[i], pe.Obs):
             o = ol[i] - rl[i]
             assert(o.is_zero())

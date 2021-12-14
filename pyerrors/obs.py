@@ -52,7 +52,7 @@ class Obs:
     N_sigma_dict = {}
     filter_eps = 1e-10
 
-    def __init__(self, samples, names, idl=None, means=None, covobs=None, **kwargs):
+    def __init__(self, samples, names, idl=None, means=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -90,10 +90,7 @@ class Obs:
         self.shape = {}
         self.r_values = {}
         self.deltas = {}
-        if covobs is None:
-            self._covobs = {}
-        else:
-            self._covobs = covobs
+        self._covobs = {}
 
         self.idl = {}
         if len(samples):

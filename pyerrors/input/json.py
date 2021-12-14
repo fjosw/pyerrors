@@ -49,6 +49,22 @@ def create_json_string(ol, description='', indent=1):
         def __str__(self):
             return self.__repr__()
 
+    class Floatlist:
+        def __init__(self, li):
+            self.li = list(li)
+
+        def __repr__(self):
+            s = '['
+            for i in range(len(self.li)):
+                if i > 0:
+                    s += ', '
+                s += '%1.15e' % (self.li[i])
+            s += ']'
+            return s
+
+        def __str__(self):
+            return self.__repr__()
+
     def _gen_data_d_from_list(ol):
         dl = []
         for name in ol[0].mc_names:
@@ -76,13 +92,14 @@ def create_json_string(ol, description='', indent=1):
             ed = {}
             ed['id'] = name
             ed['layout'] = str(ol[0].covobs[name].cov.shape).lstrip('(').rstrip(')').rstrip(',')
-            ed['cov'] = list(np.ravel(ol[0].covobs[name].cov))
+            ed['cov'] = Floatlist(np.ravel(ol[0].covobs[name].cov))
             ncov = ol[0].covobs[name].cov.shape[0]
             ed['grad'] = []
             for i in range(ncov):
                 ed['grad'].append([])
                 for o in ol:
                     ed['grad'][-1].append(o.covobs[name].grad[i][0])
+                ed['grad'][-1] = Floatlist(ed['grad'][-1])
             dl.append(ed)
         return dl
 
@@ -174,9 +191,9 @@ def create_json_string(ol, description='', indent=1):
         deltas = False
         split = s.split('\n')
         for i in range(len(split)):
-            if '"deltas":' in split[i]:
+            if '"deltas":' in split[i] or '"cov":' in split[i] or '"grad":' in split[i]:
                 deltas = True
-            elif deltas:
+            if deltas:
                 split[i] = split[i].replace('"[', '[').replace(']"', ']')
                 if split[i][-1] == ']':
                     deltas = False

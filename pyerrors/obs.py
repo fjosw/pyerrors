@@ -42,7 +42,7 @@ class Obs:
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
                  'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'is_merged', 'tag', 'covobs', '__dict__']
+                 'idl', 'is_merged', 'tag', '_covobs', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -91,9 +91,9 @@ class Obs:
         self.r_values = {}
         self.deltas = {}
         if covobs is None:
-            self.covobs = {}
+            self._covobs = {}
         else:
-            self.covobs = covobs
+            self._covobs = covobs
 
         self.idl = {}
         if len(samples):
@@ -175,6 +175,10 @@ class Obs:
             if e_name in self.names:
                 res[e_name].append(e_name)
         return res
+
+    @property
+    def covobs(self):
+        return self._covobs
 
     def gamma_method(self, **kwargs):
         """Estimate the error and related properties of the Obs.
@@ -1191,9 +1195,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         final_result[i_val] = Obs(new_samples, new_names_obs, means=new_means, idl=new_idl)
         for name in new_covobs:
             final_result[i_val].names.append(name)
-            final_result[i_val].shape[name] = 1
-            final_result[i_val].idl[name] = []
-        final_result[i_val].covobs = new_covobs
+        final_result[i_val]._covobs = new_covobs
         final_result[i_val]._value = new_val
         final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted
@@ -1560,10 +1562,8 @@ def cov_Obs(means, cov, name, grad=None):
         o = Obs([], [])
         o._value = co.value
         o.names.append(co.name)
-        o.covobs[co.name] = co
+        o._covobs[co.name] = co
         o._dvalue = np.sqrt(co.errsq())
-        o.shape[co.name] = 1
-        o.idl[co.name] = []
         return o
 
     ol = []

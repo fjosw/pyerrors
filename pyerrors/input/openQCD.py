@@ -345,27 +345,71 @@ def _read_array_openQCD2(fp):
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
 
 
-def read_qtop(path, prefix, version = "1.2",**kwargs):
+def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
     """Read qtop format from given folder structure.
 
     Parameters
     ----------
-    target -- specifies the topological sector to be reweighted to (default 0)
-    full -- if true read the charge instead of the reweighting factor.
+    path:
+        path of the measurement files
+    prefix:
+        prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat
+    c:
+        ???
+    dtr_cnfg:
+        ???
+    target: int
+        specifies the topological sector to be reweighted to (default 0)
+    full: bool
+        if true read the charge instead of the reweighting factor.
+    version: str
+        version string of the openQCD (sfqcd) version used to create the ensemble
+    steps: int
+        step size of measurements
+    L: int
+        spatial length of the lattice in L/a. HAS to be set if version != sfqcd, since openQCD does not provide this in the header
+    r_start: list
+        offset of the first ensemble, making it easier to match later on with other Obs
+    r_stop: list
+        last ensemble that needs to be read
+    r_meas_start: list
+        offset of the first measured ensemble, if there is any
+    files: list
+        specify the exact files that need to be read from path, pratical if e.g. only one replicum is needed
+    names: list
+        Alternative labeling for replicas/ensembles. Has to have the appropriate length
     """
-    dtr_cnfg = 4
-    L = 20
-    c = 0.35
+    #dtr_cnfg = 4# was ist das denn hier?
+    #one could read L from the header in case of sfQCD
+    #c = 0.35
+    known_versions = ["1.0","1.2","1.4","1.6","2.0", "sfqcd"]
+    version = "1.2"
+    if "version" in kwargs:
+        version = kwargs.get("version")
+        if not version in known_versions:
+            raise Exception("Unknown openQCD version.")
     target = 0
     full = False
-    
+    if "steps" in kwargs:
+        steps = kwargs.get("steps")
+    else:
+        steps = 1
     if 'target' in kwargs:
         target = kwargs.get('target')
-    
-
+    if version == "sfqcd":
+        if "L" in kwargs:
+            supposed_L = kwargs.get("L")    
+    else:
+        if not "L" in kwargs:
+            raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
+        else:
+            L = kwargs.get("L")
     if kwargs.get('full'):
         full = True
-    
+    r_start = 1
+    r_meas_start = 1
+    if "r_meas_start" in kwargs:
+        r_meas_start = kwargs.get("r_meas_start")
     if "r_start" in kwargs:
         r_start = kwargs.get("r_start")
     if "r_stop" in kwargs:
@@ -392,41 +436,62 @@ def read_qtop(path, prefix, version = "1.2",**kwargs):
     for rep,file in enumerate(files):
         
         with open(path+"/"+file, "rb") as fp:
-            #this, for now, is only for version 1.2
+            #this, for now, is for version 1.2,1.4,1.6 and 2.0, but needs to be tested for the last 3, isncethe doc says its the same
             #header
             t = fp.read(12)
-            header = struct.unpack('iii', t)
-            dn = header[0]
-            nn = header[1]
-            tmax = header[2]
-            print('dn:', dn)
+            header = struct.unpack('<iii', t)
+            dn = header[0] # step size in integration steps "dnms"
+            nn = header[1] # number of measurements, so "ntot"/dn
+            tmax = header[2]# lattice T/a
+            #hier fehlen die L/a Angaben im header von Simon
+            #also muss man L nur für den fall von Fabian setzen
+            if version == "sfqcd":
+                t = fp.read(12)
+                Ls = struct.unpack('<iii', t)
+                if(Ls[0] == Ls[1] and Ls[1] == Ls[2]):
+                    L = Ls[0]
+                    if not (supposed_L == L):
+                        raise Exception("It seems the length given in the header and by you contradict each other")
+                else:
+                    raise Exception("Found more than one spatial length in header!")
+            
+            print('dnms:', dn)
             print('nn:', nn)
             print('tmax:', tmax)
-            t = fp.read(8)
-            eps = struct.unpack('d', t)[0]
+            t = fp.read(8) #header4 wird mit 16 bytes ausgelesen... cmax fehlt also als Angabe
+            eps = struct.unpack('d', t)[0]# das hier ist vllt. tol
             print('eps:', eps)
 
             Q = []
-            i = 1
+            
+            i = r_meas_start*steps
             while 0 < 1:
-                t = fp.read(4)
+                t = fp.read(4) #int nt
                 if(len(t) < 4):
                     break
                 nc = struct.unpack('i',t)[0]
+                #print(nc)
                 if(nc != i):
-                    print("WARNING: possible missing config:" +str(i))    
-                    #raise Exception('Config missing?')
+                    print(nc)
+                    raise Exception('Config ' + str(i) + ' missing?')
                 else:
-                    t = fp.read(8 * tmax * (nn + 1))
-                    t = fp.read(8 * tmax * (nn + 1))
-                    t = fp.read(8 * tmax * (nn + 1))
+                    t = fp.read(8 * tmax * (nn + 1))#wegwerfen, Wsl
+                    t = fp.read(8 * tmax * (nn + 1))#wegwerfen, Ysl
+                    t = fp.read(8 * tmax * (nn + 1))#NICHT wegwerfen, das ist Qsl, das, was wirr wollen
+                    #unpack the array of Qtops, on each timeslice t=0,...,tmax-1 and the 
+                    #measurement number in = 0...nn (see README.qcd1)
                     tmpd = struct.unpack('d' * tmax * (nn + 1), t)
                     Q.append(tmpd)
-                i += 1
-                #print(tmp)            
-
+                    i += 1*steps
+                #print(tmp)
+                #set step by reading all entries, then set stepsize, then check if everything is there
+                #make a dtr_config param, which is checked against difference...
+                #difference != step
+                #len(set(difference)) == 1
+                #!!!also implement the idl stuff for everything...
+        print(len(Q))
         print('max_t:', dn * (nn) * eps)
-
+        
         t_aim = (c * L) ** 2 / 8
 
         print('t_aim:', t_aim)
@@ -437,6 +502,8 @@ def read_qtop(path, prefix, version = "1.2",**kwargs):
         Q_sum = []
         for i, item in enumerate(Q):
             Q_sum.append([sum(item[current:current + tmax]) for current in range(0, len(item), tmax)])
+        print(len(Q_sum))
+        print(len(Q_sum[0]))
         Q_round = []
         for i in range(len(Q) // dtr_cnfg):
             Q_round.append(round(Q_sum[dtr_cnfg * i][index_aim]))
@@ -445,27 +512,38 @@ def read_qtop(path, prefix, version = "1.2",**kwargs):
 
         tmp = []
         for q in Q_round:
-            #floats = list(map(float, line.split()))
             if full:
-                tmp.append(q) #round(Q_sum[dtr_cnfg * i][index_aim])
+                tmp.append(q)
             else:
-                if int(q) == target: #round(Q_sum[dtr_cnfg * i][index_aim])
+                if int(q) == target:
                     tmp.append(1.0)
                 else:
                     tmp.append(0.0)
         
         truncated_file = file[:-7] #as seen in previous examples, this could lead to some weird behaviour... maybe -7 fixes this.
         print(truncated_file)
-        idx = truncated_file.index('r')
+        try:
+            idx = truncated_file.index('r')
+        except:
+            if not "names" in kwargs:
+                raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+        
         #print(truncated_file[idx:])
         # this might be a quite fishy way to find out which replicum we are actually talking about...
         if "r_start" in kwargs:
             tmp = tmp[r_start[int(truncated_file[idx+1:])-1]:]
         if "r_stop" in kwargs:
             tmp = tmp[:r_stop[int(truncated_file[idx+1:])-1]]
-
-        rep_names.append(truncated_file[:idx] + '|' + truncated_file[idx:])
-        
+        if "ens_name" in kwargs:
+            ens_name = kwargs.get("ens_name")
+        else:
+            ens_name = truncated_file[:idx]
+        #keyword "names" prevails over "ens_name"
+        if not "names" in kwargs:
+            rep_names.append(truncated_file[:idx] + '|' + truncated_file[idx:])
+        else:
+            names = kwargs.get("names")
+            rep_names = names
         deltas.append(np.array(tmp))
 
         

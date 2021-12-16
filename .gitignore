@@ -8,3 +8,4 @@ examples/B1k2_pcac_plateau.p
 examples/Untitled.*
 core.*
 *.swp
+htmlcov

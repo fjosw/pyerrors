@@ -1,4 +1,3 @@
-import gc
 from collections.abc import Sequence
 import warnings
 import numpy as np
@@ -11,7 +10,7 @@ from scipy.odr import ODR, Model, RealData
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
-from .obs import Obs, derived_observable, covariance, pseudo_Obs
+from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
 class Fit_result(Sequence):
@@ -88,8 +87,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         priors has to be a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
         0.548(23), 500(40) or 0.5(0.4)
-        It is important for the subsequent error estimation that the e_tag for the gamma method is large
-        enough.
     silent : bool, optional
         If true all output to the console is omitted (default False).
     initial_guess : list
@@ -109,6 +106,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
+    correlated_fit : bool
+        If true, use the full correlation matrix in the definition of the chisquare
+        (only works for prior==None and when no method is given, at the moment).
+    const_par : list, optional
+        List of N Obs that are used to constrain the last N fit parameters of func.
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -154,6 +156,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
+    const_par : list, optional
+        List of N Obs that are used to constrain the last N fit parameters of func.
 
     Based on the orthogonal distance regression module of scipy
     '''
@@ -169,10 +173,21 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
+    func_aug = func
+    if 'const_par' in kwargs:
+        const_par = kwargs['const_par']
+        if isinstance(const_par, Obs):
+            const_par = [const_par]
+
+        def func(p, x):
+            return func_aug(np.concatenate((p, [o.value for o in const_par])), x)
+    else:
+        const_par = []
+
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break
@@ -180,6 +195,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     n_parms = i
     if not silent:
         print('Fit with', n_parms, 'parameters')
+        if(len(const_par) > 0):
+            print('\t and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
 
     x_f = np.vectorize(lambda o: o.value)(x)
     dx_f = np.vectorize(lambda o: o.dvalue)(x)
@@ -195,7 +212,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
         if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
+            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
         x0 = [1] * n_parms
 
@@ -222,10 +239,16 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         raise Exception('The minimization procedure did not converge.')
 
     m = x_f.size
+    n_parms_aug = n_parms + len(const_par)
 
     def odr_chisquare(p):
         model = func(p[:n_parms], p[n_parms:].reshape(x_shape))
         chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((x_f - p[n_parms:].reshape(x_shape)) / dx_f) ** 2)
+        return chisq
+
+    def odr_chisquare_aug(p):
+        model = func_aug(np.concatenate((p[:n_parms_aug], [o.value for o in const_par])), p[n_parms_aug:].reshape(x_shape))
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((x_f - p[n_parms_aug:].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
     if kwargs.get('expected_chisquare') is True:
@@ -254,31 +277,32 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
             print('chisquare/expected_chisquare:',
                   output.chisquare_by_expected_chisquare)
 
-    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((out.beta, out.xplus.ravel()))))
+    fitp = np.concatenate((out.beta, [o.value for o in const_par]))
+    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare_aug))(np.concatenate((fitp, out.xplus.ravel()))))
 
     def odr_chisquare_compact_x(d):
-        model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
+        model = func_aug(d[:n_parms_aug], d[n_parms_aug:n_parms_aug + m].reshape(x_shape))
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms_aug + m:].reshape(x_shape) - d[n_parms_aug:n_parms_aug + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((out.beta, out.xplus.ravel(), x_f.ravel())))
+    jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
 
-    deriv_x = -hess_inv @ jac_jac_x[:n_parms + m, n_parms + m:]
+    deriv_x = -hess_inv @ jac_jac_x[:n_parms_aug + m, n_parms_aug + m:]
 
     def odr_chisquare_compact_y(d):
-        model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
-        chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
+        model = func_aug(d[:n_parms_aug], d[n_parms_aug:n_parms_aug + m].reshape(x_shape))
+        chisq = anp.sum(((d[n_parms_aug + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms_aug:n_parms_aug + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((out.beta, out.xplus.ravel(), y_f)))
+    jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((fitp, out.xplus.ravel(), y_f)))
 
-    deriv_y = -hess_inv @ jac_jac_y[:n_parms + m, n_parms + m:]
+    deriv_y = -hess_inv @ jac_jac_y[:n_parms_aug + m, n_parms_aug + m:]
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(out.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda my_var, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
 
-    output.fit_parameters = result
+    output.fit_parameters = result + const_par
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
@@ -296,9 +320,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     output.fit_function = func
 
-    if Obs.e_tag_global < 4:
-        warnings.warn("e_tag_global is smaller than 4, this can cause problems when calculating errors from fits with priors", RuntimeWarning)
-
     x = np.asarray(x)
 
     if not callable(func):
@@ -307,7 +328,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     for i in range(100):
         try:
             func(np.arange(i), 0)
-        except:
+        except Exception:
             pass
         else:
             break
@@ -331,7 +352,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
             loc_priors.append(i_prior)
         else:
             loc_val, loc_dval = extract_val_and_dval(i_prior)
-            loc_priors.append(pseudo_Obs(loc_val, loc_dval, 'p' + str(i_n)))
+            loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
 
     output.priors = loc_priors
 
@@ -365,13 +386,15 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('Method: migrad')
 
-    m = iminuit.Minuit.from_array_func(chisqfunc, x0, error=np.asarray(x0) * 0.01, errordef=1, print_level=0)
+    m = iminuit.Minuit(chisqfunc, x0)
+    m.errordef = 1
+    m.print_level = 0
     if 'tol' in kwargs:
         m.tol = kwargs.get('tol')
     else:
         m.tol = 1e-4
     m.migrad()
-    params = np.asarray(m.values.values())
+    params = np.asarray(m.values)
 
     output.chisquare_by_dof = m.fval / len(x)
 
@@ -380,7 +403,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
 
-    if not m.get_fmin().is_valid:
+    if not m.fmin.is_valid:
         raise Exception('The minimization procedure did not converge.')
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(params))
@@ -396,7 +419,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(params[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y) + list(loc_priors), man_grad=[0] + list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
 
     output.fit_parameters = result
     output.chisquare = chisqfunc(np.asarray(params))
@@ -432,10 +455,21 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
+    func_aug = func
+    if 'const_par' in kwargs:
+        const_par = kwargs['const_par']
+        if isinstance(const_par, Obs):
+            const_par = [const_par]
+
+        def func(p, x):
+            return func_aug(np.concatenate((p, [o.value for o in const_par])), x)
+    else:
+        const_par = []
+
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break
@@ -444,6 +478,8 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     if not silent:
         print('Fit with', n_parms, 'parameters')
+        if(len(const_par) > 0):
+            print('\t and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
 
     y_f = [o.value for o in y]
     dy_f = [o.dvalue for o in y]
@@ -454,14 +490,44 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
         if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
+            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
         x0 = [0.1] * n_parms
 
-    def chisqfunc(p):
-        model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-        return chisq
+    if kwargs.get('correlated_fit') is True:
+        cov = covariance_matrix(y)
+        covdiag = np.diag(1. / np.sqrt(np.diag(cov)))
+        corr = np.copy(cov)
+        for i in range(len(y)):
+            for j in range(len(y)):
+                corr[i][j] = cov[i][j] / np.sqrt(cov[i][i] * cov[j][j])
+        condn = np.linalg.cond(corr)
+        if condn > 1e4:
+            warnings.warn("Correlation matrix may be ill-conditioned! condition number: %1.2e" % (condn), RuntimeWarning)
+        chol = np.linalg.cholesky(corr)
+        chol_inv = np.linalg.inv(chol)
+        chol_inv = np.dot(chol_inv, covdiag)
+
+        def chisqfunc(p):
+            model = func(p, x)
+            chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
+            return chisq
+
+        def chisqfunc_aug(p):
+            model = func_aug(np.concatenate((p, [o.value for o in const_par])), x)
+            chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
+            return chisq
+
+    else:
+        def chisqfunc(p):
+            model = func(p, x)
+            chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+            return chisq
+
+        def chisqfunc_aug(p):
+            model = func_aug(np.concatenate((p, [o.value for o in const_par])), x)
+            chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+            return chisq
 
     if 'method' in kwargs:
         output.method = kwargs.get('method')
@@ -482,10 +548,17 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         if not silent:
             print('Method: Levenberg-Marquardt')
 
-        def chisqfunc_residuals(p):
-            model = func(p, x)
-            chisq = ((y_f - model) / dy_f)
-            return chisq
+        if kwargs.get('correlated_fit') is True:
+            def chisqfunc_residuals(p):
+                model = func(p, x)
+                chisq = anp.dot(chol_inv, (y_f - model))
+                return chisq
+
+        else:
+            def chisqfunc_residuals(p):
+                model = func(p, x)
+                chisq = ((y_f - model) / dy_f)
+                return chisq
 
         fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 
@@ -507,32 +580,42 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
 
     if kwargs.get('expected_chisquare') is True:
-        W = np.diag(1 / np.asarray(dy_f))
-        cov = covariance_matrix(y)
-        A = W @ jacobian(func)(fit_result.x, x)
-        P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
-        expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
-        output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
-        if not silent:
-            print('chisquare/expected_chisquare:',
-                  output.chisquare_by_expected_chisquare)
+        if kwargs.get('correlated_fit') is not True:
+            W = np.diag(1 / np.asarray(dy_f))
+            cov = covariance_matrix(y)
+            A = W @ jacobian(func)(fit_result.x, x)
+            P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+            expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
+            output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
+            if not silent:
+                print('chisquare/expected_chisquare:',
+                      output.chisquare_by_expected_chisquare)
 
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fit_result.x))
+    fitp = np.concatenate((fit_result.x, [o.value for o in const_par]))
+    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc_aug))(fitp))
 
-    def chisqfunc_compact(d):
-        model = func(d[:n_parms], x)
-        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
-        return chisq
+    n_parms_aug = n_parms + len(const_par)
+    if kwargs.get('correlated_fit') is True:
+        def chisqfunc_compact(d):
+            model = func_aug(d[:n_parms_aug], x)
+            chisq = anp.sum(anp.dot(chol_inv, (d[n_parms_aug:] - model)) ** 2)
+            return chisq
 
-    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fit_result.x, y_f)))
+    else:
+        def chisqfunc_compact(d):
+            model = func_aug(d[:n_parms_aug], x)
+            chisq = anp.sum(((d[n_parms_aug:] - model) / dy_f) ** 2)
+            return chisq
 
-    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
+    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
+
+    deriv = -hess_inv @ jac_jac[:n_parms_aug, n_parms_aug:]
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(fit_result.x[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y), man_grad=[0] + list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * fit_result.x[i], list(y), man_grad=list(deriv[i])))
 
-    output.fit_parameters = result
+    output.fit_parameters = result + const_par
 
     output.chisquare = chisqfunc(fit_result.x)
     output.dof = x.shape[-1] - n_parms
@@ -564,10 +647,10 @@ def fit_lin(x, y, **kwargs):
         return y
 
     if all(isinstance(n, Obs) for n in x):
-        out = odr_fit(x, y, f, **kwargs)
+        out = total_least_squares(x, y, f, **kwargs)
         return out.fit_parameters
     elif all(isinstance(n, float) or isinstance(n, int) for n in x) or isinstance(x, np.ndarray):
-        out = standard_fit(x, y, f, **kwargs)
+        out = least_squares(x, y, f, **kwargs)
         return out.fit_parameters
     else:
         raise Exception('Unsupported types for x')
@@ -596,7 +679,7 @@ def qqplot(x, o_y, func, p):
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')
     plt.legend()
-    plt.show()
+    plt.draw()
 
 
 def residual_plot(x, y, func, fit_res):
@@ -625,7 +708,7 @@ def residual_plot(x, y, func, fit_res):
     ax1.set_xlim([xstart, xstop])
     ax1.set_ylabel('Residuals')
     plt.subplots_adjust(wspace=None, hspace=None)
-    plt.show()
+    plt.draw()
 
 
 def covariance_matrix(y):
@@ -657,150 +740,3 @@ def error_band(x, func, beta):
     err = np.array(err)
 
     return err
-
-
-def ks_test(obs=None):
-    """Performs a Kolmogorov–Smirnov test for the Q-values of all fit object.
-
-    If no list is given all Obs in memory are used.
-
-    Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.
-    """
-
-    raise Exception('Not yet implemented')
-
-    if obs is None:
-        obs_list = []
-        for obj in gc.get_objects():
-            if isinstance(obj, Obs):
-                obs_list.append(obj)
-    else:
-        obs_list = obs
-
-    # TODO: Rework to apply to Q-values of all fits in memory
-    Qs = []
-    for obs_i in obs_list:
-        for ens in obs_i.e_names:
-            if obs_i.e_Q[ens] is not None:
-                Qs.append(obs_i.e_Q[ens])
-
-    bins = len(Qs)
-    x = np.arange(0, 1.001, 0.001)
-    plt.plot(x, x, 'k', zorder=1)
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
-    plt.xlabel('Q value')
-    plt.ylabel('Cumulative probability')
-    plt.title(str(bins) + ' Q values')
-
-    n = np.arange(1, bins + 1) / np.float64(bins)
-    Xs = np.sort(Qs)
-    plt.step(Xs, n)
-    diffs = n - Xs
-    loc_max_diff = np.argmax(np.abs(diffs))
-    loc = Xs[loc_max_diff]
-    plt.annotate(s='', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
-    plt.show()
-
-    print(scipy.stats.kstest(Qs, 'uniform'))
-
-
-def fit_general(x, y, func, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
-
-    Plausibility of the results should be checked. To control the numerical differentiation
-    the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.
-
-    func has to be of the form
-
-    def func(a, x):
-        y = a[0] + a[1] * x + a[2] * np.sinh(x)
-        return y
-
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-    x can either be a list of floats in which case no xerror is assumed, or
-    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
-
-    Keyword arguments
-    -----------------
-    silent -- If true all output to the console is omitted (default False).
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear fits
-                     with many parameters.
-    """
-
-    warnings.warn("New fit functions with exact error propagation are now available as alternative.", DeprecationWarning)
-
-    if not callable(func):
-        raise TypeError('func has to be a function.')
-
-    for i in range(10):
-        try:
-            func(np.arange(i), 0)
-        except:
-            pass
-        else:
-            break
-    n_parms = i
-    if not silent:
-        print('Fit with', n_parms, 'parameters')
-
-    global print_output, beta0
-    print_output = 1
-    if 'initial_guess' in kwargs:
-        beta0 = kwargs.get('initial_guess')
-        if len(beta0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
-    else:
-        beta0 = np.arange(n_parms)
-
-    if len(x) != len(y):
-        raise Exception('x and y have to have the same length')
-
-    if all(isinstance(n, Obs) for n in x):
-        obs = x + y
-        x_constants = None
-        xerr = [o.dvalue for o in x]
-        yerr = [o.dvalue for o in y]
-    elif all(isinstance(n, float) or isinstance(n, int) for n in x) or isinstance(x, np.ndarray):
-        obs = y
-        x_constants = x
-        xerr = None
-        yerr = [o.dvalue for o in y]
-    else:
-        raise Exception('Unsupported types for x')
-
-    def do_the_fit(obs, **kwargs):
-
-        global print_output, beta0
-
-        func = kwargs.get('function')
-        yerr = kwargs.get('yerr')
-        length = len(yerr)
-
-        xerr = kwargs.get('xerr')
-
-        if length == len(obs):
-            assert 'x_constants' in kwargs
-            data = RealData(kwargs.get('x_constants'), obs, sy=yerr)
-            fit_type = 2
-        elif length == len(obs) // 2:
-            data = RealData(obs[:length], obs[length:], sx=xerr, sy=yerr)
-            fit_type = 0
-        else:
-            raise Exception('x and y do not fit together.')
-
-        model = Model(func)
-
-        odr = ODR(data, model, beta0, partol=np.finfo(np.float64).eps)
-        odr.set_job(fit_type=fit_type, deriv=1)
-        output = odr.run()
-        if print_output and not silent:
-            print(*output.stopreason)
-            print('chisquare/d.o.f.:', output.res_var)
-            print_output = 0
-        beta0 = output.beta
-        return output.beta[kwargs.get('n')]
-    res = []
-    for n in range(n_parms):
-        res.append(derived_observable(do_the_fit, obs, function=func, xerr=xerr, yerr=yerr, x_constants=x_constants, num_grad=True, n=n, **kwargs))
-    return res

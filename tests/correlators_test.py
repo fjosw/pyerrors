@@ -79,6 +79,26 @@ def test_T_symmetry():
         T_symmetric = my_corr.T_symmetry(my_corr)
 
 
+def test_fit_correlator():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(2.042345, 0.0004, 't')])
+
+    def f(a, x):
+        y = a[0] + a[1] * x
+        return y
+
+    fit_res = my_corr.fit(f)
+    assert fit_res[0] == my_corr[0]
+    assert fit_res[1] == my_corr[1] - my_corr[0]
+
+
+def test_plateau():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(1.042345, 0.008, 't')])
+
+    my_corr.plateau([0, 1], method="fit")
+    my_corr.plateau([0, 1], method="mean")
+    with pytest.raises(Exception):
+        my_corr.plateau()
+
 def test_utility():
     corr_content = []
     for t in range(8):

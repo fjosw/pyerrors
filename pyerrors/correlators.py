@@ -3,7 +3,8 @@ import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
-from .obs import Obs, dump_object, reweight, correlate
+from .obs import Obs, reweight, correlate
+from .misc import dump_object
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root
@@ -442,7 +443,7 @@ class Corr:
             if self.prange:
                 fitrange = self.prange
             else:
-                fitrange = [0, self.T]
+                fitrange = [0, self.T - 1]
 
         xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
@@ -535,7 +536,7 @@ class Corr:
                     y_min = min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
                     y_max = max([(x[0].value + x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
                     ax1.set_ylim([y_min - 0.1 * (y_max - y_min), y_max + 0.1 * (y_max - y_min)])
-                except:
+                except Exception:
                     pass
             else:
                 ax1.set_ylim(y_range)

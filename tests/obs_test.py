@@ -9,6 +9,50 @@ import pytest
 np.random.seed(0)
 
 
+def test_Obs_exceptions():
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], ['1', '2'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], ['1'], idl=[])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10), np.random.rand(10)], ['1', '1'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10), np.random.rand(10)], ['1', 1])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(10)], [1])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(4)], ['name'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[5, 3, 2 ,4 ,1]])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=['t'])
+    with pytest.raises(Exception):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[range(1, 8)])
+
+    my_obs = pe.Obs([np.random.rand(6)], ['name'])
+    my_obs._value = 0.0
+    my_obs.details()
+    with pytest.raises(Exception):
+        my_obs.plot_tauint()
+    with pytest.raises(Exception):
+        my_obs.plot_rho()
+    with pytest.raises(Exception):
+        my_obs.plot_rep_dist()
+    with pytest.raises(Exception):
+        my_obs.plot_piechart()
+    with pytest.raises(Exception):
+        my_obs.gamma_method(S='2.3')
+    with pytest.raises(Exception):
+        my_obs.gamma_method(tau_exp=2.3)
+    my_obs.gamma_method()
+    my_obs.details()
+    my_obs.plot_rep_dist()
+
+    my_obs += pe.Obs([np.random.rand(6)], ['name2|r1'], idl=[[1, 3, 4, 5, 6, 7]])
+    my_obs += pe.Obs([np.random.rand(6)], ['name2|r2'])
+    my_obs.gamma_method()
+    my_obs.details()
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -93,6 +137,18 @@ def test_gamma_method():
         assert test_obs.e_tauint['t'] - 0.5 <= test_obs.e_dtauint['t']
         test_obs.gamma_method(tau_exp=10)
         assert test_obs.e_tauint['t'] - 10.5 <= test_obs.e_dtauint['t']
+
+
+def test_gamma_method_no_windowing():
+    for iteration in range(50):
+        obs = pe.Obs([np.random.normal(1.02, 0.02, 733 + np.random.randint(1000))], ['ens'])
+        obs.gamma_method(S=0)
+        assert obs.e_tauint['ens'] == 0.5
+        assert np.isclose(np.sqrt(np.var(obs.deltas['ens'], ddof=1) / obs.shape['ens']), obs.dvalue)
+        obs.gamma_method(S=1.1)
+        assert obs.e_tauint['ens'] > 0.5
+    with pytest.raises(Exception):
+        obs.gamma_method(S=-0.2)
 
 
 def test_gamma_method_persistance():
@@ -183,7 +239,7 @@ def test_covariance_is_variance():
     test_obs.gamma_method()
     assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
     test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
-    test_obs.gamma_method(e_tag=0)
+    test_obs.gamma_method()
     assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
 
 
@@ -221,7 +277,7 @@ def test_gamma_method():
     test_obs = pe.pseudo_Obs(value, dvalue, 't', int(1000 * (1 + np.random.rand())))
 
     # Test if the error is processed correctly
-    test_obs.gamma_method(e_tag=1)
+    test_obs.gamma_method()
     assert np.abs(test_obs.value - value) < 1e-12
     assert abs(test_obs.dvalue - dvalue) < 1e-10 * dvalue
 
@@ -241,7 +297,7 @@ def test_derived_observables():
     assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float64).eps * d_Obs_ad.dvalue
 
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
-    i_am_one.gamma_method(e_tag=1)
+    i_am_one.gamma_method()
 
     assert i_am_one.value == 1.0
     assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
@@ -290,15 +346,17 @@ def test_overloaded_functions():
     for i, item in enumerate(funcs):
         ad_obs = item(test_obs)
         fd_obs = pe.derived_observable(lambda x, **kwargs: item(x[0]), [test_obs], num_grad=True)
-        ad_obs.gamma_method(S=0.01, e_tag=1)
+        ad_obs.gamma_method(S=0.01)
         assert np.max((ad_obs.deltas['t'] - fd_obs.deltas['t']) / ad_obs.deltas['t']) < 1e-8, item.__name__
         assert np.abs((ad_obs.value - item(val)) / ad_obs.value) < 1e-10, item.__name__
         assert np.abs(ad_obs.dvalue - dval * np.abs(deriv[i](val))) < 1e-6, item.__name__
 
 
 def test_utils():
+    zero_pseudo_obs = pe.pseudo_Obs(1.0, 0.0, 'null')
     my_obs = pe.pseudo_Obs(1.0, 0.5, 't|r01')
     my_obs += pe.pseudo_Obs(1.0, 0.5, 't|r02')
+    str(my_obs)
     for tau_exp in [0, 5]:
         my_obs.gamma_method(tau_exp=tau_exp)
         my_obs.tag = "Test description"
@@ -313,6 +371,8 @@ def test_utils():
         my_obs.plot_piechart()
         assert my_obs > (my_obs - 1)
         assert my_obs < (my_obs + 1)
+        float(my_obs)
+        str(my_obs)
 
 
 def test_cobs():
@@ -360,6 +420,15 @@ def test_reweighting():
     r_obs2 = r_obs[0] * my_obs
     assert r_obs2.reweighted
 
+    my_irregular_obs = pe.Obs([np.random.rand(500)], ['t'], idl=[range(1, 1001, 2)])
+    assert not my_irregular_obs.reweighted
+    r_obs = pe.reweight(my_obs, [my_irregular_obs], all_configs=True)
+    r_obs = pe.reweight(my_obs, [my_irregular_obs], all_configs=False)
+    r_obs = pe.reweight(my_obs, [my_obs])
+    assert r_obs[0].reweighted
+    r_obs2 = r_obs[0] * my_obs
+    assert r_obs2.reweighted
+
 
 def test_merge_obs():
     my_obs1 = pe.Obs([np.random.rand(100)], ['t'])
@@ -367,6 +436,16 @@ def test_merge_obs():
     merged = pe.merge_obs([my_obs1, my_obs2])
     diff = merged - my_obs2 - my_obs1
     assert diff == -(my_obs1.value + my_obs2.value) / 2
+
+
+def test_merge_obs_r_values():
+    a1 = pe.pseudo_Obs(1.1, .1, 'a|1')
+    a2 = pe.pseudo_Obs(1.2, .1, 'a|2')
+    a = pe.merge_obs([a1, a2])
+
+    assert np.isclose(a.r_values['a|1'], a1.value)
+    assert np.isclose(a.r_values['a|2'], a2.value)
+    assert np.isclose(a.value, np.mean([a1.value, a2.value]))
 
 
 def test_correlate():
@@ -397,6 +476,7 @@ def test_irregular_error_propagation():
                 pe.Obs([np.random.rand(6)], ['t'], idl=[[4, 18, 27, 29, 57, 80]]),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[list(range(1, 26)) + list(range(50, 100, 2))])]
     for obs1 in obs_list:
+        obs1.details()
         for obs2 in obs_list:
             assert obs1 == (obs1 / obs2) * obs2
             assert obs1 == (obs1 * obs2) / obs2
@@ -447,8 +527,8 @@ def test_gamma_method_irregular():
     idx2 = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr, zero_arr2], ['a1', 'a2'], idl=[idx, idx2])
 
-    afull.gamma_method(e_tag=1)
-    a.gamma_method(e_tag=1)
+    afull.gamma_method()
+    a.gamma_method()
 
     expe = (afull.dvalue * np.sqrt(N / np.sum(configs)))
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
@@ -462,20 +542,20 @@ def test_gamma_method_irregular():
     arr = np.random.normal(1, .2, size=N)
     carr = gen_autocorrelated_array(arr, .346)
     a = pe.Obs([carr], ['a'])
-    a.gamma_method(e_tag=1)
+    a.gamma_method()
 
     ae = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 0]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 0]])
-    ae.gamma_method(e_tag=1)
+    ae.gamma_method()
 
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
-    ao.gamma_method(e_tag=1)
+    ao.gamma_method()
 
     assert(ae.e_tauint['a'] < a.e_tauint['a'])
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
 
 
-def test_covariance2_symmetry():
+def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))
     test_obs1 = pe.pseudo_Obs(value1, dvalue1, 't')
@@ -484,8 +564,8 @@ def test_covariance2_symmetry():
     dvalue2 = np.abs(np.random.normal(0, 1))
     test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
     test_obs2.gamma_method()
-    cov_ab = pe.covariance2(test_obs1, test_obs2)
-    cov_ba = pe.covariance2(test_obs2, test_obs1)
+    cov_ab = pe.covariance(test_obs1, test_obs2)
+    cov_ba = pe.covariance(test_obs2, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
@@ -498,12 +578,18 @@ def test_covariance2_symmetry():
     idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr], ['t'], idl=[idx])
     a.gamma_method()
-    assert np.isclose(a.dvalue**2, pe.covariance2(a, a), atol=100, rtol=1e-4)
+    assert np.isclose(a.dvalue**2, pe.covariance(a, a), atol=100, rtol=1e-4)
 
-    cov_ab = pe.covariance2(test_obs1, a)
-    cov_ba = pe.covariance2(a, test_obs1)
+    cov_ab = pe.covariance(test_obs1, a)
+    cov_ba = pe.covariance(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+
+
+def test_empty_obs():
+    o = pe.Obs([np.random.rand(100)], ['test'])
+    q = o + pe.Obs([], [])
+    assert q == o
 
 
 def test_jackknife():
@@ -522,3 +608,11 @@ def test_jackknife():
     my_new_obs = my_obs + pe.Obs([full_data], ['test2'])
     with pytest.raises(Exception):
         my_new_obs.export_jackknife()
+
+
+def test_import_jackknife():
+    full_data = np.random.normal(1.105, 0.021, 754)
+    my_obs = pe.Obs([full_data], ['test'])
+    my_jacks = my_obs.export_jackknife()
+    reconstructed_obs = pe.import_jackknife(my_jacks, 'test')
+    assert my_obs == reconstructed_obs

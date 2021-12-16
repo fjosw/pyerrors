@@ -1,5 +1,38 @@
+import pickle
 import numpy as np
 from .obs import Obs
+
+
+def dump_object(obj, name, **kwargs):
+    """Dump object into pickle file.
+
+    Parameters
+    ----------
+    obj : object
+        object to be saved in the pickle file
+    name : str
+        name of the file
+    path : str
+        specifies a custom path for the file (default '.')
+    """
+    if 'path' in kwargs:
+        file_name = kwargs.get('path') + '/' + name + '.p'
+    else:
+        file_name = name + '.p'
+    with open(file_name, 'wb') as fb:
+        pickle.dump(obj, fb)
+
+
+def load_object(path):
+    """Load object from pickle file.
+
+    Parameters
+    ----------
+    path : str
+        path to the file
+    """
+    with open(path, 'rb') as file:
+        return pickle.load(file)
 
 
 def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
@@ -7,12 +40,17 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
 
     Parameters
     ----------
-    means -- list containing the mean value of each observable.
-    cov -- covariance matrix for the data to be geneated.
-    name -- ensemble name for the data to be geneated.
-    tau -- can either be a real number or a list with an entry for
-           every dataset.
-    samples -- number of samples to be generated for each observable.
+    means : list
+        list containing the mean value of each observable.
+    cov : numpy.ndarray
+        covariance matrix for the data to be generated.
+    name : str
+        ensemble name for the data to be geneated.
+    tau : float or list
+        can either be a real number or a list with an entry for
+        every dataset.
+    samples : int
+        number of samples to be generated for each observable.
     """
 
     assert len(means) == cov.shape[-1]

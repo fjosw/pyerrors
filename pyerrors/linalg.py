@@ -1,128 +1,18 @@
 import numpy as np
-from autograd import jacobian
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs, _merge_idx, _expand_deltas_for_merge, _filter_zeroes
-
-from functools import partial
-from autograd.extend import defvjp
-
-
-def derived_array(func, data, **kwargs):
-    """Construct a derived Obs for a matrix valued function according to func(data, **kwargs) using automatic differentiation.
-
-    Parameters
-    ----------
-    func : object
-        arbitrary function of the form func(data, **kwargs). For the
-        automatic differentiation to work, all numpy functions have to have
-        the autograd wrapper (use 'import autograd.numpy as anp').
-    data : list
-        list of Obs, e.g. [obs1, obs2, obs3].
-    man_grad : list
-        manually supply a list or an array which contains the jacobian
-        of func. Use cautiously, supplying the wrong derivative will
-        not be intercepted.
-    """
-
-    data = np.asarray(data)
-    raveled_data = data.ravel()
-
-    # Workaround for matrix operations containing non Obs data
-    for i_data in raveled_data:
-        if isinstance(i_data, Obs):
-            first_name = i_data.names[0]
-            first_shape = i_data.shape[first_name]
-            first_idl = i_data.idl[first_name]
-            break
-
-    for i in range(len(raveled_data)):
-        if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
-
-    n_obs = len(raveled_data)
-    new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
-
-    is_merged = len(list(filter(lambda o: o.is_merged is True, raveled_data))) > 0
-    reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
-    new_idl_d = {}
-    for name in new_names:
-        idl = []
-        for i_data in raveled_data:
-            tmp = i_data.idl.get(name)
-            if tmp is not None:
-                idl.append(tmp)
-        new_idl_d[name] = _merge_idx(idl)
-        if not is_merged:
-            is_merged = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
-
-    if data.ndim == 1:
-        values = np.array([o.value for o in data])
-    else:
-        values = np.vectorize(lambda x: x.value)(data)
-
-    new_values = func(values, **kwargs)
-
-    new_r_values = {}
-    for name in new_names:
-        tmp_values = np.zeros(n_obs)
-        for i, item in enumerate(raveled_data):
-            tmp = item.r_values.get(name)
-            if tmp is None:
-                tmp = item.value
-            tmp_values[i] = tmp
-        tmp_values = np.array(tmp_values).reshape(data.shape)
-        new_r_values[name] = func(tmp_values, **kwargs)
-
-    if 'man_grad' in kwargs:
-        deriv = np.asarray(kwargs.get('man_grad'))
-        if new_values.shape + data.shape != deriv.shape:
-            raise Exception('Manual derivative does not have correct shape.')
-    else:
-        deriv = jacobian(func)(values, **kwargs)
-
-    final_result = np.zeros(new_values.shape, dtype=object)
-
-    d_extracted = {}
-    for name in new_names:
-        d_extracted[name] = []
-        for i_dat, dat in enumerate(data):
-            ens_length = len(new_idl_d[name])
-            d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas[name], o.idl[name], o.shape[name], new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
-
-    for i_val, new_val in np.ndenumerate(new_values):
-        new_deltas = {}
-        for name in new_names:
-            ens_length = d_extracted[name][0].shape[-1]
-            new_deltas[name] = np.zeros(ens_length)
-            for i_dat, dat in enumerate(d_extracted[name]):
-                new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
-
-        new_samples = []
-        new_means = []
-        new_idl = []
-        if is_merged:
-            filtered_names, filtered_deltas, filtered_idl_d = _filter_zeroes(new_names, new_deltas, new_idl_d)
-        else:
-            filtered_names = new_names
-            filtered_deltas = new_deltas
-            filtered_idl_d = new_idl_d
-        for name in filtered_names:
-            new_samples.append(filtered_deltas[name])
-            new_means.append(new_r_values[name][i_val])
-            new_idl.append(filtered_idl_d[name])
-        final_result[i_val] = Obs(new_samples, filtered_names, means=new_means, idl=new_idl)
-        final_result[i_val]._value = new_val
-        final_result[i_val].is_merged = is_merged
-        final_result[i_val].reweighted = reweighted
-
-    return final_result
+from .obs import derived_observable, CObs, Obs, import_jackknife
 
 
 def matmul(*operands):
     """Matrix multiply all operands.
 
-       Supports real and complex valued matrices and is faster compared to
-       standard multiplication via the @ operator.
+    Parameters
+    ----------
+    operands : numpy.ndarray
+        Arbitrary number of 2d-numpy arrays which can be real or complex
+        Obs valued.
+
+    This implementation is faster compared to standard multiplication via the @ operator.
     """
     if any(isinstance(o[0, 0], CObs) for o in operands):
         extended_operands = []
@@ -152,8 +42,8 @@ def matmul(*operands):
         def multi_dot_i(operands):
             return multi_dot(operands, 'Imag')
 
-        Nr = derived_array(multi_dot_r, extended_operands)
-        Ni = derived_array(multi_dot_i, extended_operands)
+        Nr = derived_observable(multi_dot_r, extended_operands, array_mode=True)
+        Ni = derived_observable(multi_dot_i, extended_operands, array_mode=True)
 
         res = np.empty_like(Nr)
         for (n, m), entry in np.ndenumerate(Nr):
@@ -166,7 +56,142 @@ def matmul(*operands):
             for op in operands[1:]:
                 stack = stack @ op
             return stack
-        return derived_array(multi_dot, operands)
+        return derived_observable(multi_dot, operands, array_mode=True)
+
+
+def jack_matmul(*operands):
+    """Matrix multiply both operands making use of the jackknife approximation.
+
+    Parameters
+    ----------
+    operands : numpy.ndarray
+        Arbitrary number of 2d-numpy arrays which can be real or complex
+        Obs valued.
+
+    For large matrices this is considerably faster compared to matmul.
+    """
+
+    def _exp_to_jack(matrix):
+        base_matrix = np.empty_like(matrix)
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix[index] = entry.export_jackknife()
+        return base_matrix
+
+    def _imp_from_jack(matrix, name, idl):
+        base_matrix = np.empty_like(matrix)
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix[index] = import_jackknife(entry, name, [idl])
+        return base_matrix
+
+    def _exp_to_jack_c(matrix):
+        base_matrix = np.empty_like(matrix)
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix[index] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
+        return base_matrix
+
+    def _imp_from_jack_c(matrix, name, idl):
+        base_matrix = np.empty_like(matrix)
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix[index] = CObs(import_jackknife(entry.real, name, [idl]),
+                                      import_jackknife(entry.imag, name, [idl]))
+        return base_matrix
+
+    if any(isinstance(o.flat[0], CObs) for o in operands):
+        name = operands[0].flat[0].real.names[0]
+        idl = operands[0].flat[0].real.idl[name]
+
+        r = _exp_to_jack_c(operands[0])
+        for op in operands[1:]:
+            if isinstance(op.flat[0], CObs):
+                r = r @ _exp_to_jack_c(op)
+            else:
+                r = r @ op
+        return _imp_from_jack_c(r, name, idl)
+    else:
+        name = operands[0].flat[0].names[0]
+        idl = operands[0].flat[0].idl[name]
+
+        r = _exp_to_jack(operands[0])
+        for op in operands[1:]:
+            if isinstance(op.flat[0], Obs):
+                r = r @ _exp_to_jack(op)
+            else:
+                r = r @ op
+        return _imp_from_jack(r, name, idl)
+
+
+def einsum(subscripts, *operands):
+    """Wrapper for numpy.einsum
+
+    Parameters
+    ----------
+    subscripts : str
+        Subscripts for summation (see numpy documentation for details)
+    operands : numpy.ndarray
+        Arbitrary number of 2d-numpy arrays which can be real or complex
+        Obs valued.
+    """
+
+    def _exp_to_jack(matrix):
+        base_matrix = []
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix.append(entry.export_jackknife())
+        return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
+
+    def _exp_to_jack_c(matrix):
+        base_matrix = []
+        for index, entry in np.ndenumerate(matrix):
+            base_matrix.append(entry.real.export_jackknife() + 1j * entry.imag.export_jackknife())
+        return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
+
+    def _imp_from_jack(matrix, name, idl):
+        base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
+        for index in np.ndindex(matrix.shape[:-1]):
+            base_matrix[index] = import_jackknife(matrix[index], name, [idl])
+        return base_matrix
+
+    def _imp_from_jack_c(matrix, name, idl):
+        base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
+        for index in np.ndindex(matrix.shape[:-1]):
+            base_matrix[index] = CObs(import_jackknife(matrix[index].real, name, [idl]),
+                                      import_jackknife(matrix[index].imag, name, [idl]))
+        return base_matrix
+
+    for op in operands:
+        if isinstance(op.flat[0], CObs):
+            name = op.flat[0].real.names[0]
+            idl = op.flat[0].real.idl[name]
+            break
+        elif isinstance(op.flat[0], Obs):
+            name = op.flat[0].names[0]
+            idl = op.flat[0].idl[name]
+            break
+
+    conv_operands = []
+    for op in operands:
+        if isinstance(op.flat[0], CObs):
+            conv_operands.append(_exp_to_jack_c(op))
+        elif isinstance(op.flat[0], Obs):
+            conv_operands.append(_exp_to_jack(op))
+        else:
+            conv_operands.append(op)
+
+    tmp_subscripts = ','.join([o + '...' for o in subscripts.split(',')])
+    extended_subscripts = '->'.join([o + '...' for o in tmp_subscripts.split('->')[:-1]] + [tmp_subscripts.split('->')[-1]])
+    einsum_path = np.einsum_path(extended_subscripts, *conv_operands, optimize='optimal')[0]
+    jack_einsum = np.einsum(extended_subscripts, *conv_operands, optimize=einsum_path)
+
+    if jack_einsum.dtype == complex:
+        result = _imp_from_jack_c(jack_einsum, name, idl)
+    elif jack_einsum.dtype == float:
+        result = _imp_from_jack(jack_einsum, name, idl)
+    else:
+        raise Exception("Result has unexpected datatype")
+
+    if result.shape == ():
+        return result.flat[0]
+    else:
+        return result
 
 
 def inv(x):
@@ -179,7 +204,12 @@ def cholesky(x):
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 
-def scalar_mat_op(op, obs, **kwargs):
+def det(x):
+    """Determinant of Obs valued matrices."""
+    return _scalar_mat_op(anp.linalg.det, x)
+
+
+def _scalar_mat_op(op, obs, **kwargs):
     """Computes the matrix to scalar operation op to a given matrix of Obs."""
     def _mat(x, **kwargs):
         dim = int(np.sqrt(len(x)))
@@ -221,7 +251,7 @@ def _mat_mat_op(op, obs, **kwargs):
         if kwargs.get('num_grad') is True:
             op_big_matrix = _num_diff_mat_mat_op(op, big_matrix, **kwargs)
         else:
-            op_big_matrix = derived_array(lambda x, **kwargs: op(x), [big_matrix])[0]
+            op_big_matrix = derived_observable(lambda x, **kwargs: op(x), [big_matrix], array_mode=True)[0]
         dim = op_big_matrix.shape[0]
         op_A = op_big_matrix[0: dim // 2, 0: dim // 2]
         op_B = op_big_matrix[dim // 2:, 0: dim // 2]
@@ -232,7 +262,7 @@ def _mat_mat_op(op, obs, **kwargs):
     else:
         if kwargs.get('num_grad') is True:
             return _num_diff_mat_mat_op(op, obs, **kwargs)
-        return derived_array(lambda x, **kwargs: op(x), [obs])[0]
+        return derived_observable(lambda x, **kwargs: op(x), [obs], array_mode=True)[0]
 
 
 def eigh(obs, **kwargs):
@@ -269,31 +299,6 @@ def svd(obs, **kwargs):
     s = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[1], obs)
     vh = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[2], obs)
     return (u, s, vh)
-
-
-def slogdet(obs, **kwargs):
-    """Computes the determinant of a matrix of Obs via np.linalg.slogdet."""
-    def _mat(x):
-        dim = int(np.sqrt(len(x)))
-        if np.sqrt(len(x)) != dim:
-            raise Exception('Input has to have dim**2 entries')
-
-        mat = []
-        for i in range(dim):
-            row = []
-            for j in range(dim):
-                row.append(x[j + dim * i])
-            mat.append(row)
-
-        (sign, logdet) = anp.linalg.slogdet(np.array(mat))
-        return sign * anp.exp(logdet)
-
-    if isinstance(obs, np.ndarray):
-        return derived_observable(_mat, (1 * (obs.ravel())).tolist(), **kwargs)
-    elif isinstance(obs, list):
-        return derived_observable(_mat, obs, **kwargs)
-    else:
-        raise TypeError('Unproper type of input.')
 
 
 # Variants for numerical differentiation
@@ -500,51 +505,3 @@ def _num_diff_svd(obs, **kwargs):
         res_mat2.append(row)
 
     return (np.array(res_mat0) @ np.identity(mid_index), np.array(res_mat1) @ np.identity(mid_index), np.array(res_mat2) @ np.identity(shape[1]))
-
-
-# This code block is directly taken from the current master branch of autograd and remains
-# only until the new version is released on PyPi
-_dot = partial(anp.einsum, '...ij,...jk->...ik')
-
-
-# batched diag
-def _diag(a):
-    return anp.eye(a.shape[-1]) * a
-
-
-# batched diagonal, similar to matrix_diag in tensorflow
-def _matrix_diag(a):
-    reps = anp.array(a.shape)
-    reps[:-1] = 1
-    reps[-1] = a.shape[-1]
-    newshape = list(a.shape) + [a.shape[-1]]
-    return _diag(anp.tile(a, reps).reshape(newshape))
-
-# https://arxiv.org/pdf/1701.00392.pdf Eq(4.77)
-# Note the formula from Sec3.1 in https://people.maths.ox.ac.uk/gilesm/files/NA-08-01.pdf is incomplete
-
-
-def grad_eig(ans, x):
-    """Gradient of a general square (complex valued) matrix"""
-    e, u = ans  # eigenvalues as 1d array, eigenvectors in columns
-    n = e.shape[-1]
-
-    def vjp(g):
-        ge, gu = g
-        ge = _matrix_diag(ge)
-        f = 1 / (e[..., anp.newaxis, :] - e[..., :, anp.newaxis] + 1.e-20)
-        f -= _diag(f)
-        ut = anp.swapaxes(u, -1, -2)
-        r1 = f * _dot(ut, gu)
-        r2 = -f * (_dot(_dot(ut, anp.conj(u)), anp.real(_dot(ut, gu)) * anp.eye(n)))
-        r = _dot(_dot(anp.linalg.inv(ut), ge + r1 + r2), ut)
-        if not anp.iscomplexobj(x):
-            r = anp.real(r)
-            # the derivative is still complex for real input (imaginary delta is allowed), real output
-            # but the derivative should be real in real input case when imaginary delta is forbidden
-        return r
-    return vjp
-
-
-defvjp(anp.linalg.eig, grad_eig)
-# End of the code block from autograd.master

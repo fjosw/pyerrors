@@ -65,14 +65,16 @@ class Corr:
 
     def __getitem__(self, idx):
         """Return the content of timeslice idx"""
-        if len(self.content[idx]) == 1:
+        if self.content[idx] is None:
+            return None
+        elif len(self.content[idx]) == 1:
             return self.content[idx][0]
         else:
             return self.content[idx]
 
     @property
     def reweighted(self):
-        bool_array = np.array([list(map(lambda x: x.reweighted, o)) for o in self.content])
+        bool_array = np.array([list(map(lambda x: x.reweighted, o)) for o in list(filter(None.__ne__, self.content))])
         if np.all(bool_array == 1):
             return True
         elif np.all(bool_array == 0):

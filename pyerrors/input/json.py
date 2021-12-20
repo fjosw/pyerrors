@@ -184,7 +184,7 @@ def create_json_string(ol, description='', indent=1):
         my_dict['padding_front'] = front_padding
         my_dict['padding_back'] = my_corr.T - back_padding_start
         if my_corr.tag:
-            my_dict['tag'].append(my_corr.tag)
+            my_dict['corr_tag'] = my_corr.tag
         if my_corr.reweighted:
             my_dict['reweighted'] = my_corr.reweighted
         return my_dict
@@ -396,7 +396,9 @@ def import_json_string(json_string, verbose=True, full_output=False):
 
     def get_corr_from_dict(o):
         ret = get_List_from_dict(o)
-        return Corr(ret, padding_front=o.get('padding_front', 0), padding_back=o.get('padding_back', 0))
+        my_corr = Corr(ret, padding_front=o.get('padding_front', 0), padding_back=o.get('padding_back', 0))
+        my_corr.tag = o.get('corr_tag', None)
+        return my_corr
 
     json_dict = json.loads(json_string)
 

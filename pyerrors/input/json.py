@@ -7,6 +7,7 @@ import datetime
 import platform
 import warnings
 from ..obs import Obs
+from ..correlators import Corr
 from ..covobs import Covobs
 from .. import version as pyerrorsversion
 
@@ -173,6 +174,21 @@ def create_json_string(ol, description='', indent=1):
             d['cdata'] = cdata
         return d
 
+    def write_corr_to_dict(my_corr):
+        if my_corr.N > 1:
+            raise Exception("Output for N>1 not implemented")
+        front_padding = next(i for i, j in enumerate(my_corr.content) if j)
+        back_padding_start = front_padding + next((i for i, j in enumerate(my_corr.content[front_padding:]) if not j), my_corr.T)
+        my_dict = write_List_to_dict([o[0] for o in my_corr[front_padding:back_padding_start]])
+        my_dict['type'] = 'Corr'
+        my_dict['padding_front'] = front_padding
+        my_dict['padding_back'] = my_corr.T - back_padding_start
+        if my_corr.tag:
+            my_dict['tag'].append(my_corr.tag)
+        if my_corr.reweighted:
+            my_dict['reweighted'] = my_corr.reweighted
+        return my_dict
+
     if not isinstance(ol, list):
         ol = [ol]
 
@@ -193,6 +209,10 @@ def create_json_string(ol, description='', indent=1):
             d['obsdata'].append(write_List_to_dict(io))
         elif isinstance(io, np.ndarray):
             d['obsdata'].append(write_Array_to_dict(io))
+        elif isinstance(io, Corr):
+            d['obsdata'].append(write_corr_to_dict(io))
+        else:
+            raise Exception("Unexpected type.")
 
     jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
 
@@ -374,6 +394,10 @@ def import_json_string(json_string, verbose=True, full_output=False):
             ret[-1].tag = taglist[i]
         return np.reshape(ret, layout)
 
+    def get_corr_from_dict(o):
+        ret = get_List_from_dict(o)
+        return Corr(ret, padding_front=o.get('padding_front', 0), padding_back=o.get('padding_back', 0))
+
     json_dict = json.loads(json_string)
 
     prog = json_dict.get('program', '')
@@ -400,6 +424,10 @@ def import_json_string(json_string, verbose=True, full_output=False):
             ol.append(get_List_from_dict(io))
         elif io['type'] == 'Array':
             ol.append(get_Array_from_dict(io))
+        elif io['type'] == 'Corr':
+            ol.append(get_corr_from_dict(io))
+        else:
+            raise Exception("Unkown datatype.")
 
     if full_output:
         retd = {}

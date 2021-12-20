@@ -97,7 +97,7 @@ def test_json_corr_io():
 
     for obs_list in [my_list, rw_list]:
         for tag in [None, "test"]:
-            my_list[3].tag = tag
+            obs_list[3].tag = tag
             for fp in [0, 2]:
                 for bp in [0, 7]:
                     for corr_tag in [None, 'my_Corr_tag']:

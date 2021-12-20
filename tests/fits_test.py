@@ -93,10 +93,9 @@ def test_correlated_fit():
     r = np.zeros((N, N))
     for i in range(N):
         for j in range(N):
-            r[i, j] = np.exp(-0.1 * np.fabs(i - j))
+            r[i, j] = np.exp(-0.8 * np.fabs(i - j))
 
     errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2])
-    errl *= 4
     for i in range(N):
         for j in range(N):
             r[i, j] *= errl[i] * errl[j]
@@ -127,7 +126,7 @@ def test_correlated_fit():
         for i in range(2):
             diff = fitp[i] - fitpc[i]
             diff.gamma_method()
-            assert(diff.is_zero_within_error(sigma=1.5))
+            assert(diff.is_zero_within_error(sigma=5))
 
 
 def test_total_least_squares():

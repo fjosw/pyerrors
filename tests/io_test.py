@@ -93,15 +93,18 @@ def test_json_string_reconstruction():
 
 def test_json_corr_io():
     my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']) for o in range(8)]
+    rw_list = pe.reweight(pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']), my_list)
 
-    for tag in [None, "test"]:
-        my_list[3].tag = tag
-        for fp in [0, 2]:
-            for bp in [0, 7]:
-                for corr_tag in [None, 'my_Corr_tag']:
-                    my_corr = pe.Corr(my_list, padding_front=fp, padding_back=bp)
-                    my_corr.tag = corr_tag
-                    pe.input.json.dump_to_json(my_corr, 'corr')
-                    recover = pe.input.json.load_json('corr')
-                    assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
-                    assert my_corr.tag == recover.tag
+    for obs_list in [my_list, rw_list]:
+        for tag in [None, "test"]:
+            my_list[3].tag = tag
+            for fp in [0, 2]:
+                for bp in [0, 7]:
+                    for corr_tag in [None, 'my_Corr_tag']:
+                        my_corr = pe.Corr(obs_list, padding_front=fp, padding_back=bp)
+                        my_corr.tag = corr_tag
+                        pe.input.json.dump_to_json(my_corr, 'corr')
+                        recover = pe.input.json.load_json('corr')
+                        assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
+                        assert my_corr.tag == recover.tag
+                        assert my_corr.reweighted == recover.reweighted

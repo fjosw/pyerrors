@@ -185,8 +185,6 @@ def create_json_string(ol, description='', indent=1):
         my_dict['padding_back'] = my_corr.T - back_padding_start
         if my_corr.tag:
             my_dict['corr_tag'] = my_corr.tag
-        if my_corr.reweighted:
-            my_dict['reweighted'] = my_corr.reweighted
         return my_dict
 
     if not isinstance(ol, list):

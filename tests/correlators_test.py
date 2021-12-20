@@ -99,6 +99,14 @@ def test_plateau():
     with pytest.raises(Exception):
         my_corr.plateau()
 
+
+def test_padded_correlator():
+    my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']) for o in range(8)]
+    my_corr = pe.Corr(my_list, padding_front=7, padding_back=3)
+    my_corr.reweighted
+    [o for o in my_corr]
+
+
 def test_utility():
     corr_content = []
     for t in range(8):

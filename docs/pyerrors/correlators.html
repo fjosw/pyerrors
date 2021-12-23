@@ -781,16 +781,17 @@
 
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
+<span class="sd">        path : str</span>
+<span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
@@ -1591,16 +1592,17 @@
 
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
+<span class="sd">        path : str</span>
+<span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
@@ -2883,21 +2885,22 @@ path to file in which the figure should be saved</li>
 
         
             <span class="def">def</span>
-            <span class="name">dump</span><span class="signature">(self, filename)</span>:
+            <span class="name">dump</span><span class="signature">(self, filename, **kwargs)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            Name of the file</span>
+<span class="sd">        path : str</span>
+<span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2909,6 +2912,8 @@ path to file in which the figure should be saved</li>
 <ul>
 <li><strong>filename</strong> (str):
 Name of the file</li>
+<li><strong>path</strong> (str):
+specifies a custom path for the file (default '.')</li>
 </ul>
 </div>
 

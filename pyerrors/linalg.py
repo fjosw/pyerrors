@@ -213,8 +213,6 @@ def _scalar_mat_op(op, obs, **kwargs):
     """Computes the matrix to scalar operation op to a given matrix of Obs."""
     def _mat(x, **kwargs):
         dim = int(np.sqrt(len(x)))
-        if np.sqrt(len(x)) != dim:
-            raise Exception('Input has to have dim**2 entries')
 
         mat = []
         for i in range(dim):
@@ -227,8 +225,6 @@ def _scalar_mat_op(op, obs, **kwargs):
 
     if isinstance(obs, np.ndarray):
         raveled_obs = (1 * (obs.ravel())).tolist()
-    elif isinstance(obs, list):
-        raveled_obs = obs
     else:
         raise TypeError('Unproper type of input.')
     return derived_observable(_mat, raveled_obs, **kwargs)

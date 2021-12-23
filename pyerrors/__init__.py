@@ -193,6 +193,56 @@ Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho
 For the full API see `pyerrors.obs.Obs`.
 
 # Correlators
+When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs´
+```python
+my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3])
+print(my_corr)
+> x0/a	Corr(x0/a)
+> ------------------
+> 0	 0.7957(80)
+> 1	 0.5156(51)
+> 2	 0.3227(33)
+> 3	 0.2041(21)
+```
+In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.
+```python
+my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding_front=1, padding_back=1)
+print(my_corr)
+> x0/a	Corr(x0/a)
+> ------------------
+> 0
+> 1	 0.7957(80)
+> 2	 0.5156(51)
+> 3	 0.3227(33)
+> 4	 0.2041(21)
+> 5
+```
+The individual entries of a correlator can be accessed via slicing
+```python
+print(my_corr[3])
+> 0.3227(33)
+```
+Error propagation with the `Corr` class works very similar to `Obs` objects. Mathematical operations are overloaded and `Corr` objects can be computed together with other `Corr` objects, `Obs` objects or real numbers and integers.
+```python
+my_new_corr = 0.3 * my_corr[2] * my_corr * my_corr + 12 / my_corr
+```
+
+`pyerrors` provides the user with a set of regularly used methods for the manipulation of correlator objects:
+- `Corr.gamma_method` applies the gamma method to all entries of the correlator.
+- `Corr.m_eff` to construct effective masses. Various variants for periodic and fixed temporal boundary conditions are available.
+- `Corr.deriv` returns the first derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.
+- `Corr.second_deriv` returns the second derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.
+- `Corr.symmetric` symmetrizes parity even correlations functions, assuming periodic boundary conditions.
+- `Corr.anti_symmetric` anti-symmetrizes parity odd correlations functions, assuming periodic boundary conditions.
+- `Corr.T_symmetry` averages a correlator with its time symmetry partner, assuming fixed boundary conditions.
+- `Corr.plateau` extracts a plateau value from the correlator in a given range.
+- `Corr.roll` periodically shifts the correlator.
+- `Corr.reverse` reverses the time ordering of the correlator.
+- `Corr.correlate` constructs a disconnected correlation function from the correlator and another `Corr` or `Obs` object.
+- `Corr.reweight` reweights the correlator.
+
+`pyerrors` can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `pyerrors.correlators.Corr.GEVP).
+
 For the full API see `pyerrors.correlators.Corr`.
 
 # Complex observables

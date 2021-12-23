@@ -290,6 +290,62 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h1 id="correlators">Correlators</h1>
 
+<p>When one is not interested in single observables but correlation functions, <code><a href="">pyerrors</a></code> offers the <code>Corr</code> class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a <code>Corr</code> objects one needs to arrange the data as a list of `Obs´</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">x0</span><span class="o">/</span><span class="n">a</span>  <span class="n">Corr</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="o">------------------</span>
+<span class="o">&gt;</span> <span class="mi">0</span>      <span class="mf">0.7957</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">1</span>      <span class="mf">0.5156</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">2</span>      <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">3</span>      <span class="mf">0.2041</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+</code></pre></div>
+
+<p>In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">],</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">x0</span><span class="o">/</span><span class="n">a</span>  <span class="n">Corr</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="o">------------------</span>
+<span class="o">&gt;</span> <span class="mi">0</span>
+<span class="o">&gt;</span> <span class="mi">1</span>      <span class="mf">0.7957</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">2</span>      <span class="mf">0.5156</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">3</span>      <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">4</span>      <span class="mf">0.2041</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="mi">5</span>
+</code></pre></div>
+
+<p>The individual entries of a correlator can be accessed via slicing</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="o">&gt;</span> <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Error propagation with the <code>Corr</code> class works very similar to <code>Obs</code> objects. Mathematical operations are overloaded and <code>Corr</code> objects can be computed together with other <code>Corr</code> objects, <code>Obs</code> objects or real numbers and integers.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">my_new_corr</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">my_corr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">+</span> <span class="mi">12</span> <span class="o">/</span> <span class="n">my_corr</span>
+</code></pre></div>
+
+<p><code><a href="">pyerrors</a></code> provides the user with a set of regularly used methods for the manipulation of correlator objects:</p>
+
+<ul>
+<li><code>Corr.gamma_method</code> applies the gamma method to all entries of the correlator.</li>
+<li><code>Corr.m_eff</code> to construct effective masses. Various variants for periodic and fixed temporal boundary conditions are available.</li>
+<li><code>Corr.deriv</code> returns the first derivative of the correlator as <code>Corr</code>. Different discretizations of the numerical derivative are available.</li>
+<li><code>Corr.second_deriv</code> returns the second derivative of the correlator as <code>Corr</code>. Different discretizations of the numerical derivative are available.</li>
+<li><code>Corr.symmetric</code> symmetrizes parity even correlations functions, assuming periodic boundary conditions.</li>
+<li><code>Corr.anti_symmetric</code> anti-symmetrizes parity odd correlations functions, assuming periodic boundary conditions.</li>
+<li><code>Corr.T_symmetry</code> averages a correlator with its time symmetry partner, assuming fixed boundary conditions.</li>
+<li><code>Corr.plateau</code> extracts a plateau value from the correlator in a given range.</li>
+<li><code>Corr.roll</code> periodically shifts the correlator.</li>
+<li><code>Corr.reverse</code> reverses the time ordering of the correlator.</li>
+<li><code>Corr.correlate</code> constructs a disconnected correlation function from the correlator and another <code>Corr</code> or <code>Obs</code> object.</li>
+<li><code>Corr.reweight</code> reweights the correlator.</li>
+</ul>
+
+<p><code><a href="">pyerrors</a></code> can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `<a href="pyerrors/correlators.html#Corr.GEVP">pyerrors.correlators.Corr.GEVP</a>).</p>
+
 <p>For the full API see <code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code>.</p>
 
 <h1 id="complex-observables">Complex observables</h1>
@@ -534,6 +590,56 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">For the full API see `pyerrors.obs.Obs`.</span>
 
 <span class="sd"># Correlators</span>
+<span class="sd">When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs´</span>
+<span class="sd">```python</span>
+<span class="sd">my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3])</span>
+<span class="sd">print(my_corr)</span>
+<span class="sd">&gt; x0/a	Corr(x0/a)</span>
+<span class="sd">&gt; ------------------</span>
+<span class="sd">&gt; 0	 0.7957(80)</span>
+<span class="sd">&gt; 1	 0.5156(51)</span>
+<span class="sd">&gt; 2	 0.3227(33)</span>
+<span class="sd">&gt; 3	 0.2041(21)</span>
+<span class="sd">```</span>
+<span class="sd">In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.</span>
+<span class="sd">```python</span>
+<span class="sd">my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding_front=1, padding_back=1)</span>
+<span class="sd">print(my_corr)</span>
+<span class="sd">&gt; x0/a	Corr(x0/a)</span>
+<span class="sd">&gt; ------------------</span>
+<span class="sd">&gt; 0</span>
+<span class="sd">&gt; 1	 0.7957(80)</span>
+<span class="sd">&gt; 2	 0.5156(51)</span>
+<span class="sd">&gt; 3	 0.3227(33)</span>
+<span class="sd">&gt; 4	 0.2041(21)</span>
+<span class="sd">&gt; 5</span>
+<span class="sd">```</span>
+<span class="sd">The individual entries of a correlator can be accessed via slicing</span>
+<span class="sd">```python</span>
+<span class="sd">print(my_corr[3])</span>
+<span class="sd">&gt; 0.3227(33)</span>
+<span class="sd">```</span>
+<span class="sd">Error propagation with the `Corr` class works very similar to `Obs` objects. Mathematical operations are overloaded and `Corr` objects can be computed together with other `Corr` objects, `Obs` objects or real numbers and integers.</span>
+<span class="sd">```python</span>
+<span class="sd">my_new_corr = 0.3 * my_corr[2] * my_corr * my_corr + 12 / my_corr</span>
+<span class="sd">```</span>
+
+<span class="sd">`pyerrors` provides the user with a set of regularly used methods for the manipulation of correlator objects:</span>
+<span class="sd">- `Corr.gamma_method` applies the gamma method to all entries of the correlator.</span>
+<span class="sd">- `Corr.m_eff` to construct effective masses. Various variants for periodic and fixed temporal boundary conditions are available.</span>
+<span class="sd">- `Corr.deriv` returns the first derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.</span>
+<span class="sd">- `Corr.second_deriv` returns the second derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.</span>
+<span class="sd">- `Corr.symmetric` symmetrizes parity even correlations functions, assuming periodic boundary conditions.</span>
+<span class="sd">- `Corr.anti_symmetric` anti-symmetrizes parity odd correlations functions, assuming periodic boundary conditions.</span>
+<span class="sd">- `Corr.T_symmetry` averages a correlator with its time symmetry partner, assuming fixed boundary conditions.</span>
+<span class="sd">- `Corr.plateau` extracts a plateau value from the correlator in a given range.</span>
+<span class="sd">- `Corr.roll` periodically shifts the correlator.</span>
+<span class="sd">- `Corr.reverse` reverses the time ordering of the correlator.</span>
+<span class="sd">- `Corr.correlate` constructs a disconnected correlation function from the correlator and another `Corr` or `Obs` object.</span>
+<span class="sd">- `Corr.reweight` reweights the correlator.</span>
+
+<span class="sd">`pyerrors` can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `pyerrors.correlators.Corr.GEVP).</span>
+
 <span class="sd">For the full API see `pyerrors.correlators.Corr`.</span>
 
 <span class="sd"># Complex observables</span>

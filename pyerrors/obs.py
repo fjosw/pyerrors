@@ -434,10 +434,6 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def print(self, level=1):
-        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level > 1)
-
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
 
@@ -798,9 +794,6 @@ class Obs:
 
     def arctanh(self):
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
-
-    def sinc(self):
-        return derived_observable(lambda x: anp.sinc(x[0]), [self])
 
 
 class CObs:

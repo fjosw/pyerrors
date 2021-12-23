@@ -118,6 +118,7 @@ def test_utility():
     corr.print([2, 4])
     corr.show()
 
+    corr.dump('test_dump', path='.')
     corr.dump('test_dump')
     new_corr = pe.load_object('test_dump.p')
     os.remove('test_dump.p')

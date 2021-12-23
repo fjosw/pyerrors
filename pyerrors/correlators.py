@@ -584,16 +584,17 @@ class Corr:
 
         return
 
-    def dump(self, filename):
+    def dump(self, filename, **kwargs):
         """Dumps the Corr into a pickle file
 
         Parameters
         ----------
         filename : str
             Name of the file
+        path : str
+            specifies a custom path for the file (default '.')
         """
-        dump_object(self, filename)
-        return
+        dump_object(self, filename, **kwargs)
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))

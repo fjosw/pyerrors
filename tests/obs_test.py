@@ -428,6 +428,14 @@ def test_reweighting():
     assert r_obs[0].reweighted
     r_obs2 = r_obs[0] * my_obs
     assert r_obs2.reweighted
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.reweight(my_obs, [my_covobs])
+    my_obs2 = pe.Obs([np.random.rand(1000)], ['t2'])
+    with pytest.raises(Exception):
+        pe.reweight(my_obs, [my_obs + my_obs2])
+    with pytest.raises(Exception):
+        pe.reweight(my_irregular_obs, [my_obs])
 
 
 def test_merge_obs():
@@ -436,6 +444,12 @@ def test_merge_obs():
     merged = pe.merge_obs([my_obs1, my_obs2])
     diff = merged - my_obs2 - my_obs1
     assert diff == -(my_obs1.value + my_obs2.value) / 2
+    with pytest.raises(Exception):
+        pe.merge_obs([my_obs1, my_obs1])
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.merge_obs([my_obs1, my_covobs])
+
 
 
 def test_merge_obs_r_values():
@@ -467,6 +481,17 @@ def test_correlate():
     my_obs6 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
     corr3 = pe.correlate(my_obs5, my_obs6)
     assert my_obs5.idl == corr3.idl
+
+    my_new_obs = pe.Obs([np.random.rand(100)], ['q3'])
+    with pytest.raises(Exception):
+        pe.correlate(my_obs1, my_new_obs)
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.correlate(my_covobs, my_covobs)
+    r_obs = pe.reweight(my_obs1, [my_obs1])[0]
+    with pytest.warns(RuntimeWarning):
+        pe.correlate(r_obs, r_obs)
+
 
 
 def test_irregular_error_propagation():

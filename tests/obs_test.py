@@ -57,6 +57,7 @@ def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
+    test_obs.dump('test_dump', path=".")
     test_obs.dump('test_dump')
     new_obs = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
@@ -104,6 +105,12 @@ def test_function_overloading():
     assert np.exp(np.log(b)) == b
     assert np.sqrt(b ** 2) == b
     assert np.sqrt(b) ** 2 == b
+
+    np.arcsin(1 / b)
+    np.arccos(1 / b)
+    np.arctan(1 / b)
+    np.arctanh(1 / b)
+    np.sinc(1 / b)
 
 
 def test_overloading_vectorization():

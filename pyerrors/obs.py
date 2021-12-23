@@ -795,9 +795,6 @@ class Obs:
     def arctanh(self):
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
 
-    def sinc(self):
-        return derived_observable(lambda x: anp.sinc(x[0]), [self])
-
 
 class CObs:
     """Class for a complex valued observable."""

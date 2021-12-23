@@ -44,3 +44,20 @@ def test_epsilon_tensor():
              (1, 1, 3) : 0.0}
     for key, value in check.items():
         assert pe.dirac.epsilon_tensor(*key) == value
+    with pytest.raises(Exception):
+        pe.dirac.epsilon_tensor(0, 1, 3)
+
+
+def test_epsilon_tensor_rank4():
+    check = {(1, 4, 3, 2) : -1.0,
+             (1, 2, 3, 4) : 1.0,
+             (2, 1, 3, 4) : -1.0,
+             (4, 3, 2, 1) : 1.0,
+             (3, 2, 4, 3) : 0.0,
+             (0, 1, 2, 3) : 1.0,
+             (1, 1, 1, 1) : 0.0,
+             (1, 2, 3, 1) : 0.0}
+    for key, value in check.items():
+        assert pe.dirac.epsilon_tensor_rank4(*key) == value
+    with pytest.raises(Exception):
+        pe.dirac.epsilon_tensor_rank4(0, 1, 3, 4)

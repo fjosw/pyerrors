@@ -126,9 +126,6 @@
                                 <a class="function" href="#Obs.details">details</a>
                         </li>
                         <li>
-                                <a class="function" href="#Obs.print">print</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Obs.is_zero_within_error">is_zero_within_error</a>
                         </li>
                         <li>
@@ -199,9 +196,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Obs.arctanh">arctanh</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Obs.sinc">sinc</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Obs.N">N</a>
@@ -754,10 +748,6 @@
                 <span class="n">my_string_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_string</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">my_string_list</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Method &#39;print&#39; renamed to &#39;details&#39;&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">(</span><span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">is_zero_within_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within &#39;sigma&#39; standard errors.</span>
 
@@ -1118,9 +1108,6 @@
 
     <span class="k">def</span> <span class="nf">arctanh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">sinc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
 
 
 <span class="k">class</span> <span class="nc">CObs</span><span class="p">:</span>
@@ -2335,10 +2322,6 @@
                 <span class="n">my_string_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_string</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">my_string_list</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Method &#39;print&#39; renamed to &#39;details&#39;&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">(</span><span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">is_zero_within_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within &#39;sigma&#39; standard errors.</span>
 
@@ -2699,9 +2682,6 @@
 
     <span class="k">def</span> <span class="nf">arctanh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">sinc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -3343,26 +3323,6 @@ print details about the ensembles and replica if true.</li>
 </ul>
 </div>
 
-
-                            </div>
-                            <div id="Obs.print" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Obs.print">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">print</span><span class="signature">(self, level=1)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Method &#39;print&#39; renamed to &#39;details&#39;&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">(</span><span class="n">level</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div id="Obs.is_zero_within_error" class="classattr">
@@ -4049,25 +4009,6 @@ should agree with samples from a full jackknife analysis up to O(1/N).</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">arctanh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Obs.sinc" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Obs.sinc">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">sinc</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">sinc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="bp">self</span><span class="p">])</span>
 </pre></div>
 
         </details>

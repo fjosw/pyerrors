@@ -32,3 +32,15 @@ def test_grid_dirac():
         pe.dirac.Grid_gamma(gamma)
     with pytest.raises(Exception):
         pe.dirac.Grid_gamma('Not a gamma matrix')
+
+
+def test_epsilon_tensor():
+    check = {(1, 2, 3) : 1.0,
+             (3, 1, 2) : 1.0,
+             (2, 3, 1) : 1.0,
+             (1, 1, 1) : 0.0,
+             (3, 2, 1) : -1.0,
+             (1, 3, 2) : -1.0,
+             (1, 1, 3) : 0.0}
+    for key, value in check.items():
+        assert pe.dirac.epsilon_tensor(*key) == value

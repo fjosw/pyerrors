@@ -31,6 +31,16 @@ def test_function_overloading():
             assert np.isclose(con[0].dvalue, t2.dvalue)
             assert np.allclose(con[0].deltas['t'], t2.deltas['t'])
 
+    np.arcsin(corr_a)
+    np.arccos(corr_a)
+    np.arctan(corr_a)
+    np.arcsinh(corr_a)
+    np.arccosh(corr_a + 1.1)
+    np.arctanh(corr_a)
+
+    with pytest.raises(Exception):
+        np.arccosh(corr_a)
+
 
 def test_modify_correlator():
     corr_content = []
@@ -47,7 +57,10 @@ def test_modify_correlator():
     corr.roll(np.random.randint(100))
     corr.deriv(symmetric=True)
     corr.deriv(symmetric=False)
+    corr.deriv().deriv()
     corr.second_deriv()
+    corr.second_deriv().second_deriv()
+
 
 
 def test_m_eff():

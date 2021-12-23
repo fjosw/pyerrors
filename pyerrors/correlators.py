@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
-from .obs import Obs, reweight, correlate
+from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
@@ -30,7 +30,7 @@ class Corr:
             raise TypeError('Corr__init__ expects a list of timeslices.')
         # data_input can have multiple shapes. The simplest one is a list of Obs.
         # We check, if this is the case
-        if all([isinstance(item, Obs) for item in data_input]):
+        if all([ (isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
             self.content = [np.asarray([item]) for item in data_input]
             # Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.
             self.N = 1  # number of smearings
@@ -97,7 +97,7 @@ class Corr:
     # The method can use one or two vectors.
     # If two are specified it returns v1@G@v2 (the order might be very important.)
     # By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
-    def projected(self, vector_l=None, vector_r=None):
+    def projected(self, vector_l=None, vector_r=None,normalize=False):
         if self.N == 1:
             raise Exception("Trying to project a Corr, that already has N=1.")
             # This Exception is in no way necessary. One could just return self
@@ -109,17 +109,34 @@ class Corr:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
         elif(vector_r is None):
             vector_r = vector_l
+        
+        if isinstance(vector_l,list) and not isinstance(vector_r,list):
+            if len(vector_l)!=self.T:
+                raise Exception("Length of vector list must be equal to T")
+            vector_r=[vector_r]*self.T
+        if isinstance(vector_r,list) and not isinstance(vector_l,list):
+            if len(vector_r)!=self.T:
+                raise Exception("Length of vector list must be equal to T")
+            vector_l=[vector_l]*self.T 
+        
+        
+        if not isinstance(vector_l,list):
+            if not vector_l.shape == vector_r.shape == (self.N,):
+                raise Exception("Vectors are of wrong shape!")
+            if normalize:
+                vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
+            #if (not (0.95 < vector_r @ vector_r < 1.05)) or (not (0.95 < vector_l @ vector_l < 1.05)):
+                #print("Vectors are normalized before projection!")
 
-        if not vector_l.shape == vector_r.shape == (self.N,):
-            raise Exception("Vectors are of wrong shape!")
-
-        # We always normalize before projecting! But we only raise a warning, when it is clear, they where not meant to be normalized.
-        if (not (0.95 < vector_r @ vector_r < 1.05)) or (not (0.95 < vector_l @ vector_l < 1.05)):
-            print("Vectors are normalized before projection!")
-
-        vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
-
-        newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
+            newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
+            
+        else:
+            #There are no checks here yet. There are so many possible scenarios, where this can go wrong. 
+            if normalize:
+                for t in range(self.T):
+                    vector_l[t], vector_r[t] = vector_l[t] / np.sqrt((vector_l[t] @ vector_l[t])), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
+            
+            newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
     def sum(self):
@@ -195,20 +212,52 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to symmetrize a smearing matrix, that already has N=1.")
 
-    # We also include a simple GEVP method based on Scipy.linalg
-    def GEVP(self, t0, ts, state=1):
-        if (self.content[t0] is None) or (self.content[ts] is None):
-            raise Exception("Corr not defined at t0/ts")
-        G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
-        for i in range(self.N):
-            for j in range(self.N):
-                G0[i, j] = self.content[t0][i, j].value
-                Gt[i, j] = self.content[ts][i, j].value
+    # There are two ways, the GEVP metod can be called. 
+    # 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1
+    # 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]
+    
 
-        sp_val, sp_vec = scipy.linalg.eig(Gt, G0)
-        sp_vec = sp_vec[:, np.argsort(sp_val)[-state]]  # We only want the eigenvector belonging to the selected state
-        sp_vec = sp_vec / np.sqrt(sp_vec @ sp_vec)
-        return sp_vec
+    def GEVP(self, t0, ts, state=0, sorting="Eigenvalue",return_list=False):
+        if not return_list:
+            if (self.content[t0] is None) or (self.content[ts] is None):
+                raise Exception("Corr not defined at t0/ts")
+            G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
+            for i in range(self.N):
+                for j in range(self.N):
+                    G0[i, j] = self.content[t0][i, j].value
+                    Gt[i, j] = self.content[ts][i, j].value
+
+            sp_vecs=GEVP_solver(Gt,G0)
+            sp_vec=sp_vecs[state]
+            return sp_vec
+        if return_list: 
+            all_vecs=[]
+            for t in range(self.T):
+                try:
+                    G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
+                    for i in range(self.N):
+                        for j in range(self.N):
+                            G0[i, j] = self.content[t0][i, j].value
+                            Gt[i, j] = self.content[t][i, j].value
+
+                    sp_vecs = GEVP_solver(Gt,G0)
+                    if sorting=="Eigenvalue":
+                        sp_vec = sp_vecs[state]
+                        all_vecs.append(sp_vec)
+                    else:
+                        all_vecs.append(sp_vecs)
+                       
+                        
+                    
+                except: #This could contain a check for real eigenvectors 
+                    all_vecs.append(None)
+            if sorting=="Eigenvector":
+                all_vecs=sort_vectors(all_vecs,ts)
+                all_vecs=[a[state] for a in all_vecs]
+            
+        return all_vecs
+            
+
 
     def Eigenvalue(self, t0, state=1):
         G = self.smearing_symmetric()
@@ -219,12 +268,55 @@ class Corr:
         LTi = inv(LT)
         newcontent = []
         for t in range(self.T):
-            Gt = G.content[t]
-            M = Li @ Gt @ LTi
-            eigenvalues = eigh(M)[0]
-            eigenvalue = eigenvalues[-state]
-            newcontent.append(eigenvalue)
+            if self.content[t] is None:
+                newcontent.append(None)
+            else:
+                Gt = G.content[t]
+                M = Li @ Gt @ LTi
+                eigenvalues = eigh(M)[0]
+                eigenvalue = eigenvalues[-state]
+                newcontent.append(eigenvalue)
         return Corr(newcontent)
+
+
+
+    def Hankel(self,N,periodic=False): 
+        #Constructs an NxN Hankel matrix
+        #C(t) c(t+1) ... c(t+n-1)
+        #C(t+1) c(t+2) ... c(t+n)
+        #.................
+        #C(t+(n-1)) c(t+n) ... c(t+2(n-1))
+        
+        if  self.N!=1:
+             raise Exception("Multi-operator Prony not implemented!")
+
+
+        array=np.empty([N,N],dtype="object")
+        new_content=[] 
+        for t in range(self.T):
+            new_content.append(array.copy()) 
+        
+
+        def wrap(i):
+            if i>=self.T: 
+                return i-self.T 
+            return i 
+
+        for t in range(self.T): 
+            for i in range(N):
+                for j in range(N):
+                    if periodic:
+                        new_content[t][i,j]=self.content[wrap(t+i+j)][0]
+                    elif (t+i+j)>=self.T:
+                        new_content[t]=None 
+                    else: 
+                        new_content[t][i,j]=self.content[t+i+j][0]
+                    
+
+
+        return Corr(new_content)
+
+
 
     def roll(self, dt):
         """Periodically shift the correlator by dt timeslices
@@ -260,7 +352,7 @@ class Corr:
                         new_content.append(None)
                     else:
                         new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
-                elif isinstance(partner, Obs):
+                elif isinstance(partner, Obs): # Should this include CObs?
                     new_content.append(np.array([correlate(o, partner) for o in t_slice]))
                 else:
                     raise Exception("Can only correlate with an Obs or a Corr.")
@@ -584,25 +676,35 @@ class Corr:
 
         return
 
-    def dump(self, filename, **kwargs):
+    def dump(self, filename):
         """Dumps the Corr into a pickle file
 
         Parameters
         ----------
         filename : str
             Name of the file
-        path : str
-            specifies a custom path for the file (default '.')
         """
-        dump_object(self, filename, **kwargs)
+        dump_object(self, filename)
+        return
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))
 
     def __repr__(self, range=[0, None]):
         content_string = ""
+
+        content_string+="Corr T="+str(self.T)+" N="+str(self.N) +"\n"#+" filled with"+ str(type(self.content[0][0])) there should be a good solution here 
+
+
+
         if self.tag is not None:
             content_string += "Description: " + self.tag + "\n"
+        if self.N!=1:
+            return content_string
+        #This avoids a crash for N>1. I do not know, what else to do here. I like the list representation for N==1. We could print only one "smearing" or one matrix. Printing everything will just 
+        #be a wall of numbers.
+
+
         if range[1]:
             range[1] += 1
         content_string += 'x0/a\tCorr(x0/a)\n------------------\n'
@@ -636,7 +738,7 @@ class Corr:
                     newcontent.append(self.content[t] + y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float):
+        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -659,7 +761,7 @@ class Corr:
                     newcontent.append(self.content[t] * y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float):
+        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -692,9 +794,14 @@ class Corr:
                 raise Exception("Division returns completely undefined correlator")
             return Corr(newcontent)
 
-        elif isinstance(y, Obs):
-            if y.value == 0:
-                raise Exception('Division by zero will return undefined correlator')
+        elif isinstance(y, Obs) or isinstance(y, CObs):
+            if isinstance(y, Obs):
+                if y.value == 0:
+                    raise Exception('Division by zero will return undefined correlator')
+            if isinstance(y, CObs):
+                if y.is_zero(): 
+                    raise Exception('Division by zero will return undefined correlator')
+
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -724,7 +831,7 @@ class Corr:
         return self + (-y)
 
     def __pow__(self, y):
-        if isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float):
+        if isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
             newcontent = [None if (item is None) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
         else:
@@ -747,11 +854,11 @@ class Corr:
         return Corr(newcontent, prange=self.prange)
 
     def _apply_func_to_corr(self, func):
-        newcontent = [None if (item is None) else func(item) for item in self.content]
+        newcontent = [None if (item is None ) else func(item) for item in self.content]
         for t in range(self.T):
             if newcontent[t] is None:
                 continue
-            if np.isnan(np.sum(newcontent[t]).value):
+            if np.isnan(np.sum(newcontent[t]).value): 
                 newcontent[t] = None
         if all([item is None for item in newcontent]):
             raise Exception('Operation returns undefined correlator')
@@ -805,3 +912,89 @@ class Corr:
 
     def __rtruediv__(self, y):
         return (self / y) ** (-1)
+
+    @property
+    def real(self): 
+        def return_real(obs_OR_cobs):
+            if isinstance(obs_OR_cobs, CObs):
+                return obs_OR_cobs.real 
+            else:
+                 return obs_OR_cobs 
+        
+        return self._apply_func_to_corr(return_real)
+
+    @property
+    def imag(self): 
+        def return_imag(obs_OR_cobs):
+            if isinstance(obs_OR_cobs, CObs):
+                return obs_OR_cobs.imag
+            else:
+                 return obs_OR_cobs*0 #So it stays the right type 
+        
+        return self._apply_func_to_corr(return_imag)
+
+    
+
+
+
+    
+
+
+
+
+
+
+    
+
+
+
+def sort_vectors(vec_set, ts): #Helper function used to find a set of Eigenvectors consistent over all timeslices  
+    reference_sorting=np.array(vec_set[ts])
+    N=reference_sorting.shape[0]
+    sorted_vec_set=[]
+    for t in range(len(vec_set)):
+        if vec_set[t] is None:
+            sorted_vec_set.append(None)
+        elif not t==ts:
+            perms=permutation([i for i in range(N)])
+            best_score=0 
+            for perm in perms:
+                current_score=1 
+                for k in range(N):
+                    new_sorting=reference_sorting.copy() 
+                    new_sorting[perm[k],:]=vec_set[t][k] 
+                    current_score*=abs(np.linalg.det(new_sorting))
+                if current_score>best_score:
+                    best_score=current_score 
+                    best_perm=perm 
+            #print("best perm", best_perm)
+            sorted_vec_set.append([vec_set[t][k] for k in best_perm])
+        else:
+            sorted_vec_set.append(vec_set[t]) 
+
+
+    return sorted_vec_set
+
+                
+
+
+
+
+def permutation(lst): #Shamelessly copied 
+    if len(lst) == 1:
+        return [lst]
+    l = []
+    for i in range(len(lst)):
+        m = lst[i]
+        remLst = lst[:i] + lst[i+1:]
+        # Generating all permutations where m is first
+        for p in permutation(remLst):
+            l.append([m] + p)
+    return l
+
+
+def GEVP_solver(Gt,G0): #Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
+    sp_val, sp_vecs = scipy.linalg.eig(Gt, G0)
+    sp_vecs=[sp_vecs[:, np.argsort(sp_val)[-i]]for i in range(1,sp_vecs.shape[0]+1) ]
+    sp_vecs=[v/np.sqrt((v.T@G0@v)) for v in sp_vecs]
+    return sp_vecs

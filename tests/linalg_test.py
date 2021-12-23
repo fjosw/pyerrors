@@ -314,6 +314,8 @@ def test_matrix_functions():
     # Check determinant
     assert pe.linalg.det(np.diag(np.diag(matrix))) == np.prod(np.diag(matrix))
 
+    pe.linalg.pinv(matrix[:,:3])
+
 
 def test_complex_matrix_operations():
     dimension = 4

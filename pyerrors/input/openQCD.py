@@ -363,10 +363,11 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
         (optional) parameter that specifies the number of trajectories between two configs.
         if it is not set, the distance between two measurements in the file is assumed to be
         the distance between two configurations.
+    steps: int
+        (optional) (maybe only necessary for openQCD2.0)
+        nt step size, guessed if not given
     version: str
         version string of the openQCD (sfqcd) version used to create the ensemble
-    steps: int
-        step size of measurements
     L: int
         spatial length of the lattice in L/a. HAS to be set if version != sfqcd, since openQCD does not provide this in the header
     r_start: list
@@ -380,7 +381,6 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
     names: list
         Alternative labeling for replicas/ensembles. Has to have the appropriate length
     """
-    #dtr_cnfg = 4# was ist das denn hier?
     #one could read L from the header in case of sfQCD
     #c = 0.35
     known_versions = ["1.0","1.2","1.4","1.6","2.0", "sfqcd"]
@@ -390,8 +390,7 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
     target = 0
     if "steps" in kwargs:
         steps = kwargs.get("steps")
-    else:
-        steps = 1
+    
     if 'target' in kwargs:
         target = kwargs.get('target')
     if version == "sfqcd":
@@ -429,6 +428,7 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
     rep_names = []
     
     deltas = []
+    idl = []
     for rep,file in enumerate(files):
         
         with open(path+"/"+file, "rb") as fp:
@@ -457,30 +457,34 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
             print('eps:', eps)
 
             Q = []
-            
-            i = r_meas_start*steps
+            ncs = []
             while 0 < 1:
                 t = fp.read(4) #int nt
                 if(len(t) < 4):
                     break
-                nc = struct.unpack('i',t)[0]
-                if(nc != i):
-                    print(nc)
-                    raise Exception('Config ' + str(i) + ' missing?')
-                else:
-                    t = fp.read(8 * tmax * (nn + 1))#Wsl
-                    t = fp.read(8 * tmax * (nn + 1))#Ysl
-                    t = fp.read(8 * tmax * (nn + 1))#Qsl, which is asked for in this method
-                    #unpack the array of Qtops, on each timeslice t=0,...,tmax-1 and the 
-                    #measurement number in = 0...nn (see README.qcd1)
-                    tmpd = struct.unpack('d' * tmax * (nn + 1), t)
-                    Q.append(tmpd)
-                    i += 1*steps
+                ncs.append(struct.unpack('i',t)[0])
+                t = fp.read(8 * tmax * (nn + 1))#Wsl
+                t = fp.read(8 * tmax * (nn + 1))#Ysl
+                t = fp.read(8 * tmax * (nn + 1))#Qsl, which is asked for in this method
+                #unpack the array of Qtops, on each timeslice t=0,...,tmax-1 and the 
+                #measurement number in = 0...nn (see README.qcd1)
+                tmpd = struct.unpack('d' * tmax * (nn + 1), t)
+                Q.append(tmpd)
                 #set step by reading all entries, then set stepsize, then check if everything is there
                 #make a dtr_config param, which is checked against difference...
                 #difference != step
-                #len(set(difference)) == 1
-                #!!!also implement the idl stuff for everything...
+
+        if not len(set([ncs[i]-ncs[i-1] for i in range(1,len(ncs))])):
+            raise Exception("Irregularities in stepsize found")
+        else:
+            if 'steps' in kwargs:
+                if steps != ncs[1]-ncs[0]:
+                    raise Exception("steps and the found stepsize are not the same")
+            else:
+                steps = ncs[1]-ncs[0]
+                if ncs[0]//steps == ncs[0]/steps:
+                    r_meas_start = ncs[0]//steps
+                    
         print(len(Q))
         print('max_t:', dn * (nn) * eps)
         
@@ -499,36 +503,40 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
         Q_round = []
         for i in range(len(Q) // dtr_cnfg):
             Q_round.append(round(Q_sum[dtr_cnfg * i][index_aim]))
-
-        replica = len(files)
-
-        truncated_file = file[:-7] #as seen in previous examples, this could lead to some weird behaviour... maybe -7 fixes this.
-        print(truncated_file)
-        try:
-            idx = truncated_file.index('r')
-        except:
-            if not "names" in kwargs:
-                raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+        if len(Q_round) != len(ncs)//dtr_cnfg:
+            raise Exception("qtops and ncs dont have the same length")
         
-        # this might be a quite fishy way to find out which replicum we are actually talking about...
+        #replica = len(files)
+
+        truncated_file = file[:-7]
+        print(truncated_file)
+        idl_start = 1
+        
         if "r_start" in kwargs:
-            Q_round = Q_round[r_start[int(truncated_file[idx+1:])-1]:]
+            Q_round = Q_round[r_start[rep]:]
+            idl_start = r_start[rep]
         if "r_stop" in kwargs:
-            Q_round = Q_round[:r_stop[int(truncated_file[idx+1:])-1]]
-        if "ens_name" in kwargs:
-            ens_name = kwargs.get("ens_name")
-        else:
-            ens_name = truncated_file[:idx]
+            Q_round = Q_round[:r_stop[rep]]
+        idl_stop = idl_start+len(Q_round)
         #keyword "names" prevails over "ens_name"
         if not "names" in kwargs:
+            try:
+                idx = truncated_file.index('r')
+            except:
+                if not "names" in kwargs:
+                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+            if "ens_name" in kwargs:
+                ens_name = kwargs.get("ens_name")
+            else:
+                ens_name = truncated_file[:idx]
             rep_names.append(ens_name + '|' + truncated_file[idx:])
         else:
             names = kwargs.get("names")
             rep_names = names
         deltas.append(np.array(Q_round))
-
-        
-    result = Obs(deltas, rep_names)
+        idl.append(range(idl_start,idl_stop))
+    #print(idl)
+    result = Obs(deltas, rep_names, idl = idl)
     return result
 
 def read_qtop_sector(target = 0, **kwargs):

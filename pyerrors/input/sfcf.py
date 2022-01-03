@@ -8,7 +8,7 @@ import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from . import utils
 
-def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, version = "1.0", **kwargs):
     """Read sfcf c format from given folder structure.
 
     Parameters
@@ -66,8 +66,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwargs)
     #due to higher usage in current projects, compact file format is default
     compact = True
     #get version string
-    version = "1.0"
-    known_versions = ["0.0","1.0","2.0","1.0c","2.0c"]
+    known_versions = ["0.0","1.0","2.0","1.0c","2.0c","1.0a","2.0a"]
     if "version" in kwargs:
         version = kwargs.get("version")
         if not version in known_versions:
@@ -247,7 +246,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, **kwargs)
                                 deltas[k - start][i][cnfg] = floats[1 + im - single]
 
     if "check_configs" in kwargs:
-        print("Chekcing for missing configs...")
+        print("Checking for missing configs...")
         che = kwargs.get("check_configs")
         if not (len(che) == len(idl)):
             raise Exception("check_configs has to be the same length as replica!")

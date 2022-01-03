@@ -8,6 +8,7 @@ import struct
 import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from ..fits import fit_lin
+from . import utils
 
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
@@ -347,7 +348,7 @@ def _read_array_openQCD2(fp):
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
 
 
-def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
+def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
     """Read qtop format from given folder structure.
 
     Parameters
@@ -356,14 +357,12 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
         path of the measurement files
     prefix:
         prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat
-    c:
-        ???
-    dtr_cnfg:
-        ???
-    target: int
-        specifies the topological sector to be reweighted to (default 0)
-    full: bool
-        if true read the charge instead of the reweighting factor.
+    c: double
+        Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L
+    dtr_cnfg: int
+        (optional) parameter that specifies the number of trajectories between two configs.
+        if it is not set, the distance between two measurements in the file is assumed to be
+        the distance between two configurations.
     version: str
         version string of the openQCD (sfqcd) version used to create the ensemble
     steps: int
@@ -373,7 +372,7 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
     r_start: list
         offset of the first ensemble, making it easier to match later on with other Obs
     r_stop: list
-        last ensemble that needs to be read
+        last configurations that need to be read (per replicum)
     r_meas_start: list
         offset of the first measured ensemble, if there is any
     files: list
@@ -385,13 +384,10 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
     #one could read L from the header in case of sfQCD
     #c = 0.35
     known_versions = ["1.0","1.2","1.4","1.6","2.0", "sfqcd"]
-    version = "1.2"
-    if "version" in kwargs:
-        version = kwargs.get("version")
-        if not version in known_versions:
-            raise Exception("Unknown openQCD version.")
+    
+    if not version in known_versions:
+        raise Exception("Unknown openQCD version.")
     target = 0
-    full = False
     if "steps" in kwargs:
         steps = kwargs.get("steps")
     else:
@@ -406,8 +402,6 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
             raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
-    if kwargs.get('full'):
-        full = True
     r_start = 1
     r_meas_start = 1
     if "r_meas_start" in kwargs:
@@ -445,8 +439,6 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
             dn = header[0] # step size in integration steps "dnms"
             nn = header[1] # number of measurements, so "ntot"/dn
             tmax = header[2]# lattice T/a
-            #hier fehlen die L/a Angaben im header von Simon
-            #also muss man L nur für den fall von Fabian setzen
             if version == "sfqcd":
                 t = fp.read(12)
                 Ls = struct.unpack('<iii', t)
@@ -472,20 +464,18 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
                 if(len(t) < 4):
                     break
                 nc = struct.unpack('i',t)[0]
-                #print(nc)
                 if(nc != i):
                     print(nc)
                     raise Exception('Config ' + str(i) + ' missing?')
                 else:
-                    t = fp.read(8 * tmax * (nn + 1))#wegwerfen, Wsl
-                    t = fp.read(8 * tmax * (nn + 1))#wegwerfen, Ysl
-                    t = fp.read(8 * tmax * (nn + 1))#NICHT wegwerfen, das ist Qsl, das, was wirr wollen
+                    t = fp.read(8 * tmax * (nn + 1))#Wsl
+                    t = fp.read(8 * tmax * (nn + 1))#Ysl
+                    t = fp.read(8 * tmax * (nn + 1))#Qsl, which is asked for in this method
                     #unpack the array of Qtops, on each timeslice t=0,...,tmax-1 and the 
                     #measurement number in = 0...nn (see README.qcd1)
                     tmpd = struct.unpack('d' * tmax * (nn + 1), t)
                     Q.append(tmpd)
                     i += 1*steps
-                #print(tmp)
                 #set step by reading all entries, then set stepsize, then check if everything is there
                 #make a dtr_config param, which is checked against difference...
                 #difference != step
@@ -512,16 +502,6 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
 
         replica = len(files)
 
-        tmp = []
-        for q in Q_round:
-            if full:
-                tmp.append(q)
-            else:
-                if int(q) == target:
-                    tmp.append(1.0)
-                else:
-                    tmp.append(0.0)
-        
         truncated_file = file[:-7] #as seen in previous examples, this could lead to some weird behaviour... maybe -7 fixes this.
         print(truncated_file)
         try:
@@ -530,24 +510,69 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1,**kwargs):
             if not "names" in kwargs:
                 raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
         
-        #print(truncated_file[idx:])
         # this might be a quite fishy way to find out which replicum we are actually talking about...
         if "r_start" in kwargs:
-            tmp = tmp[r_start[int(truncated_file[idx+1:])-1]:]
+            Q_round = Q_round[r_start[int(truncated_file[idx+1:])-1]:]
         if "r_stop" in kwargs:
-            tmp = tmp[:r_stop[int(truncated_file[idx+1:])-1]]
+            Q_round = Q_round[:r_stop[int(truncated_file[idx+1:])-1]]
         if "ens_name" in kwargs:
             ens_name = kwargs.get("ens_name")
         else:
             ens_name = truncated_file[:idx]
         #keyword "names" prevails over "ens_name"
         if not "names" in kwargs:
-            rep_names.append(truncated_file[:idx] + '|' + truncated_file[idx:])
+            rep_names.append(ens_name + '|' + truncated_file[idx:])
         else:
             names = kwargs.get("names")
             rep_names = names
-        deltas.append(np.array(tmp))
+        deltas.append(np.array(Q_round))
 
         
     result = Obs(deltas, rep_names)
+    return result
+
+def read_qtop_sector(target = 0, **kwargs):
+    """target: int
+            specifies the topological sector to be reweighted to (default 0)
+        q_top: Obs
+        alternatively takes args of read_qtop method as kwargs
+    """
+    if "q_top" in kwargs:
+        qtop = kwargs.get("q_top")
+    else:
+        if "path" in kwargs:
+            path = kwargs.get("path")
+            del kwargs["path"]
+        else:
+            raise Exception("If you are not providing q_top, please provide path")
+        if "prefix" in kwargs:
+            prefix = kwargs.get("prefix")
+            del kwargs["prefix"]
+        else:
+            raise Exception("If you are not providing q_top, please provide prefix")
+        if "c" in kwargs:
+            c = kwargs.get("c")
+            del kwargs["c"]
+        else:
+            raise Exception("If you are not providing q_top, please provide c")
+        if "version" in kwargs:
+            version = kwargs.get("version")
+            del kwargs["version"]
+        else:
+            version = "1.2"
+        if "dtr_cnfg" in kwargs:
+            dtr_cnfg = kwargs.get("dtr_cnfg")
+            del kwargs["dtr_cnfg"]
+        else:
+            dtr_cnfg = 1
+        qtop = read_qtop(path, prefix,c, dtr_cnfg = dtr_cnfg, version = version,**kwargs)
+    #unpack to original values, project onto target sector
+    names = qtop.names
+    print(names)
+    print(qtop.deltas.keys())
+    proj_qtop = []
+    for n in qtop.deltas:
+        proj_qtop.append(np.array([1 if int(qtop.value+q) == target else 0 for q in qtop.deltas[n]]))
+    
+    result = Obs(proj_qtop, qtop.names)
     return result

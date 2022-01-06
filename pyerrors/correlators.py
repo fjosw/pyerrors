@@ -522,7 +522,7 @@ class Corr:
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
         if x_range is None:
-            x_range = [0, self.T]
+            x_range = [0, self.T - 1]
 
         fig = plt.figure()
         ax1 = fig.add_subplot(111)

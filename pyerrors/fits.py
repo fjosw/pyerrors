@@ -703,7 +703,7 @@ def residual_plot(x, y, func, fit_res):
     ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
     ax1.tick_params(direction='out')
     ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
-    ax1.axhline(y=0.0, ls='--', color='k')
+    ax1.axhline(y=0.0, ls='--', color='k', marker=" ")
     ax1.fill_between(x_samples, -1.0, 1.0, alpha=0.1, facecolor='k')
     ax1.set_xlim([xstart, xstop])
     ax1.set_ylabel('Residuals')

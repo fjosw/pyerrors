@@ -3,7 +3,7 @@
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
 
 - **Documentation:** https://fjosw.github.io/pyerrors/pyerrors.html
-- **Examples**: https://github.com/fjosw/pyerrors/tree/develop/examples (Do not work properly at the moment)
+- **Examples**: https://github.com/fjosw/pyerrors/tree/develop/examples
 - **Contributing:** https://github.com/fjosw/pyerrors/blob/develop/CONTRIBUTING.md
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 

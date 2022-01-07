@@ -74,7 +74,7 @@ class Corr:
 
     @property
     def reweighted(self):
-        bool_array = np.array([list(map(lambda x: x.reweighted, o)) for o in list(filter(None.__ne__, self.content))])
+        bool_array = np.array([list(map(lambda x: x.reweighted, o)) for o in [x for x in self.content if x is not None]])
         if np.all(bool_array == 1):
             return True
         elif np.all(bool_array == 0):

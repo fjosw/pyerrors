@@ -1,3 +1,4 @@
+import gc
 from collections.abc import Sequence
 import warnings
 import numpy as np
@@ -745,3 +746,43 @@ def error_band(x, func, beta):
     err = np.array(err)
 
     return err
+
+
+def ks_test(objects=None):
+    """Performs a Kolmogorov–Smirnov test for the p-values of all fit object.
+
+    Parameters
+    ----------
+    objects : list
+        List of fit results to include in the analysis (optional).
+    """
+
+    if objects is None:
+        obs_list = []
+        for obj in gc.get_objects():
+            if isinstance(obj, Fit_result):
+                obs_list.append(obj)
+    else:
+        obs_list = objects
+
+    p_values = [o.p_value for o in obs_list]
+
+    bins = len(p_values)
+    x = np.arange(0, 1.001, 0.001)
+    plt.plot(x, x, 'k', zorder=1)
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    plt.xlabel('p-value')
+    plt.ylabel('Cumulative probability')
+    plt.title(str(bins) + ' p-values')
+
+    n = np.arange(1, bins + 1) / np.float64(bins)
+    Xs = np.sort(p_values)
+    plt.step(Xs, n)
+    diffs = n - Xs
+    loc_max_diff = np.argmax(np.abs(diffs))
+    loc = Xs[loc_max_diff]
+    plt.annotate('', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
+    plt.draw()
+
+    print(scipy.stats.kstest(p_values, 'uniform'))

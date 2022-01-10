@@ -137,7 +137,8 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0, version =
                     ls = list(set(ls) - set([exc]))
             ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
             for entry in ls:
-                myentry = entry.removesuffix("."+name)
+                myentry = entry[:-len(name)-1]
+                print(myentry)
                 try:
                     idx = myentry.index('r')
                 except:

@@ -7,6 +7,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
+from scipy.stats import chi2
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
@@ -45,6 +46,8 @@ class Fit_result(Sequence):
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
         if hasattr(self, 'chisquare_by_expected_chisquare'):
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
+        if hasattr(self, 'p_value'):
+            my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
@@ -306,6 +309,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
 
@@ -619,6 +623,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output.chisquare = chisqfunc(fit_result.x)
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)

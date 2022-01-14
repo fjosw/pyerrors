@@ -76,8 +76,6 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
         single = 0
     if "replica" in kwargs:
         reps = kwargs.get("replica")
-    if "files" in kwargs:
-        files = kwargs.get("files")
 
     # due to higher usage in current projects,
     # compact file format is default
@@ -339,10 +337,13 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                                         floats[1 + im - single]
 
     else:
-        for exc in ls:
-            if not fnmatch.fnmatch(exc, prefix + '*.'+name):
-                ls = list(set(ls) - set([exc]))
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+        if "files" in kwargs:
+            ls = kwargs.get("files")
+        else:
+            for exc in ls:
+                if not fnmatch.fnmatch(exc, prefix + '*.'+name):
+                    ls = list(set(ls) - set([exc]))
+                ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
         # print(ls)
         pattern = 'name      ' + name + '\nquarks    '\
             + quarks + '\noffset    ' + str(noffset)\
@@ -358,9 +359,9 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                     if "[run]" in line:
                         data_starts.append(linenumber)
                 if len(set([data_starts[i]-data_starts[i-1] for i in
-                           range(1, len(data_starts))])) > 1:
+                        range(1, len(data_starts))])) > 1:
                     raise Exception("Irregularities in file structure found,\
-                                     not all runs have the same output length")
+                                    not all runs have the same output length")
                 # first chunk of data
                 chunk = content[:data_starts[1]]
                 for linenumber, line in enumerate(chunk):
@@ -397,7 +398,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                         found_pat += li
                     if re.search(pattern, found_pat):
                         for t, line in \
-                                  enumerate(chunk[start_read:start_read+T]):
+                                enumerate(chunk[start_read:start_read+T]):
                             floats = list(map(float, line.split()))
                             deltas[t][rep][cnfg] = floats[-2:][im]
             idl.append(rep_idl)

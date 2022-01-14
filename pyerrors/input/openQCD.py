@@ -8,7 +8,6 @@ import struct
 import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from ..fits import fit_lin
-from . import utils
 
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
@@ -67,7 +66,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     else:
         r_stop = [None] * replica
 
-    print('Read reweighting factors from', prefix[:-1], ',', replica, 'replica', end='')
+    print('Read reweighting factors from', prefix[:-1], ',',
+          replica, 'replica', end='')
 
     # Adjust replica names to new bookmarking system
     if names is None:
@@ -75,7 +75,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         for entry in ls:
             truncated_entry = entry.split('.')[0]
             idx = truncated_entry.index('r')
-            rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
+            rep_names.append(truncated_entry[:idx] + '|'
+                             + truncated_entry[idx:])
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -97,8 +98,13 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 for k in range(nrw):
                     deltas.append([])
             else:
-                if ((nrw != struct.unpack('i', t)[0] and (not version == '2.0')) or (nrw != struct.unpack('i', t)[0] / 2 and version == '2.0')):  # little weird if-clause due to the /2 operation needed.
-                    raise Exception('Error: different number of reweighting factors for replicum', rep)
+                # little weird if-clause due to the /2 operation needed.
+                if ((nrw != struct.unpack('i', t)[0] and
+                    (not version == '2.0')) or
+                    (nrw != struct.unpack('i', t)[0] / 2 and
+                     version == '2.0')):
+                    raise Exception('Error: different number of reweighting\
+                                    factors for replicum', rep)
 
             for k in range(nrw):
                 tmp_array.append([])
@@ -109,7 +115,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 for i in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
-                # print('nfct: ', nfct) # Hasenbusch factor, 1 for rat reweighting
+                # print('nfct: ', nfct) # Hasenbusch factor,
+                # 1 for rat reweighting
             else:
                 for i in range(nrw):
                     nfct.append(1)
@@ -138,8 +145,11 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                         for j in range(tmpd['n'][0]):
                             tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw[j])))
                             if print_err:
-                                print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw[j]))), np.std(np.exp(-np.asarray(tmp_rw[j]))))
-                                print('Sources:', np.exp(-np.asarray(tmp_rw[j])))
+                                print(config_no, i, j,
+                                      np.mean(np.exp(-np.asarray(tmp_rw[j]))),
+                                      np.std(np.exp(-np.asarray(tmp_rw[j]))))
+                                print('Sources:',
+                                      np.exp(-np.asarray(tmp_rw[j])))
                                 print('Partial factor:', tmp_nfct)
                     elif version == '1.6' or version == '1.4':
                         tmp_nfct = 1.0
@@ -149,7 +159,9 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                             tmp_rw = struct.unpack('d' * nsrc[i], t)
                             tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw)))
                             if print_err:
-                                print(config_no, i, j, np.mean(np.exp(-np.asarray(tmp_rw))), np.std(np.exp(-np.asarray(tmp_rw))))
+                                print(config_no, i, j,
+                                      np.mean(np.exp(-np.asarray(tmp_rw))),
+                                      np.std(np.exp(-np.asarray(tmp_rw))))
                                 print('Sources:', np.exp(-np.asarray(tmp_rw)))
                                 print('Partial factor:', tmp_nfct)
                     tmp_array[i].append(tmp_nfct)
@@ -168,11 +180,14 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin,
+               spatial_extent, fit_range=5, **kwargs):
     """Extract t0 from given .ms.dat files. Returns t0 as Obs.
 
-    It is assumed that all boundary effects have sufficiently decayed at x0=xmin.
-    The data around the zero crossing of t^2<E> - 0.3 is fitted with a linear function
+    It is assumed that all boundary effects have
+    sufficiently decayed at x0=xmin.
+    The data around the zero crossing of t^2<E> - 0.3
+    is fitted with a linear function
     from which the exact root is extracted.
     Only works with openQCD v 1.2.
 
@@ -183,14 +198,17 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     prefix : str
         Ensemble prefix
     dtr_read : int
-        Determines how many trajectories should be skipped when reading the ms.dat files.
+        Determines how many trajectories should be skipped
+        when reading the ms.dat files.
         Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
     xmin : int
-        First timeslice where the boundary effects have sufficiently decayed.
+        First timeslice where the boundary
+        effects have sufficiently decayed.
     spatial_extent : int
         spatial extent of the lattice, required for normalization.
     fit_range : int
-        Number of data points left and right of the zero crossing to be included in the linear fit. (Default: 5)
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit. (Default: 5)
     r_start : list
         list which contains the first config to be read for each replicum.
     r_stop: list
@@ -276,7 +294,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
 
         Ysum.append([])
         for i, item in enumerate(Ysl):
-            Ysum[-1].append([np.mean(item[current + xmin:current + tmax - xmin]) for current in range(0, len(item), tmax)])
+            Ysum[-1].append([np.mean(item[current + xmin:
+                             current + tmax - xmin])
+                            for current in range(0, len(item), tmax)])
 
     t2E_dict = {}
     for n in range(nn + 1):
@@ -287,12 +307,16 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start[nrep]:r_stop[nrep]]
         new_obs = Obs(samples, [(w.split('.'))[0] for w in ls])
-        t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
+        t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs \
+            / (spatial_extent ** 3) - 0.3
 
-    zero_crossing = np.argmax(np.array([o.value for o in t2E_dict.values()]) > 0.0)
+    zero_crossing = np.argmax(np.array(
+        [o.value for o in t2E_dict.values()]) > 0.0)
 
-    x = list(t2E_dict.keys())[zero_crossing - fit_range: zero_crossing + fit_range]
-    y = list(t2E_dict.values())[zero_crossing - fit_range: zero_crossing + fit_range]
+    x = list(t2E_dict.keys())[zero_crossing - fit_range:
+                              zero_crossing + fit_range]
+    y = list(t2E_dict.values())[zero_crossing - fit_range:
+                                zero_crossing + fit_range]
     [o.gamma_method() for o in y]
 
     fit_result = fit_lin(x, y)
@@ -348,7 +372,7 @@ def _read_array_openQCD2(fp):
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
 
 
-def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
+def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
     """Read qtop format from given folder structure.
 
     Parameters
@@ -360,144 +384,150 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
     c: double
         Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L
     dtr_cnfg: int
-        (optional) parameter that specifies the number of trajectories between two configs.
-        if it is not set, the distance between two measurements in the file is assumed to be
+        (optional) parameter that specifies the number of trajectories
+        between two configs.
+        if it is not set, the distance between two measurements
+        in the file is assumed to be
         the distance between two configurations.
     steps: int
         (optional) (maybe only necessary for openQCD2.0)
         nt step size, guessed if not given
     version: str
-        version string of the openQCD (sfqcd) version used to create the ensemble
+        version string of the openQCD (sfqcd) version used to create
+        the ensemble
     L: int
-        spatial length of the lattice in L/a. HAS to be set if version != sfqcd, since openQCD does not provide this in the header
+        spatial length of the lattice in L/a.
+        HAS to be set if version != sfqcd, since openQCD does not provide
+        this in the header
     r_start: list
-        offset of the first ensemble, making it easier to match later on with other Obs
+        offset of the first ensemble, making it easier to match
+        later on with other Obs
     r_stop: list
         last configurations that need to be read (per replicum)
-    r_meas_start: list
-        offset of the first measured ensemble, if there is any
     files: list
-        specify the exact files that need to be read from path, pratical if e.g. only one replicum is needed
+        specify the exact files that need to be read
+        from path, pratical if e.g. only one replicum is needed
     names: list
-        Alternative labeling for replicas/ensembles. Has to have the appropriate length
+        Alternative labeling for replicas/ensembles.
+        Has to have the appropriate length
     """
-    #one could read L from the header in case of sfQCD
-    #c = 0.35
-    known_versions = ["1.0","1.2","1.4","1.6","2.0", "sfqcd"]
-    
-    if not version in known_versions:
+    # one could read L from the header in case of sfQCD
+    # c = 0.35
+    known_versions = ["1.0", "1.2", "1.4", "1.6", "2.0", "sfqcd"]
+
+    if version not in known_versions:
         raise Exception("Unknown openQCD version.")
-    target = 0
     if "steps" in kwargs:
         steps = kwargs.get("steps")
-    
-    if 'target' in kwargs:
-        target = kwargs.get('target')
     if version == "sfqcd":
         if "L" in kwargs:
-            supposed_L = kwargs.get("L")    
+            supposed_L = kwargs.get("L")
     else:
-        if not "L" in kwargs:
-            raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
+        if "L" not in kwargs:
+            raise Exception("This version of openQCD needs you \
+                            to provide the spatial length of the \
+                            lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
     r_start = 1
-    r_meas_start = 1
-    if "r_meas_start" in kwargs:
-        r_meas_start = kwargs.get("r_meas_start")
     if "r_start" in kwargs:
         r_start = kwargs.get("r_start")
     if "r_stop" in kwargs:
         r_stop = kwargs.get("r_stop")
-    #if one wants to read specific files with this method...
+    # if one wants to read specific files with this method...
     if "files" in kwargs:
         files = kwargs.get("files")
     else:
-        #find files in path
+        # find files in path
         found = []
         files = []
         for (dirpath, dirnames, filenames) in os.walk(path+"/"):
-            #print(filenames)
+            # print(filenames)
             found.extend(filenames)
             break
         for f in found:
             if fnmatch.fnmatch(f, prefix+"*"+".ms.dat"):
                 files.append(f)
         print(files)
-    #now that we found our files, we dechiffer them...
+    # now that we found our files, we dechiffer them...
     rep_names = []
-    
+
     deltas = []
     idl = []
-    for rep,file in enumerate(files):
-        
+    for rep, file in enumerate(files):
         with open(path+"/"+file, "rb") as fp:
-            #this, for now, is for version 1.2,1.4,1.6 and 2.0, but needs to be tested for the last 3, isncethe doc says its the same
-            #header
+            # header
             t = fp.read(12)
             header = struct.unpack('<iii', t)
-            dn = header[0] # step size in integration steps "dnms"
-            nn = header[1] # number of measurements, so "ntot"/dn
-            tmax = header[2]# lattice T/a
+            # step size in integration steps "dnms"
+            dn = header[0]
+            # number of measurements, so "ntot"/dn
+            nn = header[1]
+            # lattice T/a
+            tmax = header[2]
             if version == "sfqcd":
                 t = fp.read(12)
                 Ls = struct.unpack('<iii', t)
                 if(Ls[0] == Ls[1] and Ls[1] == Ls[2]):
                     L = Ls[0]
                     if not (supposed_L == L):
-                        raise Exception("It seems the length given in the header and by you contradict each other")
+                        raise Exception("It seems the length given\
+                                        in the header and by you \
+                                        contradict each other")
                 else:
-                    raise Exception("Found more than one spatial length in header!")
-            
+                    raise Exception("Found more than one \
+                                    spatial length in header!")
+
             print('dnms:', dn)
             print('nn:', nn)
             print('tmax:', tmax)
-            t = fp.read(8) #header4 wird mit 16 bytes ausgelesen... cmax fehlt also als Angabe
-            eps = struct.unpack('d', t)[0]# das hier ist vllt. tol
+            t = fp.read(8)
+            eps = struct.unpack('d', t)[0]
             print('eps:', eps)
 
             Q = []
             ncs = []
             while 0 < 1:
-                t = fp.read(4) #int nt
+                # int nt
+                t = fp.read(4)
                 if(len(t) < 4):
                     break
-                ncs.append(struct.unpack('i',t)[0])
-                t = fp.read(8 * tmax * (nn + 1))#Wsl
-                t = fp.read(8 * tmax * (nn + 1))#Ysl
-                t = fp.read(8 * tmax * (nn + 1))#Qsl, which is asked for in this method
-                #unpack the array of Qtops, on each timeslice t=0,...,tmax-1 and the 
-                #measurement number in = 0...nn (see README.qcd1)
+                ncs.append(struct.unpack('i', t)[0])
+                # Wsl
+                t = fp.read(8 * tmax * (nn + 1))
+                # Ysl
+                t = fp.read(8 * tmax * (nn + 1))
+                # Qsl, which is asked for in this method
+                t = fp.read(8 * tmax * (nn + 1))
+                # unpack the array of Qtops,
+                # on each timeslice t=0,...,tmax-1 and the
+                # measurement number in = 0...nn (see README.qcd1)
                 tmpd = struct.unpack('d' * tmax * (nn + 1), t)
                 Q.append(tmpd)
-                #set step by reading all entries, then set stepsize, then check if everything is there
-                #make a dtr_config param, which is checked against difference...
-                #difference != step
 
-        if not len(set([ncs[i]-ncs[i-1] for i in range(1,len(ncs))])):
+        if not len(set([ncs[i]-ncs[i-1] for i in range(1, len(ncs))])):
             raise Exception("Irregularities in stepsize found")
         else:
             if 'steps' in kwargs:
                 if steps != ncs[1]-ncs[0]:
-                    raise Exception("steps and the found stepsize are not the same")
+                    raise Exception("steps and the found stepsize \
+                                    are not the same")
             else:
                 steps = ncs[1]-ncs[0]
-                if ncs[0]//steps == ncs[0]/steps:
-                    r_meas_start = ncs[0]//steps
-                    
+
         print(len(Q))
         print('max_t:', dn * (nn) * eps)
-        
+
         t_aim = (c * L) ** 2 / 8
 
         print('t_aim:', t_aim)
         index_aim = round(t_aim / eps / dn)
         print('index_aim:', index_aim)
 
-
         Q_sum = []
         for i, item in enumerate(Q):
-            Q_sum.append([sum(item[current:current + tmax]) for current in range(0, len(item), tmax)])
+            Q_sum.append([sum(item[current:current + tmax])
+                         for current in range(0, len(item), tmax)])
         print(len(Q_sum))
         print(len(Q_sum[0]))
         Q_round = []
@@ -505,26 +535,27 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
             Q_round.append(round(Q_sum[dtr_cnfg * i][index_aim]))
         if len(Q_round) != len(ncs)//dtr_cnfg:
             raise Exception("qtops and ncs dont have the same length")
-        
-        #replica = len(files)
+
+        # replica = len(files)
 
         truncated_file = file[:-7]
         print(truncated_file)
         idl_start = 1
-        
+
         if "r_start" in kwargs:
             Q_round = Q_round[r_start[rep]:]
             idl_start = r_start[rep]
         if "r_stop" in kwargs:
             Q_round = Q_round[:r_stop[rep]]
         idl_stop = idl_start+len(Q_round)
-        #keyword "names" prevails over "ens_name"
-        if not "names" in kwargs:
+        # keyword "names" prevails over "ens_name"
+        if "names" not in kwargs:
             try:
                 idx = truncated_file.index('r')
-            except:
-                if not "names" in kwargs:
-                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+            except Exception:
+                if "names" not in kwargs:
+                    raise Exception("Automatic recognition of replicum failed,\
+                                    please enter the key word 'names'.")
             if "ens_name" in kwargs:
                 ens_name = kwargs.get("ens_name")
             else:
@@ -534,12 +565,13 @@ def read_qtop(path, prefix,c, dtr_cnfg = 1, version = "1.2",**kwargs):
             names = kwargs.get("names")
             rep_names = names
         deltas.append(np.array(Q_round))
-        idl.append(range(idl_start,idl_stop))
-    #print(idl)
-    result = Obs(deltas, rep_names, idl = idl)
+        idl.append(range(idl_start, idl_stop))
+    # print(idl)
+    result = Obs(deltas, rep_names, idl=idl)
     return result
 
-def read_qtop_sector(target = 0, **kwargs):
+
+def read_qtop_sector(target=0, **kwargs):
     """target: int
             specifies the topological sector to be reweighted to (default 0)
         q_top: Obs
@@ -552,12 +584,14 @@ def read_qtop_sector(target = 0, **kwargs):
             path = kwargs.get("path")
             del kwargs["path"]
         else:
-            raise Exception("If you are not providing q_top, please provide path")
+            raise Exception("If you are not providing q_top,\
+                            please provide path")
         if "prefix" in kwargs:
             prefix = kwargs.get("prefix")
             del kwargs["prefix"]
         else:
-            raise Exception("If you are not providing q_top, please provide prefix")
+            raise Exception("If you are not providing q_top,\
+                            please provide prefix")
         if "c" in kwargs:
             c = kwargs.get("c")
             del kwargs["c"]
@@ -573,14 +607,16 @@ def read_qtop_sector(target = 0, **kwargs):
             del kwargs["dtr_cnfg"]
         else:
             dtr_cnfg = 1
-        qtop = read_qtop(path, prefix,c, dtr_cnfg = dtr_cnfg, version = version,**kwargs)
-    #unpack to original values, project onto target sector
+        qtop = read_qtop(path, prefix, c, dtr_cnfg=dtr_cnfg,
+                         version=version, **kwargs)
+    # unpack to original values, project onto target sector
     names = qtop.names
     print(names)
     print(qtop.deltas.keys())
     proj_qtop = []
     for n in qtop.deltas:
-        proj_qtop.append(np.array([1 if int(qtop.value+q) == target else 0 for q in qtop.deltas[n]]))
-    
+        proj_qtop.append(np.array([1 if int(qtop.value+q) ==
+                         target else 0 for q in qtop.deltas[n]]))
+
     result = Obs(proj_qtop, qtop.names)
     return result

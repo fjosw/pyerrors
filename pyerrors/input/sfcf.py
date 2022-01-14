@@ -125,8 +125,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
     if not appended:
         replica = len(ls)
     else:
-        replica = len([file.split(".")[-1] for file in ls])\
-            // len(set([file.split(".")[-1] for file in ls]))
+        replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
     print('Read', part, 'part of', name, 'from', prefix[:-1],
           ',', replica, 'replica')
     if 'names' in kwargs:
@@ -144,32 +143,28 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 try:
                     idx = entry.index('r')
                 except Exception:
-                    raise Exception("Automatic recognition of replicum failed, \
-                                    please enter the key word 'names'.")
+                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
                 if 'ens_name' in kwargs:
-                    new_names.append(kwargs.get('ens_name') + '|' +
-                                     entry[idx:])
+                    new_names.append(kwargs.get('ens_name') + '|' + entry[idx:])
                 else:
                     new_names.append(entry[:idx] + '|' + entry[idx:])
         else:
 
             for exc in ls:
-                if not fnmatch.fnmatch(exc, prefix + '*.'+name):
+                if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
             ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
             for entry in ls:
-                myentry = entry[:-len(name)-1]
+                myentry = entry[:-len(name) - 1]
                 # print(myentry)
                 try:
                     idx = myentry.index('r')
                 except Exception:
-                    raise Exception("Automatic recognition of replicum failed, \
-                                    please enter the key word 'names'.")
+                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
                 if 'ens_name' in kwargs:
-                    new_names.append(kwargs.get('ens_name') + '|' +
-                                     myentry[idx:])
+                    new_names.append(kwargs.get('ens_name') + '|' + myentry[idx:])
                 else:
                     new_names.append(myentry[:idx] + '|' + myentry[idx:])
             # print(new_names)
@@ -181,8 +176,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 sub_ls = kwargs.get("files")
                 sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
             else:
-                for (dirpath, dirnames, filenames) in \
-                     os.walk(path + '/' + item):
+                for (dirpath, dirnames, filenames) in os.walk(path + '/' + item):
                     if compact:
                         sub_ls.extend(filenames)
                     else:
@@ -210,8 +204,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                     else:
                         rep_idl.append(int(cfg[3:]))
                 except Exception:
-                    raise Exception("Couldn't parse idl from directroy, \
-                        problem with file "+cfg)
+                    raise Exception("Couldn't parse idl from directroy, problem with file " + cfg)
             rep_idl.sort()
             # maybe there is a better way to print the idls
             print(item, ':', no_cfg, ' configurations')
@@ -223,52 +216,40 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 if compact:
                     # to do so, the pattern needed is put together
                     # from the input values
-                    pattern = 'name      ' + name + '\nquarks    '\
-                            + quarks + '\noffset    '\
-                            + str(noffset) + '\nwf        '\
-                            + str(wf)
+                    pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
                     if b2b:
                         pattern += '\nwf_2      ' + str(wf2)
                     # and the file is parsed through to find the pattern
-                    with open(path + '/' + item + '/' + sub_ls[0], 'r') \
-                            as file:
+                    with open(path + '/' + item + '/' + sub_ls[0], 'r') as file:
                         content = file.read()
                         match = re.search(pattern, content)
                         if match:
                             # the start and end point of the correlator
                             # in quaetion is extracted for later use in
                             # the other files
-                            start_read = content.count('\n', 0, match.start())\
-                                                       + 5 + b2b
-                            end_match = re.search(r'\n\s*\n',
-                                                  content[match.start():])
-                            T = content[match.start():]\
-                                .count('\n', 0, end_match.start()) - 4 - b2b
+                            start_read = content.count('\n', 0, match.start()) + 5 + b2b
+                            end_match = re.search(r'\n\s*\n', content[match.start():])
+                            T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
                             assert T > 0
-                            print(T, 'entries, starting to read in line',
-                                  start_read)
+                            print(T, 'entries, starting to read in line', start_read)
                         else:
-                            raise Exception('Correlator with pattern\n'
-                                            + pattern + '\nnot found.')
+                            raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
                 else:
                     # this part does the same as above,
                     # but for non-compactified versions of the files
-                    with open(path + '/' + item + '/' + sub_ls[0] + '/'
-                              + name) as fp:
+                    with open(path + '/' + item + '/' + sub_ls[0] + '/' + name) as fp:
                         for k, line in enumerate(fp):
                             if version == "0.0":
                                 # check if this is really the right file
                                 # by matching pattern similar to above
-                                pattern = "# "+name+" : offset "+str(noffset)\
-                                        + ", wf "+str(wf)
+                                pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
                                 # if b2b, a second wf is needed
                                 if b2b:
-                                    pattern += ", wf_2 "+str(wf2)
+                                    pattern += ", wf_2 " + str(wf2)
                                 qs = quarks.split(" ")
-                                pattern += " : " + qs[0]+" - " + qs[1]
+                                pattern += " : " + qs[0] + " - " + qs[1]
                                 # print(pattern)
-                            if read == 1 and not line.strip() \
-                                    and k > start + 1:
+                            if read == 1 and not line.strip() and k > start + 1:
                                 break
                             if read == 1 and k >= start:
                                 T += 1
@@ -277,13 +258,13 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                                 if pattern in line:
                                     # print(line)
                                     read = 1
-                                    start = k+1
+                                    start = k + 1
                             else:
                                 if '[correlator]' in line:
                                     read = 1
                                     start = k + 7 + b2b
                                     T -= b2b
-                        print(str(T)+" entries found.")
+                        print(str(T) + " entries found.")
                 # we found where the correlator
                 # that is to be read is in the files
                 # after preparing the datastructure
@@ -303,9 +284,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                         # check, if the correlator is in fact
                         # printed completely
                         if(start_read + T > len(lines)):
-                            raise Exception("EOF before end of correlator data! \
-                                            Maybe "+path + '/' + item + '/' + sub_ls[cfg]+" \
-                                            is corrupted?")
+                            raise Exception("EOF before end of correlator data! Maybe " + path + '/' + item + '/' + sub_ls[cfg] + " is corrupted?")
                         # and start to read the correlator.
                         # the range here is chosen like this,
                         # since this allows for implementing
@@ -317,12 +296,10 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                                                     sub_ls[cfg])
                             if(k >= start_read and k < start_read + T):
                                 floats = list(map(float, lines[k].split()))
-                                deltas[k - start_read][i][cfg] = \
-                                    floats[-2:][im]
+                                deltas[k - start_read][i][cfg] = floats[-2:][im]
             else:
                 for cnfg, subitem in enumerate(sub_ls):
-                    with open(path + '/' + item + '/' + subitem
-                              + '/' + name) as fp:
+                    with open(path + '/' + item + '/' + subitem + '/' + name) as fp:
                         # since the non-compatified files
                         # are typically not so long,
                         # we can iterate over the whole file.
@@ -331,23 +308,20 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                             if(k >= start and k < start + T):
                                 floats = list(map(float, line.split()))
                                 if version == "0.0":
-                                    deltas[k-start][i][cnfg] = floats[im]
+                                    deltas[k - start][i][cnfg] = floats[im]
                                 else:
-                                    deltas[k - start][i][cnfg] = \
-                                        floats[1 + im - single]
+                                    deltas[k - start][i][cnfg] = floats[1 + im - single]
 
     else:
         if "files" in kwargs:
             ls = kwargs.get("files")
         else:
             for exc in ls:
-                if not fnmatch.fnmatch(exc, prefix + '*.'+name):
+                if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
                 ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
         # print(ls)
-        pattern = 'name      ' + name + '\nquarks    '\
-            + quarks + '\noffset    ' + str(noffset)\
-            + '\nwf        ' + str(wf)
+        pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
         if b2b:
             pattern += '\nwf_2      ' + str(wf2)
         for rep, file in enumerate(ls):
@@ -358,10 +332,9 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 for linenumber, line in enumerate(content):
                     if "[run]" in line:
                         data_starts.append(linenumber)
-                if len(set([data_starts[i]-data_starts[i-1] for i in
-                        range(1, len(data_starts))])) > 1:
-                    raise Exception("Irregularities in file structure found,\
-                                    not all runs have the same output length")
+                if len(set([data_starts[i] - data_starts[i - 1] for i in
+                            range(1, len(data_starts))])) > 1:
+                    raise Exception("Irregularities in file structure found, not all runs have the same output length")
                 # first chunk of data
                 chunk = content[:data_starts[1]]
                 for linenumber, line in enumerate(chunk):
@@ -370,11 +343,11 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                     elif line.startswith("[correlator]"):
                         corr_line = linenumber
                         found_pat = ""
-                        for li in chunk[corr_line+1:corr_line+6+b2b]:
+                        for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
                             found_pat += li
                         if re.search(pattern, found_pat):
-                            start_read = corr_line+7+b2b
-                            T = len(chunk)-1-start_read
+                            start_read = corr_line + 7 + b2b
+                            T = len(chunk) - 1 - start_read
                 if rep == 0:
                     deltas = []
                     for t in range(T):
@@ -384,21 +357,19 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 # all other chunks should follow the same structure
                 for cnfg in range(len(data_starts)):
                     start = data_starts[cnfg]
-                    stop = start+data_starts[1]
+                    stop = start + data_starts[1]
                     chunk = content[start:stop]
                     # meta_data = {}
                     try:
                         rep_idl.append(int(chunk[gauge_line].split("n")[-1]))
                     except Exception:
-                        raise Exception("Couldn't parse idl from directroy, \
-                            problem with chunk around line "+gauge_line)
+                        raise Exception("Couldn't parse idl from directroy, problem with chunk around line " + gauge_line)
 
                     found_pat = ""
-                    for li in chunk[corr_line+1:corr_line+6+b2b]:
+                    for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
                         found_pat += li
                     if re.search(pattern, found_pat):
-                        for t, line in \
-                                enumerate(chunk[start_read:start_read+T]):
+                        for t, line in enumerate(chunk[start_read:start_read + T]):
                             floats = list(map(float, line.split()))
                             deltas[t][rep][cnfg] = floats[-2:][im]
             idl.append(rep_idl)
@@ -407,10 +378,9 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
         print("Checking for missing configs...")
         che = kwargs.get("check_configs")
         if not (len(che) == len(idl)):
-            raise Exception("check_configs has to be the same length\
-                            as replica!")
+            raise Exception("check_configs has to be the same length as replica!")
         for r in range(len(idl)):
-            print("checking "+new_names[r])
+            print("checking " + new_names[r])
             utils.check_idl(idl[r], che[r])
         print("Done")
     result = []

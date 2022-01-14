@@ -75,8 +75,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         for entry in ls:
             truncated_entry = entry.split('.')[0]
             idx = truncated_entry.index('r')
-            rep_names.append(truncated_entry[:idx] + '|'
-                             + truncated_entry[idx:])
+            rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -99,12 +98,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                     deltas.append([])
             else:
                 # little weird if-clause due to the /2 operation needed.
-                if ((nrw != struct.unpack('i', t)[0] and
-                    (not version == '2.0')) or
-                    (nrw != struct.unpack('i', t)[0] / 2 and
-                     version == '2.0')):
-                    raise Exception('Error: different number of reweighting\
-                                    factors for replicum', rep)
+                if ((nrw != struct.unpack('i', t)[0] and (not version == '2.0')) or (nrw != struct.unpack('i', t)[0] / 2 and version == '2.0')):
+                    raise Exception('Error: different number of reweighting factors for replicum', rep)
 
             for k in range(nrw):
                 tmp_array.append([])
@@ -307,8 +302,7 @@ def extract_t0(path, prefix, dtr_read, xmin,
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start[nrep]:r_stop[nrep]]
         new_obs = Obs(samples, [(w.split('.'))[0] for w in ls])
-        t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs \
-            / (spatial_extent ** 3) - 0.3
+        t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
 
     zero_crossing = np.argmax(np.array(
         [o.value for o in t2E_dict.values()]) > 0.0)
@@ -424,9 +418,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
             supposed_L = kwargs.get("L")
     else:
         if "L" not in kwargs:
-            raise Exception("This version of openQCD needs you \
-                            to provide the spatial length of the \
-                            lattice as parameter 'L'.")
+            raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
     r_start = 1
@@ -441,12 +433,12 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         # find files in path
         found = []
         files = []
-        for (dirpath, dirnames, filenames) in os.walk(path+"/"):
+        for (dirpath, dirnames, filenames) in os.walk(path + "/"):
             # print(filenames)
             found.extend(filenames)
             break
         for f in found:
-            if fnmatch.fnmatch(f, prefix+"*"+".ms.dat"):
+            if fnmatch.fnmatch(f, prefix + "*" + ".ms.dat"):
                 files.append(f)
         print(files)
     # now that we found our files, we dechiffer them...
@@ -455,7 +447,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
     deltas = []
     idl = []
     for rep, file in enumerate(files):
-        with open(path+"/"+file, "rb") as fp:
+        with open(path + "/" + file, "rb") as fp:
             # header
             t = fp.read(12)
             header = struct.unpack('<iii', t)
@@ -471,12 +463,9 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
                 if(Ls[0] == Ls[1] and Ls[1] == Ls[2]):
                     L = Ls[0]
                     if not (supposed_L == L):
-                        raise Exception("It seems the length given\
-                                        in the header and by you \
-                                        contradict each other")
+                        raise Exception("It seems the length given in the header and by you contradict each other")
                 else:
-                    raise Exception("Found more than one \
-                                    spatial length in header!")
+                    raise Exception("Found more than one spatial length in header!")
 
             print('dnms:', dn)
             print('nn:', nn)
@@ -505,15 +494,14 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
                 tmpd = struct.unpack('d' * tmax * (nn + 1), t)
                 Q.append(tmpd)
 
-        if not len(set([ncs[i]-ncs[i-1] for i in range(1, len(ncs))])):
+        if not len(set([ncs[i] - ncs[i - 1] for i in range(1, len(ncs))])):
             raise Exception("Irregularities in stepsize found")
         else:
             if 'steps' in kwargs:
-                if steps != ncs[1]-ncs[0]:
-                    raise Exception("steps and the found stepsize \
-                                    are not the same")
+                if steps != ncs[1] - ncs[0]:
+                    raise Exception("steps and the found stepsize are not the same")
             else:
-                steps = ncs[1]-ncs[0]
+                steps = ncs[1] - ncs[0]
 
         print(len(Q))
         print('max_t:', dn * (nn) * eps)
@@ -533,7 +521,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         Q_round = []
         for i in range(len(Q) // dtr_cnfg):
             Q_round.append(round(Q_sum[dtr_cnfg * i][index_aim]))
-        if len(Q_round) != len(ncs)//dtr_cnfg:
+        if len(Q_round) != len(ncs) // dtr_cnfg:
             raise Exception("qtops and ncs dont have the same length")
 
         # replica = len(files)
@@ -547,15 +535,14 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
             idl_start = r_start[rep]
         if "r_stop" in kwargs:
             Q_round = Q_round[:r_stop[rep]]
-        idl_stop = idl_start+len(Q_round)
+        idl_stop = idl_start + len(Q_round)
         # keyword "names" prevails over "ens_name"
         if "names" not in kwargs:
             try:
                 idx = truncated_file.index('r')
             except Exception:
                 if "names" not in kwargs:
-                    raise Exception("Automatic recognition of replicum failed,\
-                                    please enter the key word 'names'.")
+                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
             if "ens_name" in kwargs:
                 ens_name = kwargs.get("ens_name")
             else:
@@ -584,14 +571,12 @@ def read_qtop_sector(target=0, **kwargs):
             path = kwargs.get("path")
             del kwargs["path"]
         else:
-            raise Exception("If you are not providing q_top,\
-                            please provide path")
+            raise Exception("If you are not providing q_top, please provide path")
         if "prefix" in kwargs:
             prefix = kwargs.get("prefix")
             del kwargs["prefix"]
         else:
-            raise Exception("If you are not providing q_top,\
-                            please provide prefix")
+            raise Exception("If you are not providing q_top, please provide prefix")
         if "c" in kwargs:
             c = kwargs.get("c")
             del kwargs["c"]
@@ -615,8 +600,7 @@ def read_qtop_sector(target=0, **kwargs):
     print(qtop.deltas.keys())
     proj_qtop = []
     for n in qtop.deltas:
-        proj_qtop.append(np.array([1 if int(qtop.value+q) ==
-                         target else 0 for q in qtop.deltas[n]]))
+        proj_qtop.append(np.array([1 if int(qtop.value + q) == target else 0 for q in qtop.deltas[n]]))
 
     result = Obs(proj_qtop, qtop.names)
     return result

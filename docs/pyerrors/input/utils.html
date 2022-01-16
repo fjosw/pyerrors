@@ -75,11 +75,20 @@
 
 
 <span class="k">def</span> <span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if list of configurations is contained in an idl</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idl : range or list</span>
+<span class="sd">        idl of the current replicum</span>
+<span class="sd">    che : list</span>
+<span class="sd">        list of configurations to be checked against</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">che</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">:</span>
             <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-    <span class="c1"># print missing such that it can directly be parsed to slurm terminal</span>
+    <span class="c1"># print missing configurations such that it can directly be parsed to slurm terminal</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span> <span class="s2">&quot;configs missing&quot;</span><span class="p">)</span>
         <span class="n">miss_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -102,11 +111,20 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if list of configurations is contained in an idl</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idl : range or list</span>
+<span class="sd">        idl of the current replicum</span>
+<span class="sd">    che : list</span>
+<span class="sd">        list of configurations to be checked against</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">che</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idl</span><span class="p">:</span>
             <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-    <span class="c1"># print missing such that it can directly be parsed to slurm terminal</span>
+    <span class="c1"># print missing configurations such that it can directly be parsed to slurm terminal</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span> <span class="s2">&quot;configs missing&quot;</span><span class="p">)</span>
         <span class="n">miss_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -117,7 +135,18 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Checks if list of configurations is contained in an idl</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>idl</strong> (range or list):
+idl of the current replicum</li>
+<li><strong>che</strong> (list):
+list of configurations to be checked against</li>
+</ul>
+</div>
+
 
                 </section>
     </main>

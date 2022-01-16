@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import fnmatch
 import re
@@ -42,7 +39,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if 'files' in kwargs:
         ls = kwargs.get('files')
     else:
-        # Exclude files with different names
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*' + postfix + '.dat'):
                 ls = list(set(ls) - set([exc]))
@@ -69,7 +65,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     print('Read reweighting factors from', prefix[:-1], ',',
           replica, 'replica', end='')
 
-    # Adjust replica names to new bookmarking system
     if names is None:
         rep_names = []
         for entry in ls:
@@ -88,7 +83,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         tmp_array = []
         with open(path + '/' + ls[rep], 'rb') as fp:
 
-            # header
             t = fp.read(4)  # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
@@ -97,7 +91,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 for k in range(nrw):
                     deltas.append([])
             else:
-                # little weird if-clause due to the /2 operation needed.
                 if ((nrw != struct.unpack('i', t)[0] and (not version == '2.0')) or (nrw != struct.unpack('i', t)[0] / 2 and version == '2.0')):
                     raise Exception('Error: different number of reweighting factors for replicum', rep)
 
@@ -110,8 +103,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 for i in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
-                # print('nfct: ', nfct) # Hasenbusch factor,
-                # 1 for rat reweighting
             else:
                 for i in range(nrw):
                     nfct.append(1)
@@ -124,7 +115,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 if not struct.unpack('i', fp.read(4))[0] == 0:
                     print('something is wrong!')
 
-            # body
             while 0 < 1:
                 t = fp.read(4)
                 if len(t) < 4:
@@ -220,7 +210,6 @@ def extract_t0(path, prefix, dtr_read, xmin,
     if not ls:
         raise Exception('Error, directory not found')
 
-    # Exclude files with different names
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.ms.dat'):
             ls = list(set(ls) - set([exc]))
@@ -232,7 +221,6 @@ def extract_t0(path, prefix, dtr_read, xmin,
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
             raise Exception('r_start does not match number of replicas')
-        # Adjust Configuration numbering to python index
         r_start = [o - 1 if o else None for o in r_start]
     else:
         r_start = [None] * replica
@@ -251,7 +239,6 @@ def extract_t0(path, prefix, dtr_read, xmin,
     for rep in range(replica):
 
         with open(path + '/' + ls[rep], 'rb') as fp:
-            # Read header
             t = fp.read(12)
             header = struct.unpack('iii', t)
             if rep == 0:
@@ -270,7 +257,6 @@ def extract_t0(path, prefix, dtr_read, xmin,
 
             Ysl = []
 
-            # Read body
             while 0 < 1:
                 t = fp.read(4)
                 if(len(t) < 4):
@@ -334,12 +320,6 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     return arr
 
 
-# mimic the read_array routine of openQCD-2.0.
-# fp is the opened file handle
-# returns the dict array
-# at this point we only parse a 2d array
-# d = 2
-# n = [nfct[irw], 2*nsrc[irw]]
 def _read_array_openQCD2(fp):
     t = fp.read(4)
     d = struct.unpack('i', t)[0]
@@ -400,13 +380,11 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         last configurations that need to be read (per replicum)
     files: list
         specify the exact files that need to be read
-        from path, pratical if e.g. only one replicum is needed
+        from path, practical if e.g. only one replicum is needed
     names: list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length
     """
-    # one could read L from the header in case of sfQCD
-    # c = 0.35
     known_versions = ["1.0", "1.2", "1.4", "1.6", "2.0", "sfqcd"]
 
     if version not in known_versions:
@@ -426,11 +404,9 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         r_start = kwargs.get("r_start")
     if "r_stop" in kwargs:
         r_stop = kwargs.get("r_stop")
-    # if one wants to read specific files with this method...
     if "files" in kwargs:
         files = kwargs.get("files")
     else:
-        # find files in path
         found = []
         files = []
         for (dirpath, dirnames, filenames) in os.walk(path + "/"):
@@ -441,14 +417,12 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
             if fnmatch.fnmatch(f, prefix + "*" + ".ms.dat"):
                 files.append(f)
         print(files)
-    # now that we found our files, we dechiffer them...
     rep_names = []
 
     deltas = []
     idl = []
     for rep, file in enumerate(files):
         with open(path + "/" + file, "rb") as fp:
-            # header
             t = fp.read(12)
             header = struct.unpack('<iii', t)
             # step size in integration steps "dnms"
@@ -477,7 +451,6 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
             Q = []
             ncs = []
             while 0 < 1:
-                # int nt
                 t = fp.read(4)
                 if(len(t) < 4):
                     break
@@ -524,8 +497,6 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         if len(Q_round) != len(ncs) // dtr_cnfg:
             raise Exception("qtops and ncs dont have the same length")
 
-        # replica = len(files)
-
         truncated_file = file[:-7]
         print(truncated_file)
         idl_start = 1
@@ -553,7 +524,6 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
             rep_names = names
         deltas.append(np.array(Q_round))
         idl.append(range(idl_start, idl_stop))
-    # print(idl)
     result = Obs(deltas, rep_names, idl=idl)
     return result
 
@@ -594,7 +564,6 @@ def read_qtop_sector(target=0, **kwargs):
             dtr_cnfg = 1
         qtop = read_qtop(path, prefix, c, dtr_cnfg=dtr_cnfg,
                          version=version, **kwargs)
-    # unpack to original values, project onto target sector
     names = qtop.names
     print(names)
     print(qtop.deltas.keys())

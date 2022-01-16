@@ -78,10 +78,7 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># coding: utf-8</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
+            <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">struct</span>
@@ -122,7 +119,6 @@
     <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">ls</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Exclude files with different names</span>
         <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">postfix</span> <span class="o">+</span> <span class="s1">&#39;.dat&#39;</span><span class="p">):</span>
                 <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
@@ -149,7 +145,6 @@
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read reweighting factors from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
           <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Adjust replica names to new bookmarking system</span>
     <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
@@ -168,7 +163,6 @@
         <span class="n">tmp_array</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">ls</span><span class="p">[</span><span class="n">rep</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
 
-            <span class="c1"># header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># number of reweighting factors</span>
             <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">nrw</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -177,7 +171,6 @@
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># little weird if-clause due to the /2 operation needed.</span>
                 <span class="k">if</span> <span class="p">((</span><span class="n">nrw</span> <span class="o">!=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;2.0&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nrw</span> <span class="o">!=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;2.0&#39;</span><span class="p">)):</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error: different number of reweighting factors for replicum&#39;</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
 
@@ -190,8 +183,6 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                     <span class="n">nfct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="c1"># print(&#39;nfct: &#39;, nfct) # Hasenbusch factor,</span>
-                <span class="c1"># 1 for rat reweighting</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">nfct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -204,7 +195,6 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;something is wrong!&#39;</span><span class="p">)</span>
 
-            <span class="c1"># body</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
@@ -300,7 +290,6 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Exclude files with different names</span>
     <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
             <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
@@ -312,7 +301,6 @@
         <span class="n">r_start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_start&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_start</span><span class="p">)</span> <span class="o">!=</span> <span class="n">replica</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;r_start does not match number of replicas&#39;</span><span class="p">)</span>
-        <span class="c1"># Adjust Configuration numbering to python index</span>
         <span class="n">r_start</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">o</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">r_start</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_start</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
@@ -331,7 +319,6 @@
     <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">replica</span><span class="p">):</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">ls</span><span class="p">[</span><span class="n">rep</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="c1"># Read header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;iii&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -350,7 +337,6 @@
 
             <span class="n">Ysl</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="c1"># Read body</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
@@ -414,12 +400,6 @@
     <span class="k">return</span> <span class="n">arr</span>
 
 
-<span class="c1"># mimic the read_array routine of openQCD-2.0.</span>
-<span class="c1"># fp is the opened file handle</span>
-<span class="c1"># returns the dict array</span>
-<span class="c1"># at this point we only parse a 2d array</span>
-<span class="c1"># d = 2</span>
-<span class="c1"># n = [nfct[irw], 2*nsrc[irw]]</span>
 <span class="k">def</span> <span class="nf">_read_array_openQCD2</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -480,13 +460,11 @@
 <span class="sd">        last configurations that need to be read (per replicum)</span>
 <span class="sd">    files: list</span>
 <span class="sd">        specify the exact files that need to be read</span>
-<span class="sd">        from path, pratical if e.g. only one replicum is needed</span>
+<span class="sd">        from path, practical if e.g. only one replicum is needed</span>
 <span class="sd">    names: list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># one could read L from the header in case of sfQCD</span>
-    <span class="c1"># c = 0.35</span>
     <span class="n">known_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.2&quot;</span><span class="p">,</span> <span class="s2">&quot;1.4&quot;</span><span class="p">,</span> <span class="s2">&quot;1.6&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span> <span class="s2">&quot;sfqcd&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_versions</span><span class="p">:</span>
@@ -506,11 +484,9 @@
         <span class="n">r_start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_start&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;r_stop&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_stop&quot;</span><span class="p">)</span>
-    <span class="c1"># if one wants to read specific files with this method...</span>
     <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">files</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># find files in path</span>
         <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
@@ -521,14 +497,12 @@
             <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span> <span class="o">+</span> <span class="s2">&quot;.ms.dat&quot;</span><span class="p">):</span>
                 <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-    <span class="c1"># now that we found our files, we dechiffer them...</span>
     <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">rep</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="c1"># header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;iii&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
             <span class="c1"># step size in integration steps &quot;dnms&quot;</span>
@@ -557,7 +531,6 @@
             <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">ncs</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># int nt</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
                     <span class="k">break</span>
@@ -604,8 +577,6 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Q_round</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ncs</span><span class="p">)</span> <span class="o">//</span> <span class="n">dtr_cnfg</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;qtops and ncs dont have the same length&quot;</span><span class="p">)</span>
 
-        <span class="c1"># replica = len(files)</span>
-
         <span class="n">truncated_file</span> <span class="o">=</span> <span class="n">file</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">truncated_file</span><span class="p">)</span>
         <span class="n">idl_start</span> <span class="o">=</span> <span class="mi">1</span>
@@ -633,7 +604,6 @@
             <span class="n">rep_names</span> <span class="o">=</span> <span class="n">names</span>
         <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Q_round</span><span class="p">))</span>
         <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">idl_start</span><span class="p">,</span> <span class="n">idl_stop</span><span class="p">))</span>
-    <span class="c1"># print(idl)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
@@ -674,7 +644,6 @@
             <span class="n">dtr_cnfg</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">qtop</span> <span class="o">=</span> <span class="n">read_qtop</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">dtr_cnfg</span><span class="o">=</span><span class="n">dtr_cnfg</span><span class="p">,</span>
                          <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="c1"># unpack to original values, project onto target sector</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">qtop</span><span class="o">.</span><span class="n">names</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">qtop</span><span class="o">.</span><span class="n">deltas</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -731,7 +700,6 @@
     <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">ls</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Exclude files with different names</span>
         <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">postfix</span> <span class="o">+</span> <span class="s1">&#39;.dat&#39;</span><span class="p">):</span>
                 <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
@@ -758,7 +726,6 @@
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read reweighting factors from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
           <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Adjust replica names to new bookmarking system</span>
     <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
@@ -777,7 +744,6 @@
         <span class="n">tmp_array</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">ls</span><span class="p">[</span><span class="n">rep</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
 
-            <span class="c1"># header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># number of reweighting factors</span>
             <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">nrw</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -786,7 +752,6 @@
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># little weird if-clause due to the /2 operation needed.</span>
                 <span class="k">if</span> <span class="p">((</span><span class="n">nrw</span> <span class="o">!=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;2.0&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nrw</span> <span class="o">!=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;2.0&#39;</span><span class="p">)):</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error: different number of reweighting factors for replicum&#39;</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
 
@@ -799,8 +764,6 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                     <span class="n">nfct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="c1"># print(&#39;nfct: &#39;, nfct) # Hasenbusch factor,</span>
-                <span class="c1"># 1 for rat reweighting</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
                     <span class="n">nfct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -813,7 +776,6 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;something is wrong!&#39;</span><span class="p">)</span>
 
-            <span class="c1"># body</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
@@ -939,7 +901,6 @@ postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Exclude files with different names</span>
     <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
             <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
@@ -951,7 +912,6 @@ postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
         <span class="n">r_start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_start&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_start</span><span class="p">)</span> <span class="o">!=</span> <span class="n">replica</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;r_start does not match number of replicas&#39;</span><span class="p">)</span>
-        <span class="c1"># Adjust Configuration numbering to python index</span>
         <span class="n">r_start</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">o</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">r_start</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_start</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
@@ -970,7 +930,6 @@ postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
     <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">replica</span><span class="p">):</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">ls</span><span class="p">[</span><span class="n">rep</span><span class="p">],</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="c1"># Read header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;iii&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -989,7 +948,6 @@ postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
 
             <span class="n">Ysl</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="c1"># Read body</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
@@ -1121,13 +1079,11 @@ If true extract the plaquette estimate of t0 instead.</li>
 <span class="sd">        last configurations that need to be read (per replicum)</span>
 <span class="sd">    files: list</span>
 <span class="sd">        specify the exact files that need to be read</span>
-<span class="sd">        from path, pratical if e.g. only one replicum is needed</span>
+<span class="sd">        from path, practical if e.g. only one replicum is needed</span>
 <span class="sd">    names: list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># one could read L from the header in case of sfQCD</span>
-    <span class="c1"># c = 0.35</span>
     <span class="n">known_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.2&quot;</span><span class="p">,</span> <span class="s2">&quot;1.4&quot;</span><span class="p">,</span> <span class="s2">&quot;1.6&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span> <span class="s2">&quot;sfqcd&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_versions</span><span class="p">:</span>
@@ -1147,11 +1103,9 @@ If true extract the plaquette estimate of t0 instead.</li>
         <span class="n">r_start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_start&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;r_stop&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_stop&quot;</span><span class="p">)</span>
-    <span class="c1"># if one wants to read specific files with this method...</span>
     <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">files</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># find files in path</span>
         <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
@@ -1162,14 +1116,12 @@ If true extract the plaquette estimate of t0 instead.</li>
             <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span> <span class="o">+</span> <span class="s2">&quot;.ms.dat&quot;</span><span class="p">):</span>
                 <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-    <span class="c1"># now that we found our files, we dechiffer them...</span>
     <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">rep</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="c1"># header</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;iii&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
             <span class="c1"># step size in integration steps &quot;dnms&quot;</span>
@@ -1198,7 +1150,6 @@ If true extract the plaquette estimate of t0 instead.</li>
             <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">ncs</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># int nt</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
                     <span class="k">break</span>
@@ -1245,8 +1196,6 @@ If true extract the plaquette estimate of t0 instead.</li>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Q_round</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ncs</span><span class="p">)</span> <span class="o">//</span> <span class="n">dtr_cnfg</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;qtops and ncs dont have the same length&quot;</span><span class="p">)</span>
 
-        <span class="c1"># replica = len(files)</span>
-
         <span class="n">truncated_file</span> <span class="o">=</span> <span class="n">file</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">truncated_file</span><span class="p">)</span>
         <span class="n">idl_start</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1274,7 +1223,6 @@ If true extract the plaquette estimate of t0 instead.</li>
             <span class="n">rep_names</span> <span class="o">=</span> <span class="n">names</span>
         <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Q_round</span><span class="p">))</span>
         <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">idl_start</span><span class="p">,</span> <span class="n">idl_stop</span><span class="p">))</span>
-    <span class="c1"># print(idl)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 </pre></div>
@@ -1313,7 +1261,7 @@ later on with other Obs</li>
 last configurations that need to be read (per replicum)</li>
 <li><strong>files</strong> (list):
 specify the exact files that need to be read
-from path, pratical if e.g. only one replicum is needed</li>
+from path, practical if e.g. only one replicum is needed</li>
 <li><strong>names</strong> (list):
 Alternative labeling for replicas/ensembles.
 Has to have the appropriate length</li>
@@ -1368,7 +1316,6 @@ Has to have the appropriate length</li>
             <span class="n">dtr_cnfg</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">qtop</span> <span class="o">=</span> <span class="n">read_qtop</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">dtr_cnfg</span><span class="o">=</span><span class="n">dtr_cnfg</span><span class="p">,</span>
                          <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="c1"># unpack to original values, project onto target sector</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">qtop</span><span class="o">.</span><span class="n">names</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">qtop</span><span class="o">.</span><span class="n">deltas</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>

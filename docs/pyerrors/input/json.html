@@ -100,7 +100,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray, Corr.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    description : str</span>
 <span class="sd">        Optional string that describes the contents of the json file.</span>
@@ -319,7 +319,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray, Corr.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    fname : str</span>
 <span class="sd">        Filename of the output file.</span>
@@ -352,7 +352,7 @@
 <span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
 
-<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
@@ -539,7 +539,7 @@
 <span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json.gz file.</span>
 
-<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
@@ -591,7 +591,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray, Corr.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    description : str</span>
 <span class="sd">        Optional string that describes the contents of the json file.</span>
@@ -813,7 +813,7 @@ to a .json(.gz) file</p>
 <ul>
 <li><strong>ol</strong> (list):
 List of objects that will be exported. At the moments, these objects can be
-either of: Obs, list, numpy.ndarray.
+either of: Obs, list, numpy.ndarray, Corr.
 All Obs inside a structure have to be defined on the same set of configurations.</li>
 <li><strong>description</strong> (str):
 Optional string that describes the contents of the json file.</li>
@@ -842,7 +842,7 @@ saves disk space.</li>
 <span class="sd">    ----------</span>
 <span class="sd">    ol : list</span>
 <span class="sd">        List of objects that will be exported. At the moments, these objects can be</span>
-<span class="sd">        either of: Obs, list, numpy.ndarray.</span>
+<span class="sd">        either of: Obs, list, numpy.ndarray, Corr.</span>
 <span class="sd">        All Obs inside a structure have to be defined on the same set of configurations.</span>
 <span class="sd">    fname : str</span>
 <span class="sd">        Filename of the output file.</span>
@@ -881,7 +881,7 @@ saves disk space.</li>
 <ul>
 <li><strong>ol</strong> (list):
 List of objects that will be exported. At the moments, these objects can be
-either of: Obs, list, numpy.ndarray.
+either of: Obs, list, numpy.ndarray, Corr.
 All Obs inside a structure have to be defined on the same set of configurations.</li>
 <li><strong>fname</strong> (str):
 Filename of the output file.</li>
@@ -910,7 +910,7 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
 
-<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
@@ -1098,7 +1098,7 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
 
             <div class="docstring"><p>Reconstruct a list of Obs or structures containing Obs from a json string.</p>
 
-<p>The following structures are supported: Obs, list, numpy.ndarray
+<p>The following structures are supported: Obs, list, numpy.ndarray, Corr
 If the list contains only one element, it is unpacked from the list.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -1129,7 +1129,7 @@ If False, only the data is returned.</li>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json.gz file.</span>
 
-<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray</span>
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
 
 <span class="sd">    Parameters</span>
@@ -1164,7 +1164,7 @@ If False, only the data is returned.</li>
 
             <div class="docstring"><p>Import a list of Obs or structures containing Obs from a .json.gz file.</p>
 
-<p>The following structures are supported: Obs, list, numpy.ndarray
+<p>The following structures are supported: Obs, list, numpy.ndarray, Corr
 If the list contains only one element, it is unpacked from the list.</p>
 
 <h6 id="parameters">Parameters</h6>

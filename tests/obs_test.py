@@ -615,7 +615,7 @@ def test_covariance_symmetry():
     cov_ab = pe.covariance(test_obs1, a)
     cov_ba = pe.covariance(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
-    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+    assert np.abs(cov_ab) < test_obs1.dvalue * a.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
 def test_empty_obs():

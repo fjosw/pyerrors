@@ -206,7 +206,7 @@ print(my_corr)
 ```
 In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.
 ```python
-my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding_front=1, padding_back=1)
+my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding=[1, 1])
 print(my_corr)
 > x0/a	Corr(x0/a)
 > ------------------

@@ -554,18 +554,24 @@ class Obs:
             plt.figure()
             r_length = []
             tmp = []
+            tmp_expanded = []
             for r, r_name in enumerate(self.e_content[e_name]):
+                tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 if expand:
-                    tmp.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    r_length.append(len(tmp_expanded[-1]))
                 else:
-                    tmp.append(self.deltas[r_name] + self.r_values[r_name])
-                r_length.append(len(tmp[-1]))
+                    r_length.append(len(tmp[-1]))
             e_N = np.sum(r_length)
             x = np.arange(e_N)
-            y = np.concatenate(tmp, axis=0)
+            y_test = np.concatenate(tmp, axis=0)
+            if expand:
+                y = np.concatenate(tmp_expanded, axis=0)
+            else:
+                y = y_test
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
-            plt.title(e_name + f', skew: {skew(y):.3f} (p={skewtest(y).pvalue:.3f}), kurtosis: {kurtosis(y):.3f} (p={kurtosistest(y).pvalue:.3f})')
+            plt.title(e_name + f', skew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
     def plot_piechart(self):

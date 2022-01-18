@@ -87,6 +87,9 @@
                                 <a class="function" href="#Corr.Eigenvalue">Eigenvalue</a>
                         </li>
                         <li>
+                                <a class="function" href="#Corr.Hankel">Hankel</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Corr.roll">roll</a>
                         </li>
                         <li>
@@ -173,8 +176,23 @@
                         <li>
                                 <a class="function" href="#Corr.arctanh">arctanh</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#Corr.real">real</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Corr.imag">imag</a>
+                        </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="function" href="#sort_vectors">sort_vectors</a>
+            </li>
+            <li>
+                    <a class="function" href="#permutation">permutation</a>
+            </li>
+            <li>
+                    <a class="function" href="#GEVP_solver">GEVP_solver</a>
             </li>
     </ul>
 
@@ -200,7 +218,7 @@
 <span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">anp</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
-<span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">reweight</span><span class="p">,</span> <span class="n">correlate</span>
+<span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">reweight</span><span class="p">,</span> <span class="n">correlate</span><span class="p">,</span> <span class="n">CObs</span>
 <span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">dump_object</span>
 <span class="kn">from</span> <span class="nn">.fits</span> <span class="kn">import</span> <span class="n">least_squares</span>
 <span class="kn">from</span> <span class="nn">.linalg</span> <span class="kn">import</span> <span class="n">eigh</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">cholesky</span>
@@ -238,7 +256,11 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
+        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
+        <span class="c1"># We check, if this is the case</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -298,7 +320,7 @@
     <span class="c1"># The method can use one or two vectors.</span>
     <span class="c1"># If two are specified it returns v1@G@v2 (the order might be very important.)</span>
     <span class="c1"># By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to</span>
-    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to project a Corr, that already has N=1.&quot;</span><span class="p">)</span>
             <span class="c1"># This Exception is in no way necessary. One could just return self</span>
@@ -310,17 +332,32 @@
             <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">vector_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_l</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_r</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_r</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_l</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
+                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
 
-        <span class="c1"># We always normalize before projecting! But we only raise a warning, when it is clear, they where not meant to be normalized.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Vectors are normalized before projection!&quot;</span><span class="p">)</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
-        <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># There are no checks here yet. There are so many possible scenarios, where this can go wrong.</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                    <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">])),</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
 
-        <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -396,20 +433,45 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># We also include a simple GEVP method based on Scipy.linalg</span>
-    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
-        <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+    <span class="c1"># There are two ways, the GEVP metod can be called.</span>
+    <span class="c1"># 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1</span>
+    <span class="c1"># 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]</span>
+    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorting</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="n">return_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
+            <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
-        <span class="n">sp_val</span><span class="p">,</span> <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sp_val</span><span class="p">)[</span><span class="o">-</span><span class="n">state</span><span class="p">]]</span>  <span class="c1"># We only want the eigenvector belonging to the selected state</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sp_vec</span> <span class="o">@</span> <span class="n">sp_vec</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sp_vec</span>
+            <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+            <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">sp_vec</span>
+        <span class="k">if</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                            <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                            <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+                    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvalue&quot;</span><span class="p">:</span>
+                        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vec</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vecs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="s2">&quot;Failure to solve for one timeslice&quot;</span><span class="p">:</span>   <span class="c1"># This could contain a check for real eigenvectors</span>
+                    <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvector&quot;</span><span class="p">:</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="n">sort_vectors</span><span class="p">(</span><span class="n">all_vecs</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_vecs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">all_vecs</span>
 
     <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing_symmetric</span><span class="p">()</span>
@@ -420,12 +482,47 @@
         <span class="n">LTi</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">LT</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
-            <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
-            <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
-            <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
-            <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
+                <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Constructs an NxN Hankel matrix</span>
+        <span class="c1"># C(t) c(t+1) ... c(t+n-1)</span>
+        <span class="c1"># C(t+1) c(t+2) ... c(t+n)</span>
+        <span class="c1"># .................</span>
+        <span class="c1"># C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Multi-operator Prony not implemented!&quot;</span><span class="p">)</span>
+
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">i</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">periodic</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">wrap</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
@@ -439,7 +536,7 @@
 
     <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
@@ -461,7 +558,7 @@
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>  <span class="c1"># Should this include CObs?</span>
                     <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only correlate with an Obs or a Corr.&quot;</span><span class="p">)</span>
@@ -787,7 +884,6 @@
 
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
@@ -796,14 +892,23 @@
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="n">content_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Corr T=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; N=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># +&quot; filled with&quot;+ str(type(self.content[0][0])) there should be a good solution here</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Description: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">content_string</span>
+        <span class="c1"># This avoids a crash for N&gt;1. I do not know, what else to do here. I like the list representation for N==1. We could print only one &quot;smearing&quot; or one matrix. Printing everything will just</span>
+        <span class="c1"># be a wall of numbers.</span>
+
         <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">content_string</span> <span class="o">+=</span> <span class="s1">&#39;x0/a</span><span class="se">\t</span><span class="s1">Corr(x0/a)</span><span class="se">\n</span><span class="s1">------------------</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -837,7 +942,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -860,7 +965,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -893,9 +998,14 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Division returns completely undefined correlator&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">is_zero</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -925,7 +1035,7 @@
         <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="o">**</span><span class="n">y</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1006,6 +1116,73 @@
 
     <span class="k">def</span> <span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">return_real</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span><span class="o">.</span><span class="n">real</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_real</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">return_imag</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span><span class="o">.</span><span class="n">imag</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span> <span class="o">*</span> <span class="mi">0</span>  <span class="c1"># So it stays the right type</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_imag</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">sort_vectors</span><span class="p">(</span><span class="n">vec_set</span><span class="p">,</span> <span class="n">ts</span><span class="p">):</span>  <span class="c1"># Helper function used to find a set of Eigenvectors consistent over all timeslices</span>
+    <span class="n">reference_sorting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vec_set</span><span class="p">[</span><span class="n">ts</span><span class="p">])</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">reference_sorting</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sorted_vec_set</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec_set</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ts</span><span class="p">:</span>
+            <span class="n">perms</span> <span class="o">=</span> <span class="n">permutation</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+            <span class="n">best_score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">perms</span><span class="p">:</span>
+                <span class="n">current_score</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">new_sorting</span> <span class="o">=</span> <span class="n">reference_sorting</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">new_sorting</span><span class="p">[</span><span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                    <span class="n">current_score</span> <span class="o">*=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">new_sorting</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">current_score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+                    <span class="n">best_score</span> <span class="o">=</span> <span class="n">current_score</span>
+                    <span class="n">best_perm</span> <span class="o">=</span> <span class="n">perm</span>
+            <span class="c1"># print(&quot;best perm&quot;, best_perm)</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">best_perm</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">sorted_vec_set</span>
+
+
+<span class="k">def</span> <span class="nf">permutation</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>  <span class="c1"># Shamelessly copied</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">lst</span><span class="p">]</span>
+    <span class="n">ll</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">remLst</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="c1"># Generating all permutations where m is first</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">(</span><span class="n">remLst</span><span class="p">):</span>
+            <span class="n">ll</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">m</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ll</span>
+
+
+<span class="k">def</span> <span class="nf">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">):</span>  <span class="c1"># Just so normalization an sorting does not need to be repeated. Here we could later put in some checks</span>
+    <span class="n">sp_val</span><span class="p">,</span> <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp_vecs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sp_val</span><span class="p">)[</span><span class="o">-</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">sp_vecs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">v</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">G0</span> <span class="o">@</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sp_vecs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sp_vecs</span>
 </pre></div>
 
         </details>
@@ -1053,7 +1230,11 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
+        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
+        <span class="c1"># We check, if this is the case</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -1113,7 +1294,7 @@
     <span class="c1"># The method can use one or two vectors.</span>
     <span class="c1"># If two are specified it returns v1@G@v2 (the order might be very important.)</span>
     <span class="c1"># By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to</span>
-    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to project a Corr, that already has N=1.&quot;</span><span class="p">)</span>
             <span class="c1"># This Exception is in no way necessary. One could just return self</span>
@@ -1125,17 +1306,32 @@
             <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">vector_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_l</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_r</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_r</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_l</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
+                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
 
-        <span class="c1"># We always normalize before projecting! But we only raise a warning, when it is clear, they where not meant to be normalized.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Vectors are normalized before projection!&quot;</span><span class="p">)</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
-        <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># There are no checks here yet. There are so many possible scenarios, where this can go wrong.</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                    <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">])),</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
 
-        <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1211,20 +1407,45 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># We also include a simple GEVP method based on Scipy.linalg</span>
-    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
-        <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+    <span class="c1"># There are two ways, the GEVP metod can be called.</span>
+    <span class="c1"># 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1</span>
+    <span class="c1"># 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]</span>
+    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorting</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="n">return_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
+            <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
-        <span class="n">sp_val</span><span class="p">,</span> <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sp_val</span><span class="p">)[</span><span class="o">-</span><span class="n">state</span><span class="p">]]</span>  <span class="c1"># We only want the eigenvector belonging to the selected state</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sp_vec</span> <span class="o">@</span> <span class="n">sp_vec</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sp_vec</span>
+            <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+            <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">sp_vec</span>
+        <span class="k">if</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                            <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                            <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+                    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvalue&quot;</span><span class="p">:</span>
+                        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vec</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vecs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="s2">&quot;Failure to solve for one timeslice&quot;</span><span class="p">:</span>   <span class="c1"># This could contain a check for real eigenvectors</span>
+                    <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvector&quot;</span><span class="p">:</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="n">sort_vectors</span><span class="p">(</span><span class="n">all_vecs</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_vecs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">all_vecs</span>
 
     <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing_symmetric</span><span class="p">()</span>
@@ -1235,12 +1456,47 @@
         <span class="n">LTi</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">LT</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
-            <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
-            <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
-            <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
-            <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
+                <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Constructs an NxN Hankel matrix</span>
+        <span class="c1"># C(t) c(t+1) ... c(t+n-1)</span>
+        <span class="c1"># C(t+1) c(t+2) ... c(t+n)</span>
+        <span class="c1"># .................</span>
+        <span class="c1"># C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Multi-operator Prony not implemented!&quot;</span><span class="p">)</span>
+
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">i</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">periodic</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">wrap</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
@@ -1254,7 +1510,7 @@
 
     <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
@@ -1276,7 +1532,7 @@
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>  <span class="c1"># Should this include CObs?</span>
                     <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only correlate with an Obs or a Corr.&quot;</span><span class="p">)</span>
@@ -1602,7 +1858,6 @@
 
     <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
@@ -1611,14 +1866,23 @@
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="n">content_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Corr T=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; N=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># +&quot; filled with&quot;+ str(type(self.content[0][0])) there should be a good solution here</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Description: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">content_string</span>
+        <span class="c1"># This avoids a crash for N&gt;1. I do not know, what else to do here. I like the list representation for N==1. We could print only one &quot;smearing&quot; or one matrix. Printing everything will just</span>
+        <span class="c1"># be a wall of numbers.</span>
+
         <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">content_string</span> <span class="o">+=</span> <span class="s1">&#39;x0/a</span><span class="se">\t</span><span class="s1">Corr(x0/a)</span><span class="se">\n</span><span class="s1">------------------</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1652,7 +1916,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -1675,7 +1939,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -1708,9 +1972,14 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Division returns completely undefined correlator&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">is_zero</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Division by zero will return undefined correlator&#39;</span><span class="p">)</span>
+
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -1740,7 +2009,7 @@
         <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="o">**</span><span class="n">y</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1821,6 +2090,26 @@
 
     <span class="k">def</span> <span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">return_real</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span><span class="o">.</span><span class="n">real</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_real</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">return_imag</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs_OR_cobs</span><span class="p">,</span> <span class="n">CObs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span><span class="o">.</span><span class="n">imag</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obs_OR_cobs</span> <span class="o">*</span> <span class="mi">0</span>  <span class="c1"># So it stays the right type</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_imag</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1864,7 +2153,11 @@ smearing matrix at every timeslice. Other dependency (eg. spatial) are not suppo
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
+        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
+        <span class="c1"># We check, if this is the case</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -1955,12 +2248,12 @@ region indentified for this correlator.</li>
 
         
             <span class="def">def</span>
-            <span class="name">projected</span><span class="signature">(self, vector_l=None, vector_r=None)</span>:
+            <span class="name">projected</span><span class="signature">(self, vector_l=None, vector_r=None, normalize=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to project a Corr, that already has N=1.&quot;</span><span class="p">)</span>
             <span class="c1"># This Exception is in no way necessary. One could just return self</span>
@@ -1972,17 +2265,32 @@ region indentified for this correlator.</li>
             <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="mf">0.</span><span class="p">])</span>
         <span class="k">elif</span><span class="p">(</span><span class="n">vector_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_l</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_r</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_r</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_r</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Length of vector list must be equal to T&quot;</span><span class="p">)</span>
+            <span class="n">vector_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector_l</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vector_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">vector_r</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
+                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
 
-        <span class="c1"># We always normalize before projecting! But we only raise a warning, when it is clear, they where not meant to be normalized.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="mf">0.95</span> <span class="o">&lt;</span> <span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span> <span class="o">&lt;</span> <span class="mf">1.05</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Vectors are normalized before projection!&quot;</span><span class="p">)</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
-        <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># There are no checks here yet. There are so many possible scenarios, where this can go wrong.</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                    <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">])),</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
 
-        <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
+            <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </pre></div>
 
@@ -2167,24 +2475,47 @@ timeslice and the error on each timeslice.</p>
 
         
             <span class="def">def</span>
-            <span class="name">GEVP</span><span class="signature">(self, t0, ts, state=1)</span>:
+            <span class="name">GEVP</span><span class="signature">(self, t0, ts, state=0, sorting=&#39;Eigenvalue&#39;, return_list=False)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
-        <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorting</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="n">return_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
+            <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
-        <span class="n">sp_val</span><span class="p">,</span> <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sp_val</span><span class="p">)[</span><span class="o">-</span><span class="n">state</span><span class="p">]]</span>  <span class="c1"># We only want the eigenvector belonging to the selected state</span>
-        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sp_vec</span> <span class="o">@</span> <span class="n">sp_vec</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sp_vec</span>
+            <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+            <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">sp_vec</span>
+        <span class="k">if</span> <span class="n">return_list</span><span class="p">:</span>
+            <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                            <span class="n">G0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                            <span class="n">Gt</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+                    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvalue&quot;</span><span class="p">:</span>
+                        <span class="n">sp_vec</span> <span class="o">=</span> <span class="n">sp_vecs</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vec</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp_vecs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="s2">&quot;Failure to solve for one timeslice&quot;</span><span class="p">:</span>   <span class="c1"># This could contain a check for real eigenvectors</span>
+                    <span class="n">all_vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sorting</span> <span class="o">==</span> <span class="s2">&quot;Eigenvector&quot;</span><span class="p">:</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="n">sort_vectors</span><span class="p">(</span><span class="n">all_vecs</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                <span class="n">all_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_vecs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">all_vecs</span>
 </pre></div>
 
         </details>
@@ -2211,12 +2542,63 @@ timeslice and the error on each timeslice.</p>
         <span class="n">LTi</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">LT</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
-            <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
-            <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
-            <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
-            <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Gt</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">Li</span> <span class="o">@</span> <span class="n">Gt</span> <span class="o">@</span> <span class="n">LTi</span>
+                <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigh</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">eigenvalue</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="o">-</span><span class="n">state</span><span class="p">]</span>
+                <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eigenvalue</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Corr.Hankel" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Corr.Hankel">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">Hankel</span><span class="signature">(self, N, periodic=False)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Constructs an NxN Hankel matrix</span>
+        <span class="c1"># C(t) c(t+1) ... c(t+n-1)</span>
+        <span class="c1"># C(t+1) c(t+2) ... c(t+n)</span>
+        <span class="c1"># .................</span>
+        <span class="c1"># C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Multi-operator Prony not implemented!&quot;</span><span class="p">)</span>
+
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">return</span> <span class="n">i</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">periodic</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">wrap</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_content</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2271,7 +2653,7 @@ number of timeslices</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -2311,7 +2693,7 @@ number of timeslices</li>
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partner</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>  <span class="c1"># Should this include CObs?</span>
                     <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">correlate</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">partner</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">t_slice</span><span class="p">]))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only correlate with an Obs or a Corr.&quot;</span><span class="p">)</span>
@@ -2920,7 +3302,6 @@ path to file in which the figure should be saved</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
@@ -2929,6 +3310,7 @@ path to file in which the figure should be saved</li>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span>
 </pre></div>
 
         </details>
@@ -3253,6 +3635,116 @@ specifies a custom path for the file (default '.')</li>
     
 
                             </div>
+                            <div id="Corr.real" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Corr.real">#&nbsp;&nbsp</a>
+
+        <span class="name">real</span>
+    </div>
+
+    
+
+                            </div>
+                            <div id="Corr.imag" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Corr.imag">#&nbsp;&nbsp</a>
+
+        <span class="name">imag</span>
+    </div>
+
+    
+
+                            </div>
+                </section>
+                <section id="sort_vectors">
+                            <div class="attr function"><a class="headerlink" href="#sort_vectors">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">sort_vectors</span><span class="signature">(vec_set, ts)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">sort_vectors</span><span class="p">(</span><span class="n">vec_set</span><span class="p">,</span> <span class="n">ts</span><span class="p">):</span>  <span class="c1"># Helper function used to find a set of Eigenvectors consistent over all timeslices</span>
+    <span class="n">reference_sorting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vec_set</span><span class="p">[</span><span class="n">ts</span><span class="p">])</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">reference_sorting</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sorted_vec_set</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec_set</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ts</span><span class="p">:</span>
+            <span class="n">perms</span> <span class="o">=</span> <span class="n">permutation</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+            <span class="n">best_score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">perms</span><span class="p">:</span>
+                <span class="n">current_score</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">new_sorting</span> <span class="o">=</span> <span class="n">reference_sorting</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">new_sorting</span><span class="p">[</span><span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                    <span class="n">current_score</span> <span class="o">*=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">new_sorting</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">current_score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+                    <span class="n">best_score</span> <span class="o">=</span> <span class="n">current_score</span>
+                    <span class="n">best_perm</span> <span class="o">=</span> <span class="n">perm</span>
+            <span class="c1"># print(&quot;best perm&quot;, best_perm)</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">best_perm</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sorted_vec_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec_set</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">sorted_vec_set</span>
+</pre></div>
+
+        </details>
+
+    
+
+                </section>
+                <section id="permutation">
+                            <div class="attr function"><a class="headerlink" href="#permutation">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">permutation</span><span class="signature">(lst)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">permutation</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>  <span class="c1"># Shamelessly copied</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">lst</span><span class="p">]</span>
+    <span class="n">ll</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">remLst</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="c1"># Generating all permutations where m is first</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">(</span><span class="n">remLst</span><span class="p">):</span>
+            <span class="n">ll</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">m</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ll</span>
+</pre></div>
+
+        </details>
+
+    
+
+                </section>
+                <section id="GEVP_solver">
+                            <div class="attr function"><a class="headerlink" href="#GEVP_solver">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">GEVP_solver</span><span class="signature">(Gt, G0)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">):</span>  <span class="c1"># Just so normalization an sorting does not need to be repeated. Here we could later put in some checks</span>
+    <span class="n">sp_val</span><span class="p">,</span> <span class="n">sp_vecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">)</span>
+    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp_vecs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sp_val</span><span class="p">)[</span><span class="o">-</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">sp_vecs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">sp_vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">v</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">G0</span> <span class="o">@</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sp_vecs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sp_vecs</span>
+</pre></div>
+
+        </details>
+
+    
+
                 </section>
     </main>
 <script>

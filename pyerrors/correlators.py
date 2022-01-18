@@ -46,7 +46,6 @@ class Corr:
         # We check, if this is the case
         if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
 
-      
             self.content = [np.asarray([item]) for item in data_input]
             self.N = 1
 

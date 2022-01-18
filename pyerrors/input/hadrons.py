@@ -58,16 +58,13 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=No
     meson : str
         label of the meson to be extracted, standard value meson_0 which
         corresponds to the pseudoscalar pseudoscalar two-point function.
-    tree : str
-        Label of the upmost directory in the hdf5 file, default 'meson'
-        for outputs of the Meson module. Can be altered to read input
-        from other modules with similar structures.
     idl : range
         If specified only configurations in the given range are read in.
     """
 
     files, idx = _get_files(path, filestem, idl)
 
+    tree = meson.rsplit('_')[0]
     corr_data = []
     infos = []
     for hd5_file in files:

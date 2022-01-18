@@ -1,3 +1,4 @@
+import gc
 from collections.abc import Sequence
 import warnings
 import numpy as np
@@ -7,6 +8,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
+from scipy.stats import chi2
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
@@ -45,6 +47,8 @@ class Fit_result(Sequence):
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
         if hasattr(self, 'chisquare_by_expected_chisquare'):
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
+        if hasattr(self, 'p_value'):
+            my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
@@ -306,6 +310,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
 
@@ -619,6 +624,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output.chisquare = chisqfunc(fit_result.x)
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)
@@ -703,7 +709,7 @@ def residual_plot(x, y, func, fit_res):
     ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
     ax1.tick_params(direction='out')
     ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
-    ax1.axhline(y=0.0, ls='--', color='k')
+    ax1.axhline(y=0.0, ls='--', color='k', marker=" ")
     ax1.fill_between(x_samples, -1.0, 1.0, alpha=0.1, facecolor='k')
     ax1.set_xlim([xstart, xstop])
     ax1.set_ylabel('Residuals')
@@ -740,3 +746,43 @@ def error_band(x, func, beta):
     err = np.array(err)
 
     return err
+
+
+def ks_test(objects=None):
+    """Performs a Kolmogorov–Smirnov test for the p-values of all fit object.
+
+    Parameters
+    ----------
+    objects : list
+        List of fit results to include in the analysis (optional).
+    """
+
+    if objects is None:
+        obs_list = []
+        for obj in gc.get_objects():
+            if isinstance(obj, Fit_result):
+                obs_list.append(obj)
+    else:
+        obs_list = objects
+
+    p_values = [o.p_value for o in obs_list]
+
+    bins = len(p_values)
+    x = np.arange(0, 1.001, 0.001)
+    plt.plot(x, x, 'k', zorder=1)
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    plt.xlabel('p-value')
+    plt.ylabel('Cumulative probability')
+    plt.title(str(bins) + ' p-values')
+
+    n = np.arange(1, bins + 1) / np.float64(bins)
+    Xs = np.sort(p_values)
+    plt.step(Xs, n)
+    diffs = n - Xs
+    loc_max_diff = np.argmax(np.abs(diffs))
+    loc = Xs[loc_max_diff]
+    plt.annotate('', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
+    plt.draw()
+
+    print(scipy.stats.kstest(p_values, 'uniform'))

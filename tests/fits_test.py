@@ -309,6 +309,25 @@ def test_error_band():
     pe.fits.error_band(x, f, fitp.fit_parameters)
 
 
+def test_ks_test():
+    def f(a, x):
+        y = a[0] + a[1] * x
+        return y
+
+    fit_res = []
+
+    for i in range(20):
+        data = []
+        for j in range(10):
+            data.append(pe.pseudo_Obs(j + np.random.normal(0.0, 0.25), 0.25, 'test'))
+        my_corr = pe.Corr(data)
+
+        fit_res.append(my_corr.fit(f, silent=True))
+
+    pe.fits.ks_test()
+    pe.fits.ks_test(fit_res)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

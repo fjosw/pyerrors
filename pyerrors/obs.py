@@ -4,6 +4,7 @@ import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
+from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
@@ -564,7 +565,7 @@ class Obs:
             y = np.concatenate(tmp, axis=0)
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
-            plt.title(e_name)
+            plt.title(e_name + f', skew: {skew(y):.3f} (p={skewtest(y).pvalue:.3f}), kurtosis: {kurtosis(y):.3f} (p={kurtosistest(y).pvalue:.3f})')
             plt.draw()
 
     def plot_piechart(self):

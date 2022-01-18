@@ -11,11 +11,17 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: true                                                                                                                                                       
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        os: [ubuntu-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        include:
+          - os: macos-latest
+            python-version: 3.9 
+          - os: windows-latest
+            python-version: 3.9 
 
     steps:
       - name: Checkout source

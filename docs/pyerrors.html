@@ -298,7 +298,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <p>In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.</p>
 
-<div class="codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">],</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="n">x0</span><span class="o">/</span><span class="n">a</span>  <span class="n">Corr</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="o">------------------</span>
@@ -597,7 +597,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">```</span>
 <span class="sd">In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.</span>
 <span class="sd">```python</span>
-<span class="sd">my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding_front=1, padding_back=1)</span>
+<span class="sd">my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding=[1, 1])</span>
 <span class="sd">print(my_corr)</span>
 <span class="sd">&gt; x0/a	Corr(x0/a)</span>
 <span class="sd">&gt; ------------------</span>

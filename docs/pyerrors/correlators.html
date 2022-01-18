@@ -216,46 +216,50 @@
 <span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
-<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spacial) are not supported.</span>
+<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># All data_input should be a list of things at different timeslices. This needs to be verified</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_input : list</span>
+<span class="sd">            list of Obs or list of arrays of Obs.</span>
+<span class="sd">        padding : list, optional</span>
+<span class="sd">            List with two entries where the first labels the padding</span>
+<span class="sd">            at the front of the correlator and the second the padding</span>
+<span class="sd">            at the back.</span>
+<span class="sd">        prange : list, optional</span>
+<span class="sd">            List containing the first and last timeslice of the plateau</span>
+<span class="sd">            region indentified for this correlator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
-            <span class="c1"># Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># number of smearings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="c1"># data_input in the form [np.array(Obs,NxN)]</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">data_input</span>
 
             <span class="n">noNull</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)]</span>  <span class="c1"># To check if the matrices are correct for all undefined elements</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="c1"># The checks are now identical to the case above</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Smearing matrices are not NxN&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">item</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">noNull</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Items in data_input are not of identical shape.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noNull</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># In case its a list of something else.</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;data_input contains item of wrong type&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.</span>
         <span class="c1"># An undefined timeslice is represented by the None object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_front</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_back</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># for convenience: will be used a lot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
-        <span class="c1"># The attribute &quot;range&quot; [start,end] marks a range of two timeslices.</span>
-        <span class="c1"># This is useful for keeping track of plateaus and fitranges.</span>
-        <span class="c1"># The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -528,7 +532,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -538,7 +542,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Derivative is undefined at all timeslices&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">second_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.&quot;&quot;&quot;</span>
@@ -550,7 +554,7 @@
                 <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
         <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">m_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
@@ -578,7 +582,7 @@
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">,</span> <span class="s1">&#39;sinh&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">]:</span>
@@ -601,7 +605,7 @@
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="o">==</span> <span class="s1">&#39;arccosh&#39;</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -612,7 +616,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;m_eff is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
@@ -1027,46 +1031,50 @@
 <span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
-<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spacial) are not supported.</span>
+<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># All data_input should be a list of things at different timeslices. This needs to be verified</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_input : list</span>
+<span class="sd">            list of Obs or list of arrays of Obs.</span>
+<span class="sd">        padding : list, optional</span>
+<span class="sd">            List with two entries where the first labels the padding</span>
+<span class="sd">            at the front of the correlator and the second the padding</span>
+<span class="sd">            at the back.</span>
+<span class="sd">        prange : list, optional</span>
+<span class="sd">            List containing the first and last timeslice of the plateau</span>
+<span class="sd">            region indentified for this correlator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
-            <span class="c1"># Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># number of smearings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="c1"># data_input in the form [np.array(Obs,NxN)]</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">data_input</span>
 
             <span class="n">noNull</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)]</span>  <span class="c1"># To check if the matrices are correct for all undefined elements</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="c1"># The checks are now identical to the case above</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Smearing matrices are not NxN&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">item</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">noNull</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Items in data_input are not of identical shape.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noNull</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># In case its a list of something else.</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;data_input contains item of wrong type&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.</span>
         <span class="c1"># An undefined timeslice is represented by the None object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_front</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_back</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># for convenience: will be used a lot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
-        <span class="c1"># The attribute &quot;range&quot; [start,end] marks a range of two timeslices.</span>
-        <span class="c1"># This is useful for keeping track of plateaus and fitranges.</span>
-        <span class="c1"># The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -1339,7 +1347,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -1349,7 +1357,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Derivative is undefined at all timeslices&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">second_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.&quot;&quot;&quot;</span>
@@ -1361,7 +1369,7 @@
                 <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
         <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">m_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
@@ -1389,7 +1397,7 @@
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">,</span> <span class="s1">&#39;sinh&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">]:</span>
@@ -1412,7 +1420,7 @@
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="o">==</span> <span class="s1">&#39;arccosh&#39;</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1423,7 +1431,7 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;m_eff is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
@@ -1825,7 +1833,7 @@ One often wants to add or multiply correlators of the same length at every times
 to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</p>
 
 <p>The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-smearing matrix at every timeslice. Other dependency (eg. spacial) are not supported.</p>
+smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
 </div>
 
 
@@ -1833,47 +1841,51 @@ smearing matrix at every timeslice. Other dependency (eg. spacial) are not suppo
                                         <div class="attr function"><a class="headerlink" href="#Corr.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">Corr</span><span class="signature">(data_input, padding_front=0, padding_back=0, prange=None)</span>
+            <span class="name">Corr</span><span class="signature">(data_input, padding=[0, 0], prange=None)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># All data_input should be a list of things at different timeslices. This needs to be verified</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_input : list</span>
+<span class="sd">            list of Obs or list of arrays of Obs.</span>
+<span class="sd">        padding : list, optional</span>
+<span class="sd">            List with two entries where the first labels the padding</span>
+<span class="sd">            at the front of the correlator and the second the padding</span>
+<span class="sd">            at the back.</span>
+<span class="sd">        prange : list, optional</span>
+<span class="sd">            List containing the first and last timeslice of the plateau</span>
+<span class="sd">            region indentified for this correlator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
-            <span class="c1"># Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># number of smearings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="c1"># data_input in the form [np.array(Obs,NxN)]</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">data_input</span>
 
             <span class="n">noNull</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)]</span>  <span class="c1"># To check if the matrices are correct for all undefined elements</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="c1"># The checks are now identical to the case above</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Smearing matrices are not NxN&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">item</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">noNull</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">noNull</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Items in data_input are not of identical shape.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noNull</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># In case its a list of something else.</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;data_input contains item of wrong type&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.</span>
         <span class="c1"># An undefined timeslice is represented by the None object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_front</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding_back</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># for convenience: will be used a lot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 
-        <span class="c1"># The attribute &quot;range&quot; [start,end] marks a range of two timeslices.</span>
-        <span class="c1"># This is useful for keeping track of plateaus and fitranges.</span>
-        <span class="c1"># The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -1881,7 +1893,23 @@ smearing matrix at every timeslice. Other dependency (eg. spacial) are not suppo
 
         </details>
 
-    
+            <div class="docstring"><p>Initialize a Corr object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>data_input</strong> (list):
+list of Obs or list of arrays of Obs.</li>
+<li><strong>padding</strong> (list, optional):
+List with two entries where the first labels the padding
+at the front of the correlator and the second the padding
+at the back.</li>
+<li><strong>prange</strong> (list, optional):
+List containing the first and last timeslice of the plateau
+region indentified for this correlator.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Corr.reweighted" class="classattr">
@@ -2438,7 +2466,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -2448,7 +2476,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Derivative is undefined at all timeslices&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -2485,7 +2513,7 @@ decides whether symmetric of simple finite differences are used. Default: True</
                 <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
         <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Derivative is undefined at all timeslices&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -2531,7 +2559,7 @@ decides whether symmetric of simple finite differences are used. Default: True</
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">,</span> <span class="s1">&#39;sinh&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">variant</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;periodic&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">]:</span>
@@ -2554,7 +2582,7 @@ decides whether symmetric of simple finite differences are used. Default: True</
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;m_eff is undefined at all timeslices&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
         <span class="k">elif</span> <span class="n">variant</span> <span class="o">==</span> <span class="s1">&#39;arccosh&#39;</span><span class="p">:</span>
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2565,7 +2593,7 @@ decides whether symmetric of simple finite differences are used. Default: True</
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span>
             <span class="k">if</span><span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">newcontent</span><span class="p">])):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;m_eff is undefined at all timeslices&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding_back</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding_front</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccosh</span><span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>

@@ -8,6 +8,7 @@ import platform
 import warnings
 from ..obs import Obs
 from ..covobs import Covobs
+from ..correlators import Corr
 from .. import version as pyerrorsversion
 
 
@@ -173,6 +174,18 @@ def create_json_string(ol, description='', indent=1):
             d['cdata'] = cdata
         return d
 
+    def write_Corr_to_dict(my_corr):
+        front_padding = next(i for i, j in enumerate(my_corr.content) if np.all(j))
+        back_padding_start = front_padding + next((i for i, j in enumerate(my_corr.content[front_padding:]) if not np.all(j)), my_corr.T)
+        dat = write_Array_to_dict(np.array(my_corr.content[front_padding:back_padding_start]))
+        dat['type'] = 'Corr'
+        corr_meta_data = str(front_padding) + '|' + str(my_corr.T - back_padding_start) + '|' + str(my_corr.tag)
+        if 'tag' in dat.keys():
+            dat['tag'].append(corr_meta_data)
+        else:
+            dat['tag'] = [corr_meta_data]
+        return dat
+
     if not isinstance(ol, list):
         ol = [ol]
 
@@ -193,6 +206,10 @@ def create_json_string(ol, description='', indent=1):
             d['obsdata'].append(write_List_to_dict(io))
         elif isinstance(io, np.ndarray):
             d['obsdata'].append(write_Array_to_dict(io))
+        elif isinstance(io, Corr):
+            d['obsdata'].append(write_Corr_to_dict(io))
+        else:
+            raise Exception("Unkown datatype.")
 
     jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
 
@@ -374,6 +391,22 @@ def import_json_string(json_string, verbose=True, full_output=False):
             ret[-1].tag = taglist[i]
         return np.reshape(ret, layout)
 
+    def get_Corr_from_dict(o):
+        taglist = o.get('tag')
+        corr_meta_data = taglist[-1].split('|')
+        padding_front = int(corr_meta_data[0])
+        padding_back = int(corr_meta_data[1])
+        corr_tag = corr_meta_data[2]
+        tmp_o = o
+        tmp_o['tag'] = taglist[:-1]
+        if len(tmp_o['tag']) == 0:
+            del tmp_o['tag']
+        dat = get_Array_from_dict(tmp_o)
+        my_corr = Corr(list(dat), padding_front=padding_front, padding_back=padding_back)
+        if corr_tag != 'None':
+            my_corr.tag = corr_tag
+        return my_corr
+
     json_dict = json.loads(json_string)
 
     prog = json_dict.get('program', '')
@@ -400,6 +433,10 @@ def import_json_string(json_string, verbose=True, full_output=False):
             ol.append(get_List_from_dict(io))
         elif io['type'] == 'Array':
             ol.append(get_Array_from_dict(io))
+        elif io['type'] == 'Corr':
+            ol.append(get_Corr_from_dict(io))
+        else:
+            raise Exception("Unkown datatype.")
 
     if full_output:
         retd = {}

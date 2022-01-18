@@ -101,15 +101,15 @@ class Corr:
                         for j in range(self.N):
                             item[i, j].gamma_method(**kwargs)
 
-    # We need to project the Correlator with a Vector to get a single value at each timeslice.
-    # The method can use one or two vectors.
-    # If two are specified it returns v1@G@v2 (the order might be very important.)
-    # By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
     def projected(self, vector_l=None, vector_r=None, normalize=False):
+        """We need to project the Correlator with a Vector to get a single value at each timeslice.
+
+        The method can use one or two vectors.
+        If two are specified it returns v1@G@v2 (the order might be very important.)
+        By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
+        """
         if self.N == 1:
             raise Exception("Trying to project a Corr, that already has N=1.")
-            # This Exception is in no way necessary. One could just return self
-            # But there is no scenario, where a user would want that to happen and the error message might be more informative.
 
         self.gamma_method()
 
@@ -155,8 +155,6 @@ class Corr:
         newcontent = [None if(item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
-    # Obs and Matplotlib do not play nicely
-    # We often want to retrieve x,y,y_err as lists to pass them to something like pyplot.errorbar
     def plottable(self):
         """Outputs the correlator in a plotable format.
 
@@ -171,9 +169,6 @@ class Corr:
 
         return x_list, y_list, y_err_list
 
-    # symmetric returns a Corr, that has been symmetrized.
-    # A symmetry checker is still to be implemented
-    # The method will not delete any redundant timeslices (Bad for memory, Great for convenience)
     def symmetric(self):
         """ Symmetrize the correlator around x0=0."""
         if self.T % 2 != 0:
@@ -210,8 +205,8 @@ class Corr:
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
-    # This method will symmetrice the matrices and therefore make them positive definit.
     def smearing_symmetric(self):
+        """Symmetrizes the matrices and therefore make them positive definite."""
         if self.N > 1:
             transposed = [None if (G is None) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
@@ -231,7 +226,7 @@ class Corr:
                     G0[i, j] = self.content[t0][i, j].value
                     Gt[i, j] = self.content[ts][i, j].value
 
-            sp_vecs = GEVP_solver(Gt, G0)
+            sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]
             return sp_vec
         if return_list:
@@ -244,16 +239,16 @@ class Corr:
                             G0[i, j] = self.content[t0][i, j].value
                             Gt[i, j] = self.content[t][i, j].value
 
-                    sp_vecs = GEVP_solver(Gt, G0)
+                    sp_vecs = _GEVP_solver(Gt, G0)
                     if sorting == "Eigenvalue":
                         sp_vec = sp_vecs[state]
                         all_vecs.append(sp_vec)
                     else:
                         all_vecs.append(sp_vecs)
-                except "Failure to solve for one timeslice":   # This could contain a check for real eigenvectors
+                except Exception:
                     all_vecs.append(None)
             if sorting == "Eigenvector":
-                all_vecs = sort_vectors(all_vecs, ts)
+                all_vecs = _sort_vectors(all_vecs, ts)
                 all_vecs = [a[state] for a in all_vecs]
 
         return all_vecs
@@ -278,11 +273,20 @@ class Corr:
         return Corr(newcontent)
 
     def Hankel(self, N, periodic=False):
-        # Constructs an NxN Hankel matrix
-        # C(t) c(t+1) ... c(t+n-1)
-        # C(t+1) c(t+2) ... c(t+n)
-        # .................
-        # C(t+(n-1)) c(t+n) ... c(t+2(n-1))
+        """Constructs an NxN Hankel matrix
+
+        C(t) c(t+1) ... c(t+n-1)
+        C(t+1) c(t+2) ... c(t+n)
+        .................
+        C(t+(n-1)) c(t+n) ... c(t+2(n-1))
+
+        Parameters:
+        -----------
+        N : int
+            Dimension of the Hankel matrix
+        periodic : bool, optional
+            determines whether the matrix is extended periodically
+        """
 
         if self.N != 1:
             raise Exception("Multi-operator Prony not implemented!")
@@ -518,11 +522,6 @@ class Corr:
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
-
-        # The default behavior is:
-        # 1 use explicit fitrange
-        # if none is provided, use the range of the corr
-        # if this is also not set, use the whole length of the corr (This could come with a warning!)
 
         if fitrange is None:
             if self.prange:
@@ -923,7 +922,8 @@ class Corr:
         return self._apply_func_to_corr(return_imag)
 
 
-def sort_vectors(vec_set, ts):  # Helper function used to find a set of Eigenvectors consistent over all timeslices
+def _sort_vectors(vec_set, ts):
+    """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
     reference_sorting = np.array(vec_set[ts])
     N = reference_sorting.shape[0]
     sorted_vec_set = []
@@ -942,7 +942,6 @@ def sort_vectors(vec_set, ts):  # Helper function used to find a set of Eigenvec
                 if current_score > best_score:
                     best_score = current_score
                     best_perm = perm
-            # print("best perm", best_perm)
             sorted_vec_set.append([vec_set[t][k] for k in best_perm])
         else:
             sorted_vec_set.append(vec_set[t])
@@ -963,7 +962,7 @@ def permutation(lst):  # Shamelessly copied
     return ll
 
 
-def GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
+def _GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
     sp_val, sp_vecs = scipy.linalg.eig(Gt, G0)
     sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
     sp_vecs = [v / np.sqrt((v.T @ G0 @ v)) for v in sp_vecs]

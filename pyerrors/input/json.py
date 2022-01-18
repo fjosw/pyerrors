@@ -402,7 +402,7 @@ def import_json_string(json_string, verbose=True, full_output=False):
         if len(tmp_o['tag']) == 0:
             del tmp_o['tag']
         dat = get_Array_from_dict(tmp_o)
-        my_corr = Corr(list(dat), padding_front=padding_front, padding_back=padding_back)
+        my_corr = Corr(list(dat), padding=[padding_front, padding_back])
         if corr_tag != 'None':
             my_corr.tag = corr_tag
         return my_corr

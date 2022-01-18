@@ -19,46 +19,50 @@ class Corr:
     to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-    smearing matrix at every timeslice. Other dependency (eg. spacial) are not supported.
+    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0, prange=None):
-        # All data_input should be a list of things at different timeslices. This needs to be verified
+    def __init__(self, data_input, padding=[0, 0], prange=None):
+        """ Initialize a Corr object.
+
+        Parameters
+        ----------
+        data_input : list
+            list of Obs or list of arrays of Obs.
+        padding : list, optional
+            List with two entries where the first labels the padding
+            at the front of the correlator and the second the padding
+            at the back.
+        prange : list, optional
+            List containing the first and last timeslice of the plateau
+            region indentified for this correlator.
+        """
 
         if not isinstance(data_input, list):
             raise TypeError('Corr__init__ expects a list of timeslices.')
-        # data_input can have multiple shapes. The simplest one is a list of Obs.
-        # We check, if this is the case
         if all([isinstance(item, Obs) for item in data_input]):
             self.content = [np.asarray([item]) for item in data_input]
-            # Wrapping the Obs in an array ensures that the data structure is consistent with smearing matrices.
-            self.N = 1  # number of smearings
+            self.N = 1
 
-        # data_input in the form [np.array(Obs,NxN)]
         elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
             self.content = data_input
 
             noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
             self.N = noNull[0].shape[0]
-            # The checks are now identical to the case above
             if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
                 raise Exception("Smearing matrices are not NxN")
             if (not all([item.shape == noNull[0].shape for item in noNull])):
                 raise Exception("Items in data_input are not of identical shape." + str(noNull))
-        else:  # In case its a list of something else.
+        else:
             raise Exception("data_input contains item of wrong type")
 
         self.tag = None
 
-        # We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.
         # An undefined timeslice is represented by the None object
-        self.content = [None] * padding_front + self.content + [None] * padding_back
-        self.T = len(self.content)  # for convenience: will be used a lot
+        self.content = [None] * padding[0] + self.content + [None] * padding[1]
+        self.T = len(self.content)
 
-        # The attribute "range" [start,end] marks a range of two timeslices.
-        # This is useful for keeping track of plateaus and fitranges.
-        # The range can be inherited from other Corrs, if the operation should not alter a chosen range eg. multiplication with a constant.
         self.prange = prange
 
         self.gamma_method()
@@ -331,7 +335,7 @@ class Corr:
                     newcontent.append(self.content[t + 1] - self.content[t])
             if(all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
-            return Corr(newcontent, padding_back=1)
+            return Corr(newcontent, padding=[0, 1])
         if symmetric:
             newcontent = []
             for t in range(1, self.T - 1):
@@ -341,7 +345,7 @@ class Corr:
                     newcontent.append(0.5 * (self.content[t + 1] - self.content[t - 1]))
             if(all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
-            return Corr(newcontent, padding_back=1, padding_front=1)
+            return Corr(newcontent, padding=[1, 1])
 
     def second_deriv(self):
         """Return the second derivative of the correlator with respect to x0."""
@@ -353,7 +357,7 @@ class Corr:
                 newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
         if(all([x is None for x in newcontent])):
             raise Exception("Derivative is undefined at all timeslices")
-        return Corr(newcontent, padding_back=1, padding_front=1)
+        return Corr(newcontent, padding=[1, 1])
 
     def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
@@ -381,7 +385,7 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
-            return np.log(Corr(newcontent, padding_back=1))
+            return np.log(Corr(newcontent, padding=[0, 1]))
 
         elif variant in ['periodic', 'cosh', 'sinh']:
             if variant in ['periodic', 'cosh']:
@@ -404,7 +408,7 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
-            return Corr(newcontent, padding_back=1)
+            return Corr(newcontent, padding=[0, 1])
 
         elif variant == 'arccosh':
             newcontent = []
@@ -415,7 +419,7 @@ class Corr:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
             if(all([x is None for x in newcontent])):
                 raise Exception("m_eff is undefined at all timeslices")
-            return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
+            return np.arccosh(Corr(newcontent, padding=[1, 1]))
 
         else:
             raise Exception('Unknown variant.')

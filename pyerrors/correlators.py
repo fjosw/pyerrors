@@ -23,7 +23,7 @@ class Corr:
 
     """
 
-    def __init__(self, data_input, padding_front=0, padding_back=0, prange=None):
+    def __init__(self, data_input, padding=[0, 0], prange=None):
         # All data_input should be a list of things at different timeslices. This needs to be verified
 
         if not isinstance(data_input, list):
@@ -53,7 +53,7 @@ class Corr:
 
         # We now apply some padding to our list. In case that our list represents a correlator of length T but is not defined at every value.
         # An undefined timeslice is represented by the None object
-        self.content = [None] * padding_front + self.content + [None] * padding_back
+        self.content = [None] * padding[0] + self.content + [None] * padding[1]
         self.T = len(self.content)  # for convenience: will be used a lot
 
         # The attribute "range" [start,end] marks a range of two timeslices.
@@ -331,7 +331,7 @@ class Corr:
                     newcontent.append(self.content[t + 1] - self.content[t])
             if(all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
-            return Corr(newcontent, padding_back=1)
+            return Corr(newcontent, padding=[0, 1])
         if symmetric:
             newcontent = []
             for t in range(1, self.T - 1):
@@ -341,7 +341,7 @@ class Corr:
                     newcontent.append(0.5 * (self.content[t + 1] - self.content[t - 1]))
             if(all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
-            return Corr(newcontent, padding_back=1, padding_front=1)
+            return Corr(newcontent, padding=[1, 1])
 
     def second_deriv(self):
         """Return the second derivative of the correlator with respect to x0."""
@@ -353,7 +353,7 @@ class Corr:
                 newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
         if(all([x is None for x in newcontent])):
             raise Exception("Derivative is undefined at all timeslices")
-        return Corr(newcontent, padding_back=1, padding_front=1)
+        return Corr(newcontent, padding=[1, 1])
 
     def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
@@ -381,7 +381,7 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
-            return np.log(Corr(newcontent, padding_back=1))
+            return np.log(Corr(newcontent, padding=[0, 1]))
 
         elif variant in ['periodic', 'cosh', 'sinh']:
             if variant in ['periodic', 'cosh']:
@@ -404,7 +404,7 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
-            return Corr(newcontent, padding_back=1)
+            return Corr(newcontent, padding=[0, 1])
 
         elif variant == 'arccosh':
             newcontent = []
@@ -415,7 +415,7 @@ class Corr:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
             if(all([x is None for x in newcontent])):
                 raise Exception("m_eff is undefined at all timeslices")
-            return np.arccosh(Corr(newcontent, padding_back=1, padding_front=1))
+            return np.arccosh(Corr(newcontent, padding=[1, 1]))
 
         else:
             raise Exception('Unknown variant.')

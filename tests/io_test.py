@@ -101,7 +101,7 @@ def test_json_corr_io():
             for fp in [0, 2]:
                 for bp in [0, 7]:
                     for corr_tag in [None, 'my_Corr_tag']:
-                        my_corr = pe.Corr(obs_list, padding_front=fp, padding_back=bp)
+                        my_corr = pe.Corr(obs_list, padding=[fp, bp])
                         my_corr.tag = corr_tag
                         pe.input.json.dump_to_json(my_corr, 'corr')
                         recover = pe.input.json.load_json('corr')
@@ -116,7 +116,7 @@ def test_json_corr_2d_io():
     for tag in [None, "test"]:
         obs_list[3][0, 1].tag = tag
         for padding in [0, 1]:
-            my_corr = pe.Corr(obs_list, padding_front=padding, padding_back=padding)
+            my_corr = pe.Corr(obs_list, padding=[padding, padding])
             my_corr.tag = tag
             pe.input.json.dump_to_json(my_corr, 'corr')
             recover = pe.input.json.load_json('corr')

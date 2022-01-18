@@ -20,7 +20,7 @@ def create_json_string(ol, description='', indent=1):
     ----------
     ol : list
         List of objects that will be exported. At the moments, these objects can be
-        either of: Obs, list, numpy.ndarray.
+        either of: Obs, list, numpy.ndarray, Corr.
         All Obs inside a structure have to be defined on the same set of configurations.
     description : str
         Optional string that describes the contents of the json file.
@@ -239,7 +239,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     ----------
     ol : list
         List of objects that will be exported. At the moments, these objects can be
-        either of: Obs, list, numpy.ndarray.
+        either of: Obs, list, numpy.ndarray, Corr.
         All Obs inside a structure have to be defined on the same set of configurations.
     fname : str
         Filename of the output file.
@@ -272,7 +272,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
 def import_json_string(json_string, verbose=True, full_output=False):
     """Reconstruct a list of Obs or structures containing Obs from a json string.
 
-    The following structures are supported: Obs, list, numpy.ndarray
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
     If the list contains only one element, it is unpacked from the list.
 
     Parameters
@@ -459,7 +459,7 @@ def import_json_string(json_string, verbose=True, full_output=False):
 def load_json(fname, verbose=True, gz=True, full_output=False):
     """Import a list of Obs or structures containing Obs from a .json.gz file.
 
-    The following structures are supported: Obs, list, numpy.ndarray
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
     If the list contains only one element, it is unpacked from the list.
 
     Parameters

@@ -73,10 +73,11 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
 
 
 def _assert_equal_properties(ol, otype=Obs):
-    for o in ol:
+    if not isinstance(ol[0], otype):
+        raise Exception("Wrong data type in list.")
+    for o in ol[1:]:
         if not isinstance(o, otype):
             raise Exception("Wrong data type in list.")
-    for o in ol[1:]:
         if not ol[0].is_merged == o.is_merged:
             raise Exception("All Obs in list have to be defined on the same set of configs.")
         if not ol[0].reweighted == o.reweighted:

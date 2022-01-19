@@ -489,8 +489,8 @@
 <span class="sd">        .................</span>
 <span class="sd">        C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        N : int</span>
 <span class="sd">            Dimension of the Hankel matrix</span>
 <span class="sd">        periodic : bool, optional</span>
@@ -875,17 +875,29 @@
 
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
-<span class="sd">            Name of the file</span>
+<span class="sd">            Name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="n">dump_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
@@ -1462,8 +1474,8 @@
 <span class="sd">        .................</span>
 <span class="sd">        C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        N : int</span>
 <span class="sd">            Dimension of the Hankel matrix</span>
 <span class="sd">        periodic : bool, optional</span>
@@ -1848,17 +1860,29 @@
 
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
-<span class="sd">            Name of the file</span>
+<span class="sd">            Name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="n">dump_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="nb">range</span><span class="p">))</span>
@@ -2581,8 +2605,8 @@ timeslice and the error on each timeslice.</p>
 <span class="sd">        .................</span>
 <span class="sd">        C(t+(n-1)) c(t+n) ... c(t+2(n-1))</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">        -----------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
 <span class="sd">        N : int</span>
 <span class="sd">            Dimension of the Hankel matrix</span>
 <span class="sd">        periodic : bool, optional</span>
@@ -2624,12 +2648,14 @@ C(t+1) c(t+2) ... c(t+n)
 .................
 C(t+(n-1)) c(t+n) ... c(t+2(n-1))</p>
 
-<h2 id="parameters">Parameters:</h2>
+<h6 id="parameters">Parameters</h6>
 
-<p>N : int
-    Dimension of the Hankel matrix
-periodic : bool, optional
-    determines whether the matrix is extended periodically</p>
+<ul>
+<li><strong>N</strong> (int):
+Dimension of the Hankel matrix</li>
+<li><strong>periodic</strong> (bool, optional):
+determines whether the matrix is extended periodically</li>
+</ul>
 </div>
 
 
@@ -3318,33 +3344,48 @@ path to file in which the figure should be saved</li>
 
         
             <span class="def">def</span>
-            <span class="name">dump</span><span class="signature">(self, filename, **kwargs)</span>:
+            <span class="name">dump</span><span class="signature">(self, filename, datatype=&#39;json.gz&#39;, **kwargs)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a pickle file</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
-<span class="sd">            Name of the file</span>
+<span class="sd">            Name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="n">dump_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="n">dump_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Dumps the Corr into a pickle file</p>
+            <div class="docstring"><p>Dumps the Corr into a file of chosen type</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>filename</strong> (str):
-Name of the file</li>
+Name of the file to be saved.</li>
+<li><strong>datatype</strong> (str):
+Format of the exported file. Supported formats include
+"json.gz" and "pickle"</li>
 <li><strong>path</strong> (str):
 specifies a custom path for the file (default '.')</li>
 </ul>

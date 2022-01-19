@@ -904,22 +904,32 @@
 
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_names</span><span class="p">,</span> <span class="n">sizes</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dump the Obs to a pickle file &#39;name&#39;.</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        filename : str</span>
 <span class="sd">            name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">export_jackknife</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export jackknife samples from the Obs</span>
@@ -2484,22 +2494,32 @@
 
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_names</span><span class="p">,</span> <span class="n">sizes</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dump the Obs to a pickle file &#39;name&#39;.</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        filename : str</span>
 <span class="sd">            name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">export_jackknife</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export jackknife samples from the Obs</span>
@@ -3656,38 +3676,51 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 
         
             <span class="def">def</span>
-            <span class="name">dump</span><span class="signature">(self, name, **kwargs)</span>:
+            <span class="name">dump</span><span class="signature">(self, filename, datatype=&#39;json.gz&#39;, **kwargs)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Dump the Obs to a pickle file &#39;name&#39;.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        filename : str</span>
 <span class="sd">            name of the file to be saved.</span>
+<span class="sd">        datatype : str</span>
+<span class="sd">            Format of the exported file. Supported formats include</span>
+<span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown datatype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Dump the Obs to a pickle file 'name'.</p>
+            <div class="docstring"><p>Dump the Obs to a file 'name' of chosen format.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>name</strong> (str):
+<li><strong>filename</strong> (str):
 name of the file to be saved.</li>
+<li><strong>datatype</strong> (str):
+Format of the exported file. Supported formats include
+"json.gz" and "pickle"</li>
 <li><strong>path</strong> (str):
 specifies a custom path for the file (default '.')</li>
 </ul>

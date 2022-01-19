@@ -280,8 +280,8 @@ class Corr:
         .................
         C(t+(n-1)) c(t+n) ... c(t+2(n-1))
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         N : int
             Dimension of the Hankel matrix
         periodic : bool, optional
@@ -666,17 +666,29 @@ class Corr:
 
         return
 
-    def dump(self, filename, **kwargs):
-        """Dumps the Corr into a pickle file
+    def dump(self, filename, datatype="json.gz", **kwargs):
+        """Dumps the Corr into a file of chosen type
         Parameters
         ----------
         filename : str
-            Name of the file
+            Name of the file to be saved.
+        datatype : str
+            Format of the exported file. Supported formats include
+            "json.gz" and "pickle"
         path : str
             specifies a custom path for the file (default '.')
         """
-        dump_object(self, filename, **kwargs)
-        return
+        if datatype == "json.gz":
+            from .input.json import dump_to_json
+            if 'path' in kwargs:
+                file_name = kwargs.get('path') + '/' + filename
+            else:
+                file_name = filename
+            dump_to_json(self, file_name)
+        elif datatype == "pickle":
+            dump_object(self, filename, **kwargs)
+        else:
+            raise Exception("Unknown datatype " + str(datatype))
 
     def print(self, range=[0, None]):
         print(self.__repr__(range))

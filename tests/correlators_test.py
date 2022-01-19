@@ -131,10 +131,19 @@ def test_utility():
     corr.print([2, 4])
     corr.show()
 
-    corr.dump('test_dump', path='.')
-    corr.dump('test_dump')
+    corr.dump('test_dump', datatype="pickle", path='.')
+    corr.dump('test_dump', datatype="pickle")
     new_corr = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
+    for o_a, o_b in zip(corr.content, new_corr.content):
+        assert np.isclose(o_a[0].value, o_b[0].value)
+        assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
+        assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+    corr.dump('test_dump', datatype="json.gz", path='.')
+    corr.dump('test_dump', datatype="json.gz")
+    new_corr = pe.input.json.load_json('test_dump')
+    os.remove('test_dump.json.gz')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
         assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)

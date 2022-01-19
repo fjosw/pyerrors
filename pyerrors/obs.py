@@ -590,22 +590,32 @@ class Obs:
 
         return dict(zip(self.e_names, sizes))
 
-    def dump(self, name, **kwargs):
-        """Dump the Obs to a pickle file 'name'.
+    def dump(self, filename, datatype="json.gz", **kwargs):
+        """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
         ----------
-        name : str
+        filename : str
             name of the file to be saved.
+        datatype : str
+            Format of the exported file. Supported formats include
+            "json.gz" and "pickle"
         path : str
             specifies a custom path for the file (default '.')
         """
         if 'path' in kwargs:
-            file_name = kwargs.get('path') + '/' + name + '.p'
+            file_name = kwargs.get('path') + '/' + filename
         else:
-            file_name = name + '.p'
-        with open(file_name, 'wb') as fb:
-            pickle.dump(self, fb)
+            file_name = filename
+
+        if datatype == "json.gz":
+            from .input.json import dump_to_json
+            dump_to_json([self], file_name)
+        elif datatype == "pickle":
+            with open(file_name + '.p', 'wb') as fb:
+                pickle.dump(self, fb)
+        else:
+            raise Exception("Unknown datatype " + str(datatype))
 
     def export_jackknife(self):
         """Export jackknife samples from the Obs

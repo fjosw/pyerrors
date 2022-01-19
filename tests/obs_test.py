@@ -57,11 +57,16 @@ def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
-    test_obs.dump('test_dump', path=".")
-    test_obs.dump('test_dump')
+    test_obs.dump('test_dump', datatype="pickle", path=".")
+    test_obs.dump('test_dump', datatype="pickle")
     new_obs = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
-    assert test_obs.deltas['t'].all() == new_obs.deltas['t'].all()
+    assert test_obs == new_obs
+    test_obs.dump('test_dump', dataype="json.gz", path=".")
+    test_obs.dump('test_dump', dataype="json.gz")
+    new_obs = pe.input.json.load_json("test_dump")
+    os.remove('test_dump.json.gz')
+    assert test_obs == new_obs
 
 
 def test_comparison():

@@ -4,7 +4,7 @@ import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
-from .misc import dump_object
+from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
 from .linalg import eigh, inv, cholesky
 from .roots import find_root
@@ -42,10 +42,8 @@ class Corr:
         if not isinstance(data_input, list):
             raise TypeError('Corr__init__ expects a list of timeslices.')
 
-        # data_input can have multiple shapes. The simplest one is a list of Obs.
-        # We check, if this is the case
         if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
-
+            _assert_equal_properties(data_input)
             self.content = [np.asarray([item]) for item in data_input]
             self.N = 1
 

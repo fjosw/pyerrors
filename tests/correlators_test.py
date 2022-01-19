@@ -120,6 +120,24 @@ def test_padded_correlator():
     [o for o in my_corr]
 
 
+def test_corr_exceptions():
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 99)], ['test'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'], idl=[range(1, 200, 2)])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+
+
 def test_utility():
     corr_content = []
     for t in range(8):

@@ -105,6 +105,7 @@ def test_json_corr_io():
                         my_corr.tag = corr_tag
                         pe.input.json.dump_to_json(my_corr, 'corr')
                         recover = pe.input.json.load_json('corr')
+                        os.remove('corr.json.gz')
                         assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
                         assert my_corr.tag == recover.tag
                         assert my_corr.reweighted == recover.reweighted
@@ -120,5 +121,6 @@ def test_json_corr_2d_io():
             my_corr.tag = tag
             pe.input.json.dump_to_json(my_corr, 'corr')
             recover = pe.input.json.load_json('corr')
+            os.remove('corr.json.gz')
             assert np.all([np.all([o.is_zero() for o in q]) for q in [x.ravel() for x in (my_corr - recover) if x is not None]])
             assert my_corr.tag == recover.tag

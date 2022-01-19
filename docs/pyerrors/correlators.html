@@ -213,7 +213,7 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">scipy.linalg</span>
 <span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">reweight</span><span class="p">,</span> <span class="n">correlate</span><span class="p">,</span> <span class="n">CObs</span>
-<span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">dump_object</span>
+<span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">dump_object</span><span class="p">,</span> <span class="n">_assert_equal_properties</span>
 <span class="kn">from</span> <span class="nn">.fits</span> <span class="kn">import</span> <span class="n">least_squares</span>
 <span class="kn">from</span> <span class="nn">.linalg</span> <span class="kn">import</span> <span class="n">eigh</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">cholesky</span>
 <span class="kn">from</span> <span class="nn">.roots</span> <span class="kn">import</span> <span class="n">find_root</span>
@@ -251,10 +251,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
-
+            <span class="n">_assert_equal_properties</span><span class="p">(</span><span class="n">data_input</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -1236,10 +1234,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
-
+            <span class="n">_assert_equal_properties</span><span class="p">(</span><span class="n">data_input</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -2170,10 +2166,8 @@ smearing matrix at every timeslice. Other dependency (eg. spatial) are not suppo
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr__init__ expects a list of timeslices.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># data_input can have multiple shapes. The simplest one is a list of Obs.</span>
-        <span class="c1"># We check, if this is the case</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CObs</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]):</span>
-
+            <span class="n">_assert_equal_properties</span><span class="p">(</span><span class="n">data_input</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data_input</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
 

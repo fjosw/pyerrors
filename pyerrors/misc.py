@@ -85,4 +85,3 @@ def _assert_equal_properties(ol, otype=Obs):
             raise Exception("All Obs in list have to be defined on the same set of configs.")
         if not ol[0].idl == o.idl:
             raise Exception("All Obs in list have to be defined on the same set of configurations.")
-

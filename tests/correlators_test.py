@@ -38,9 +38,6 @@ def test_function_overloading():
     np.arccosh(corr_a + 1.1)
     np.arctanh(corr_a)
 
-    with pytest.raises(Exception):
-        np.arccosh(corr_a)
-
 
 def test_modify_correlator():
     corr_content = []
@@ -64,12 +61,13 @@ def test_modify_correlator():
 
 
 def test_m_eff():
-    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(8, 0.1, 't'), pe.pseudo_Obs(7, 0.05, 't')])
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')])
     my_corr.m_eff('log')
     my_corr.m_eff('cosh')
-    my_corr.m_eff('sinh')
     my_corr.m_eff('arccosh')
 
+    with pytest.warns(RuntimeWarning):
+        my_corr.m_eff('sinh')
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])

@@ -470,8 +470,8 @@ class Obs:
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
 
-        fig = plt.figure()
         for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
             length = int(len(self.e_n_tauint[e_name]))
@@ -496,13 +496,20 @@ class Obs:
             plt.ylim(bottom=0.0)
             plt.draw()
             if save:
-                fig.savefig(save)
+                fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self):
-        """Plot normalized autocorrelation function time for each ensemble."""
+    def plot_rho(self, save=None):
+        """Plot normalized autocorrelation function time for each ensemble.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel('W')
             plt.ylabel('rho')
             length = int(len(self.e_drho[e_name]))
@@ -519,6 +526,8 @@ class Obs:
             plt.plot([-0.5, xmax], [0, 0], 'k--', lw=1)
             plt.xlim(-0.5, xmax)
             plt.draw()
+            if save:
+                fig.savefig(save + "_" + str(e))
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""

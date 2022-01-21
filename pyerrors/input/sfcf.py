@@ -125,8 +125,7 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
         replica = len(ls)
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
-    print('Read', part, 'part of', name, 'from', prefix[:-1],
-          ',', replica, 'replica')
+    print("Read", part, "part of '" + str(name) + "' with prefix '" + str(prefix) + "' (" + str(replica) + " replica)")
     if 'names' in kwargs:
         new_names = kwargs.get('names')
         if len(new_names) != len(set(new_names)):

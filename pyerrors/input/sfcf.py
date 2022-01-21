@@ -112,12 +112,12 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
             else:
                 ls.extend(filenames)
             break
-        if not ls:
-            raise Exception('Error, directory not found')
         # Exclude folders with different names
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*'):
                 ls = list(set(ls) - set([exc]))
+    if not ls:
+        raise Exception('No matching directories found.')
     if len(ls) > 1:
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
 

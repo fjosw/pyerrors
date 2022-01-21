@@ -11,53 +11,57 @@ from . import utils
 
 def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
               version="1.0c", **kwargs):
-    """Read sfcf c format from given folder structure.
+    """Read sfcf format from given folder structure.
 
     Parameters
     ----------
-    quarks: str
+    path : str
+        Path to the measurement files.
+    prefix : str
+        Ensemble prefix for which the data is to be extracted.
+    name : str
+        Name of the correlation function to be extracted from the file
+    quarks: str, optional
         Label of the quarks used in the sfcf input file. e.g. "quark quark"
         for version 0.0 this does NOT need to be given with the typical " - "
         that is present in the output file,
         this is done automatically for this version
-    noffset: int
+    noffset: int, optional
         Offset of the source (only relevant when wavefunctions are used)
-    wf: int
+    wf: int, optional
         ID of wave function
-    wf2: int
+    wf2: int, optional
         ID of the second wavefunction
         (only relevant for boundary-to-boundary correlation functions)
-    im: bool
+    im: bool, optional
         if True, read imaginary instead of real part
         of the correlation function.
-    b2b: bool
+    b2b: bool, optional
         if True, read a time-dependent boundary-to-boundary
         correlation function
-    single: bool
+    single: bool, optional
         if True, read time independent boundary to boundary
         correlation function
-    names: list
+    names: list, optional
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length
-    ens_name : str
+    ens_name : str, optional
         replaces the name of the ensemble
-    version: str
+    version: str, optional
         version of SFCF, with which the measurement was done.
         if the compact output option (-c) was specified,
         append a "c" to the version (e.g. "1.0c")
         if the append output option (-a) was specified,
         append an "a" to the version. Currently supported versions
         are "0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a" and "2.0a".
-    replica: list
+    replica: list, optional
         list of replica to be read, default is all
-    files: list
+    files: list, optional
         list of files to be read per replica, default is all.
         for non-compact output format, hand the folders to be read here.
-    check_configs:
+    check_configs: list, optional
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
-    TODO:
-    - whats going on with files here?
     """
     if kwargs.get('im'):
         im = 1

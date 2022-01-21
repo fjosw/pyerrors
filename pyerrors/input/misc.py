@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import fnmatch
 import re
@@ -12,11 +9,12 @@ from ..obs import Obs
 def read_pbp(path, prefix, **kwargs):
     """Read pbp format from given folder structure. Returns a list of length nrw
 
-    Keyword arguments
-    -----------------
-    r_start -- list which contains the first config to be read for each replicum
-    r_stop -- list which contains the last config to be read for each replicum
-
+    Parameters
+    ----------
+    r_start : list
+        list which contains the first config to be read for each replicum
+    r_stop : list
+        list which contains the last config to be read for each replicum
     """
 
     extract_nfct = 1
@@ -66,7 +64,6 @@ def read_pbp(path, prefix, **kwargs):
         tmp_array = []
         with open(path + '/' + ls[rep], 'rb') as fp:
 
-            # header
             t = fp.read(4)  # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
@@ -74,7 +71,7 @@ def read_pbp(path, prefix, **kwargs):
                     deltas.append([])
             else:
                 if nrw != struct.unpack('i', t)[0]:
-                    raise Exception('Error: different number of reweighting factors for replicum', rep)
+                    raise Exception('Error: different number of factors for replicum', rep)
 
             for k in range(nrw):
                 tmp_array.append([])

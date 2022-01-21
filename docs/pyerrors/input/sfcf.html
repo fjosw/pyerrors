@@ -82,53 +82,57 @@
 
 <span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
               <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
+    <span class="sd">&quot;&quot;&quot;Read sfcf format from given folder structure.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    quarks: str</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to the measurement files.</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Ensemble prefix for which the data is to be extracted.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the correlation function to be extracted from the file</span>
+<span class="sd">    quarks: str, optional</span>
 <span class="sd">        Label of the quarks used in the sfcf input file. e.g. &quot;quark quark&quot;</span>
 <span class="sd">        for version 0.0 this does NOT need to be given with the typical &quot; - &quot;</span>
 <span class="sd">        that is present in the output file,</span>
 <span class="sd">        this is done automatically for this version</span>
-<span class="sd">    noffset: int</span>
+<span class="sd">    noffset: int, optional</span>
 <span class="sd">        Offset of the source (only relevant when wavefunctions are used)</span>
-<span class="sd">    wf: int</span>
+<span class="sd">    wf: int, optional</span>
 <span class="sd">        ID of wave function</span>
-<span class="sd">    wf2: int</span>
+<span class="sd">    wf2: int, optional</span>
 <span class="sd">        ID of the second wavefunction</span>
 <span class="sd">        (only relevant for boundary-to-boundary correlation functions)</span>
-<span class="sd">    im: bool</span>
+<span class="sd">    im: bool, optional</span>
 <span class="sd">        if True, read imaginary instead of real part</span>
 <span class="sd">        of the correlation function.</span>
-<span class="sd">    b2b: bool</span>
+<span class="sd">    b2b: bool, optional</span>
 <span class="sd">        if True, read a time-dependent boundary-to-boundary</span>
 <span class="sd">        correlation function</span>
-<span class="sd">    single: bool</span>
+<span class="sd">    single: bool, optional</span>
 <span class="sd">        if True, read time independent boundary to boundary</span>
 <span class="sd">        correlation function</span>
-<span class="sd">    names: list</span>
+<span class="sd">    names: list, optional</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
-<span class="sd">    ens_name : str</span>
+<span class="sd">    ens_name : str, optional</span>
 <span class="sd">        replaces the name of the ensemble</span>
-<span class="sd">    version: str</span>
+<span class="sd">    version: str, optional</span>
 <span class="sd">        version of SFCF, with which the measurement was done.</span>
 <span class="sd">        if the compact output option (-c) was specified,</span>
 <span class="sd">        append a &quot;c&quot; to the version (e.g. &quot;1.0c&quot;)</span>
 <span class="sd">        if the append output option (-a) was specified,</span>
 <span class="sd">        append an &quot;a&quot; to the version. Currently supported versions</span>
 <span class="sd">        are &quot;0.0&quot;, &quot;1.0&quot;, &quot;2.0&quot;, &quot;1.0c&quot;, &quot;2.0c&quot;, &quot;1.0a&quot; and &quot;2.0a&quot;.</span>
-<span class="sd">    replica: list</span>
+<span class="sd">    replica: list, optional</span>
 <span class="sd">        list of replica to be read, default is all</span>
-<span class="sd">    files: list</span>
+<span class="sd">    files: list, optional</span>
 <span class="sd">        list of files to be read per replica, default is all.</span>
 <span class="sd">        for non-compact output format, hand the folders to be read here.</span>
-<span class="sd">    check_configs:</span>
+<span class="sd">    check_configs: list, optional</span>
 <span class="sd">        list of list of supposed configs, eg. [range(1,1000)]</span>
 <span class="sd">        for one replicum with 1000 configs</span>
-<span class="sd">    TODO:</span>
-<span class="sd">    - whats going on with files here?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;im&#39;</span><span class="p">):</span>
         <span class="n">im</span> <span class="o">=</span> <span class="mi">1</span>
@@ -447,53 +451,57 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
               <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
+    <span class="sd">&quot;&quot;&quot;Read sfcf format from given folder structure.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    quarks: str</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to the measurement files.</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Ensemble prefix for which the data is to be extracted.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the correlation function to be extracted from the file</span>
+<span class="sd">    quarks: str, optional</span>
 <span class="sd">        Label of the quarks used in the sfcf input file. e.g. &quot;quark quark&quot;</span>
 <span class="sd">        for version 0.0 this does NOT need to be given with the typical &quot; - &quot;</span>
 <span class="sd">        that is present in the output file,</span>
 <span class="sd">        this is done automatically for this version</span>
-<span class="sd">    noffset: int</span>
+<span class="sd">    noffset: int, optional</span>
 <span class="sd">        Offset of the source (only relevant when wavefunctions are used)</span>
-<span class="sd">    wf: int</span>
+<span class="sd">    wf: int, optional</span>
 <span class="sd">        ID of wave function</span>
-<span class="sd">    wf2: int</span>
+<span class="sd">    wf2: int, optional</span>
 <span class="sd">        ID of the second wavefunction</span>
 <span class="sd">        (only relevant for boundary-to-boundary correlation functions)</span>
-<span class="sd">    im: bool</span>
+<span class="sd">    im: bool, optional</span>
 <span class="sd">        if True, read imaginary instead of real part</span>
 <span class="sd">        of the correlation function.</span>
-<span class="sd">    b2b: bool</span>
+<span class="sd">    b2b: bool, optional</span>
 <span class="sd">        if True, read a time-dependent boundary-to-boundary</span>
 <span class="sd">        correlation function</span>
-<span class="sd">    single: bool</span>
+<span class="sd">    single: bool, optional</span>
 <span class="sd">        if True, read time independent boundary to boundary</span>
 <span class="sd">        correlation function</span>
-<span class="sd">    names: list</span>
+<span class="sd">    names: list, optional</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
-<span class="sd">    ens_name : str</span>
+<span class="sd">    ens_name : str, optional</span>
 <span class="sd">        replaces the name of the ensemble</span>
-<span class="sd">    version: str</span>
+<span class="sd">    version: str, optional</span>
 <span class="sd">        version of SFCF, with which the measurement was done.</span>
 <span class="sd">        if the compact output option (-c) was specified,</span>
 <span class="sd">        append a &quot;c&quot; to the version (e.g. &quot;1.0c&quot;)</span>
 <span class="sd">        if the append output option (-a) was specified,</span>
 <span class="sd">        append an &quot;a&quot; to the version. Currently supported versions</span>
 <span class="sd">        are &quot;0.0&quot;, &quot;1.0&quot;, &quot;2.0&quot;, &quot;1.0c&quot;, &quot;2.0c&quot;, &quot;1.0a&quot; and &quot;2.0a&quot;.</span>
-<span class="sd">    replica: list</span>
+<span class="sd">    replica: list, optional</span>
 <span class="sd">        list of replica to be read, default is all</span>
-<span class="sd">    files: list</span>
+<span class="sd">    files: list, optional</span>
 <span class="sd">        list of files to be read per replica, default is all.</span>
 <span class="sd">        for non-compact output format, hand the folders to be read here.</span>
-<span class="sd">    check_configs:</span>
+<span class="sd">    check_configs: list, optional</span>
 <span class="sd">        list of list of supposed configs, eg. [range(1,1000)]</span>
 <span class="sd">        for one replicum with 1000 configs</span>
-<span class="sd">    TODO:</span>
-<span class="sd">    - whats going on with files here?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;im&#39;</span><span class="p">):</span>
         <span class="n">im</span> <span class="o">=</span> <span class="mi">1</span>
@@ -789,53 +797,58 @@
 
         </details>
 
-            <div class="docstring"><p>Read sfcf c format from given folder structure.</p>
+            <div class="docstring"><p>Read sfcf format from given folder structure.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>quarks</strong> (str):
+<li><strong>path</strong> (str):
+Path to the measurement files.</li>
+<li><strong>prefix</strong> (str):
+Ensemble prefix for which the data is to be extracted.</li>
+<li><strong>name</strong> (str):
+Name of the correlation function to be extracted from the file</li>
+<li><strong>quarks</strong> (str, optional):
 Label of the quarks used in the sfcf input file. e.g. "quark quark"
 for version 0.0 this does NOT need to be given with the typical " - "
 that is present in the output file,
 this is done automatically for this version</li>
-<li><strong>noffset</strong> (int):
+<li><strong>noffset</strong> (int, optional):
 Offset of the source (only relevant when wavefunctions are used)</li>
-<li><strong>wf</strong> (int):
+<li><strong>wf</strong> (int, optional):
 ID of wave function</li>
-<li><strong>wf2</strong> (int):
+<li><strong>wf2</strong> (int, optional):
 ID of the second wavefunction
 (only relevant for boundary-to-boundary correlation functions)</li>
-<li><strong>im</strong> (bool):
+<li><strong>im</strong> (bool, optional):
 if True, read imaginary instead of real part
 of the correlation function.</li>
-<li><strong>b2b</strong> (bool):
+<li><strong>b2b</strong> (bool, optional):
 if True, read a time-dependent boundary-to-boundary
 correlation function</li>
-<li><strong>single</strong> (bool):
+<li><strong>single</strong> (bool, optional):
 if True, read time independent boundary to boundary
 correlation function</li>
-<li><strong>names</strong> (list):
+<li><strong>names</strong> (list, optional):
 Alternative labeling for replicas/ensembles.
 Has to have the appropriate length</li>
-<li><strong>ens_name</strong> (str):
+<li><strong>ens_name</strong> (str, optional):
 replaces the name of the ensemble</li>
-<li><strong>version</strong> (str):
+<li><strong>version</strong> (str, optional):
 version of SFCF, with which the measurement was done.
 if the compact output option (-c) was specified,
 append a "c" to the version (e.g. "1.0c")
 if the append output option (-a) was specified,
 append an "a" to the version. Currently supported versions
 are "0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a" and "2.0a".</li>
-<li><strong>replica</strong> (list):
+<li><strong>replica</strong> (list, optional):
 list of replica to be read, default is all</li>
-<li><strong>files</strong> (list):
+<li><strong>files</strong> (list, optional):
 list of files to be read per replica, default is all.
 for non-compact output format, hand the folders to be read here.</li>
-<li><strong>check_configs:</strong>: list of list of supposed configs, eg. [range(1,1000)]
+<li><strong>check_configs</strong> (list, optional):
+list of list of supposed configs, eg. [range(1,1000)]
 for one replicum with 1000 configs</li>
-<li><strong>TODO:</strong></li>
-<li><strong>- whats going on with files here?</strong></li>
 </ul>
 </div>
 

@@ -290,6 +290,8 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                 if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
                 ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+        if len(ls) == 0:
+            raise Exception('File(s) for correlator ' + name + ' not found.')
         pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
         if b2b:
             pattern += '\nwf_2      ' + str(wf2)

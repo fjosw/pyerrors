@@ -580,7 +580,7 @@ class Obs:
                 y = y_test
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
-            plt.title(e_name + f', skew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
+            plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
     def plot_piechart(self):

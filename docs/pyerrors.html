@@ -253,7 +253,7 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 
 <h2 id="irregular-monte-carlo-chains">Irregular Monte Carlo chains</h2>
 
-<p>Irregular Monte Carlo chains can be initialized with the parameter <code>idl</code>.</p>
+<p><code>Obs</code> objects defined on irregular Monte Carlo chains can be initialized with the parameter <code>idl</code>.</p>
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
 <span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
@@ -276,6 +276,8 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">5</span> <span class="n">configurations</span> <span class="p">(</span><span class="n">irregular</span> <span class="nb">range</span><span class="p">)</span>
 </code></pre></div>
+
+<p><code>Obs</code> objects defined on regular and irregular histories of the same ensemble can be computed with each other and the correct error propagation and estimation is automatically taken care of.</p>
 
 <p><strong>Warning:</strong> Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/obs.html#Obs.plot_rho">pyerrors.obs.Obs.plot_rho</a></code> or <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
@@ -338,7 +340,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <li><code>Corr.reweight</code> reweights the correlator.</li>
 </ul>
 
-<p><code><a href="">pyerrors</a></code> can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `<a href="pyerrors/correlators.html#Corr.GEVP">pyerrors.correlators.Corr.GEVP</a>).</p>
+<p><code><a href="">pyerrors</a></code> can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see <code><a href="pyerrors/correlators.html#Corr.GEVP">pyerrors.correlators.Corr.GEVP</a></code>).</p>
 
 <p>For the full API see <code><a href="pyerrors/correlators.html#Corr">pyerrors.correlators.Corr</a></code>.</p>
 
@@ -371,11 +373,23 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h1 id="matrix-operations">Matrix operations</h1>
 
-<p><code><a href="pyerrors/linalg.html">pyerrors.linalg</a></code></p>
+<p><code><a href="">pyerrors</a></code> provides wrappers for <code>Obs</code>-valued matrix operations based on <code>numpy.linalg</code>. The supported functions include:</p>
+
+<ul>
+<li><code>inv</code> for the matrix inverse.</li>
+<li><code>cholseky</code> for the Cholesky decomposition.</li>
+<li><code>det</code> for the matrix determinant.</li>
+<li><code>eigh</code> for eigenvalues and eigenvectors of hermitean matrices.</li>
+<li><code>eig</code> for eigenvalues of general matrices.</li>
+<li><code>pinv</code> for the Moore-Penrose pseudoinverse.</li>
+<li><code>svd</code> for the singular-value-decomposition.</li>
+</ul>
+
+<p>For the full API see <code><a href="pyerrors/linalg.html">pyerrors.linalg</a></code>.</p>
 
 <h1 id="export-data">Export data</h1>
 
-<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is</p>
+<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz</p>
 
 <h2 id="jackknife-samples">Jackknife samples</h2>
 
@@ -384,7 +398,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <h1 id="input">Input</h1>
 
-<p><code><a href="pyerrors/input.html">pyerrors.input</a></code></p>
+<p><code><a href="">pyerrors</a></code> includes an <code>input</code> submodule in which input routines and parsers for the output of various numerical programs are contained. For details see <code><a href="pyerrors/input.html">pyerrors.input</a></code>.</p>
 </div>
 
                         <details>
@@ -552,7 +566,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">## Irregular Monte Carlo chains</span>
 
-<span class="sd">Irregular Monte Carlo chains can be initialized with the parameter `idl`.</span>
+<span class="sd">`Obs` objects defined on irregular Monte Carlo chains can be initialized with the parameter `idl`.</span>
 
 <span class="sd">```python</span>
 <span class="sd"># Observable defined on configurations 20 to 519</span>
@@ -577,6 +591,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">&gt;   · Ensemble &#39;ensemble1&#39; : 5 configurations (irregular range)</span>
 
 <span class="sd">```</span>
+
+<span class="sd">`Obs` objects defined on regular and irregular histories of the same ensemble can be computed with each other and the correct error propagation and estimation is automatically taken care of.</span>
 
 <span class="sd">**Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.</span>
 <span class="sd">Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.</span>
@@ -632,7 +648,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- `Corr.correlate` constructs a disconnected correlation function from the correlator and another `Corr` or `Obs` object.</span>
 <span class="sd">- `Corr.reweight` reweights the correlator.</span>
 
-<span class="sd">`pyerrors` can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `pyerrors.correlators.Corr.GEVP).</span>
+<span class="sd">`pyerrors` can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `pyerrors.correlators.Corr.GEVP`).</span>
 
 <span class="sd">For the full API see `pyerrors.correlators.Corr`.</span>
 
@@ -664,17 +680,26 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">`pyerrors.roots`</span>
 
 <span class="sd"># Matrix operations</span>
-<span class="sd">`pyerrors.linalg`</span>
+<span class="sd">`pyerrors` provides wrappers for `Obs`-valued matrix operations based on `numpy.linalg`. The supported functions include:</span>
+<span class="sd">- `inv` for the matrix inverse.</span>
+<span class="sd">- `cholseky` for the Cholesky decomposition.</span>
+<span class="sd">- `det` for the matrix determinant.</span>
+<span class="sd">- `eigh` for eigenvalues and eigenvectors of hermitean matrices.</span>
+<span class="sd">- `eig` for eigenvalues of general matrices.</span>
+<span class="sd">- `pinv` for the Moore-Penrose pseudoinverse.</span>
+<span class="sd">- `svd` for the singular-value-decomposition.</span>
+
+<span class="sd">For the full API see `pyerrors.linalg`.</span>
 
 <span class="sd"># Export data</span>
-<span class="sd">The preferred exported file format within `pyerrors` is</span>
+<span class="sd">The preferred exported file format within `pyerrors` is json.gz</span>
 
 <span class="sd">## Jackknife samples</span>
 <span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>
 <span class="sd">See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.</span>
 
 <span class="sd"># Input</span>
-<span class="sd">`pyerrors.input`</span>
+<span class="sd">`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.correlators</span> <span class="kn">import</span> <span class="o">*</span>

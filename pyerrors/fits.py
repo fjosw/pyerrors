@@ -198,9 +198,9 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     n_parms = i
     if not silent:
-        print('Fit with', n_parms, 'parameters')
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
         if(len(const_par) > 0):
-            print('\t and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
+            print('and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
 
     x_f = np.vectorize(lambda o: o.value)(x)
     dx_f = np.vectorize(lambda o: o.dvalue)(x)
@@ -362,7 +362,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     output.priors = loc_priors
 
     if not silent:
-        print('Fit with', n_parms, 'parameters')
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
 
     y_f = [o.value for o in y]
     dy_f = [o.dvalue for o in y]
@@ -482,9 +482,9 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     n_parms = i
 
     if not silent:
-        print('Fit with', n_parms, 'parameters')
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
         if(len(const_par) > 0):
-            print('\t and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
+            print('and %d constrained parameter%s' % (len(const_par), 's' if len(const_par) > 1 else ''), const_par)
 
     y_f = [o.value for o in y]
     dy_f = [o.dvalue for o in y]

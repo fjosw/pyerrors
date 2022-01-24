@@ -8,10 +8,11 @@ import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
+from scipy.stats import chi2
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
-from .obs import Obs, derived_observable, covariance, pseudo_Obs
+from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
 class Fit_result(Sequence):
@@ -46,6 +47,8 @@ class Fit_result(Sequence):
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
         if hasattr(self, 'chisquare_by_expected_chisquare'):
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
+        if hasattr(self, 'p_value'):
+            my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
@@ -188,7 +191,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break
@@ -301,12 +304,13 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(out.beta[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(x.ravel()) + list(y), man_grad=[0] + list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda my_var, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
 
     output.fit_parameters = result + const_par
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
 
@@ -329,7 +333,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     for i in range(100):
         try:
             func(np.arange(i), 0)
-        except:
+        except Exception:
             pass
         else:
             break
@@ -353,7 +357,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
             loc_priors.append(i_prior)
         else:
             loc_val, loc_dval = extract_val_and_dval(i_prior)
-            loc_priors.append(pseudo_Obs(loc_val, loc_dval, 'p' + str(i_n)))
+            loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
 
     output.priors = loc_priors
 
@@ -387,13 +391,15 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('Method: migrad')
 
-    m = iminuit.Minuit.from_array_func(chisqfunc, x0, error=np.asarray(x0) * 0.01, errordef=1, print_level=0)
+    m = iminuit.Minuit(chisqfunc, x0)
+    m.errordef = 1
+    m.print_level = 0
     if 'tol' in kwargs:
         m.tol = kwargs.get('tol')
     else:
         m.tol = 1e-4
     m.migrad()
-    params = np.asarray(m.values.values())
+    params = np.asarray(m.values)
 
     output.chisquare_by_dof = m.fval / len(x)
 
@@ -402,7 +408,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not silent:
         print('chisquare/d.o.f.:', output.chisquare_by_dof)
 
-    if not m.get_fmin().is_valid:
+    if not m.fmin.is_valid:
         raise Exception('The minimization procedure did not converge.')
 
     hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(params))
@@ -418,7 +424,7 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(params[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y) + list(loc_priors), man_grad=[0] + list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
 
     output.fit_parameters = result
     output.chisquare = chisqfunc(np.asarray(params))
@@ -468,7 +474,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     for i in range(25):
         try:
             func(np.arange(i), x.T[0])
-        except:
+        except Exception:
             pass
         else:
             break
@@ -612,12 +618,13 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: x[0], [pseudo_Obs(fit_result.x[i], 0.0, y[0].names[0], y[0].shape[y[0].names[0]])] + list(y), man_grad=[0] + list(deriv[i])))
+        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * fit_result.x[i], list(y), man_grad=list(deriv[i])))
 
     output.fit_parameters = result + const_par
 
     output.chisquare = chisqfunc(fit_result.x)
     output.dof = x.shape[-1] - n_parms
+    output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)
@@ -646,10 +653,10 @@ def fit_lin(x, y, **kwargs):
         return y
 
     if all(isinstance(n, Obs) for n in x):
-        out = odr_fit(x, y, f, **kwargs)
+        out = total_least_squares(x, y, f, **kwargs)
         return out.fit_parameters
     elif all(isinstance(n, float) or isinstance(n, int) for n in x) or isinstance(x, np.ndarray):
-        out = standard_fit(x, y, f, **kwargs)
+        out = least_squares(x, y, f, **kwargs)
         return out.fit_parameters
     else:
         raise Exception('Unsupported types for x')
@@ -678,7 +685,7 @@ def qqplot(x, o_y, func, p):
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')
     plt.legend()
-    plt.show()
+    plt.draw()
 
 
 def residual_plot(x, y, func, fit_res):
@@ -702,12 +709,12 @@ def residual_plot(x, y, func, fit_res):
     ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
     ax1.tick_params(direction='out')
     ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
-    ax1.axhline(y=0.0, ls='--', color='k')
+    ax1.axhline(y=0.0, ls='--', color='k', marker=" ")
     ax1.fill_between(x_samples, -1.0, 1.0, alpha=0.1, facecolor='k')
     ax1.set_xlim([xstart, xstop])
     ax1.set_ylabel('Residuals')
     plt.subplots_adjust(wspace=None, hspace=None)
-    plt.show()
+    plt.draw()
 
 
 def covariance_matrix(y):
@@ -741,148 +748,41 @@ def error_band(x, func, beta):
     return err
 
 
-def ks_test(obs=None):
-    """Performs a Kolmogorov–Smirnov test for the Q-values of all fit object.
+def ks_test(objects=None):
+    """Performs a Kolmogorov–Smirnov test for the p-values of all fit object.
 
-    If no list is given all Obs in memory are used.
-
-    Disclaimer: The determination of the individual Q-values as well as this function have not been tested yet.
+    Parameters
+    ----------
+    objects : list
+        List of fit results to include in the analysis (optional).
     """
 
-    raise Exception('Not yet implemented')
-
-    if obs is None:
+    if objects is None:
         obs_list = []
         for obj in gc.get_objects():
-            if isinstance(obj, Obs):
+            if isinstance(obj, Fit_result):
                 obs_list.append(obj)
     else:
-        obs_list = obs
+        obs_list = objects
 
-    # TODO: Rework to apply to Q-values of all fits in memory
-    Qs = []
-    for obs_i in obs_list:
-        for ens in obs_i.e_names:
-            if obs_i.e_Q[ens] is not None:
-                Qs.append(obs_i.e_Q[ens])
+    p_values = [o.p_value for o in obs_list]
 
-    bins = len(Qs)
+    bins = len(p_values)
     x = np.arange(0, 1.001, 0.001)
     plt.plot(x, x, 'k', zorder=1)
     plt.xlim(0, 1)
     plt.ylim(0, 1)
-    plt.xlabel('Q value')
+    plt.xlabel('p-value')
     plt.ylabel('Cumulative probability')
-    plt.title(str(bins) + ' Q values')
+    plt.title(str(bins) + ' p-values')
 
     n = np.arange(1, bins + 1) / np.float64(bins)
-    Xs = np.sort(Qs)
+    Xs = np.sort(p_values)
     plt.step(Xs, n)
     diffs = n - Xs
     loc_max_diff = np.argmax(np.abs(diffs))
     loc = Xs[loc_max_diff]
-    plt.annotate(s='', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
-    plt.show()
+    plt.annotate('', xy=(loc, loc), xytext=(loc, loc + diffs[loc_max_diff]), arrowprops=dict(arrowstyle='<->', shrinkA=0, shrinkB=0))
+    plt.draw()
 
-    print(scipy.stats.kstest(Qs, 'uniform'))
-
-
-def fit_general(x, y, func, silent=False, **kwargs):
-    """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
-
-    Plausibility of the results should be checked. To control the numerical differentiation
-    the kwargs of numdifftools.step_generators.MaxStepGenerator can be used.
-
-    func has to be of the form
-
-    def func(a, x):
-        y = a[0] + a[1] * x + a[2] * np.sinh(x)
-        return y
-
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-    x can either be a list of floats in which case no xerror is assumed, or
-    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
-
-    Keyword arguments
-    -----------------
-    silent -- If true all output to the console is omitted (default False).
-    initial_guess -- can provide an initial guess for the input parameters. Relevant for non-linear fits
-                     with many parameters.
-    """
-
-    warnings.warn("New fit functions with exact error propagation are now available as alternative.", DeprecationWarning)
-
-    if not callable(func):
-        raise TypeError('func has to be a function.')
-
-    for i in range(10):
-        try:
-            func(np.arange(i), 0)
-        except:
-            pass
-        else:
-            break
-    n_parms = i
-    if not silent:
-        print('Fit with', n_parms, 'parameters')
-
-    global print_output, beta0
-    print_output = 1
-    if 'initial_guess' in kwargs:
-        beta0 = kwargs.get('initial_guess')
-        if len(beta0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
-    else:
-        beta0 = np.arange(n_parms)
-
-    if len(x) != len(y):
-        raise Exception('x and y have to have the same length')
-
-    if all(isinstance(n, Obs) for n in x):
-        obs = x + y
-        x_constants = None
-        xerr = [o.dvalue for o in x]
-        yerr = [o.dvalue for o in y]
-    elif all(isinstance(n, float) or isinstance(n, int) for n in x) or isinstance(x, np.ndarray):
-        obs = y
-        x_constants = x
-        xerr = None
-        yerr = [o.dvalue for o in y]
-    else:
-        raise Exception('Unsupported types for x')
-
-    def do_the_fit(obs, **kwargs):
-
-        global print_output, beta0
-
-        func = kwargs.get('function')
-        yerr = kwargs.get('yerr')
-        length = len(yerr)
-
-        xerr = kwargs.get('xerr')
-
-        if length == len(obs):
-            assert 'x_constants' in kwargs
-            data = RealData(kwargs.get('x_constants'), obs, sy=yerr)
-            fit_type = 2
-        elif length == len(obs) // 2:
-            data = RealData(obs[:length], obs[length:], sx=xerr, sy=yerr)
-            fit_type = 0
-        else:
-            raise Exception('x and y do not fit together.')
-
-        model = Model(func)
-
-        odr = ODR(data, model, beta0, partol=np.finfo(np.float64).eps)
-        odr.set_job(fit_type=fit_type, deriv=1)
-        output = odr.run()
-        if print_output and not silent:
-            print(*output.stopreason)
-            print('chisquare/d.o.f.:', output.res_var)
-            print_output = 0
-        beta0 = output.beta
-        return output.beta[kwargs.get('n')]
-    res = []
-    for n in range(n_parms):
-        res.append(derived_observable(do_the_fit, obs, function=func, xerr=xerr, yerr=yerr, x_constants=x_constants, num_grad=True, n=n, **kwargs))
-    return res
+    print(scipy.stats.kstest(p_values, 'uniform'))

@@ -4,8 +4,10 @@ import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
+from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
+from .covobs import Covobs
 
 
 class Obs:
@@ -41,7 +43,7 @@ class Obs:
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
                  'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'is_merged', 'tag', '__dict__']
+                 'idl', 'is_merged', 'tag', '_covobs', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -67,16 +69,21 @@ class Obs:
             already subtracted from the samples
         """
 
-        if means is None:
+        if means is None and len(samples):
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
                 if len(idl) != len(names):
                     raise Exception('Length of idl incompatible with samples and names.')
-            if len(names) != len(set(names)):
-                raise Exception('names are not unique.')
-            if not all(isinstance(x, str) for x in names):
-                raise TypeError('All names have to be strings.')
+            name_length = len(names)
+            if name_length > 1:
+                if name_length != len(set(names)):
+                    raise Exception('names are not unique.')
+                if not all(isinstance(x, str) for x in names):
+                    raise TypeError('All names have to be strings.')
+            else:
+                if not isinstance(names[0], str):
+                    raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
                 raise Exception('Samples have to have at least 5 entries.')
 
@@ -84,48 +91,53 @@ class Obs:
         self.shape = {}
         self.r_values = {}
         self.deltas = {}
+        self._covobs = {}
 
         self.idl = {}
-        if idl is not None:
-            for name, idx in sorted(zip(names, idl)):
-                if isinstance(idx, range):
-                    self.idl[name] = idx
-                elif isinstance(idx, (list, np.ndarray)):
-                    dc = np.unique(np.diff(idx))
-                    if np.any(dc < 0):
-                        raise Exception("Unsorted idx for idl[%s]" % (name))
-                    if len(dc) == 1:
-                        self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
+        if len(samples):
+            if idl is not None:
+                for name, idx in sorted(zip(names, idl)):
+                    if isinstance(idx, range):
+                        self.idl[name] = idx
+                    elif isinstance(idx, (list, np.ndarray)):
+                        dc = np.unique(np.diff(idx))
+                        if np.any(dc < 0):
+                            raise Exception("Unsorted idx for idl[%s]" % (name))
+                        if len(dc) == 1:
+                            self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
+                        else:
+                            self.idl[name] = list(idx)
                     else:
-                        self.idl[name] = list(idx)
-                else:
-                    raise Exception('incompatible type for idl[%s].' % (name))
-        else:
-            for name, sample in sorted(zip(names, samples)):
-                self.idl[name] = range(1, len(sample) + 1)
+                        raise Exception('incompatible type for idl[%s].' % (name))
+            else:
+                for name, sample in sorted(zip(names, samples)):
+                    self.idl[name] = range(1, len(sample) + 1)
 
-        if means is not None:
-            for name, sample, mean in sorted(zip(names, samples, means)):
-                self.shape[name] = len(self.idl[name])
-                if len(sample) != self.shape[name]:
-                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                self.r_values[name] = mean
-                self.deltas[name] = sample
-        else:
-            for name, sample in sorted(zip(names, samples)):
-                self.shape[name] = len(self.idl[name])
-                if len(sample) != self.shape[name]:
-                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                self.r_values[name] = np.mean(sample)
-                self.deltas[name] = sample - self.r_values[name]
-        self.is_merged = {}
-        self.N = sum(list(self.shape.values()))
+            self._value = 0
+            self.N = 0
+            if means is not None:
+                for name, sample, mean in sorted(zip(names, samples, means)):
+                    self.shape[name] = len(self.idl[name])
+                    self.N += self.shape[name]
+                    self.r_values[name] = mean
+                    self.deltas[name] = sample
+            else:
+                for name, sample in sorted(zip(names, samples)):
+                    self.shape[name] = len(self.idl[name])
+                    self.N += self.shape[name]
+                    if len(sample) != self.shape[name]:
+                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                    self.r_values[name] = np.mean(sample)
+                    self.deltas[name] = sample - self.r_values[name]
+                    self._value += self.shape[name] * self.r_values[name]
+                self._value /= self.N
 
-        self._value = 0
-        if means is None:
-            for name in self.names:
-                self._value += self.shape[name] * self.r_values[name]
-            self._value /= self.N
+            self.is_merged = {}
+
+        else:
+            self._value = 0
+            self.is_merged = {}
+            self.N = 0
 
         self._dvalue = 0.0
         self.ddvalue = 0.0
@@ -146,6 +158,14 @@ class Obs:
         return sorted(set([o.split('|')[0] for o in self.names]))
 
     @property
+    def cov_names(self):
+        return sorted(set([o for o in self.covobs.keys()]))
+
+    @property
+    def mc_names(self):
+        return sorted(set([o.split('|')[0] for o in self.names if o not in self.cov_names]))
+
+    @property
     def e_content(self):
         res = {}
         for e, e_name in enumerate(self.e_names):
@@ -153,6 +173,10 @@ class Obs:
             if e_name in self.names:
                 res[e_name].append(e_name)
         return res
+
+    @property
+    def covobs(self):
+        return self._covobs
 
     def gamma_method(self, **kwargs):
         """Estimate the error and related properties of the Obs.
@@ -219,8 +243,7 @@ class Obs:
         _parse_kwarg('tau_exp')
         _parse_kwarg('N_sigma')
 
-        for e, e_name in enumerate(self.e_names):
-
+        for e, e_name in enumerate(self.mc_names):
             r_length = []
             for r_name in e_content[e_name]:
                 if isinstance(self.idl[r_name], range):
@@ -306,11 +329,16 @@ class Obs:
             self._dvalue += self.e_dvalue[e_name] ** 2
             self.ddvalue += (self.e_dvalue[e_name] * self.e_ddvalue[e_name]) ** 2
 
-        self._dvalue = np.sqrt(self.dvalue)
+        for e_name in self.cov_names:
+            self.e_dvalue[e_name] = np.sqrt(self.covobs[e_name].errsq())
+            self.e_ddvalue[e_name] = 0
+            self._dvalue += self.e_dvalue[e_name]**2
+
+        self._dvalue = np.sqrt(self._dvalue)
         if self._dvalue == 0.0:
             self.ddvalue = 0.0
         else:
-            self.ddvalue = np.sqrt(self.ddvalue) / self.dvalue
+            self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
         return
 
     def _calc_gamma(self, deltas, idx, shape, w_max, fft):
@@ -362,17 +390,19 @@ class Obs:
             if self.value == 0.0:
                 percentage = np.nan
             else:
-                percentage = np.abs(self.dvalue / self.value) * 100
-            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self.dvalue, self.ddvalue, percentage))
+                percentage = np.abs(self._dvalue / self.value) * 100
+            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self._dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
-            for e_name in self.e_names:
+            for e_name in self.mc_names:
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
                 if self.tau_exp[e_name] > 0:
                     print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
                 else:
                     print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+            for e_name in self.cov_names:
+                print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
@@ -380,31 +410,30 @@ class Obs:
                 print(self.N, 'samples in', len(self.e_names), 'ensembles:')
             my_string_list = []
             for key, value in sorted(self.e_content.items()):
-                my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
-                if len(value) == 1:
-                    my_string += f': {self.shape[value[0]]} configurations'
-                    if isinstance(self.idl[value[0]], range):
-                        my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
-                    else:
-                        my_string += ' (irregular range)'
-                else:
-                    sublist = []
-                    for v in value:
-                        my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
-                        my_substring += f': {self.shape[v]} configurations'
-                        if isinstance(self.idl[v], range):
-                            my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                if key not in self.covobs:
+                    my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
+                    if len(value) == 1:
+                        my_string += f': {self.shape[value[0]]} configurations'
+                        if isinstance(self.idl[value[0]], range):
+                            my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
                         else:
-                            my_substring += ' (irregular range)'
-                        sublist.append(my_substring)
+                            my_string += ' (irregular range)'
+                    else:
+                        sublist = []
+                        for v in value:
+                            my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
+                            my_substring += f': {self.shape[v]} configurations'
+                            if isinstance(self.idl[v], range):
+                                my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                            else:
+                                my_substring += ' (irregular range)'
+                            sublist.append(my_substring)
 
-                    my_string += '\n' + '\n'.join(sublist)
+                        my_string += '\n' + '\n'.join(sublist)
+                else:
+                    my_string = '  ' + "\u00B7 Covobs   '" + key + "' "
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
-
-    def print(self, level=1):
-        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level > 1)
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
@@ -416,11 +445,19 @@ class Obs:
 
         Works only properly when the gamma method was run.
         """
-        return self.is_zero() or np.abs(self.value) <= sigma * self.dvalue
+        return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self):
-        """Checks whether the observable is zero within machine precision."""
-        return np.isclose(0.0, self.value) and all(np.allclose(0.0, delta) for delta in self.deltas.values())
+    def is_zero(self, rtol=1.e-5, atol=1.e-8):
+        """Checks whether the observable is zero within a given tolerance.
+
+        Parameters
+        ----------
+        rtol : float
+            Relative tolerance (for details see numpy documentation).
+        atol : float
+            Absolute tolerance (for details see numpy documentation).
+        """
+        return np.isclose(0.0, self.value, rtol, atol) and all(np.allclose(0.0, delta, rtol, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), rtol, atol) for delta in self.covobs.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble.
@@ -433,8 +470,8 @@ class Obs:
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
 
-        fig = plt.figure()
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
             length = int(len(self.e_n_tauint[e_name]))
@@ -459,13 +496,20 @@ class Obs:
             plt.ylim(bottom=0.0)
             plt.draw()
             if save:
-                fig.savefig(save)
+                fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self):
-        """Plot normalized autocorrelation function time for each ensemble."""
+    def plot_rho(self, save=None):
+        """Plot normalized autocorrelation function time for each ensemble.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel('W')
             plt.ylabel('rho')
             length = int(len(self.e_drho[e_name]))
@@ -482,12 +526,14 @@ class Obs:
             plt.plot([-0.5, xmax], [0, 0], 'k--', lw=1)
             plt.xlim(-0.5, xmax)
             plt.draw()
+            if save:
+                fig.savefig(save + "_" + str(e))
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             if len(self.e_content[e_name]) == 1:
                 print('No replica distribution for a single replicum (', e_name, ')')
                 continue
@@ -513,22 +559,28 @@ class Obs:
         expand : bool
             show expanded history for irregular Monte Carlo chains (default: True).
         """
-        for e, e_name in enumerate(self.e_names):
+        for e, e_name in enumerate(self.mc_names):
             plt.figure()
             r_length = []
             tmp = []
+            tmp_expanded = []
             for r, r_name in enumerate(self.e_content[e_name]):
+                tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 if expand:
-                    tmp.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    r_length.append(len(tmp_expanded[-1]))
                 else:
-                    tmp.append(self.deltas[r_name] + self.r_values[r_name])
-                r_length.append(len(tmp[-1]))
+                    r_length.append(len(tmp[-1]))
             e_N = np.sum(r_length)
             x = np.arange(e_N)
-            y = np.concatenate(tmp, axis=0)
+            y_test = np.concatenate(tmp, axis=0)
+            if expand:
+                y = np.concatenate(tmp_expanded, axis=0)
+            else:
+                y = y_test
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
-            plt.title(e_name)
+            plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
     def plot_piechart(self):
@@ -536,10 +588,10 @@ class Obs:
         ensemble to the error and returns a dictionary containing the fractions."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        if self.dvalue == 0.0:
+        if self._dvalue == 0.0:
             raise Exception('Error is 0.0')
         labels = self.e_names
-        sizes = [i ** 2 for i in list(self.e_dvalue.values())] / self.dvalue ** 2
+        sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
@@ -547,22 +599,32 @@ class Obs:
 
         return dict(zip(self.e_names, sizes))
 
-    def dump(self, name, **kwargs):
-        """Dump the Obs to a pickle file 'name'.
+    def dump(self, filename, datatype="json.gz", **kwargs):
+        """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
         ----------
-        name : str
+        filename : str
             name of the file to be saved.
+        datatype : str
+            Format of the exported file. Supported formats include
+            "json.gz" and "pickle"
         path : str
             specifies a custom path for the file (default '.')
         """
         if 'path' in kwargs:
-            file_name = kwargs.get('path') + '/' + name + '.p'
+            file_name = kwargs.get('path') + '/' + filename
         else:
-            file_name = name + '.p'
-        with open(file_name, 'wb') as fb:
-            pickle.dump(self, fb)
+            file_name = filename
+
+        if datatype == "json.gz":
+            from .input.json import dump_to_json
+            dump_to_json([self], file_name)
+        elif datatype == "pickle":
+            with open(file_name + '.p', 'wb') as fb:
+                pickle.dump(self, fb)
+        else:
+            raise Exception("Unknown datatype " + str(datatype))
 
     def export_jackknife(self):
         """Export jackknife samples from the Obs
@@ -584,9 +646,9 @@ class Obs:
         name = self.names[0]
         full_data = self.deltas[name] + self.r_values[name]
         n = full_data.size
-        mean = np.mean(full_data)
+        mean = self.value
         tmp_jacks = np.zeros(n + 1)
-        tmp_jacks[0] = self.value
+        tmp_jacks[0] = mean
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
@@ -597,15 +659,15 @@ class Obs:
         return 'Obs[' + str(self) + ']'
 
     def __str__(self):
-        if self.dvalue == 0.0:
+        if self._dvalue == 0.0:
             return str(self.value)
-        fexp = np.floor(np.log10(self.dvalue))
+        fexp = np.floor(np.log10(self._dvalue))
         if fexp < 0.0:
-            return '{:{form}}({:2.0f})'.format(self.value, self.dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+            return '{:{form}}({:2.0f})'.format(self.value, self._dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
         elif fexp == 0.0:
-            return '{:.1f}({:1.1f})'.format(self.value, self.dvalue)
+            return '{:.1f}({:1.1f})'.format(self.value, self._dvalue)
         else:
-            return '{:.0f}({:2.0f})'.format(self.value, self.dvalue)
+            return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
 
     # Overload comparisons
     def __lt__(self, other):
@@ -759,9 +821,6 @@ class Obs:
     def arctanh(self):
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
 
-    def sinc(self):
-        return derived_observable(lambda x: anp.sinc(x[0]), [self])
-
 
 class CObs:
     """Class for a complex valued observable."""
@@ -907,7 +966,7 @@ def _merge_idx(idl):
         g = groupby(idl)
         if next(g, True) and not next(g, False):
             return idl[0]
-    except:
+    except Exception:
         pass
 
     if np.all([type(idx) is range for idx in idl]):
@@ -976,7 +1035,7 @@ def _filter_zeroes(deltas, idx, eps=Obs.filter_eps):
         return deltas, idx
 
 
-def derived_observable(func, data, **kwargs):
+def derived_observable(func, data, array_mode=False, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
     Parameters
@@ -1009,32 +1068,27 @@ def derived_observable(func, data, **kwargs):
     raveled_data = data.ravel()
 
     # Workaround for matrix operations containing non Obs data
-    for i_data in raveled_data:
-        if isinstance(i_data, Obs):
-            first_name = i_data.names[0]
-            first_shape = i_data.shape[first_name]
-            first_idl = i_data.idl[first_name]
-            break
+    if not all(isinstance(x, Obs) for x in raveled_data):
+        for i in range(len(raveled_data)):
+            if isinstance(raveled_data[i], (int, float)):
+                raveled_data[i] = cov_Obs(raveled_data[i], 0.0, "###dummy_covobs###")
 
-    for i in range(len(raveled_data)):
-        if isinstance(raveled_data[i], (int, float)):
-            raveled_data[i] = Obs([raveled_data[i] + np.zeros(first_shape)], [first_name], idl=[first_idl])
+    allcov = {}
+    for o in raveled_data:
+        for name in o.cov_names:
+            if name in allcov:
+                if not np.allclose(allcov[name], o.covobs[name].cov):
+                    raise Exception('Inconsistent covariance matrices for %s!' % (name))
+            else:
+                allcov[name] = o.covobs[name].cov
 
     n_obs = len(raveled_data)
     new_names = sorted(set([y for x in [o.names for o in raveled_data] for y in x]))
+    new_cov_names = sorted(set([y for x in [o.cov_names for o in raveled_data] for y in x]))
+    new_sample_names = sorted(set(new_names) - set(new_cov_names))
 
-    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_names}
+    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_sample_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
-    new_idl_d = {}
-    for name in new_names:
-        idl = []
-        for i_data in raveled_data:
-            tmp = i_data.idl.get(name)
-            if tmp is not None:
-                idl.append(tmp)
-        new_idl_d[name] = _merge_idx(idl)
-        if not is_merged[name]:
-            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if data.ndim == 1:
         values = np.array([o.value for o in data])
@@ -1043,21 +1097,24 @@ def derived_observable(func, data, **kwargs):
 
     new_values = func(values, **kwargs)
 
-    multi = 0
-    if isinstance(new_values, np.ndarray):
-        multi = 1
+    multi = int(isinstance(new_values, np.ndarray))
 
     new_r_values = {}
-    for name in new_names:
+    new_idl_d = {}
+    for name in new_sample_names:
+        idl = []
         tmp_values = np.zeros(n_obs)
         for i, item in enumerate(raveled_data):
-            tmp = item.r_values.get(name)
-            if tmp is None:
-                tmp = item.value
-            tmp_values[i] = tmp
+            tmp_values[i] = item.r_values.get(name, item.value)
+            tmp_idl = item.idl.get(name)
+            if tmp_idl is not None:
+                idl.append(tmp_idl)
         if multi > 0:
             tmp_values = np.array(tmp_values).reshape(data.shape)
         new_r_values[name] = func(tmp_values, **kwargs)
+        new_idl_d[name] = _merge_idx(idl)
+        if not is_merged[name]:
+            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
@@ -1090,26 +1147,71 @@ def derived_observable(func, data, **kwargs):
 
     final_result = np.zeros(new_values.shape, dtype=object)
 
+    if array_mode is True:
+
+        class _Zero_grad():
+            def __init__(self, N):
+                self.grad = np.zeros((N, 1))
+
+        new_covobs_lengths = dict(set([y for x in [[(n, o.covobs[n].N) for n in o.cov_names] for o in raveled_data] for y in x]))
+        d_extracted = {}
+        g_extracted = {}
+        for name in new_sample_names:
+            d_extracted[name] = []
+            ens_length = len(new_idl_d[name])
+            for i_dat, dat in enumerate(data):
+                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+        for name in new_cov_names:
+            g_extracted[name] = []
+            zero_grad = _Zero_grad(new_covobs_lengths[name])
+            for i_dat, dat in enumerate(data):
+                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (new_covobs_lengths[name], 1)))
+
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
-        for j_obs, obs in np.ndenumerate(data):
-            for name in obs.names:
-                new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+        new_grad = {}
+        if array_mode is True:
+            for name in new_sample_names:
+                ens_length = d_extracted[name][0].shape[-1]
+                new_deltas[name] = np.zeros(ens_length)
+                for i_dat, dat in enumerate(d_extracted[name]):
+                    new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+            for name in new_cov_names:
+                new_grad[name] = 0
+                for i_dat, dat in enumerate(g_extracted[name]):
+                    new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+        else:
+            for j_obs, obs in np.ndenumerate(data):
+                for name in obs.names:
+                    if name in obs.cov_names:
+                        new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
+                    else:
+                        new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
 
+        new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
+
+        if not set(new_covobs.keys()).isdisjoint(new_deltas.keys()):
+            raise Exception('The same name has been used for deltas and covobs!')
         new_samples = []
         new_means = []
         new_idl = []
+        new_names_obs = []
         for name in new_names:
-            if is_merged[name]:
-                filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
-            else:
-                filtered_deltas = new_deltas[name]
-                filtered_idl_d = new_idl_d[name]
+            if name not in new_covobs:
+                if is_merged[name]:
+                    filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
+                else:
+                    filtered_deltas = new_deltas[name]
+                    filtered_idl_d = new_idl_d[name]
 
-            new_samples.append(filtered_deltas)
-            new_idl.append(filtered_idl_d)
-            new_means.append(new_r_values[name][i_val])
-        final_result[i_val] = Obs(new_samples, new_names, means=new_means, idl=new_idl)
+                new_samples.append(filtered_deltas)
+                new_idl.append(filtered_idl_d)
+                new_means.append(new_r_values[name][i_val])
+                new_names_obs.append(name)
+        final_result[i_val] = Obs(new_samples, new_names_obs, means=new_means, idl=new_idl)
+        for name in new_covobs:
+            final_result[i_val].names.append(name)
+        final_result[i_val]._covobs = new_covobs
         final_result[i_val]._value = new_val
         final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted
@@ -1172,22 +1274,24 @@ def reweight(weight, obs, **kwargs):
     """
     result = []
     for i in range(len(obs)):
-        if sorted(weight.names) != sorted(obs[i].names):
+        if len(obs[i].cov_names):
+            raise Exception('Error: Not possible to reweight an Obs that contains covobs!')
+        if not set(obs[i].names).issubset(weight.names):
             raise Exception('Error: Ensembles do not fit')
-        for name in weight.names:
+        for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise Exception('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
         new_samples = []
         w_deltas = {}
-        for name in sorted(weight.names):
+        for name in sorted(obs[i].names):
             w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
-        tmp_obs = Obs(new_samples, sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+        tmp_obs = Obs(new_samples, sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         if kwargs.get('all_configs'):
             new_weight = weight
         else:
-            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(weight.names)], sorted(weight.names), idl=[obs[i].idl[name] for name in sorted(weight.names)])
+            new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(obs[i].names)], sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
         result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, new_weight], **kwargs))
         result[-1].reweighted = True
@@ -1213,6 +1317,8 @@ def correlate(obs_a, obs_b):
 
     if sorted(obs_a.names) != sorted(obs_b.names):
         raise Exception('Ensembles do not fit')
+    if len(obs_a.cov_names) or len(obs_b.cov_names):
+        raise Exception('Error: Not possible to correlate Obs that contain covobs!')
     for name in obs_a.names:
         if obs_a.shape[name] != obs_b.shape[name]:
             raise Exception('Shapes of ensemble', name, 'do not fit')
@@ -1243,71 +1349,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     The gamma method has to be applied first to both observables.
 
     If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value in order to make sure that covariance
-    matrices are positive semidefinite.
-
-    Parameters
-    ----------
-    obs1 : Obs
-        First Obs
-    obs2 : Obs
-        Second Obs
-    correlation : bool
-        if true the correlation instead of the covariance is
-        returned (default False)
-    """
-    if set(obs1.names).isdisjoint(set(obs2.names)):
-        return 0.
-
-    for name in sorted(set(obs1.names + obs2.names)):
-        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-
-    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
-        raise Exception('The gamma method has to be applied to both Obs first.')
-
-    dvalue = 0
-
-    for e_name in obs1.e_names:
-
-        if e_name not in obs2.e_names:
-            continue
-
-        gamma = 0
-        r_length = []
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-
-            r_length.append(len(obs1.deltas[r_name]))
-
-            gamma += np.sum(obs1.deltas[r_name] * obs2.deltas[r_name])
-
-        e_N = np.sum(r_length)
-
-        tau_combined = (obs1.e_tauint[e_name] + obs2.e_tauint[e_name]) / 2
-        dvalue += gamma / e_N * (1 + 1 / e_N) / e_N * 2 * tau_combined
-
-    if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-        dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        dvalue = dvalue / obs1.dvalue / obs2.dvalue
-
-    return dvalue
-
-
-def covariance2(obs1, obs2, correlation=False, **kwargs):
-    """Alternative implementation of the covariance of two observables.
-
-    covariance(obs, obs) is equal to obs.dvalue ** 2
-    The gamma method has to be applied first to both observables.
-
-    If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value in order to make sure that covariance
-    matrices are positive semidefinite.
+    is constrained to the maximum value.
 
     Keyword arguments
     -----------------
@@ -1352,7 +1394,7 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
     if set(obs1.names).isdisjoint(set(obs2.names)):
         return 0.
 
-    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
+    if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
@@ -1361,9 +1403,9 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
     e_n_tauint = {}
     e_rho = {}
 
-    for e_name in obs1.e_names:
+    for e_name in obs1.mc_names:
 
-        if e_name not in obs2.e_names:
+        if e_name not in obs2.mc_names:
             continue
 
         idl_d = {}
@@ -1408,11 +1450,18 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         # Make sure no entry of tauint is smaller than 0.5
         e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
 
-        window = max(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
+        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
         e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
 
         dvalue += e_dvalue[e_name]
+
+    for e_name in obs1.cov_names:
+
+        if e_name not in obs2.cov_names:
+            continue
+
+        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
 
     if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
         dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
@@ -1421,70 +1470,6 @@ def covariance2(obs1, obs2, correlation=False, **kwargs):
         dvalue = dvalue / obs1.dvalue / obs2.dvalue
 
     return dvalue
-
-
-def covariance3(obs1, obs2, correlation=False, **kwargs):
-    """Another alternative implementation of the covariance of two observables.
-
-    covariance2(obs, obs) is equal to obs.dvalue ** 2
-    Currently only works if ensembles are identical.
-    The gamma method has to be applied first to both observables.
-
-    If abs(covariance2(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value in order to make sure that covariance
-    matrices are positive semidefinite.
-
-    Keyword arguments
-    -----------------
-    correlation -- if true the correlation instead of the covariance is
-                   returned (default False)
-    plot -- if true, the integrated autocorrelation time for each ensemble is
-            plotted.
-    """
-
-    for name in sorted(set(obs1.names + obs2.names)):
-        if (obs1.shape.get(name) != obs2.shape.get(name)) and (obs1.shape.get(name) is not None) and (obs2.shape.get(name) is not None):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-        if (1 != len(set([len(idx) for idx in [obs1.idl[name], obs2.idl[name], _merge_idx([obs1.idl[name], obs2.idl[name]])]]))):
-            raise Exception('Shapes of ensemble', name, 'do not fit')
-
-    if not hasattr(obs1, 'e_names') or not hasattr(obs2, 'e_names'):
-        raise Exception('The gamma method has to be applied to both Obs first.')
-
-    tau_exp = []
-    S = []
-    for e_name in sorted(set(obs1.e_names + obs2.e_names)):
-        t_1 = obs1.tau_exp.get(e_name)
-        t_2 = obs2.tau_exp.get(e_name)
-        if t_1 is None:
-            t_1 = 0
-        if t_2 is None:
-            t_2 = 0
-        tau_exp.append(max(t_1, t_2))
-        S_1 = obs1.S.get(e_name)
-        S_2 = obs2.S.get(e_name)
-        if S_1 is None:
-            S_1 = Obs.S_global
-        if S_2 is None:
-            S_2 = Obs.S_global
-        S.append(max(S_1, S_2))
-
-    check_obs = obs1 + obs2
-    check_obs.gamma_method(tau_exp=tau_exp, S=S)
-
-    if kwargs.get('plot'):
-        check_obs.plot_tauint()
-        check_obs.plot_rho()
-
-    cov = (check_obs.dvalue ** 2 - obs1.dvalue ** 2 - obs2.dvalue ** 2) / 2
-
-    if np.abs(cov / obs1.dvalue / obs2.dvalue) > 1.0:
-        cov = np.sign(cov) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        cov = cov / obs1.dvalue / obs2.dvalue
-
-    return cov
 
 
 def pseudo_Obs(value, dvalue, name, samples=1000):
@@ -1519,39 +1504,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         return res
 
 
-def dump_object(obj, name, **kwargs):
-    """Dump object into pickle file.
-
-    Parameters
-    ----------
-    obj : object
-        object to be saved in the pickle file
-    name : str
-        name of the file
-    path : str
-        specifies a custom path for the file (default '.')
-    """
-    if 'path' in kwargs:
-        file_name = kwargs.get('path') + '/' + name + '.p'
-    else:
-        file_name = name + '.p'
-    with open(file_name, 'wb') as fb:
-        pickle.dump(obj, fb)
-
-
-def load_object(path):
-    """Load object from pickle file.
-
-    Parameters
-    ----------
-    path : str
-        path to the file
-    """
-    with open(path, 'rb') as file:
-        return pickle.load(file)
-
-
-def import_jackknife(jacks, name):
+def import_jackknife(jacks, name, idl=None):
     """Imports jackknife samples and returns an Obs
 
     Parameters
@@ -1565,7 +1518,7 @@ def import_jackknife(jacks, name):
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
     samples = jacks[1:] @ prj
-    new_obs = Obs([samples], [name])
+    new_obs = Obs([samples], [name], idl=idl)
     new_obs._value = jacks[0]
     return new_obs
 
@@ -1583,6 +1536,8 @@ def merge_obs(list_of_obs):
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
         raise Exception('list_of_obs contains duplicate replica: %s' % (str(replist)))
+    if any([len(o.cov_names) for o in list_of_obs]):
+        raise Exception('Not possible to merge data that contains covobs!')
     new_dict = {}
     idl_dict = {}
     for o in list_of_obs:
@@ -1595,3 +1550,46 @@ def merge_obs(list_of_obs):
     o.is_merged = {name: np.any([oi.is_merged.get(name, False) for oi in list_of_obs]) for name in o.names}
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
+
+
+def cov_Obs(means, cov, name, grad=None):
+    """Create an Obs based on mean(s) and a covariance matrix
+
+    Parameters
+    ----------
+    mean : list of floats or float
+        N mean value(s) of the new Obs
+    cov : list or array
+        2d (NxN) Covariance matrix, 1d diagonal entries or 0d covariance
+    name : str
+        identifier for the covariance matrix
+    grad : list or array
+        Gradient of the Covobs wrt. the means belonging to cov.
+    """
+
+    def covobs_to_obs(co):
+        """Make an Obs out of a Covobs
+
+        Parameters
+        ----------
+        co : Covobs
+            Covobs to be embedded into the Obs
+        """
+        o = Obs([], [])
+        o._value = co.value
+        o.names.append(co.name)
+        o._covobs[co.name] = co
+        o._dvalue = np.sqrt(co.errsq())
+        return o
+
+    ol = []
+    if isinstance(means, (float, int)):
+        means = [means]
+
+    for i in range(len(means)):
+        ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
+    if ol[0].covobs[name].N != len(means):
+        raise Exception('You have to provide %d mean values!' % (ol[0].N))
+    if len(ol) == 1:
+        return ol[0]
+    return ol

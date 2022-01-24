@@ -31,6 +31,13 @@ def test_function_overloading():
             assert np.isclose(con[0].dvalue, t2.dvalue)
             assert np.allclose(con[0].deltas['t'], t2.deltas['t'])
 
+    np.arcsin(corr_a)
+    np.arccos(corr_a)
+    np.arctan(corr_a)
+    np.arcsinh(corr_a)
+    np.arccosh(corr_a + 1.1)
+    np.arctanh(corr_a)
+
 
 def test_modify_correlator():
     corr_content = []
@@ -47,16 +54,20 @@ def test_modify_correlator():
     corr.roll(np.random.randint(100))
     corr.deriv(symmetric=True)
     corr.deriv(symmetric=False)
+    corr.deriv().deriv()
     corr.second_deriv()
+    corr.second_deriv().second_deriv()
+
 
 
 def test_m_eff():
-    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(8, 0.1, 't'), pe.pseudo_Obs(7, 0.05, 't')])
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')])
     my_corr.m_eff('log')
     my_corr.m_eff('cosh')
-    my_corr.m_eff('sinh')
     my_corr.m_eff('arccosh')
 
+    with pytest.warns(RuntimeWarning):
+        my_corr.m_eff('sinh')
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
@@ -79,6 +90,52 @@ def test_T_symmetry():
         T_symmetric = my_corr.T_symmetry(my_corr)
 
 
+def test_fit_correlator():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(2.042345, 0.0004, 't')])
+
+    def f(a, x):
+        y = a[0] + a[1] * x
+        return y
+
+    fit_res = my_corr.fit(f)
+    assert fit_res[0] == my_corr[0]
+    assert fit_res[1] == my_corr[1] - my_corr[0]
+
+
+def test_plateau():
+    my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(1.042345, 0.008, 't')])
+
+    my_corr.plateau([0, 1], method="fit")
+    my_corr.plateau([0, 1], method="mean")
+    with pytest.raises(Exception):
+        my_corr.plateau()
+
+
+def test_padded_correlator():
+    my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']) for o in range(8)]
+    my_corr = pe.Corr(my_list, padding=[7, 3])
+    my_corr.reweighted
+    [o for o in my_corr]
+
+
+def test_corr_exceptions():
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 99)], ['test'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'], idl=[range(1, 200, 2)])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+
+
 def test_utility():
     corr_content = []
     for t in range(8):
@@ -90,9 +147,19 @@ def test_utility():
     corr.print([2, 4])
     corr.show()
 
-    corr.dump('test_dump')
+    corr.dump('test_dump', datatype="pickle", path='.')
+    corr.dump('test_dump', datatype="pickle")
     new_corr = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
+    for o_a, o_b in zip(corr.content, new_corr.content):
+        assert np.isclose(o_a[0].value, o_b[0].value)
+        assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
+        assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+    corr.dump('test_dump', datatype="json.gz", path='.')
+    corr.dump('test_dump', datatype="json.gz")
+    new_corr = pe.input.json.load_json('test_dump')
+    os.remove('test_dump.json.gz')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
         assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)

@@ -1,25 +1,15 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import h5py
 import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
-from ..npr import Npr_matrix
 
 
-def _get_files(path, filestem):
-    ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        ls.extend(filenames)
-        break
+def _get_files(path, filestem, idl):
+    ls = os.listdir(path)
 
     # Clean up file list
-    files = []
-    for line in ls:
-        if line.startswith(filestem):
-            files.append(line)
+    files = list(filter(lambda x: x.startswith(filestem), ls))
 
     if not files:
         raise Exception('No files starting with', filestem, 'in folder', path)
@@ -30,18 +20,31 @@ def _get_files(path, filestem):
     # Sort according to configuration number
     files.sort(key=get_cnfg_number)
 
-    # Check that configurations are evenly spaced
     cnfg_numbers = []
+    filtered_files = []
     for line in files:
-        cnfg_numbers.append(get_cnfg_number(line))
+        no = get_cnfg_number(line)
+        if idl:
+            if no in list(idl):
+                filtered_files.append(line)
+                cnfg_numbers.append(no)
+        else:
+            filtered_files.append(line)
+            cnfg_numbers.append(no)
 
-    if not all(np.diff(cnfg_numbers) == np.diff(cnfg_numbers)[0]):
+    # Check that configurations are evenly spaced
+    dc = np.unique(np.diff(cnfg_numbers))
+    if np.any(dc < 0):
+        raise Exception("Unsorted files")
+    if len(dc) == 1:
+        idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
+    else:
         raise Exception('Configurations are not evenly spaced.')
 
-    return files, cnfg_numbers
+    return filtered_files, idx
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=None):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
@@ -55,14 +58,13 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
     meson : str
         label of the meson to be extracted, standard value meson_0 which
         corresponds to the pseudoscalar pseudoscalar two-point function.
-    tree : str
-        Label of the upmost directory in the hdf5 file, default 'meson'
-        for outputs of the Meson module. Can be altered to read input
-        from other modules with similar structures.
+    idl : range
+        If specified only configurations in the given range are read in.
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
+    tree = meson.rsplit('_')[0]
     corr_data = []
     infos = []
     for hd5_file in files:
@@ -78,27 +80,69 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson'):
 
     l_obs = []
     for c in corr_data.T:
-        l_obs.append(Obs([c], [ens_id], idl=[cnfg_numbers]))
+        l_obs.append(Obs([c], [ens_id], idl=[idx]))
 
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
     return corr
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
+class Npr_matrix(np.ndarray):
+
+    def __new__(cls, input_array, mom_in=None, mom_out=None):
+        obj = np.asarray(input_array).view(cls)
+        obj.mom_in = mom_in
+        obj.mom_out = mom_out
+        return obj
+
+    @property
+    def g5H(self):
+        """Gamma_5 hermitean conjugate
+
+        Uses the fact that the propagator is gamma5 hermitean, so just the
+        in and out momenta of the propagator are exchanged.
+        """
+        return Npr_matrix(self,
+                          mom_in=self.mom_out,
+                          mom_out=self.mom_in)
+
+    def _propagate_mom(self, other, name):
+        s_mom = getattr(self, name, None)
+        o_mom = getattr(other, name, None)
+        if s_mom is not None and o_mom is not None:
+            if not np.allclose(s_mom, o_mom):
+                raise Exception(name + ' does not match.')
+        return o_mom if o_mom is not None else s_mom
+
+    def __matmul__(self, other):
+        return self.__new__(Npr_matrix,
+                            super().__matmul__(other),
+                            self._propagate_mom(other, 'mom_in'),
+                            self._propagate_mom(other, 'mom_out'))
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.mom_in = getattr(obj, 'mom_in', None)
+        self.mom_out = getattr(obj, 'mom_out', None)
+
+
+def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    idl : range
+        If specified only configurations in the given range are read in.
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
     mom = None
 
@@ -107,9 +151,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
         file = h5py.File(path + '/' + hd5_file, "r")
         raw_data = file['ExternalLeg/corr'][0][0].view('complex')
         corr_data.append(raw_data)
-        if mom is not None:
-            assert np.allclose(mom, np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int))
-        else:
+        if mom is None:
             mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
         file.close()
     corr_data = np.array(corr_data)
@@ -118,28 +160,29 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, order='F'):
 
     matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
     for si, sj, ci, cj in np.ndindex(rolled_array.shape[:-1]):
-        real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
-        imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
+        real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[idx])
+        imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
         matrix[si, sj, ci, cj] = CObs(real, imag)
-        matrix[si, sj, ci, cj].gamma_method()
 
-    return Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom)
+    return Npr_matrix(matrix, mom_in=mom)
 
 
-def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
+def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     """Read hadrons Bilinear hdf5 file and output an array of CObs
 
     Parameters
-    -----------------
-    path -- path to the files to read
-    filestem -- namestem of the files to read
-    ens_id -- name of the ensemble, required for internal bookkeeping
-    order -- order in which the array is to be reshaped,
-             'F' for the first index changing fastest (9 4x4 matrices) default.
-             'C' for the last index changing fastest (16 3x3 matrices),
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    idl : range
+        If specified only configurations in the given range are read in.
     """
 
-    files, cnfg_numbers = _get_files(path, filestem)
+    files, idx = _get_files(path, filestem, idl)
 
     mom_in = None
     mom_out = None
@@ -153,13 +196,9 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
                 corr_data[name] = []
             raw_data = file['Bilinear/Bilinear_' + str(i) + '/corr'][0][0].view('complex')
             corr_data[name].append(raw_data)
-            if mom_in is not None:
-                assert np.allclose(mom_in, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int))
-            else:
+            if mom_in is None:
                 mom_in = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
-            if mom_out is not None:
-                assert np.allclose(mom_out, np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int))
-            else:
+            if mom_out is None:
                 mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
 
         file.close()
@@ -173,11 +212,117 @@ def read_Bilinear_hd5(path, filestem, ens_id, order='F'):
 
         matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
         for si, sj, ci, cj in np.ndindex(rolled_array.shape[:-1]):
-            real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[cnfg_numbers])
-            imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[cnfg_numbers])
+            real = Obs([rolled_array[si, sj, ci, cj].real], [ens_id], idl=[idx])
+            imag = Obs([rolled_array[si, sj, ci, cj].imag], [ens_id], idl=[idx])
             matrix[si, sj, ci, cj] = CObs(real, imag)
-            matrix[si, sj, ci, cj].gamma_method()
 
-        result_dict[key] = Npr_matrix(matrix.swapaxes(1, 2).reshape((12, 12), order=order), mom_in=mom_in, mom_out=mom_out)
+        result_dict[key] = Npr_matrix(matrix, mom_in=mom_in, mom_out=mom_out)
 
     return result_dict
+
+
+def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
+    """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
+
+    Parameters
+    ----------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    idl : range
+        If specified only configurations in the given range are read in.
+    vertices : list
+        Vertex functions to be extracted.
+    """
+
+    files, idx = _get_files(path, filestem, idl)
+
+    mom_in = None
+    mom_out = None
+
+    vertex_names = []
+    for vertex in vertices:
+        vertex_names += _get_lorentz_names(vertex)
+
+    corr_data = {}
+
+    tree = 'FourQuarkFullyConnected/FourQuarkFullyConnected_'
+
+    for hd5_file in files:
+        file = h5py.File(path + '/' + hd5_file, "r")
+
+        for i in range(32):
+            name = (file[tree + str(i) + '/info'].attrs['gammaA'][0].decode('UTF-8'), file[tree + str(i) + '/info'].attrs['gammaB'][0].decode('UTF-8'))
+            if name in vertex_names:
+                if name not in corr_data:
+                    corr_data[name] = []
+                raw_data = file[tree + str(i) + '/corr'][0][0].view('complex')
+                corr_data[name].append(raw_data)
+                if mom_in is None:
+                    mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+                if mom_out is None:
+                    mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
+
+        file.close()
+
+    intermediate_dict = {}
+
+    for vertex in vertices:
+        lorentz_names = _get_lorentz_names(vertex)
+        for v_name in lorentz_names:
+            if vertex not in intermediate_dict:
+                intermediate_dict[vertex] = np.array(corr_data[v_name])
+            else:
+                intermediate_dict[vertex] += np.array(corr_data[v_name])
+
+    result_dict = {}
+
+    for key, data in intermediate_dict.items():
+
+        rolled_array = np.moveaxis(data, 0, 8)
+
+        matrix = np.empty((rolled_array.shape[:-1]), dtype=object)
+        for index in np.ndindex(rolled_array.shape[:-1]):
+            real = Obs([rolled_array[index].real], [ens_id], idl=[idx])
+            imag = Obs([rolled_array[index].imag], [ens_id], idl=[idx])
+            matrix[index] = CObs(real, imag)
+
+        result_dict[key] = Npr_matrix(matrix, mom_in=mom_in, mom_out=mom_out)
+
+    return result_dict
+
+
+def _get_lorentz_names(name):
+    assert len(name) == 2
+
+    res = []
+
+    if not set(name) <= set(['S', 'P', 'V', 'A', 'T']):
+        raise Exception("Name can only contain 'S', 'P', 'V', 'A' or 'T'")
+
+    if 'S' in name or 'P' in name:
+        if not set(name) <= set(['S', 'P']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+
+        g_names = {'S': 'Identity',
+                   'P': 'Gamma5'}
+
+        res.append((g_names[name[0]], g_names[name[1]]))
+
+    elif 'T' in name:
+        if not set(name) <= set(['T']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+        raise Exception("Tensor operators not yet implemented.")
+    else:
+        if not set(name) <= set(['V', 'A']):
+            raise Exception("'" + name + "' is not a Lorentz scalar")
+        lorentz_index = ['X', 'Y', 'Z', 'T']
+
+        for ind in lorentz_index:
+            res.append(('Gamma' + ind + (name[0] == 'A') * 'Gamma5',
+                        'Gamma' + ind + (name[1] == 'A') * 'Gamma5'))
+
+    return res

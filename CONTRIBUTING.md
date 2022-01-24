@@ -20,15 +20,16 @@ Please add docstrings to any new function, class or method you implement. The do
 
 ### Tests
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
-
-### Continous integration
 For all pull requests tests are executed for the most recent python releases via
 ```
 pytest --cov=pyerrors -vv
 ```
-requiring `pytest`, `pytest-cov` and `pytest-benchmark`
-and the linter `flake8` is executed with the command
+requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run 
 ```
-flake8 --ignore=E501,E722 --exclude=__init__.py pyerrors
+pytest --cov=pyerrors --cov-report html
+```
+The linter `flake8` is executed with the command
+```
+flake8 --ignore=E501 --exclude=__init__.py pyerrors
 ```
 Please make sure that all tests are passed for a new pull requests.

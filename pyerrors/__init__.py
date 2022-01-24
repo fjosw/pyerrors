@@ -1,12 +1,14 @@
 r'''
 # What is pyerrors?
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
-It is based on the **gamma method** [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:
-- **automatic differentiation** as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package)
-- **treatment of slow modes** in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228)
-- coherent **error propagation** for data from **different Markov chains**
-- **non-linear fits with x- and y-errors** and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289)
-- **real and complex matrix operations** and their error propagation based on automatic differentiation (Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...)
+It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:
+- automatic differentiation for exact liner error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).
+- treatment of slow modes in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228).
+- coherent error propagation for data from different Markov chains.
+- non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
+- real and complex matrix operations and their error propagation based on automatic differentiation (Matrix inverse, Cholesky decomposition, calculation of eigenvalues and eigenvectors, singular value decomposition...).
+
+There exist similar publicly available implementations of gamma method error analysis suites in [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors), [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl) and [Python](https://github.com/mbruno46/pyobs).
 
 ## Basic example
 
@@ -28,7 +30,6 @@ An `Obs` object can be initialized with two arguments, the first is a list conta
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
-Example:
 ```python
 import pyerrors as pe
 
@@ -44,7 +45,6 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 
 The `Obs` class is designed such that mathematical numpy functions can be used on `Obs` just as for regular floats.
 
-Example:
 ```python
 import numpy as np
 import pyerrors as pe
@@ -67,7 +67,6 @@ print(iamzero == 0.0)
 The error estimation within `pyerrors` is based on the gamma method introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 After having arrived at the derived quantity of interest the `gamma_method` can be called as detailed in the following example.
 
-Example:
 ```python
 my_sum.gamma_method()
 print(my_sum)
@@ -82,10 +81,9 @@ my_sum.details()
 
 We use the following definition of the integrated autocorrelation time established in [Madras & Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)
 $$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
-The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017)
+The window $W$ is determined via the automatic windowing procedure described in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the `gamma_method` as parameter.
 
-Example:
 ```python
 my_sum.gamma_method(S=3.0)
 my_sum.details()
@@ -105,7 +103,6 @@ In this case the error estimate is identical to the sample standard error.
 
 Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228). The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the `gamma_method` as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.
 
-Example:
 ```python
 my_sum.gamma_method(tau_exp=7.2)
 my_sum.details()
@@ -115,13 +112,12 @@ my_sum.details()
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 ```
 
-For the full API see `pyerrors.obs.Obs.gamma_method`
+For the full API see `pyerrors.obs.Obs.gamma_method`.
 
 ## Multiple ensembles/replica
 
 Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their `name`.
 
-Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1'])
 obs2 = pe.Obs([samples2], ['ensemble2'])
@@ -136,7 +132,6 @@ my_sum.details()
 
 `pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.
 
-Example:
 ```python
 obs1 = pe.Obs([samples1], ['ensemble1|r01'])
 obs2 = pe.Obs([samples2], ['ensemble1|r02'])
@@ -154,7 +149,6 @@ obs2 = pe.Obs([samples2], ['ensemble1|r02'])
 
 In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.
 
-Example:
 ```python
 pe.Obs.S_dict['ensemble1'] = 2.5
 pe.Obs.tau_exp_dict['ensemble2'] = 8.0
@@ -167,9 +161,8 @@ Passing arguments to the `gamma_method` still dominates over the dictionaries.
 
 ## Irregular Monte Carlo chains
 
-Irregular Monte Carlo chains can be initialized with the parameter `idl`.
+`Obs` objects defined on irregular Monte Carlo chains can be initialized with the parameter `idl`.
 
-Example:
 ```python
 # Observable defined on configurations 20 to 519
 obs1 = pe.Obs([samples1], ['ensemble1'], idl=[range(20, 520)])
@@ -194,20 +187,71 @@ obs3.details()
 
 ```
 
+`Obs` objects defined on regular and irregular histories of the same ensemble can be computed with each other and the correct error propagation and estimation is automatically taken care of.
+
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
 
-For the full API see `pyerrors.obs.Obs`
+For the full API see `pyerrors.obs.Obs`.
 
 # Correlators
-For the full API see `pyerrors.correlators.Corr`
+When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs´
+```python
+my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3])
+print(my_corr)
+> x0/a	Corr(x0/a)
+> ------------------
+> 0	 0.7957(80)
+> 1	 0.5156(51)
+> 2	 0.3227(33)
+> 3	 0.2041(21)
+```
+In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.
+```python
+my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3], padding=[1, 1])
+print(my_corr)
+> x0/a	Corr(x0/a)
+> ------------------
+> 0
+> 1	 0.7957(80)
+> 2	 0.5156(51)
+> 3	 0.3227(33)
+> 4	 0.2041(21)
+> 5
+```
+The individual entries of a correlator can be accessed via slicing
+```python
+print(my_corr[3])
+> 0.3227(33)
+```
+Error propagation with the `Corr` class works very similar to `Obs` objects. Mathematical operations are overloaded and `Corr` objects can be computed together with other `Corr` objects, `Obs` objects or real numbers and integers.
+```python
+my_new_corr = 0.3 * my_corr[2] * my_corr * my_corr + 12 / my_corr
+```
+
+`pyerrors` provides the user with a set of regularly used methods for the manipulation of correlator objects:
+- `Corr.gamma_method` applies the gamma method to all entries of the correlator.
+- `Corr.m_eff` to construct effective masses. Various variants for periodic and fixed temporal boundary conditions are available.
+- `Corr.deriv` returns the first derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.
+- `Corr.second_deriv` returns the second derivative of the correlator as `Corr`. Different discretizations of the numerical derivative are available.
+- `Corr.symmetric` symmetrizes parity even correlations functions, assuming periodic boundary conditions.
+- `Corr.anti_symmetric` anti-symmetrizes parity odd correlations functions, assuming periodic boundary conditions.
+- `Corr.T_symmetry` averages a correlator with its time symmetry partner, assuming fixed boundary conditions.
+- `Corr.plateau` extracts a plateau value from the correlator in a given range.
+- `Corr.roll` periodically shifts the correlator.
+- `Corr.reverse` reverses the time ordering of the correlator.
+- `Corr.correlate` constructs a disconnected correlation function from the correlator and another `Corr` or `Obs` object.
+- `Corr.reweight` reweights the correlator.
+
+`pyerrors` can also handle matrices of correlation functions and extract energy states from these matrices via a generalized eigenvalue problem (see `pyerrors.correlators.Corr.GEVP`).
+
+For the full API see `pyerrors.correlators.Corr`.
 
 # Complex observables
 
 `pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.
 `CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.
 
-Example:
 ```python
 my_real_part = pe.Obs([samples1], ['ensemble1'])
 my_imag_part = pe.Obs([samples2], ['ensemble1'])
@@ -231,27 +275,35 @@ print(my_derived_cobs)
 `pyerrors.roots`
 
 # Matrix operations
-`pyerrors.linalg`
+`pyerrors` provides wrappers for `Obs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
+- `inv` for the matrix inverse.
+- `cholseky` for the Cholesky decomposition.
+- `det` for the matrix determinant.
+- `eigh` for eigenvalues and eigenvectors of hermitean matrices.
+- `eig` for eigenvalues of general matrices.
+- `pinv` for the Moore-Penrose pseudoinverse.
+- `svd` for the singular-value-decomposition.
+
+For the full API see `pyerrors.linalg`.
 
 # Export data
-The preferred exported file format within `pyerrors` is
+The preferred exported file format within `pyerrors` is json.gz
 
 ## Jackknife samples
-For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object.
-See `pyerrors.obs.Obs.export_jackknife` for details.
+For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
+See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 
 # Input
-`pyerrors.input`
+`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.
 '''
 from .obs import *
 from .correlators import *
 from .fits import *
+from .misc import *
 from . import dirac
 from . import input
 from . import linalg
-from . import misc
 from . import mpm
-from . import npr
 from . import roots
 
 from .version import __version__

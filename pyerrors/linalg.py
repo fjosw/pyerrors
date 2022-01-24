@@ -240,7 +240,7 @@ def boot_matmul(a, b):
     def export_boot(obs):
         ret = np.zeros(obs.N + 1)
         ret[0] = obs.value
-        ret[1:] = proj @ obs.deltas[name]
+        ret[1:] = proj @ (obs.deltas[name] + obs.r_values[name])
         return ret
 
     def import_boot(boots):

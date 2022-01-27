@@ -101,14 +101,20 @@ def test_json_corr_io():
             for fp in [0, 2]:
                 for bp in [0, 7]:
                     for corr_tag in [None, 'my_Corr_tag']:
-                        my_corr = pe.Corr(obs_list, padding=[fp, bp])
-                        my_corr.tag = corr_tag
-                        pe.input.json.dump_to_json(my_corr, 'corr')
-                        recover = pe.input.json.load_json('corr')
-                        os.remove('corr.json.gz')
-                        assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
-                        assert my_corr.tag == recover.tag
-                        assert my_corr.reweighted == recover.reweighted
+                        for gap in [False, True]:
+                            my_corr = pe.Corr(obs_list, padding=[fp, bp])
+                            my_corr.tag = corr_tag
+                            if gap:
+                                my_corr.content[4] = None
+                            pe.input.json.dump_to_json(my_corr, 'corr')
+                            recover = pe.input.json.load_json('corr')
+                            os.remove('corr.json.gz')
+                            assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
+                            for index, entry in enumerate(my_corr):
+                                if entry is None:
+                                    assert recover[index] is None
+                            assert my_corr.tag == recover.tag
+                            assert my_corr.reweighted == recover.reweighted
 
 
 def test_json_corr_2d_io():
@@ -123,4 +129,7 @@ def test_json_corr_2d_io():
             recover = pe.input.json.load_json('corr')
             os.remove('corr.json.gz')
             assert np.all([np.all([o.is_zero() for o in q]) for q in [x.ravel() for x in (my_corr - recover) if x is not None]])
+            for index, entry in enumerate(my_corr):
+                if entry is None:
+                    assert recover[index] is None
             assert my_corr.tag == recover.tag

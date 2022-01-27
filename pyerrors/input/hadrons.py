@@ -1,6 +1,7 @@
 import os
 import h5py
 import numpy as np
+from collections import Counter
 from ..obs import Obs, CObs
 from ..correlators import Corr
 
@@ -31,6 +32,10 @@ def _get_files(path, filestem, idl):
         else:
             filtered_files.append(line)
             cnfg_numbers.append(no)
+
+    if idl:
+        if Counter(list(idl)) != Counter(cnfg_numbers):
+            raise Exception("Not all configurations specified in idl found (" + str(list(Counter(list(idl)) - Counter(cnfg_numbers))) + "missing)")
 
     # Check that configurations are evenly spaced
     dc = np.unique(np.diff(cnfg_numbers))

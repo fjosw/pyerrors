@@ -51,23 +51,27 @@ def test_modify_correlator():
         corr.symmetric()
     with pytest.warns(RuntimeWarning):
         corr.anti_symmetric()
-    corr.roll(np.random.randint(100))
-    corr.deriv(symmetric=True)
-    corr.deriv(symmetric=False)
-    corr.deriv().deriv()
-    corr.second_deriv()
-    corr.second_deriv().second_deriv()
 
+    for pad in [0, 2]:
+        corr = pe.correlators.Corr(corr_content, padding=[pad, pad])
+        corr.roll(np.random.randint(100))
+        corr.deriv(symmetric=True)
+        corr.deriv(symmetric=False)
+        corr.deriv().deriv()
+        corr.second_deriv()
+        corr.second_deriv().second_deriv()
 
 
 def test_m_eff():
-    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')])
-    my_corr.m_eff('log')
-    my_corr.m_eff('cosh')
-    my_corr.m_eff('arccosh')
+    for padding in [0, 4]:
+        my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')], padding=[padding, padding])
+        my_corr.m_eff('log')
+        my_corr.m_eff('cosh')
+        my_corr.m_eff('arccosh')
 
     with pytest.warns(RuntimeWarning):
         my_corr.m_eff('sinh')
+
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
@@ -133,7 +137,6 @@ def test_corr_exceptions():
     obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
     with pytest.raises(Exception):
         pe.Corr([obs_a, obs_b])
-
 
 
 def test_utility():

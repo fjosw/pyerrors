@@ -35,7 +35,7 @@ def _get_files(path, filestem, idl):
 
     if idl:
         if Counter(list(idl)) != Counter(cnfg_numbers):
-            raise Exception("Not all configurations specified in idl found (" + str(list(Counter(list(idl)) - Counter(cnfg_numbers))) + "missing)")
+            raise Exception("Not all configurations specified in idl found, configurations " + str(list(Counter(list(idl)) - Counter(cnfg_numbers))) + " are missing.")
 
     # Check that configurations are evenly spaced
     dc = np.unique(np.diff(cnfg_numbers))

@@ -12,14 +12,28 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     Parameters
     ----------
+    path : str
+        path that contains the data files
+    prefix : str
+        all files in path that start with prefix are considered as input files.
+        May be used together postfix to consider only special file endings.
+        Prefix is ignored, if the keyword 'files' is used.
     version : str
         version of openQCD, default 2.0
+    names : list
+        list of names that is assigned to the data according according
+        to the order in the file list. Use careful, if you do not provide file names!
     r_start : list
         list which contains the first config to be read for each replicum
     r_stop : list
         list which contains the last config to be read for each replicum
     postfix : str
         postfix of the file to read, e.g. '.ms1' for openQCD-files
+    files : list
+        list which contains the filenames to be read. No automatic detection of
+        files performed if given.
+    print_err : bool
+        Print additional information that is useful for debugging.
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if not (version in known_oqcd_versions):
@@ -306,17 +320,19 @@ def extract_t0(path, prefix, dtr_read, xmin,
 def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     arr = []
     if d == 2:
-        tot = 0
-        for i in range(n[d - 1] - 1):
+        for i in range(n[0]):
+            tmp = wa[i * n[1]:(i + 1) * n[1]]
             if quadrupel:
-                tmp = wa[tot:n[d - 1]]
                 tmp2 = []
-                for i in range(len(tmp)):
-                    if i % 2 == 0:
-                        tmp2.append(tmp[i])
+                for j in range(0, len(tmp), 2):
+                    tmp2.append(tmp[j])
                 arr.append(tmp2)
             else:
-                arr.append(np.asarray(wa[tot:n[d - 1]]))
+                arr.append(np.asarray(tmp))
+
+    else:
+        raise Exception('Only two-dimensional arrays supported!')
+
     return arr
 
 

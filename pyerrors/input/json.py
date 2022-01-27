@@ -161,12 +161,27 @@ def create_json_string(ol, description='', indent=1):
             d['cdata'] = cdata
         return d
 
+    def _nan_Obs_like(obs):
+        samples = []
+        names = []
+        idl = []
+        for key, value in obs.idl.items():
+            samples.append([np.nan] * len(value))
+            names.append(key)
+            idl.append(value)
+        my_obs = Obs(samples, names, idl)
+        my_obs.reweighted = obs.reweighted
+        my_obs.is_merged = obs.is_merged
+        return my_obs
+
     def write_Corr_to_dict(my_corr):
-        front_padding = next(i for i, j in enumerate(my_corr.content) if np.all(j))
-        back_padding_start = front_padding + next((i for i, j in enumerate(my_corr.content[front_padding:]) if not np.all(j)), my_corr.T)
-        dat = write_Array_to_dict(np.array(my_corr.content[front_padding:back_padding_start]))
+        first_not_none = next(i for i, j in enumerate(my_corr.content) if np.all(j))
+        dummy_array = np.empty((my_corr.N, my_corr.N), dtype=object)
+        dummy_array[:] = _nan_Obs_like(my_corr.content[first_not_none].ravel()[0])
+        content = [o if o is not None else dummy_array for o in my_corr.content]
+        dat = write_Array_to_dict(np.array(content, dtype=object))
         dat['type'] = 'Corr'
-        corr_meta_data = str(front_padding) + '|' + str(my_corr.T - back_padding_start) + '|' + str(my_corr.tag)
+        corr_meta_data = str(my_corr.tag)
         if 'tag' in dat.keys():
             dat['tag'].append(corr_meta_data)
         else:
@@ -178,7 +193,7 @@ def create_json_string(ol, description='', indent=1):
 
     d = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
-    d['version'] = '0.1'
+    d['version'] = '0.2'
     d['who'] = getpass.getuser()
     d['date'] = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %z')
     d['host'] = socket.gethostname() + ', ' + platform.platform()
@@ -216,6 +231,7 @@ def create_json_string(ol, description='', indent=1):
         return '\n'.join(split)
 
     jsonstring = remove_quotationmarks(jsonstring)
+    jsonstring = jsonstring.replace('nan', 'NaN')
     return jsonstring
 
 
@@ -380,16 +396,13 @@ def import_json_string(json_string, verbose=True, full_output=False):
 
     def get_Corr_from_dict(o):
         taglist = o.get('tag')
-        corr_meta_data = taglist[-1].split('|')
-        padding_front = int(corr_meta_data[0])
-        padding_back = int(corr_meta_data[1])
-        corr_tag = corr_meta_data[2]
+        corr_tag = taglist[-1]
         tmp_o = o
         tmp_o['tag'] = taglist[:-1]
         if len(tmp_o['tag']) == 0:
             del tmp_o['tag']
         dat = get_Array_from_dict(tmp_o)
-        my_corr = Corr(list(dat), padding=[padding_front, padding_back])
+        my_corr = Corr([None if np.isnan(o.ravel()[0].value) else o for o in list(dat)])
         if corr_tag != 'None':
             my_corr.tag = corr_tag
         return my_corr

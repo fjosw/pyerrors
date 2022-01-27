@@ -92,14 +92,28 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        path that contains the data files</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        all files in path that start with prefix are considered as input files.</span>
+<span class="sd">        May be used together postfix to consider only special file endings.</span>
+<span class="sd">        Prefix is ignored, if the keyword &#39;files&#39; is used.</span>
 <span class="sd">    version : str</span>
 <span class="sd">        version of openQCD, default 2.0</span>
+<span class="sd">    names : list</span>
+<span class="sd">        list of names that is assigned to the data according according</span>
+<span class="sd">        to the order in the file list. Use careful, if you do not provide file names!</span>
 <span class="sd">    r_start : list</span>
 <span class="sd">        list which contains the first config to be read for each replicum</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum</span>
 <span class="sd">    postfix : str</span>
 <span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
+<span class="sd">    files : list</span>
+<span class="sd">        list which contains the filenames to be read. No automatic detection of</span>
+<span class="sd">        files performed if given.</span>
+<span class="sd">    print_err : bool</span>
+<span class="sd">        Print additional information that is useful for debugging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">known_oqcd_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.4&#39;</span><span class="p">,</span> <span class="s1">&#39;1.6&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">version</span> <span class="ow">in</span> <span class="n">known_oqcd_versions</span><span class="p">):</span>
@@ -386,17 +400,19 @@
 <span class="k">def</span> <span class="nf">_parse_array_openQCD2</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">wa</span><span class="p">,</span> <span class="n">quadrupel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">tot</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">wa</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
             <span class="k">if</span> <span class="n">quadrupel</span><span class="p">:</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">wa</span><span class="p">[</span><span class="n">tot</span><span class="p">:</span><span class="n">n</span><span class="p">[</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
                 <span class="n">tmp2</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)):</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">tmp2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">tmp2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
                 <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wa</span><span class="p">[</span><span class="n">tot</span><span class="p">:</span><span class="n">n</span><span class="p">[</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]))</span>
+                <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Only two-dimensional arrays supported!&#39;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">arr</span>
 
 
@@ -673,14 +689,28 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        path that contains the data files</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        all files in path that start with prefix are considered as input files.</span>
+<span class="sd">        May be used together postfix to consider only special file endings.</span>
+<span class="sd">        Prefix is ignored, if the keyword &#39;files&#39; is used.</span>
 <span class="sd">    version : str</span>
 <span class="sd">        version of openQCD, default 2.0</span>
+<span class="sd">    names : list</span>
+<span class="sd">        list of names that is assigned to the data according according</span>
+<span class="sd">        to the order in the file list. Use careful, if you do not provide file names!</span>
 <span class="sd">    r_start : list</span>
 <span class="sd">        list which contains the first config to be read for each replicum</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum</span>
 <span class="sd">    postfix : str</span>
 <span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
+<span class="sd">    files : list</span>
+<span class="sd">        list which contains the filenames to be read. No automatic detection of</span>
+<span class="sd">        files performed if given.</span>
+<span class="sd">    print_err : bool</span>
+<span class="sd">        Print additional information that is useful for debugging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">known_oqcd_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.4&#39;</span><span class="p">,</span> <span class="s1">&#39;1.6&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">version</span> <span class="ow">in</span> <span class="n">known_oqcd_versions</span><span class="p">):</span>
@@ -833,14 +863,28 @@
 <h6 id="parameters">Parameters</h6>
 
 <ul>
+<li><strong>path</strong> (str):
+path that contains the data files</li>
+<li><strong>prefix</strong> (str):
+all files in path that start with prefix are considered as input files.
+May be used together postfix to consider only special file endings.
+Prefix is ignored, if the keyword 'files' is used.</li>
 <li><strong>version</strong> (str):
 version of openQCD, default 2.0</li>
+<li><strong>names</strong> (list):
+list of names that is assigned to the data according according
+to the order in the file list. Use careful, if you do not provide file names!</li>
 <li><strong>r_start</strong> (list):
 list which contains the first config to be read for each replicum</li>
 <li><strong>r_stop</strong> (list):
 list which contains the last config to be read for each replicum</li>
 <li><strong>postfix</strong> (str):
 postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
+<li><strong>files</strong> (list):
+list which contains the filenames to be read. No automatic detection of
+files performed if given.</li>
+<li><strong>print_err</strong> (bool):
+Print additional information that is useful for debugging.</li>
 </ul>
 </div>
 

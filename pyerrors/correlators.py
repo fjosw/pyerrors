@@ -42,9 +42,9 @@ class Corr:
         if not isinstance(data_input, list):
             raise TypeError('Corr__init__ expects a list of timeslices.')
 
-        if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
-            _assert_equal_properties(data_input)
-            self.content = [np.asarray([item]) for item in data_input]
+        if all([(isinstance(item, Obs) or isinstance(item, CObs)) or item is None for item in data_input]):
+            _assert_equal_properties([o for o in data_input if o is not None])
+            self.content = [np.asarray([item]) if item is not None else None for item in data_input]
             self.N = 1
 
         elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):

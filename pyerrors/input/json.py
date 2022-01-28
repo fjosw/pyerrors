@@ -186,6 +186,11 @@ def create_json_string(ol, description='', indent=1):
             dat['tag'].append(corr_meta_data)
         else:
             dat['tag'] = [corr_meta_data]
+        taglist = dat['tag']
+        dat['tag'] = {}  # tag is now a dictionary, that contains the previous taglist in the key "tag"
+        dat['tag']['tag'] = taglist
+        if my_corr.prange is not None:
+            dat['tag']['prange'] = my_corr.prange
         return dat
 
     if not isinstance(ol, list):
@@ -395,7 +400,19 @@ def import_json_string(json_string, verbose=True, full_output=False):
         return np.reshape(ret, layout)
 
     def get_Corr_from_dict(o):
-        taglist = o.get('tag')
+        if isinstance(o.get('tag'), list):  # supports the old way
+            taglist = o.get('tag')  # This had to be modified to get the taglist from the dictionary
+            temp_prange = None
+        elif isinstance(o.get('tag'), dict):
+            tagdic = o.get('tag')
+            taglist = tagdic['tag']
+            if 'prange' in tagdic:
+                temp_prange = tagdic['prange']
+            else:
+                temp_prange = None
+        else:
+            raise Exception("The tag is not a list or dict")
+
         corr_tag = taglist[-1]
         tmp_o = o
         tmp_o['tag'] = taglist[:-1]
@@ -405,6 +422,8 @@ def import_json_string(json_string, verbose=True, full_output=False):
         my_corr = Corr([None if np.isnan(o.ravel()[0].value) else o for o in list(dat)])
         if corr_tag != 'None':
             my_corr.tag = corr_tag
+
+        my_corr.prange = temp_prange
         return my_corr
 
     json_dict = json.loads(json_string)

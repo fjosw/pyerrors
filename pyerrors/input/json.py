@@ -411,7 +411,7 @@ def import_json_string(json_string, verbose=True, full_output=False):
             else:
                 temp_prange = None
         else:
-            raise Exception ("The tag is not a list or dict")
+            raise Exception("The tag is not a list or dict")
 
         corr_tag = taglist[-1]
         tmp_o = o

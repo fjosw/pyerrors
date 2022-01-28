@@ -245,7 +245,7 @@ class Corr:
     # There are two ways, the GEVP metod can be called.
     # 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1
     # 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]
-    def GEVP(self, t0, ts=None, state=0, return_list=False, sorting="Eigenvalue"):
+    def GEVP(self, t0, ts=None, state=0, sorted_list=None):
         """Solve the general eigenvalue problem on the current correlator
 
         Parameters
@@ -257,16 +257,13 @@ class Corr:
             If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
         state : int
             The state one is interested in ordered by energy. The lowest state is zero.
-        return_list : bool
-            If False - The vector $v$ with G(t_s)v= lambda_state G(t_0)v is returned.
-            If True  - The GEVP is solved once per timeslice and a list (len=T) of vectors is returned.
-        sorting : string
-            Only matters if return_list=True. Determines how the vectors returned at every timeslice are chosen.
-                "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
-                "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
+        sorted list : string
+            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
+             "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
+             "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
                                  The referense state is identified by its eigenvalue at t=ts
         """
-        if not return_list:
+        if sorted_list is None:
             if (ts is None):
                 raise Exception("ts is required if return_list=False")
             if (self.content[t0] is None) or (self.content[ts] is None):
@@ -280,7 +277,8 @@ class Corr:
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]
             return sp_vec
-        if return_list:
+        else:
+
             all_vecs = []
             for t in range(self.T):
                 try:
@@ -291,14 +289,14 @@ class Corr:
                             Gt[i, j] = self.content[t][i, j].value
 
                     sp_vecs = _GEVP_solver(Gt, G0)
-                    if sorting == "Eigenvalue":
+                    if sorted_list == "Eigenvalue":
                         sp_vec = sp_vecs[state]
                         all_vecs.append(sp_vec)
                     else:
                         all_vecs.append(sp_vecs)
                 except Exception:
                     all_vecs.append(None)
-            if sorting == "Eigenvector":
+            if sorted_list == "Eigenvector":
                 if (ts is None):
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)

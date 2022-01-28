@@ -177,8 +177,16 @@ class Corr:
     def sum(self):
         return np.sqrt(self.N) * self.projected(np.ones(self.N))
 
-    # For purposes of debugging and verification, one might want to see a single smearing level. smearing will return a Corr at the specified i,j. where both are integers 0<=i,j<N.
     def smearing(self, i, j):
+        """Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.
+
+        Parameters
+        ----------
+        i : int
+            First index to be picked.
+        j : int
+            Second index to be picked.
+        """
         if self.N == 1:
             raise Exception("Trying to pick smearing from projected Corr")
         newcontent = [None if(item is None) else item[i, j] for item in self.content]

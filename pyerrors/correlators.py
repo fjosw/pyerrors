@@ -28,8 +28,8 @@ class Corr:
 
         Parameters
         ----------
-        data_input : list
-            list of Obs or list of arrays of Obs.
+        data_input : list or array
+            list of Obs or list of arrays of Obs or array of Corrs
         padding : list, optional
             List with two entries where the first labels the padding
             at the front of the correlator and the second the padding
@@ -39,25 +39,53 @@ class Corr:
             region indentified for this correlator.
         """
 
-        if not isinstance(data_input, list):
-            raise TypeError('Corr__init__ expects a list of timeslices.')
+        if isinstance(data_input, np.ndarray):  # Input is an array of Corrs
 
-        if all([(isinstance(item, Obs) or isinstance(item, CObs)) or item is None for item in data_input]):
-            _assert_equal_properties([o for o in data_input if o is not None])
-            self.content = [np.asarray([item]) if item is not None else None for item in data_input]
-            self.N = 1
+            # This only works, if the array fulfills the conditions below
+            if not len(data_input.shape) == 2 and data_input.shape[0] == data_input.shape[1]:
+                raise Exception("Incompatible array shape")
+            if not all([isinstance(item, Corr) for item in data_input.flatten()]):
+                raise Exception("If the input is an array, its elements must be of type pe.Corr")
+            if not all([item.N == 1 for item in data_input.flatten()]):
+                raise Exception("Can only construct matrix correlator from single valued correlators")
+            if not len(set([item.T for item in data_input.flatten()])) == 1:
+                raise Exception("All input Correlators must be defined over the same timeslices.")
 
-        elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
-            self.content = data_input
+            T = data_input[0, 0].T
+            N = data_input.shape[0]
+            input_as_list = []
+            for t in range(T):
+                if any([(item.content[t][0] is None) for item in data_input.flatten()]):
+                    if not all([(item.content[t][0] is None) for item in data_input.flatten()]):
+                        warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss!", RuntimeWarning)
+                    input_as_list.append(None)
+                else:
+                    array_at_timeslace = np.empty([N, N], dtype="object")
+                    for i in range(N):
+                        for j in range(N):
+                            array_at_timeslace[i, j] = data_input[i, j][t]
+                    input_as_list.append(array_at_timeslace)
+            data_input = input_as_list
 
-            noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
-            self.N = noNull[0].shape[0]
-            if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
-                raise Exception("Smearing matrices are not NxN")
-            if (not all([item.shape == noNull[0].shape for item in noNull])):
-                raise Exception("Items in data_input are not of identical shape." + str(noNull))
+        if isinstance(data_input, list):
+
+            if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
+                _assert_equal_properties(data_input)
+                self.content = [np.asarray([item]) for item in data_input]
+                self.N = 1
+
+            elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
+                self.content = data_input
+                noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
+                self.N = noNull[0].shape[0]
+                if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
+                    raise Exception("Smearing matrices are not NxN")
+                if (not all([item.shape == noNull[0].shape for item in noNull])):
+                    raise Exception("Items in data_input are not of identical shape." + str(noNull))
+            else:
+                raise Exception("data_input contains item of wrong type")
         else:
-            raise Exception("data_input contains item of wrong type")
+            raise Exception("Data input was not given as list or correct array")
 
         self.tag = None
 
@@ -214,8 +242,30 @@ class Corr:
     # There are two ways, the GEVP metod can be called.
     # 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1
     # 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]
-    def GEVP(self, t0, ts, state=0, sorting="Eigenvalue", return_list=False):
+    def GEVP(self, t0, ts=None, state=0, return_list=False, sorting="Eigenvalue"):
+        """Solve the general eigenvalue problem on the current correlator
+
+        Parameters
+        ----------
+        t0 : int
+            The time t0 for G(t)v= lambda G(t_0)v
+        ts : int
+            fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
+            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
+        state : int
+            The state one is interested in ordered by energy. The lowest state is zero.
+        return_list : bool
+            If False - The vector $v$ with G(t_s)v= lambda_state G(t_0)v is returned.
+            If True  - The GEVP is solved once per timeslice and a list (len=T) of vectors is returned.
+        sorting : string
+            Only matters if return_list=True. Determines how the vectors returned at every timeslice are chosen.
+                "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
+                "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
+                                 The referense state is identified by its eigenvalue at t=ts
+        """
         if not return_list:
+            if (ts is None):
+                raise Exception("ts is required if return_list=False")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
@@ -246,6 +296,8 @@ class Corr:
                 except Exception:
                     all_vecs.append(None)
             if sorting == "Eigenvector":
+                if (ts is None):
+                    raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
                 all_vecs = [a[state] for a in all_vecs]
 

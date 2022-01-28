@@ -79,7 +79,7 @@ def _assert_equal_properties(ol, otype=Obs):
         if not isinstance(o, otype):
             raise Exception("Wrong data type in list.")
         if not ol[0].is_merged == o.is_merged:
-            raise Exception("All Obs in list have to be defined on the same set of configs.")
+            raise Exception("All Obs in list have to have the same state 'is_merged'.")
         if not ol[0].reweighted == o.reweighted:
             raise Exception("All Obs in list have to have the same property 'reweighted'.")
         if not ol[0].e_content == o.e_content:

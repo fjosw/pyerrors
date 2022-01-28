@@ -210,7 +210,7 @@ def extract_t0(path, prefix, dtr_read, xmin,
         crossing to be included in the linear fit. (Default: 5)
     r_start : list
         list which contains the first config to be read for each replicum.
-    r_stop: list
+    r_stop : list
         list which contains the last config to be read for each replicum.
     plaquette : bool
         If true extract the plaquette estimate of t0 instead.
@@ -367,37 +367,37 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
 
     Parameters
     ----------
-    path:
+    path : str
         path of the measurement files
-    prefix:
+    prefix : str
         prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat
-    c: double
+    c : double
         Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L
-    dtr_cnfg: int
+    dtr_cnfg : int
         (optional) parameter that specifies the number of trajectories
         between two configs.
         if it is not set, the distance between two measurements
         in the file is assumed to be
         the distance between two configurations.
-    steps: int
+    steps : int
         (optional) (maybe only necessary for openQCD2.0)
         nt step size, guessed if not given
-    version: str
+    version : str
         version string of the openQCD (sfqcd) version used to create
         the ensemble
-    L: int
+    L : int
         spatial length of the lattice in L/a.
         HAS to be set if version != sfqcd, since openQCD does not provide
         this in the header
-    r_start: list
+    r_start : list
         offset of the first ensemble, making it easier to match
         later on with other Obs
-    r_stop: list
+    r_stop : list
         last configurations that need to be read (per replicum)
-    files: list
+    files : list
         specify the exact files that need to be read
         from path, practical if e.g. only one replicum is needed
-    names: list
+    names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length
     """
@@ -545,11 +545,19 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
 
 
 def read_qtop_sector(target=0, **kwargs):
-    """target: int
-            specifies the topological sector to be reweighted to (default 0)
-        q_top: Obs
-        alternatively takes args of read_qtop method as kwargs
+    """Constructs reweighting factors to a specified topological sector.
+
+    Parameters
+    ----------
+    target : int
+        Specifies the topological sector to be reweighted to (default 0)
+    q_top : Obs
+        Alternatively takes args of read_qtop method as kwargs
     """
+
+    if not isinstance(target, int):
+        raise Exception("'target' has to be an integer.")
+
     if "q_top" in kwargs:
         qtop = kwargs.get("q_top")
     else:

@@ -290,7 +290,7 @@
 <span class="sd">        crossing to be included in the linear fit. (Default: 5)</span>
 <span class="sd">    r_start : list</span>
 <span class="sd">        list which contains the first config to be read for each replicum.</span>
-<span class="sd">    r_stop: list</span>
+<span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum.</span>
 <span class="sd">    plaquette : bool</span>
 <span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
@@ -447,37 +447,37 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path:</span>
+<span class="sd">    path : str</span>
 <span class="sd">        path of the measurement files</span>
-<span class="sd">    prefix:</span>
+<span class="sd">    prefix : str</span>
 <span class="sd">        prefix of the measurement files, e.g. &lt;prefix&gt;_id0_r0.ms.dat</span>
-<span class="sd">    c: double</span>
+<span class="sd">    c : double</span>
 <span class="sd">        Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L</span>
-<span class="sd">    dtr_cnfg: int</span>
+<span class="sd">    dtr_cnfg : int</span>
 <span class="sd">        (optional) parameter that specifies the number of trajectories</span>
 <span class="sd">        between two configs.</span>
 <span class="sd">        if it is not set, the distance between two measurements</span>
 <span class="sd">        in the file is assumed to be</span>
 <span class="sd">        the distance between two configurations.</span>
-<span class="sd">    steps: int</span>
+<span class="sd">    steps : int</span>
 <span class="sd">        (optional) (maybe only necessary for openQCD2.0)</span>
 <span class="sd">        nt step size, guessed if not given</span>
-<span class="sd">    version: str</span>
+<span class="sd">    version : str</span>
 <span class="sd">        version string of the openQCD (sfqcd) version used to create</span>
 <span class="sd">        the ensemble</span>
-<span class="sd">    L: int</span>
+<span class="sd">    L : int</span>
 <span class="sd">        spatial length of the lattice in L/a.</span>
 <span class="sd">        HAS to be set if version != sfqcd, since openQCD does not provide</span>
 <span class="sd">        this in the header</span>
-<span class="sd">    r_start: list</span>
+<span class="sd">    r_start : list</span>
 <span class="sd">        offset of the first ensemble, making it easier to match</span>
 <span class="sd">        later on with other Obs</span>
-<span class="sd">    r_stop: list</span>
+<span class="sd">    r_stop : list</span>
 <span class="sd">        last configurations that need to be read (per replicum)</span>
-<span class="sd">    files: list</span>
+<span class="sd">    files : list</span>
 <span class="sd">        specify the exact files that need to be read</span>
 <span class="sd">        from path, practical if e.g. only one replicum is needed</span>
-<span class="sd">    names: list</span>
+<span class="sd">    names : list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -625,11 +625,19 @@
 
 
 <span class="k">def</span> <span class="nf">read_qtop_sector</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;target: int</span>
-<span class="sd">            specifies the topological sector to be reweighted to (default 0)</span>
-<span class="sd">        q_top: Obs</span>
-<span class="sd">        alternatively takes args of read_qtop method as kwargs</span>
+    <span class="sd">&quot;&quot;&quot;Constructs reweighting factors to a specified topological sector.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target : int</span>
+<span class="sd">        Specifies the topological sector to be reweighted to (default 0)</span>
+<span class="sd">    q_top : Obs</span>
+<span class="sd">        Alternatively takes args of read_qtop method as kwargs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;target&#39; has to be an integer.&quot;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="s2">&quot;q_top&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">qtop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;q_top&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -931,7 +939,7 @@ Print additional information that is useful for debugging.</li>
 <span class="sd">        crossing to be included in the linear fit. (Default: 5)</span>
 <span class="sd">    r_start : list</span>
 <span class="sd">        list which contains the first config to be read for each replicum.</span>
-<span class="sd">    r_stop: list</span>
+<span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum.</span>
 <span class="sd">    plaquette : bool</span>
 <span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
@@ -1094,37 +1102,37 @@ If true extract the plaquette estimate of t0 instead.</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path:</span>
+<span class="sd">    path : str</span>
 <span class="sd">        path of the measurement files</span>
-<span class="sd">    prefix:</span>
+<span class="sd">    prefix : str</span>
 <span class="sd">        prefix of the measurement files, e.g. &lt;prefix&gt;_id0_r0.ms.dat</span>
-<span class="sd">    c: double</span>
+<span class="sd">    c : double</span>
 <span class="sd">        Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L</span>
-<span class="sd">    dtr_cnfg: int</span>
+<span class="sd">    dtr_cnfg : int</span>
 <span class="sd">        (optional) parameter that specifies the number of trajectories</span>
 <span class="sd">        between two configs.</span>
 <span class="sd">        if it is not set, the distance between two measurements</span>
 <span class="sd">        in the file is assumed to be</span>
 <span class="sd">        the distance between two configurations.</span>
-<span class="sd">    steps: int</span>
+<span class="sd">    steps : int</span>
 <span class="sd">        (optional) (maybe only necessary for openQCD2.0)</span>
 <span class="sd">        nt step size, guessed if not given</span>
-<span class="sd">    version: str</span>
+<span class="sd">    version : str</span>
 <span class="sd">        version string of the openQCD (sfqcd) version used to create</span>
 <span class="sd">        the ensemble</span>
-<span class="sd">    L: int</span>
+<span class="sd">    L : int</span>
 <span class="sd">        spatial length of the lattice in L/a.</span>
 <span class="sd">        HAS to be set if version != sfqcd, since openQCD does not provide</span>
 <span class="sd">        this in the header</span>
-<span class="sd">    r_start: list</span>
+<span class="sd">    r_start : list</span>
 <span class="sd">        offset of the first ensemble, making it easier to match</span>
 <span class="sd">        later on with other Obs</span>
-<span class="sd">    r_stop: list</span>
+<span class="sd">    r_stop : list</span>
 <span class="sd">        last configurations that need to be read (per replicum)</span>
-<span class="sd">    files: list</span>
+<span class="sd">    files : list</span>
 <span class="sd">        specify the exact files that need to be read</span>
 <span class="sd">        from path, practical if e.g. only one replicum is needed</span>
-<span class="sd">    names: list</span>
+<span class="sd">    names : list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1278,8 +1286,10 @@ If true extract the plaquette estimate of t0 instead.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>path:</strong>: path of the measurement files</li>
-<li><strong>prefix:</strong>: prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat</li>
+<li><strong>path</strong> (str):
+path of the measurement files</li>
+<li><strong>prefix</strong> (str):
+prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat</li>
 <li><strong>c</strong> (double):
 Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L</li>
 <li><strong>dtr_cnfg</strong> (int):
@@ -1325,11 +1335,19 @@ Has to have the appropriate length</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_qtop_sector</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;target: int</span>
-<span class="sd">            specifies the topological sector to be reweighted to (default 0)</span>
-<span class="sd">        q_top: Obs</span>
-<span class="sd">        alternatively takes args of read_qtop method as kwargs</span>
+    <span class="sd">&quot;&quot;&quot;Constructs reweighting factors to a specified topological sector.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target : int</span>
+<span class="sd">        Specifies the topological sector to be reweighted to (default 0)</span>
+<span class="sd">    q_top : Obs</span>
+<span class="sd">        Alternatively takes args of read_qtop method as kwargs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;target&#39; has to be an integer.&quot;</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="s2">&quot;q_top&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">qtop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;q_top&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1373,10 +1391,16 @@ Has to have the appropriate length</li>
 
         </details>
 
-            <div class="docstring"><p>target: int
-    specifies the topological sector to be reweighted to (default 0)
-q_top: Obs
-alternatively takes args of read_qtop method as kwargs</p>
+            <div class="docstring"><p>Constructs reweighting factors to a specified topological sector.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>target</strong> (int):
+Specifies the topological sector to be reweighted to (default 0)</li>
+<li><strong>q_top</strong> (Obs):
+Alternatively takes args of read_qtop method as kwargs</li>
+</ul>
 </div>
 
 

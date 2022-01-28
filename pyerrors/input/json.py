@@ -403,13 +403,15 @@ def import_json_string(json_string, verbose=True, full_output=False):
         if isinstance(o.get('tag'), list):  # supports the old way
             taglist = o.get('tag')  # This had to be modified to get the taglist from the dictionary
             temp_prange = None
-        else:
+        elif isinstance(o.get('tag'), dict):
             tagdic = o.get('tag')
             taglist = tagdic['tag']
             if 'prange' in tagdic:
                 temp_prange = tagdic['prange']
             else:
                 temp_prange = None
+        else:
+            raise Exception ("The tag is not a list or dict")
 
         corr_tag = taglist[-1]
         tmp_o = o

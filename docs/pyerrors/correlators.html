@@ -386,8 +386,16 @@
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
 
-    <span class="c1"># For purposes of debugging and verification, one might want to see a single smearing level. smearing will return a Corr at the specified i,j. where both are integers 0&lt;=i,j&lt;N.</span>
     <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i : int</span>
+<span class="sd">            First index to be picked.</span>
+<span class="sd">        j : int</span>
+<span class="sd">            Second index to be picked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
@@ -1422,8 +1430,16 @@
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
 
-    <span class="c1"># For purposes of debugging and verification, one might want to see a single smearing level. smearing will return a Corr at the specified i,j. where both are integers 0&lt;=i,j&lt;N.</span>
     <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i : int</span>
+<span class="sd">            First index to be picked.</span>
+<span class="sd">        j : int</span>
+<span class="sd">            Second index to be picked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
@@ -2486,6 +2502,15 @@ By default it will return the lowest source, which usually means unsmeared-unsme
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i : int</span>
+<span class="sd">            First index to be picked.</span>
+<span class="sd">        j : int</span>
+<span class="sd">            Second index to be picked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
@@ -2494,7 +2519,18 @@ By default it will return the lowest source, which usually means unsmeared-unsme
 
         </details>
 
-    
+            <div class="docstring"><p>Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>i</strong> (int):
+First index to be picked.</li>
+<li><strong>j</strong> (int):
+Second index to be picked.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Corr.plottable" class="classattr">

@@ -460,25 +460,16 @@ class Corr:
 
         return (self + T_partner) / 2
 
-    def deriv(self, symmetric=True):
+    def deriv(self, variant="symmetric"):
         """Return the first derivative of the correlator with respect to x0.
 
         Parameters
         ----------
-        symmetric : bool
-            decides whether symmetric of simple finite differences are used. Default: True
+        variant : str
+            decides which definition of the finite differences derivative is used.
+            Available choice: symmetric, forward, improved, default: symmetric
         """
-        if not symmetric:
-            newcontent = []
-            for t in range(self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None):
-                    newcontent.append(None)
-                else:
-                    newcontent.append(self.content[t + 1] - self.content[t])
-            if(all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
-            return Corr(newcontent, padding=[0, 1])
-        if symmetric:
+        if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
@@ -488,18 +479,60 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[1, 1])
+        elif variant == "forward":
+            newcontent = []
+            for t in range(self.T - 1):
+                if (self.content[t] is None) or (self.content[t + 1] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append(self.content[t + 1] - self.content[t])
+            if(all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[0, 1])
+        elif variant == "improved":
+            newcontent = []
+            for t in range(2, self.T - 2):
+                if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append((1 / 12) * (self.content[t - 2] - 8 * self.content[t - 1] + 8 * self.content[t + 1] - self.content[t + 2]))
+            if(all([x is None for x in newcontent])):
+                raise Exception('Derivative is undefined at all timeslices')
+            return Corr(newcontent, padding=[2, 2])
+        else:
+            raise Exception("Unknown variant.")
 
-    def second_deriv(self):
-        """Return the second derivative of the correlator with respect to x0."""
-        newcontent = []
-        for t in range(1, self.T - 1):
-            if (self.content[t - 1] is None) or (self.content[t + 1] is None):
-                newcontent.append(None)
-            else:
-                newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
-        if(all([x is None for x in newcontent])):
-            raise Exception("Derivative is undefined at all timeslices")
-        return Corr(newcontent, padding=[1, 1])
+    def second_deriv(self, variant="symmetric"):
+        """Return the second derivative of the correlator with respect to x0.
+
+        Parameters
+        ----------
+        variant : str
+            decides which definition of the finite differences derivative is used.
+            Available choice: symmetric, improved, default: symmetric
+        """
+        if variant == "symmetric":
+            newcontent = []
+            for t in range(1, self.T - 1):
+                if (self.content[t - 1] is None) or (self.content[t + 1] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
+            if(all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[1, 1])
+        elif variant == "improved":
+            newcontent = []
+            for t in range(2, self.T - 2):
+                if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append((1 / 12) * (-self.content[t + 2] + 16 * self.content[t + 1] - 30 * self.content[t] + 16 * self.content[t - 1] - self.content[t - 2]))
+            if(all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[2, 2])
+        else:
+            raise Exception("Unknown variant.")
 
     def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object

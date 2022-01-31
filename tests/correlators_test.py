@@ -45,7 +45,7 @@ def test_modify_correlator():
         exponent = np.random.normal(3, 5)
         corr_content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
 
-    corr = pe.correlators.Corr(corr_content)
+    corr = pe.Corr(corr_content)
 
     with pytest.warns(RuntimeWarning):
         corr.symmetric()
@@ -53,13 +53,39 @@ def test_modify_correlator():
         corr.anti_symmetric()
 
     for pad in [0, 2]:
-        corr = pe.correlators.Corr(corr_content, padding=[pad, pad])
+        corr = pe.Corr(corr_content, padding=[pad, pad])
         corr.roll(np.random.randint(100))
-        corr.deriv(symmetric=True)
-        corr.deriv(symmetric=False)
+        corr.deriv(variant="forward")
+        corr.deriv(variant="symmetric")
+        corr.deriv(variant="improved")
         corr.deriv().deriv()
-        corr.second_deriv()
+        corr.second_deriv(variant="symmetric")
+        corr.second_deriv(variant="improved")
         corr.second_deriv().second_deriv()
+
+    for i, e in enumerate(corr.content):
+        corr.content[i] = None
+
+    for func in [pe.Corr.deriv, pe.Corr.second_deriv]:
+        for variant in ["symmetric", "improved", "forward", "gibberish", None]:
+            with pytest.raises(Exception):
+                func(corr, variant=variant)
+
+
+def test_deriv():
+    corr_content = []
+    for t in range(24):
+        exponent = 1.2
+        corr_content.append(pe.pseudo_Obs(2 + t ** exponent, 0.2, 't'))
+
+    corr = pe.Corr(corr_content)
+
+    forward = corr.deriv(variant="forward")
+    backward = corr.deriv(variant="backward")
+    sym = corr.deriv(variant="symmetric")
+    assert np.all([o == 0 for o in (0.5 * (forward + backward) - sym)[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('forward').deriv('backward') - corr.second_deriv())[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('backward').deriv('forward') - corr.second_deriv())[1:-1]])
 
 
 def test_m_eff():

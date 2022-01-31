@@ -167,3 +167,51 @@ def test_utility():
         assert np.isclose(o_a[0].value, o_b[0].value)
         assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
         assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+
+def test_matrix_corr():
+    def _gen_corr(val):
+        corr_content = []
+        for t in range(16):
+            corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
+
+        return pe.correlators.Corr(corr_content)
+
+    corr_aa = _gen_corr(1)
+    corr_ab = _gen_corr(0.5)
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.smearing(0, 0)
+
+    vec_0 = corr_mat.GEVP(0, 0)
+    vec_1 = corr_mat.GEVP(0, 0, state=1)
+
+    corr_0 = corr_mat.projected(vec_0)
+    corr_1 = corr_mat.projected(vec_1)
+
+    assert np.all([o == 0 for o in corr_0 - corr_aa])
+    assert np.all([o == 0 for o in corr_1 - corr_aa])
+
+    corr_mat.GEVP(0, 0, sorted_list="Eigenvalue")
+    corr_mat.GEVP(0, 0, sorted_list="Eigenvector")
+
+    with pytest.raises(Exception):
+        corr_mat.plottable()
+
+    with pytest.raises(Exception):
+        corr_mat.show()
+
+    with pytest.raises(Exception):
+        corr_mat.m_eff()
+
+    with pytest.raises(Exception):
+        corr_mat.Hankel()
+
+    with pytest.raises(Exception):
+        corr_mat.plateau()
+
+    with pytest.raises(Exception):
+        corr_mat.plateau([2, 4])
+
+    with pytest.raises(Exception):
+        corr_o.smearing(0, 0)

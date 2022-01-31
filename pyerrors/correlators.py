@@ -250,9 +250,6 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to symmetrize a smearing matrix, that already has N=1.")
 
-    # There are two ways, the GEVP metod can be called.
-    # 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1
-    # 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]
     def GEVP(self, t0, ts=None, state=0, sorted_list=None):
         """Solve the general eigenvalue problem on the current correlator
 
@@ -265,7 +262,7 @@ class Corr:
             If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
         state : int
             The state one is interested in ordered by energy. The lowest state is zero.
-        sorted list : string
+        sorted_list : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
              "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
@@ -273,7 +270,7 @@ class Corr:
         """
         if sorted_list is None:
             if (ts is None):
-                raise Exception("ts is required if return_list=False")
+                raise Exception("ts is required if sorted_list=None")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")

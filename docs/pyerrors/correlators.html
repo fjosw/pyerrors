@@ -459,9 +459,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># There are two ways, the GEVP metod can be called.</span>
-    <span class="c1"># 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1</span>
-    <span class="c1"># 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]</span>
     <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solve the general eigenvalue problem on the current correlator</span>
 
@@ -474,7 +471,7 @@
 <span class="sd">            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.</span>
 <span class="sd">        state : int</span>
 <span class="sd">            The state one is interested in ordered by energy. The lowest state is zero.</span>
-<span class="sd">        sorted list : string</span>
+<span class="sd">        sorted_list : string</span>
 <span class="sd">            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.</span>
 <span class="sd">             &quot;Eigenvalue&quot;  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.</span>
 <span class="sd">             &quot;Eigenvector&quot; -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.</span>
@@ -482,7 +479,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sorted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">ts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if return_list=False&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if sorted_list=None&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
             <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
@@ -1503,9 +1500,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
-    <span class="c1"># There are two ways, the GEVP metod can be called.</span>
-    <span class="c1"># 1. return_list=False will return a single eigenvector, normalized according to V*C(t_0)*V=1</span>
-    <span class="c1"># 2. return_list=True  will return a new eigenvector for every timeslice. The time t_s is used to order the vectors according to. arXiv:2004.10472 [hep-lat]</span>
     <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solve the general eigenvalue problem on the current correlator</span>
 
@@ -1518,7 +1512,7 @@
 <span class="sd">            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.</span>
 <span class="sd">        state : int</span>
 <span class="sd">            The state one is interested in ordered by energy. The lowest state is zero.</span>
-<span class="sd">        sorted list : string</span>
+<span class="sd">        sorted_list : string</span>
 <span class="sd">            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.</span>
 <span class="sd">             &quot;Eigenvalue&quot;  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.</span>
 <span class="sd">             &quot;Eigenvector&quot; -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.</span>
@@ -1526,7 +1520,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sorted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">ts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if return_list=False&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if sorted_list=None&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
             <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
@@ -2688,7 +2682,7 @@ timeslice and the error on each timeslice.</p>
 <span class="sd">            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.</span>
 <span class="sd">        state : int</span>
 <span class="sd">            The state one is interested in ordered by energy. The lowest state is zero.</span>
-<span class="sd">        sorted list : string</span>
+<span class="sd">        sorted_list : string</span>
 <span class="sd">            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.</span>
 <span class="sd">             &quot;Eigenvalue&quot;  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.</span>
 <span class="sd">             &quot;Eigenvector&quot; -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.</span>
@@ -2696,7 +2690,7 @@ timeslice and the error on each timeslice.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sorted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">ts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if return_list=False&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;ts is required if sorted_list=None&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr not defined at t0/ts&quot;</span><span class="p">)</span>
             <span class="n">G0</span><span class="p">,</span> <span class="n">Gt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
@@ -2750,7 +2744,7 @@ fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
 If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.</li>
 <li><strong>state</strong> (int):
 The state one is interested in ordered by energy. The lowest state is zero.</li>
-<li><strong>sorted list</strong> (string):
+<li><strong>sorted_list</strong> (string):
 if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
 "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
 "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.

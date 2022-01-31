@@ -467,7 +467,7 @@ class Corr:
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, forward, improved, default: symmetric
+            Available choice: symmetric, forward, backward, improved, default: symmetric
         """
         if variant == "symmetric":
             newcontent = []
@@ -489,6 +489,16 @@ class Corr:
             if(all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[0, 1])
+        elif variant == "backward":
+            newcontent = []
+            for t in range(1, self.T):
+                if (self.content[t - 1] is None) or (self.content[t] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append(self.content[t] - self.content[t - 1])
+            if(all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[1, 0])
         elif variant == "improved":
             newcontent = []
             for t in range(2, self.T - 2):

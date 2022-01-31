@@ -72,6 +72,20 @@ def test_modify_correlator():
                 func(corr, variant=variant)
 
 
+def test_deriv():
+    corr_content = []
+    for t in range(24):
+        exponent = 1.2
+        corr_content.append(pe.pseudo_Obs(2 + t ** exponent, 0.2, 't'))
+
+    corr = pe.Corr(corr_content)
+
+    forward = corr.deriv(variant="forward")
+    backward = corr.deriv(variant="backward")
+    sym = corr.deriv(variant="symmetric")
+    assert np.all([o == 0 for o in (0.5 * (forward + backward) - sym)[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('forward').deriv('backward') - corr.second_deriv())[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('backward').deriv('forward') - corr.second_deriv())[1:-1]])
 
 
 def test_m_eff():

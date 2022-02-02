@@ -96,7 +96,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
                      non-linear fits with many parameters.
-    method : str
+    method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
@@ -487,26 +487,21 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             chisq = anp.sum(((y_f - model) / dy_f) ** 2)
             return chisq
 
-    if 'method' in kwargs and not (kwargs.get('method', 'Levenberg-Marquardt') == 'Levenberg-Marquardt'):
-        output.method = kwargs.get('method')
-        if not silent:
-            print('Method:', kwargs.get('method'))
-        if kwargs.get('method') == 'migrad':
-            fit_result = iminuit.minimize(chisqfunc, x0)
-            fit_result = iminuit.minimize(chisqfunc, fit_result.x)
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
+
+    if output.method != 'Levenberg-Marquardt':
+        if output.method == 'migrad':
+            fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping crieterion 0.002 * tol * errordef
             output.iterations = fit_result.nfev
         else:
-            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'))
-            fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
+            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)
             output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
     else:
-        output.method = 'Levenberg-Marquardt'
-        if not silent:
-            print('Method: Levenberg-Marquardt')
-
         if kwargs.get('correlated_fit') is True:
             def chisqfunc_residuals(p):
                 model = func(p, x)

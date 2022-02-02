@@ -49,8 +49,6 @@ def test_least_squares():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
-    out = pe.least_squares(x, oy, func, method='migrad')
-    out = pe.least_squares(x, oy, func, method='Powell')
     out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
     beta = out.fit_parameters
 
@@ -84,6 +82,33 @@ def test_least_squares():
         assert math.isclose(betac[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
     assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
+
+
+def test_alternative_solvers():
+    dim = 192
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = 0.1 + 0.1 * np.random.rand(dim)
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    def func(a, x):
+        y = a[0] * np.exp(-a[1] * x)
+        return y
+
+    chisquare_values = []
+    out = pe.least_squares(x, oy, func, method='migrad')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Powell')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Nelder-Mead')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Levenberg-Marquardt')
+    chisquare_values.append(out.chisquare)
+    chisquare_values = np.array(chisquare_values)
+    assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
 
 
 def test_correlated_fit():

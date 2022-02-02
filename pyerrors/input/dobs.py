@@ -305,7 +305,7 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[]):
         layout = '%d i f%d' % (Nconf, len(obsl))
         ad['layout'] = layout
         ad['symbol'] = osymbol
-        data = []
+        data = ''
         for c in range(Nconf):
             data += '%d ' % obsl[0].idl[names[r]][c]
             for o in obsl:

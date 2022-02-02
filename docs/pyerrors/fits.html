@@ -66,15 +66,6 @@
                     <a class="function" href="#total_least_squares">total_least_squares</a>
             </li>
             <li>
-                    <a class="function" href="#prior_fit">prior_fit</a>
-            </li>
-            <li>
-                    <a class="function" href="#standard_fit">standard_fit</a>
-            </li>
-            <li>
-                    <a class="function" href="#odr_fit">odr_fit</a>
-            </li>
-            <li>
                     <a class="function" href="#fit_lin">fit_lin</a>
             </li>
             <li>
@@ -405,11 +396,6 @@
     <span class="k">return</span> <span class="n">output</span>
 
 
-<span class="k">def</span> <span class="nf">prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;prior_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
 <span class="k">def</span> <span class="nf">_prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">Fit_result</span><span class="p">()</span>
 
@@ -526,11 +512,6 @@
         <span class="n">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output</span>
-
-
-<span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -694,11 +675,6 @@
         <span class="n">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">output</span>
-
-
-<span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1326,66 +1302,6 @@ has to be calculated (default False).</li>
 </ul>
 </div>
 
-
-                </section>
-                <section id="prior_fit">
-                            <div class="attr function"><a class="headerlink" href="#prior_fit">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">prior_fit</span><span class="signature">(x, y, func, priors, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;prior_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="standard_fit">
-                            <div class="attr function"><a class="headerlink" href="#standard_fit">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">standard_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standard_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;standard_fit renamed to least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                </section>
-                <section id="odr_fit">
-                            <div class="attr function"><a class="headerlink" href="#odr_fit">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">odr_fit</span><span class="signature">(x, y, func, silent=False, **kwargs)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">odr_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;odr_fit renamed to total_least_squares&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
 
                 </section>
                 <section id="fit_lin">

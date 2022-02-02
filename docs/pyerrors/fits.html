@@ -209,7 +209,7 @@
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for</span>
 <span class="sd">                     non-linear fits with many parameters.</span>
-<span class="sd">    method : str</span>
+<span class="sd">    method : str, optional</span>
 <span class="sd">        can be used to choose an alternative method for the minimization of chisquare.</span>
 <span class="sd">        The possible methods are the ones which can be used for scipy.optimize.minimize and</span>
 <span class="sd">        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.</span>
@@ -600,26 +600,21 @@
             <span class="n">chisq</span> <span class="o">=</span> <span class="n">anp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">y_f</span> <span class="o">-</span> <span class="n">model</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy_f</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">chisq</span>
 
-    <span class="k">if</span> <span class="s1">&#39;method&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method:&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;migrad&#39;</span><span class="p">:</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method:&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;migrad&#39;</span><span class="p">:</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>  <span class="c1"># Stopping crieterion 0.002 * tol * errordef</span>
             <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nfev</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">))</span>
-            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
+            <span class="n">fit_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">chisqfunc</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">),</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">)</span>
             <span class="n">output</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">nit</span>
 
         <span class="n">chisquare</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">fun</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;Levenberg-Marquardt&#39;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Method: Levenberg-Marquardt&#39;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;correlated_fit&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">chisqfunc_residuals</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
                 <span class="n">model</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
@@ -1024,7 +1019,7 @@ also accessible via indices.</li>
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for</span>
 <span class="sd">                     non-linear fits with many parameters.</span>
-<span class="sd">    method : str</span>
+<span class="sd">    method : str, optional</span>
 <span class="sd">        can be used to choose an alternative method for the minimization of chisquare.</span>
 <span class="sd">        The possible methods are the ones which can be used for scipy.optimize.minimize and</span>
 <span class="sd">        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.</span>
@@ -1085,7 +1080,7 @@ If true all output to the console is omitted (default False).</li>
 <li><strong>initial_guess</strong> (list):
 can provide an initial guess for the input parameters. Relevant for
             non-linear fits with many parameters.</li>
-<li><strong>method</strong> (str):
+<li><strong>method</strong> (str, optional):
 can be used to choose an alternative method for the minimization of chisquare.
 The possible methods are the ones which can be used for scipy.optimize.minimize and
 migrad of iminuit. If no method is specified, Levenberg-Marquard is used.

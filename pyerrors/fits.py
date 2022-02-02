@@ -487,20 +487,21 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             chisq = anp.sum(((y_f - model) / dy_f) ** 2)
             return chisq
 
-    if 'method' in kwargs:
+    if 'method' in kwargs and not (kwargs.get('method', 'Levenberg-Marquardt') == 'Levenberg-Marquardt'):
         output.method = kwargs.get('method')
         if not silent:
             print('Method:', kwargs.get('method'))
         if kwargs.get('method') == 'migrad':
             fit_result = iminuit.minimize(chisqfunc, x0)
             fit_result = iminuit.minimize(chisqfunc, fit_result.x)
+            output.iterations = fit_result.nfev
         else:
             fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'))
             fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
+            output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
-        output.iterations = fit_result.nit
     else:
         output.method = 'Levenberg-Marquardt'
         if not silent:

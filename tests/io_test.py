@@ -3,6 +3,7 @@ import gzip
 import numpy as np
 import pyerrors as pe
 import pyerrors.input.json as jsonio
+import pyerrors.input.dobs as dobsio
 
 
 def test_jsonio():
@@ -136,3 +137,97 @@ def test_json_corr_2d_io():
                         assert recover[index] is None
                 assert my_corr.tag == recover.tag
                 assert my_corr.prange == recover.prange
+
+
+def test_dobsio():
+    o = pe.pseudo_Obs(1.0, .2, 'one')
+    o1 = pe.pseudo_Obs(1.5, .2, 'one')
+
+    ol = [o, o1]
+    fname = 'test_rw'
+    dobsio.write_pobs(ol, fname, 'Testobs')
+    rl = dobsio.read_pobs(fname)
+
+    for o, r in zip(ol, rl):
+        assert np.all(o == r)
+
+    od = {
+        'obsdata': ol,
+        'name': 'testn',
+        'spec': 'tests',
+        'origin': 'testo',
+        'symbol': ['A', 'B']
+    }
+    dobsio.write_pobs(ol, fname, od['name'], od['spec'], od['origin'], od['symbol'])
+    rd = dobsio.read_pobs(fname, full_output=True)
+
+    for o, r in zip(od['obsdata'], rd['obsdata']):
+        assert np.all(o == r)
+    assert(od['spec'] == rd['description']['spec'])
+    assert(od['origin'] == rd['description']['origin'])
+    assert(od['name'] == rd['description']['name'])
+    assert(rd['description']['enstag'] == ol[0].e_names[0])
+
+    dobsio.write_dobs(ol, fname, 'Testobs')
+    rl = dobsio.read_dobs(fname)
+
+    for o, r in zip(ol, rl):
+        assert np.all(o == r)
+
+    dobsio.write_dobs(ol, fname, od['name'], od['spec'], od['origin'], od['symbol'])
+    rd = dobsio.read_dobs(fname, full_output=True)
+
+    for o, r in zip(od['obsdata'], rd['obsdata']):
+        assert np.all(o == r)
+    assert(od['spec'] == rd['description']['spec'])
+    assert(od['origin'] == rd['description']['origin'])
+    assert(od['name'] == rd['description']['name'])
+
+    o2 = pe.pseudo_Obs(0.5, .1, 'two|r1')
+    o3 = pe.pseudo_Obs(0.5, .1, 'two|r2')
+    o4 = pe.merge_obs([o2, o3])
+    otag = 'This has been merged!'
+    o4.tag = otag
+    do = o - .2 * o4
+    co1 = pe.cov_Obs(1., .123, 'cov1')
+    co3 = pe.cov_Obs(4., .1 ** 2, 'cov3')
+    do *= co1 / co3
+    do.tag = {'A': 2}
+
+    o5 = pe.pseudo_Obs(0.8, .1, 'two|r2')
+    co2 = pe.cov_Obs([1, 2], [[.12, .004], [.004, .02]], 'cov2')
+    o5 /= co2[0]
+    #o3 /= co2[1]
+    o5.tag = 2 * otag
+
+    tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
+    tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
+    tt3 = pe.Obs([np.random.rand(102)], ['qe'])
+
+    tt = tt1 + tt2 + tt3
+
+    tt.tag = 'Test Obs: Ä'
+
+    ol = [o2, o3, o4, do, o5, tt]
+    print(ol)
+    fname = 'test_rw'
+
+    dobsio.write_dobs(ol, fname, 'TEST')
+
+    rl = dobsio.read_dobs(fname, noempty=True)
+    [o.gamma_method() for o in rl]
+
+    #os.remove(fname + '.xml.gz')
+
+    for o, r in zip(ol, rl):
+        assert np.all(o == r)
+
+    for i in range(len(ol)):
+        if isinstance(ol[i], pe.Obs):
+            o = ol[i] - rl[i]
+            assert(o.is_zero())
+        or1 = np.ravel(ol[i])
+        or2 = np.ravel(rl[i])
+        for j in range(len(or1)):
+            o = or1[j] - or2[j]
+            assert(o.is_zero())

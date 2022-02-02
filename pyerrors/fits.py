@@ -292,11 +292,6 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     return output
 
 
-def prior_fit(x, y, func, priors, silent=False, **kwargs):
-    warnings.warn("prior_fit renamed to least_squares", DeprecationWarning)
-    return least_squares(x, y, func, priors=priors, silent=silent, **kwargs)
-
-
 def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     output = Fit_result()
 
@@ -413,11 +408,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         qqplot(x, y, func, result)
 
     return output
-
-
-def standard_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("standard_fit renamed to least_squares", DeprecationWarning)
-    return least_squares(x, y, func, silent=silent, **kwargs)
 
 
 def _standard_fit(x, y, func, silent=False, **kwargs):
@@ -581,11 +571,6 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         qqplot(x, y, func, result)
 
     return output
-
-
-def odr_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("odr_fit renamed to total_least_squares", DeprecationWarning)
-    return total_least_squares(x, y, func, silent=silent, **kwargs)
 
 
 def fit_lin(x, y, **kwargs):

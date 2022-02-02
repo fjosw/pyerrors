@@ -49,6 +49,8 @@ def test_least_squares():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
+    out = pe.least_squares(x, oy, func, method='migrad')
+    out = pe.least_squares(x, oy, func, method='Powell')
     out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
     beta = out.fit_parameters
 

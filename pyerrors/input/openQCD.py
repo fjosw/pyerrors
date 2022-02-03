@@ -186,7 +186,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
-    idl = [range(r_start[rep] + 1, r_stop[rep] + r_step, r_step) for rep in range(replica)]
+    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(replica)]
     for t in range(nrw):
         result.append(Obs(deltas[t], rep_names, idl=idl))
     return result
@@ -341,7 +341,7 @@ def extract_t0(path, prefix, dtr_read, xmin,
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
 
-    idl = [range(r_start[rep] + 1, r_stop[rep] + r_step, r_step) for rep in range(len(r_start))]
+    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(len(r_start))]
     t2E_dict = {}
     for n in range(nn + 1):
         samples = []

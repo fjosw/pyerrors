@@ -83,6 +83,8 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># Thinly-wrapped numpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">gridspec</span>
 <span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
 <span class="kn">from</span> <span class="nn">..fits</span> <span class="kn">import</span> <span class="n">fit_lin</span>
 
@@ -107,6 +109,9 @@
 <span class="sd">        list which contains the first config to be read for each replicum</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum</span>
+<span class="sd">    r_step : int</span>
+<span class="sd">        integer that defines a fixed step size between two measurements (in units of configs)</span>
+<span class="sd">        If not given, r_step=1 is assumed.</span>
 <span class="sd">    postfix : str</span>
 <span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
 <span class="sd">    files : list</span>
@@ -156,6 +161,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
 
+    <span class="k">if</span> <span class="s1">&#39;r_step&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_step&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="mi">1</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read reweighting factors from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
           <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
@@ -165,6 +175,8 @@
             <span class="n">truncated_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="n">truncated_entry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
             <span class="n">rep_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">truncated_entry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">truncated_entry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="n">names</span>
 
     <span class="n">print_err</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="s1">&#39;print_err&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -209,6 +221,9 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;something is wrong!&#39;</span><span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
@@ -244,18 +259,16 @@
                                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sources:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tmp_rw</span><span class="p">)))</span>
                                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Partial factor:&#39;</span><span class="p">,</span> <span class="n">tmp_nfct</span><span class="p">)</span>
                     <span class="n">tmp_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_nfct</span><span class="p">)</span>
-
+            <span class="k">if</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
-                <span class="n">deltas</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]])</span>
+                <span class="n">deltas</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]][::</span><span class="n">r_step</span><span class="p">])</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">nrw</span><span class="p">,</span> <span class="s1">&#39;reweighting factors with&#39;</span><span class="p">,</span> <span class="n">nsrc</span><span class="p">,</span> <span class="s1">&#39;sources&#39;</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_step</span><span class="p">)</span> <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">replica</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">rep_names</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">names</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
@@ -292,8 +305,19 @@
 <span class="sd">        list which contains the first config to be read for each replicum.</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum.</span>
+<span class="sd">    r_step : int</span>
+<span class="sd">        integer that defines a fixed step size between two measurements (in units of configs)</span>
+<span class="sd">        If not given, r_step=1 is assumed.</span>
 <span class="sd">    plaquette : bool</span>
 <span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
+<span class="sd">    names : list</span>
+<span class="sd">        list of names that is assigned to the data according according</span>
+<span class="sd">        to the order in the file list. Use careful, if you do not provide file names!</span>
+<span class="sd">    files : list</span>
+<span class="sd">        list which contains the filenames to be read. No automatic detection of</span>
+<span class="sd">        files performed if given.</span>
+<span class="sd">    plot_fit : bool</span>
+<span class="sd">        If true, the fit for the extraction of t0 is shown together with the data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -304,11 +328,14 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
-            <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
+                <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s1">&#39;r_start&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -326,7 +353,21 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
 
+    <span class="k">if</span> <span class="s1">&#39;r_step&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_step&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="mi">1</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract t0 from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;names&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="n">truncated_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">truncated_entry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">rep_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">truncated_entry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">truncated_entry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
 
     <span class="n">Ysum</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -351,6 +392,10 @@
 
             <span class="n">Ysl</span> <span class="o">=</span> <span class="p">[]</span>
 
+            <span class="k">if</span> <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">cfgcount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
@@ -367,12 +412,16 @@
                         <span class="n">Ysl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;d&#39;</span> <span class="o">*</span> <span class="n">tmax</span> <span class="o">*</span> <span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">t</span><span class="p">))</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">tmax</span> <span class="o">*</span> <span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
+                <span class="n">cfgcount</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfgcount</span>
         <span class="n">Ysum</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ysl</span><span class="p">):</span>
             <span class="n">Ysum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">current</span> <span class="o">+</span> <span class="n">xmin</span><span class="p">:</span>
                              <span class="n">current</span> <span class="o">+</span> <span class="n">tmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">])</span>
                             <span class="k">for</span> <span class="n">current</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">tmax</span><span class="p">)])</span>
 
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_step</span><span class="p">)</span> <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r_start</span><span class="p">))]</span>
     <span class="n">t2E_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
@@ -380,8 +429,8 @@
             <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="k">for</span> <span class="n">cnfg</span> <span class="ow">in</span> <span class="n">rep</span><span class="p">:</span>
                 <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
-            <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">nrep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">nrep</span><span class="p">]]</span>
-        <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">[(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">])</span>
+            <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">nrep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">nrep</span><span class="p">]][::</span><span class="n">r_step</span><span class="p">]</span>
+        <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">)</span>
         <span class="n">t2E_dict</span><span class="p">[</span><span class="n">n</span> <span class="o">*</span> <span class="n">dn</span> <span class="o">*</span> <span class="n">eps</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">dn</span> <span class="o">*</span> <span class="n">eps</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">new_obs</span> <span class="o">/</span> <span class="p">(</span><span class="n">spatial_extent</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.3</span>
 
     <span class="n">zero_crossing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -394,6 +443,40 @@
     <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
 
     <span class="n">fit_result</span> <span class="o">=</span> <span class="n">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plot_fit&#39;</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">ax0</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">xmore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t2E_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">zero_crossing</span> <span class="o">-</span> <span class="n">fit_range</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">zero_crossing</span> <span class="o">+</span> <span class="n">fit_range</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">ymore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t2E_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">zero_crossing</span> <span class="o">-</span> <span class="n">fit_range</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">zero_crossing</span> <span class="o">+</span> <span class="n">fit_range</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">]</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xmore</span><span class="p">,</span> <span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">],</span> <span class="n">yerr</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">],</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">xplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">yplot</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xi</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">xplot</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">]</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xplot</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">],</span> <span class="n">y2</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">])</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">retval</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax0</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">ylim</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="n">retval</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">retval</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">retval</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">retval</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$t^2 \langle E(t) \rangle - 0.3 $&#39;</span><span class="p">)</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax0</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+
+        <span class="n">fit_res</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xi</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">residuals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">])</span> <span class="o">-</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">fit_res</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">])</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">residuals</span><span class="p">,</span> <span class="s1">&#39;ko&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labelbottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Residuals&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$t/a^2$&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
 
@@ -712,6 +795,9 @@
 <span class="sd">        list which contains the first config to be read for each replicum</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum</span>
+<span class="sd">    r_step : int</span>
+<span class="sd">        integer that defines a fixed step size between two measurements (in units of configs)</span>
+<span class="sd">        If not given, r_step=1 is assumed.</span>
 <span class="sd">    postfix : str</span>
 <span class="sd">        postfix of the file to read, e.g. &#39;.ms1&#39; for openQCD-files</span>
 <span class="sd">    files : list</span>
@@ -761,6 +847,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
 
+    <span class="k">if</span> <span class="s1">&#39;r_step&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_step&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="mi">1</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read reweighting factors from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span>
           <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
@@ -770,6 +861,8 @@
             <span class="n">truncated_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="n">truncated_entry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
             <span class="n">rep_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">truncated_entry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">truncated_entry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="n">names</span>
 
     <span class="n">print_err</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="s1">&#39;print_err&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -814,6 +907,9 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;something is wrong!&#39;</span><span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
@@ -849,18 +945,16 @@
                                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sources:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tmp_rw</span><span class="p">)))</span>
                                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Partial factor:&#39;</span><span class="p">,</span> <span class="n">tmp_nfct</span><span class="p">)</span>
                     <span class="n">tmp_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_nfct</span><span class="p">)</span>
-
+            <span class="k">if</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
-                <span class="n">deltas</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]])</span>
+                <span class="n">deltas</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_array</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]][::</span><span class="n">r_step</span><span class="p">])</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">nrw</span><span class="p">,</span> <span class="s1">&#39;reweighting factors with&#39;</span><span class="p">,</span> <span class="n">nsrc</span><span class="p">,</span> <span class="s1">&#39;sources&#39;</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_step</span><span class="p">)</span> <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">replica</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrw</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">rep_names</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">names</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 
@@ -886,6 +980,9 @@ to the order in the file list. Use careful, if you do not provide file names!</l
 list which contains the first config to be read for each replicum</li>
 <li><strong>r_stop</strong> (list):
 list which contains the last config to be read for each replicum</li>
+<li><strong>r_step</strong> (int):
+integer that defines a fixed step size between two measurements (in units of configs)
+If not given, r_step=1 is assumed.</li>
 <li><strong>postfix</strong> (str):
 postfix of the file to read, e.g. '.ms1' for openQCD-files</li>
 <li><strong>files</strong> (list):
@@ -941,8 +1038,19 @@ Print additional information that is useful for debugging.</li>
 <span class="sd">        list which contains the first config to be read for each replicum.</span>
 <span class="sd">    r_stop : list</span>
 <span class="sd">        list which contains the last config to be read for each replicum.</span>
+<span class="sd">    r_step : int</span>
+<span class="sd">        integer that defines a fixed step size between two measurements (in units of configs)</span>
+<span class="sd">        If not given, r_step=1 is assumed.</span>
 <span class="sd">    plaquette : bool</span>
 <span class="sd">        If true extract the plaquette estimate of t0 instead.</span>
+<span class="sd">    names : list</span>
+<span class="sd">        list of names that is assigned to the data according according</span>
+<span class="sd">        to the order in the file list. Use careful, if you do not provide file names!</span>
+<span class="sd">    files : list</span>
+<span class="sd">        list which contains the filenames to be read. No automatic detection of</span>
+<span class="sd">        files performed if given.</span>
+<span class="sd">    plot_fit : bool</span>
+<span class="sd">        If true, the fit for the extraction of t0 is shown together with the data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -953,11 +1061,14 @@ Print additional information that is useful for debugging.</li>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
-            <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.ms.dat&#39;</span><span class="p">):</span>
+                <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s1">&#39;r_start&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -975,7 +1086,21 @@ Print additional information that is useful for debugging.</li>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">r_stop</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">replica</span>
 
+    <span class="k">if</span> <span class="s1">&#39;r_step&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;r_step&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r_step</span> <span class="o">=</span> <span class="mi">1</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extract t0 from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;names&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rep_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="n">truncated_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">truncated_entry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">rep_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">truncated_entry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">truncated_entry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
 
     <span class="n">Ysum</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1000,6 +1125,10 @@ Print additional information that is useful for debugging.</li>
 
             <span class="n">Ysl</span> <span class="o">=</span> <span class="p">[]</span>
 
+            <span class="k">if</span> <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">cfgcount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">while</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">):</span>
@@ -1016,12 +1145,16 @@ Print additional information that is useful for debugging.</li>
                         <span class="n">Ysl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;d&#39;</span> <span class="o">*</span> <span class="n">tmax</span> <span class="o">*</span> <span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">t</span><span class="p">))</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">tmax</span> <span class="o">*</span> <span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
+                <span class="n">cfgcount</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfgcount</span>
         <span class="n">Ysum</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Ysl</span><span class="p">):</span>
             <span class="n">Ysum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">current</span> <span class="o">+</span> <span class="n">xmin</span><span class="p">:</span>
                              <span class="n">current</span> <span class="o">+</span> <span class="n">tmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">])</span>
                             <span class="k">for</span> <span class="n">current</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">tmax</span><span class="p">)])</span>
 
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">r_start</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_stop</span><span class="p">[</span><span class="n">rep</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_step</span><span class="p">)</span> <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r_start</span><span class="p">))]</span>
     <span class="n">t2E_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1029,8 +1162,8 @@ Print additional information that is useful for debugging.</li>
             <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="k">for</span> <span class="n">cnfg</span> <span class="ow">in</span> <span class="n">rep</span><span class="p">:</span>
                 <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
-            <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">nrep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">nrep</span><span class="p">]]</span>
-        <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="p">[(</span><span class="n">w</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">])</span>
+            <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">r_start</span><span class="p">[</span><span class="n">nrep</span><span class="p">]:</span><span class="n">r_stop</span><span class="p">[</span><span class="n">nrep</span><span class="p">]][::</span><span class="n">r_step</span><span class="p">]</span>
+        <span class="n">new_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">rep_names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="n">idl</span><span class="p">)</span>
         <span class="n">t2E_dict</span><span class="p">[</span><span class="n">n</span> <span class="o">*</span> <span class="n">dn</span> <span class="o">*</span> <span class="n">eps</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">dn</span> <span class="o">*</span> <span class="n">eps</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">new_obs</span> <span class="o">/</span> <span class="p">(</span><span class="n">spatial_extent</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.3</span>
 
     <span class="n">zero_crossing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -1043,6 +1176,40 @@ Print additional information that is useful for debugging.</li>
     <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]</span>
 
     <span class="n">fit_result</span> <span class="o">=</span> <span class="n">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plot_fit&#39;</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">ax0</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">xmore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t2E_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">zero_crossing</span> <span class="o">-</span> <span class="n">fit_range</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">zero_crossing</span> <span class="o">+</span> <span class="n">fit_range</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">ymore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t2E_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">zero_crossing</span> <span class="o">-</span> <span class="n">fit_range</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">zero_crossing</span> <span class="o">+</span> <span class="n">fit_range</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">]</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xmore</span><span class="p">,</span> <span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">],</span> <span class="n">yerr</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">ymore</span><span class="p">],</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">xplot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">yplot</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xi</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">xplot</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">]</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xplot</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">],</span> <span class="n">y2</span><span class="o">=</span><span class="p">[</span><span class="n">yi</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">yi</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">yi</span> <span class="ow">in</span> <span class="n">yplot</span><span class="p">])</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">retval</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax0</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">ylim</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="n">retval</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">retval</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">retval</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">retval</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">ax0</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$t^2 \langle E(t) \rangle - 0.3 $&#39;</span><span class="p">)</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax0</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+
+        <span class="n">fit_res</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xi</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">residuals</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">])</span> <span class="o">-</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">fit_res</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">y</span><span class="p">])</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">residuals</span><span class="p">,</span> <span class="s1">&#39;ko&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labelbottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Residuals&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$t/a^2$&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
@@ -1080,8 +1247,19 @@ crossing to be included in the linear fit. (Default: 5)</li>
 list which contains the first config to be read for each replicum.</li>
 <li><strong>r_stop</strong> (list):
 list which contains the last config to be read for each replicum.</li>
+<li><strong>r_step</strong> (int):
+integer that defines a fixed step size between two measurements (in units of configs)
+If not given, r_step=1 is assumed.</li>
 <li><strong>plaquette</strong> (bool):
 If true extract the plaquette estimate of t0 instead.</li>
+<li><strong>names</strong> (list):
+list of names that is assigned to the data according according
+to the order in the file list. Use careful, if you do not provide file names!</li>
+<li><strong>files</strong> (list):
+list which contains the filenames to be read. No automatic detection of
+files performed if given.</li>
+<li><strong>plot_fit</strong> (bool):
+If true, the fit for the extraction of t0 is shown together with the data.</li>
 </ul>
 </div>
 

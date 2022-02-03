@@ -3,6 +3,8 @@ import fnmatch
 import re
 import struct
 import numpy as np  # Thinly-wrapped numpy
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from ..obs import Obs
 from ..fits import fit_lin
 
@@ -27,6 +29,9 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         list which contains the first config to be read for each replicum
     r_stop : list
         list which contains the last config to be read for each replicum
+    r_step : int
+        integer that defines a fixed step size between two measurements (in units of configs)
+        If not given, r_step=1 is assumed.
     postfix : str
         postfix of the file to read, e.g. '.ms1' for openQCD-files
     files : list
@@ -76,6 +81,11 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     else:
         r_stop = [None] * replica
 
+    if 'r_step' in kwargs:
+        r_step = kwargs.get('r_step')
+    else:
+        r_step = 1
+
     print('Read reweighting factors from', prefix[:-1], ',',
           replica, 'replica', end='')
 
@@ -85,6 +95,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             truncated_entry = entry.split('.')[0]
             idx = truncated_entry.index('r')
             rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
+    else:
+        rep_names = names
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -129,6 +141,9 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 if not struct.unpack('i', fp.read(4))[0] == 0:
                     print('something is wrong!')
 
+            if r_start[rep] is None:
+                r_start[rep] = 0
+
             while 0 < 1:
                 t = fp.read(4)
                 if len(t) < 4:
@@ -164,18 +179,16 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                                 print('Sources:', np.exp(-np.asarray(tmp_rw)))
                                 print('Partial factor:', tmp_nfct)
                     tmp_array[i].append(tmp_nfct)
-
+            if r_stop[rep] is None:
+                r_stop[rep] = len(tmp_array[0])
             for k in range(nrw):
-                deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]])
+                deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]][::r_step])
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
+    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(replica)]
     for t in range(nrw):
-        if names is None:
-            result.append(Obs(deltas[t], rep_names))
-        else:
-            print(names)
-            result.append(Obs(deltas[t], names))
+        result.append(Obs(deltas[t], rep_names, idl=idl))
     return result
 
 
@@ -212,8 +225,19 @@ def extract_t0(path, prefix, dtr_read, xmin,
         list which contains the first config to be read for each replicum.
     r_stop : list
         list which contains the last config to be read for each replicum.
+    r_step : int
+        integer that defines a fixed step size between two measurements (in units of configs)
+        If not given, r_step=1 is assumed.
     plaquette : bool
         If true extract the plaquette estimate of t0 instead.
+    names : list
+        list of names that is assigned to the data according according
+        to the order in the file list. Use careful, if you do not provide file names!
+    files : list
+        list which contains the filenames to be read. No automatic detection of
+        files performed if given.
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data.
     """
 
     ls = []
@@ -224,11 +248,14 @@ def extract_t0(path, prefix, dtr_read, xmin,
     if not ls:
         raise Exception('Error, directory not found')
 
-    for exc in ls:
-        if not fnmatch.fnmatch(exc, prefix + '*.ms.dat'):
-            ls = list(set(ls) - set([exc]))
-    if len(ls) > 1:
-        ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+    if 'files' in kwargs:
+        ls = kwargs.get('files')
+    else:
+        for exc in ls:
+            if not fnmatch.fnmatch(exc, prefix + '*.ms.dat'):
+                ls = list(set(ls) - set([exc]))
+        if len(ls) > 1:
+            ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
     replica = len(ls)
 
     if 'r_start' in kwargs:
@@ -246,7 +273,21 @@ def extract_t0(path, prefix, dtr_read, xmin,
     else:
         r_stop = [None] * replica
 
+    if 'r_step' in kwargs:
+        r_step = kwargs.get('r_step')
+    else:
+        r_step = 1
+
     print('Extract t0 from', prefix, ',', replica, 'replica')
+
+    if 'names' in kwargs:
+        rep_names = kwargs.get('names')
+    else:
+        rep_names = []
+        for entry in ls:
+            truncated_entry = entry.split('.')[0]
+            idx = truncated_entry.index('r')
+            rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
 
     Ysum = []
 
@@ -271,6 +312,10 @@ def extract_t0(path, prefix, dtr_read, xmin,
 
             Ysl = []
 
+            if r_start[rep] is None:
+                r_start[rep] = 0
+
+            cfgcount = -1
             while 0 < 1:
                 t = fp.read(4)
                 if(len(t) < 4):
@@ -287,12 +332,16 @@ def extract_t0(path, prefix, dtr_read, xmin,
                         Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
 
+                cfgcount += 1
+            if r_stop[rep] is None:
+                r_stop[rep] = cfgcount
         Ysum.append([])
         for i, item in enumerate(Ysl):
             Ysum[-1].append([np.mean(item[current + xmin:
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
 
+    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(len(r_start))]
     t2E_dict = {}
     for n in range(nn + 1):
         samples = []
@@ -300,8 +349,8 @@ def extract_t0(path, prefix, dtr_read, xmin,
             samples.append([])
             for cnfg in rep:
                 samples[-1].append(cnfg[n])
-            samples[-1] = samples[-1][r_start[nrep]:r_stop[nrep]]
-        new_obs = Obs(samples, [(w.split('.'))[0] for w in ls])
+            samples[-1] = samples[-1][r_start[nrep]:r_stop[nrep]][::r_step]
+        new_obs = Obs(samples, rep_names, idl=idl)
         t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
 
     zero_crossing = np.argmax(np.array(
@@ -314,6 +363,40 @@ def extract_t0(path, prefix, dtr_read, xmin,
     [o.gamma_method() for o in y]
 
     fit_result = fit_lin(x, y)
+
+    if kwargs.get('plot_fit'):
+        plt.figure()
+        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
+        ax0 = plt.subplot(gs[0])
+        xmore = list(t2E_dict.keys())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
+        ymore = list(t2E_dict.values())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
+        [o.gamma_method() for o in ymore]
+        ax0.errorbar(xmore, [yi.value for yi in ymore], yerr=[yi.dvalue for yi in ymore], fmt='x')
+        xplot = np.linspace(np.min(x), np.max(x))
+        yplot = [fit_result[0] + fit_result[1] * xi for xi in xplot]
+        [yi.gamma_method() for yi in yplot]
+        ax0.fill_between(xplot, y1=[yi.value - yi.dvalue for yi in yplot], y2=[yi.value + yi.dvalue for yi in yplot])
+        retval = (-fit_result[0] / fit_result[1])
+        retval.gamma_method()
+        ylim = ax0.get_ylim()
+        ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
+        ax0.set_ylim(ylim)
+        ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        xlim = ax0.get_xlim()
+
+        fit_res = [fit_result[0] + fit_result[1] * xi for xi in x]
+        residuals = (np.asarray([o.value for o in y]) - [o.value for o in fit_res]) / np.asarray([o.dvalue for o in y])
+        ax1 = plt.subplot(gs[1])
+        ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
+        ax1.tick_params(direction='out')
+        ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
+        ax1.axhline(y=0.0, ls='--', color='k')
+        ax1.fill_between(xlim, -1.0, 1.0, alpha=0.1, facecolor='k')
+        ax1.set_xlim(xlim)
+        ax1.set_ylabel('Residuals')
+        ax1.set_xlabel(r'$t/a^2$')
+
+        plt.show()
     return -fit_result[0] / fit_result[1]
 
 

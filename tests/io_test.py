@@ -3,6 +3,7 @@ import gzip
 import numpy as np
 import pyerrors as pe
 import pyerrors.input.json as jsonio
+import pytest
 
 
 def test_jsonio():
@@ -136,3 +137,108 @@ def test_json_corr_2d_io():
                         assert recover[index] is None
                 assert my_corr.tag == recover.tag
                 assert my_corr.prange == recover.prange
+
+
+def test_json_dict_io():
+    def check_dict_equality(d1, d2):
+        def dict_check_obs(d1, d2):
+            for k, v in d1.items():
+                if isinstance(v, dict):
+                    v = dict_check_obs(v, d2[k])
+                elif isinstance(v, list) and all([isinstance(o, pe.Obs) for o in v]):
+                    for i in range(len(v)):
+                        assert((v[i] - d2[k][i]).is_zero())
+                elif isinstance(v, list):
+                    v = list_check_obs(v, d2[k])
+                elif isinstance(v, pe.Obs):
+                    assert((v - d2[k]).is_zero())
+                elif isinstance(v, pe.Corr):
+                    for i in range(v.T):
+                        assert((v[i] - d2[k][i]).is_zero())
+                elif isinstance(v, np.ndarray):
+                    a1 = np.ravel(v)
+                    a2 = np.ravel(d2[k])
+                    for i in range(len(a1)):
+                        assert((a1[i] - a2[i]).is_zero())
+
+        def list_check_obs(l1, l2):
+            for ei in range(len(l1)):
+                e = l1[ei]
+                if isinstance(e, list):
+                    e = list_check_obs(e, l2[ei])
+                elif isinstance(e, list) and all([isinstance(o, pe.Obs) for o in e]):
+                    for i in range(len(e)):
+                        assert((e[i] - l2[ei][i]).is_zero())
+                elif isinstance(e, dict):
+                    e = dict_check_obs(e, l2[ei])
+                elif isinstance(e, pe.Obs):
+                    assert((e - l2[ei]).is_zero())
+                elif isinstance(e, pe.Corr):
+                    for i in range(e.T):
+                        assert((e[i] - l2[ei][i]).is_zero())
+                elif isinstance(e, np.ndarray):
+                    a1 = np.ravel(e)
+                    a2 = np.ravel(l2[ei])
+                    for i in range(len(a1)):
+                        assert((a1[i] - a2[i]).is_zero())
+        dict_check_obs(d1, d2)
+        return True
+
+    od = {
+        'l':
+        {
+            'a': pe.pseudo_Obs(1, .2, 'testa', samples=10),
+            'b': [pe.pseudo_Obs(1.1, .1, 'test', samples=10), pe.pseudo_Obs(1.2, .1, 'test', samples=10), pe.pseudo_Obs(1.3, .1, 'test', samples=10)],
+            'c': {
+                'd': 1,
+                'e': pe.pseudo_Obs(.2, .01, 'teste', samples=10),
+                'f': pe.Corr([pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10)]),
+                'g': np.reshape(np.asarray([pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10), pe.pseudo_Obs(.1, .01, 'a', samples=10)]), (2, 2)),
+            }
+        },
+        's':
+        {
+            'a': 'Infor123',
+            'b': ['Some', 'list'],
+            'd': pe.pseudo_Obs(.01, .001, 'testd', samples=10) * pe.cov_Obs(1, .01, 'cov1'),
+            'se': None,
+            'sf': 1.2,
+        }
+    }
+
+    fname = 'test_rw'
+
+    desc = 'This is a random description'
+
+    with pytest.raises(Exception):
+        jsonio.dump_dict_to_json(od, fname, description=desc, reps='|Test')
+
+    jsonio.dump_dict_to_json(od, fname, description=desc, reps='TEST')
+    nd = jsonio.load_json_dict(fname, full_output=True, reps='TEST')
+
+    with pytest.raises(Exception):
+        nd = jsonio.load_json_dict(fname, full_output=True)
+
+    jsonio.dump_dict_to_json(od, fname, description=desc)
+    nd = jsonio.load_json_dict(fname, full_output=True)
+    assert (desc == nd['description'])
+
+    assert(check_dict_equality(od, nd['obsdata']))
+    nd = jsonio.load_json_dict(fname, full_output=False)
+    assert(check_dict_equality(od, nd))
+
+    nl = jsonio.load_json(fname, full_output=True)
+    nl = jsonio.load_json(fname, full_output=False)
+
+    with pytest.raises(Exception):
+        jsonio.dump_dict_to_json(nl, fname, description=desc)
+
+    od['k'] = 'DICTOBS2'
+    with pytest.raises(Exception):
+        jsonio.dump_dict_to_json(od, fname, description=desc)
+
+    od['k'] = ['DICTOBS2']
+    with pytest.raises(Exception):
+        jsonio.dump_dict_to_json(od, fname, description=desc)
+
+    os.remove(fname + '.json.gz')

@@ -226,7 +226,12 @@ def extract_t0(path, prefix, dtr_read, xmin,
     The data around the zero crossing of t^2<E> - 0.3
     is fitted with a linear function
     from which the exact root is extracted.
-    Only works with openQCD v 1.2.
+    Only works with openQCD
+
+    It is assumed that one measurement is performed for each config.
+    If this is not the case, the resulting idl, as well as the handling
+    of r_start, r_stop and r_step is wrong and the user has to correct
+    this in the resulting observable.
 
     Parameters
     ----------
@@ -263,6 +268,11 @@ def extract_t0(path, prefix, dtr_read, xmin,
         files performed if given.
     plot_fit : bool
         If true, the fit for the extraction of t0 is shown together with the data.
+    assume_thermalization : bool
+        If True: If the first record divided by the distance between two measurements is larger than
+        1, it is assumed that this is due to thermalization and the first measurement belongs
+        to the first config (default).
+        If False: The config numbers are assumed to be traj_number // difference
     """
 
     ls = []
@@ -367,6 +377,11 @@ def extract_t0(path, prefix, dtr_read, xmin,
 
         diffmeas = configlist[-1][-1] - configlist[-1][-2]
         configlist[-1] = [item // diffmeas for item in configlist[-1]]
+        if kwargs.get('assume_thermalization', True) and configlist[-1][0] > 1:
+            warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')
+            offset = configlist[-1][0] - 1
+            configlist[-1] = [item - offset for item in configlist[-1]]
+
         if r_start[rep] is None:
             r_start_index.append(0)
         else:

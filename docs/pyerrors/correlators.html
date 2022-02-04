@@ -63,9 +63,6 @@
                                 <a class="function" href="#Corr.projected">projected</a>
                         </li>
                         <li>
-                                <a class="function" href="#Corr.sum">sum</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Corr.smearing">smearing</a>
                         </li>
                         <li>
@@ -383,9 +380,6 @@
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
-
     <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 
@@ -408,7 +402,7 @@
 <span class="sd">        timeslice and the error on each timeslice.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>  <span class="c1"># We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>
         <span class="n">x_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_err_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
@@ -1467,9 +1461,6 @@
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
-
     <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 
@@ -1492,7 +1483,7 @@
 <span class="sd">        timeslice and the error on each timeslice.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>  <span class="c1"># We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>
         <span class="n">x_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_err_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
@@ -2552,25 +2543,6 @@ By default it will return the lowest source, which usually means unsmeared-unsme
 
 
                             </div>
-                            <div id="Corr.sum" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Corr.sum">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">sum</span><span class="signature">(self)</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="Corr.smearing" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Corr.smearing">#&nbsp;&nbsp</a>
 
@@ -2630,7 +2602,7 @@ Second index to be picked.</li>
 <span class="sd">        timeslice and the error on each timeslice.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>  <span class="c1"># We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can only make Corr[N=1] plottable&quot;</span><span class="p">)</span>
         <span class="n">x_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">y_err_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>

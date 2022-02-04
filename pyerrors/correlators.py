@@ -174,9 +174,6 @@ class Corr:
             newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
-    def sum(self):
-        return np.sqrt(self.N) * self.projected(np.ones(self.N))
-
     def smearing(self, i, j):
         """Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.
 
@@ -199,7 +196,7 @@ class Corr:
         timeslice and the error on each timeslice.
         """
         if self.N != 1:
-            raise Exception("Can only make Corr[N=1] plottable")  # We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.
+            raise Exception("Can only make Corr[N=1] plottable")
         x_list = [x for x in range(self.T) if not self.content[x] is None]
         y_list = [y[0].value for y in self.content if y is not None]
         y_err_list = [y[0].dvalue for y in self.content if y is not None]

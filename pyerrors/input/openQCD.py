@@ -3,6 +3,7 @@ import fnmatch
 import re
 import struct
 import numpy as np  # Thinly-wrapped numpy
+import warnings
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs
@@ -69,8 +70,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
             raise Exception('r_start does not match number of replicas')
-        # Adjust Configuration numbering to python index
-        r_start = [o - 1 if o else None for o in r_start]
+        r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
 
@@ -104,6 +104,10 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         print()
 
     deltas = []
+
+    configlist = []
+    r_start_index = []
+    r_stop_index = []
 
     for rep in range(replica):
         tmp_array = []
@@ -141,15 +145,13 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 if not struct.unpack('i', fp.read(4))[0] == 0:
                     print('something is wrong!')
 
-            if r_start[rep] is None:
-                r_start[rep] = 0
-
+            configlist.append([])
             while 0 < 1:
                 t = fp.read(4)
                 if len(t) < 4:
                     break
-                if print_err:
-                    config_no = struct.unpack('i', t)
+                config_no = struct.unpack('i', t)[0]
+                configlist[-1].append(config_no)
                 for i in range(nrw):
                     if(version == '2.0'):
                         tmpd = _read_array_openQCD2(fp)
@@ -179,14 +181,37 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                                 print('Sources:', np.exp(-np.asarray(tmp_rw)))
                                 print('Partial factor:', tmp_nfct)
                     tmp_array[i].append(tmp_nfct)
+
+            if r_start[rep] is None:
+                r_start_index.append(0)
+            else:
+                try:
+                    r_start_index.append(configlist[-1].index(r_start[rep]))
+                except ValueError:
+                    raise Exception('Config %d not in file with range [%d, %d]' % (
+                        r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
+
             if r_stop[rep] is None:
-                r_stop[rep] = len(tmp_array[0])
+                r_stop_index.append(len(configlist[-1]) - 1)
+            else:
+                try:
+                    r_stop_index.append(configlist[-1].index(r_stop[rep]))
+                except ValueError:
+                    raise Exception('Config %d not in file with range [%d, %d]' % (
+                        r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
+
             for k in range(nrw):
-                deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]][::r_step])
+                deltas[k].append(tmp_array[k][r_start_index[rep]:r_stop_index[rep]][::r_step])
+
+    if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
+        raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
+    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    if np.any([step != 1 for step in stepsizes]):
+        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
-    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(replica)]
+    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]], r_step) for rep in range(replica)]
     for t in range(nrw):
         result.append(Obs(deltas[t], rep_names, idl=idl))
     return result
@@ -262,7 +287,7 @@ def extract_t0(path, prefix, dtr_read, xmin,
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
             raise Exception('r_start does not match number of replicas')
-        r_start = [o - 1 if o else None for o in r_start]
+        r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
 
@@ -291,6 +316,10 @@ def extract_t0(path, prefix, dtr_read, xmin,
 
     Ysum = []
 
+    configlist = []
+    r_start_index = []
+    r_stop_index = []
+
     for rep in range(replica):
 
         with open(path + '/' + ls[rep], 'rb') as fp:
@@ -312,15 +341,13 @@ def extract_t0(path, prefix, dtr_read, xmin,
 
             Ysl = []
 
-            if r_start[rep] is None:
-                r_start[rep] = 0
-
-            cfgcount = -1
+            configlist.append([])
             while 0 < 1:
                 t = fp.read(4)
                 if(len(t) < 4):
                     break
                 nc = struct.unpack('i', t)[0]
+                configlist[-1].append(nc)
 
                 t = fp.read(8 * tmax * (nn + 1))
                 if kwargs.get('plaquette'):
@@ -332,16 +359,39 @@ def extract_t0(path, prefix, dtr_read, xmin,
                         Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
 
-                cfgcount += 1
-            if r_stop[rep] is None:
-                r_stop[rep] = cfgcount
         Ysum.append([])
         for i, item in enumerate(Ysl):
             Ysum[-1].append([np.mean(item[current + xmin:
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
 
-    idl = [range(r_start[rep] + 1, r_stop[rep] + 1, r_step) for rep in range(len(r_start))]
+        diffmeas = configlist[-1][-1] - configlist[-1][-2]
+        configlist[-1] = [item // diffmeas for item in configlist[-1]]
+        if r_start[rep] is None:
+            r_start_index.append(0)
+        else:
+            try:
+                r_start_index.append(configlist[-1].index(r_start[rep]))
+            except ValueError:
+                raise Exception('Config %d not in file with range [%d, %d]' % (
+                    r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
+
+        if r_stop[rep] is None:
+            r_stop_index.append(len(configlist[-1]) - 1)
+        else:
+            try:
+                r_stop_index.append(configlist[-1].index(r_stop[rep]))
+            except ValueError:
+                raise Exception('Config %d not in file with range [%d, %d]' % (
+                    r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
+
+    if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
+        raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
+    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    if np.any([step != 1 for step in stepsizes]):
+        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
+
+    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]], r_step) for rep in range(replica)]
     t2E_dict = {}
     for n in range(nn + 1):
         samples = []
@@ -349,7 +399,7 @@ def extract_t0(path, prefix, dtr_read, xmin,
             samples.append([])
             for cnfg in rep:
                 samples[-1].append(cnfg[n])
-            samples[-1] = samples[-1][r_start[nrep]:r_stop[nrep]][::r_step]
+            samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep]][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)
         t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
 

@@ -184,16 +184,16 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
                     break
 
                 # print(sub_ls)
-                for exc in sub_ls:
-                    if compact:
+                if compact:
+                    for exc in sub_ls:
                         if not fnmatch.fnmatch(exc, prefix + '*'):
                             sub_ls = list(set(sub_ls) - set([exc]))
-                        sub_ls.sort(key=lambda x:
-                                    int(re.findall(r'\d+', x)[-1]))
-                    else:
+                    sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+                else:
+                    for exc in sub_ls:
                         if not fnmatch.fnmatch(exc, 'cfg*'):
                             sub_ls = list(set(sub_ls) - set([exc]))
-                        sub_ls.sort(key=lambda x: int(x[3:]))
+                    sub_ls.sort(key=lambda x: int(x[3:]))
             # print(sub_ls)
             rep_idl = []
             no_cfg = len(sub_ls)

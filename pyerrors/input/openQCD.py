@@ -23,6 +23,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         list which contains the last config to be read for each replicum
     postfix : str
         postfix of the file to read, e.g. '.ms1' for openQCD-files
+    idl_offsets : list
+        offsets to the idl range of obs. Useful for the case that the measurements of rwms are only starting at cfg. 20
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if not (version in known_oqcd_versions):
@@ -165,13 +167,20 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 deltas[k].append(tmp_array[k][r_start[rep]:r_stop[rep]])
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
+    if "idl_offsets" in kwargs:
+        idl_offsets = kwargs.get("idl_offsets")
+    else:
+        idl_offsets = np.ones(nrw, dtype = int)
     result = []
     for t in range(nrw):
+        idl = []
+        for rep in range(replica):
+            idl.append(range(idl_offsets[rep],len(deltas[t][rep]+idl_offsets[rep])))
         if names is None:
-            result.append(Obs(deltas[t], rep_names))
+            result.append(Obs(deltas[t], rep_names, idl = idl))
         else:
             print(names)
-            result.append(Obs(deltas[t], names))
+            result.append(Obs(deltas[t], names, idl = idl))
     return result
 
 

@@ -170,17 +170,17 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if "idl_offsets" in kwargs:
         idl_offsets = kwargs.get("idl_offsets")
     else:
-        idl_offsets = np.ones(nrw, dtype = int)
+        idl_offsets = np.ones(nrw, dtype=int)
     result = []
     for t in range(nrw):
         idl = []
         for rep in range(replica):
-            idl.append(range(idl_offsets[rep],len(deltas[t][rep]+idl_offsets[rep])))
+            idl.append(range(idl_offsets[rep], len(deltas[t][rep] + idl_offsets[rep])))
         if names is None:
-            result.append(Obs(deltas[t], rep_names, idl = idl))
+            result.append(Obs(deltas[t], rep_names, idl=idl))
         else:
             print(names)
-            result.append(Obs(deltas[t], names, idl = idl))
+            result.append(Obs(deltas[t], names, idl=idl))
     return result
 
 

@@ -1123,14 +1123,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             raise Exception('Multi mode currently not supported for numerical derivative')
         options = {
             'base_step': 0.1,
-            'step_ratio': 2.5,
-            'num_steps': None,
-            'step_nom': None,
-            'offset': None,
-            'num_extrap': None,
-            'use_exact_steps': None,
-            'check_num_steps': None,
-            'scale': None}
+            'step_ratio': 2.5}
         for key in options.keys():
             kwarg = kwargs.get(key)
             if kwarg is not None:

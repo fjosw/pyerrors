@@ -9,8 +9,7 @@ from ..obs import Obs
 from . import utils
 
 
-def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
-              version="1.0c", **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type = 'bi', noffset=0, wf=0, wf2=0, version="1.0c", **kwargs):
     """Read sfcf c format from given folder structure.
 
     Parameters
@@ -30,13 +29,10 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
     im: bool
         if True, read imaginary instead of real part
         of the correlation function.
-    b2b: bool
-        if True, read a time-dependent boundary-to-boundary
-        correlation function
-    single: bool
-        if True, read time independent boundary to boundary
-        correlation function
-    names: list
+    corr_type : str
+        change between bi (boundary - inner) (default) bib (boundary - inner - boundary) and bb (boundary - boundary)
+        correlator types
+    names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length
     ens_name : str
@@ -55,8 +51,6 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
     check_configs:
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
-    TODO:
-    - whats going on with files here?
     """
     if kwargs.get('im'):
         im = 1
@@ -64,19 +58,19 @@ def read_sfcf(path, prefix, name, quarks='.*', noffset=0, wf=0, wf2=0,
     else:
         im = 0
         part = 'real'
-
-    if kwargs.get('single'):
-        b2b = 1
-        single = 1
-    else:
-        if kwargs.get('b2b'):
-            b2b = 1
-        else:
-            b2b = 0
-        single = 0
+    
     if "replica" in kwargs:
         reps = kwargs.get("replica")
 
+    if corr_type == 'bb':
+        b2b = True
+        single = True
+    elif corr_type == 'bib':
+        b2b = True
+        single = False
+    else:
+        b2b = False
+        single = False
     # due to higher usage in current projects,
     # compact file format is default
     compact = True

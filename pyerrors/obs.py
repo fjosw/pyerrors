@@ -288,8 +288,6 @@ class Obs:
             _compute_drho(1)
             if self.tau_exp[e_name] > 0:
                 texp = self.tau_exp[e_name]
-                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
-                #    texp /= self.idl[e_name].step
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")

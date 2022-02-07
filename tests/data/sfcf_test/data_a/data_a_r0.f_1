@@ -5,7 +5,7 @@ date        2022-01-19 11:04:03 +0100
 host        r04n07.palma.wwu
 dir         /scratch/tmp/j_kuhl19
 user        j_kuhl19
-gauge_name  /unity
+gauge_name  /data_a_r0_n1
 gauge_md5   1ea28326e4090996111a320b8372811d
 param_name  sfcf_unity_test.in
 param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
@@ -199,9 +199,10 @@ date        2022-01-19 11:04:05 +0100
 host        r04n07.palma.wwu
 dir         /scratch/tmp/j_kuhl19
 user        j_kuhl19
-gauge_name  /unity
+gauge_name  /data_a_r0_n2
 gauge_md5   1ea28326e4090996111a320b8372811d
 param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
 param_hash  686af5e712ee2902180f5428af94c6e7
 data_name   ./output_10519905/data_af_1
 
@@ -392,9 +393,10 @@ date        2022-01-19 11:04:07 +0100
 host        r04n07.palma.wwu
 dir         /scratch/tmp/j_kuhl19
 user        j_kuhl19
-gauge_name  /unity
+gauge_name  /data_a_r0_n3
 gauge_md5   1ea28326e4090996111a320b8372811d
 param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
 param_hash  686af5e712ee2902180f5428af94c6e7
 data_name   ./output_10519905/data_af_1
 
@@ -585,9 +587,10 @@ date        2022-01-19 11:04:09 +0100
 host        r04n07.palma.wwu
 dir         /scratch/tmp/j_kuhl19
 user        j_kuhl19
-gauge_name  /unity
+gauge_name  /data_a_r0_n4
 gauge_md5   1ea28326e4090996111a320b8372811d
 param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
 param_hash  686af5e712ee2902180f5428af94c6e7
 data_name   ./output_10519905/data_af_1
 
@@ -778,9 +781,10 @@ date        2022-01-19 11:04:11 +0100
 host        r04n07.palma.wwu
 dir         /scratch/tmp/j_kuhl19
 user        j_kuhl19
-gauge_name  /unity
+gauge_name  /data_a_r0_n5
 gauge_md5   1ea28326e4090996111a320b8372811d
 param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
 param_hash  686af5e712ee2902180f5428af94c6e7
 data_name   ./output_10519905/data_af_1
 

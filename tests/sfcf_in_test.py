@@ -67,12 +67,30 @@ def c_bb_test():
 
 def c_bi_test():
     build_test_environment("c",5,3)
-    f_1 = sfin.read_sfcf("data/sfcf_test/data_c", "data_c", "f_A", quarks="lquark lquark", wf = 0, version = "2.0c")
-    print(f_1)
+    f_A = sfin.read_sfcf("data/sfcf_test/data_c", "data_c", "f_A", quarks="lquark lquark", wf = 0, version = "2.0c")
+    print(f_A)
     clean_test_environment("c",5,3)
 
 def c_bib_test():
     build_test_environment("c",5,3)
-    f_V0 = sfin.read_sfcf("data/sfcf_test/data_c", "data_c", "F_V0",quarks="lquark lquark", wf = 0, wf2 = 0, version = "2.0c", b2b = True)
+    f_V0 = sfin.read_sfcf("data/sfcf_test/data_a", "data_c", "F_V0",quarks="lquark lquark", wf = 0, wf2 = 0, version = "2.0c", b2b = True)
     print(f_V0)
     clean_test_environment("c",5,3)
+
+def a_bb_test():
+    build_test_environment("a",5,3)
+    f_1 = sfin.read_sfcf("data/sfcf_test/data_a", "data_a", "f_1", quarks="lquark lquark", wf = 0, wf2=0, version = "2.0a", single = True)
+    print(f_1)
+    clean_test_environment("a",5,3)
+
+def a_bi_test():
+    build_test_environment("a",5,3)
+    f_A = sfin.read_sfcf("data/sfcf_test/data_a", "data_a", "f_A", quarks="lquark lquark", wf = 0, version = "2.0a")
+    print(f_A)
+    clean_test_environment("a",5,3)
+
+def a_bib_test():
+    build_test_environment("a",5,3)
+    f_V0 = sfin.read_sfcf("data/sfcf_test/data_a", "data_a", "F_V0",quarks="lquark lquark", wf = 0, wf2 = 0, version = "2.0a", b2b = True)
+    print(f_V0)
+    clean_test_environment("a",5,3)

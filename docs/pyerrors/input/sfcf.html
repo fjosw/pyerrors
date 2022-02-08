@@ -80,57 +80,46 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
 
 
-<span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-              <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read sfcf format from given folder structure.</span>
+<span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">corr_type</span><span class="o">=</span><span class="s1">&#39;bi&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        Path to the measurement files.</span>
-<span class="sd">    prefix : str</span>
-<span class="sd">        Ensemble prefix for which the data is to be extracted.</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Name of the correlation function to be extracted from the file</span>
-<span class="sd">    quarks: str, optional</span>
+<span class="sd">    quarks: str</span>
 <span class="sd">        Label of the quarks used in the sfcf input file. e.g. &quot;quark quark&quot;</span>
 <span class="sd">        for version 0.0 this does NOT need to be given with the typical &quot; - &quot;</span>
 <span class="sd">        that is present in the output file,</span>
 <span class="sd">        this is done automatically for this version</span>
-<span class="sd">    noffset: int, optional</span>
+<span class="sd">    noffset: int</span>
 <span class="sd">        Offset of the source (only relevant when wavefunctions are used)</span>
-<span class="sd">    wf: int, optional</span>
+<span class="sd">    wf: int</span>
 <span class="sd">        ID of wave function</span>
-<span class="sd">    wf2: int, optional</span>
+<span class="sd">    wf2: int</span>
 <span class="sd">        ID of the second wavefunction</span>
 <span class="sd">        (only relevant for boundary-to-boundary correlation functions)</span>
-<span class="sd">    im: bool, optional</span>
+<span class="sd">    im: bool</span>
 <span class="sd">        if True, read imaginary instead of real part</span>
 <span class="sd">        of the correlation function.</span>
-<span class="sd">    b2b: bool, optional</span>
-<span class="sd">        if True, read a time-dependent boundary-to-boundary</span>
-<span class="sd">        correlation function</span>
-<span class="sd">    single: bool, optional</span>
-<span class="sd">        if True, read time independent boundary to boundary</span>
-<span class="sd">        correlation function</span>
-<span class="sd">    names: list, optional</span>
+<span class="sd">    corr_type : str</span>
+<span class="sd">        change between bi (boundary - inner) (default) bib (boundary - inner - boundary) and bb (boundary - boundary)</span>
+<span class="sd">        correlator types</span>
+<span class="sd">    names : list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
-<span class="sd">    ens_name : str, optional</span>
+<span class="sd">    ens_name : str</span>
 <span class="sd">        replaces the name of the ensemble</span>
-<span class="sd">    version: str, optional</span>
+<span class="sd">    version: str</span>
 <span class="sd">        version of SFCF, with which the measurement was done.</span>
-<span class="sd">        if the compact output option (-c) was specified,</span>
+<span class="sd">        if the compact output option (-c) was spectified,</span>
 <span class="sd">        append a &quot;c&quot; to the version (e.g. &quot;1.0c&quot;)</span>
 <span class="sd">        if the append output option (-a) was specified,</span>
-<span class="sd">        append an &quot;a&quot; to the version. Currently supported versions</span>
-<span class="sd">        are &quot;0.0&quot;, &quot;1.0&quot;, &quot;2.0&quot;, &quot;1.0c&quot;, &quot;2.0c&quot;, &quot;1.0a&quot; and &quot;2.0a&quot;.</span>
-<span class="sd">    replica: list, optional</span>
+<span class="sd">        append an &quot;a&quot; to the version</span>
+<span class="sd">    replica: list</span>
 <span class="sd">        list of replica to be read, default is all</span>
-<span class="sd">    files: list, optional</span>
+<span class="sd">    files: list</span>
 <span class="sd">        list of files to be read per replica, default is all.</span>
-<span class="sd">        for non-compact output format, hand the folders to be read here.</span>
-<span class="sd">    check_configs: list, optional</span>
+<span class="sd">        for non-conpact ouztput format, hand the folders to be read here.</span>
+<span class="sd">    check_configs:</span>
 <span class="sd">        list of list of supposed configs, eg. [range(1,1000)]</span>
 <span class="sd">        for one replicum with 1000 configs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -140,25 +129,28 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">im</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">part</span> <span class="o">=</span> <span class="s1">&#39;real&#39;</span>
-
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;single&#39;</span><span class="p">):</span>
-        <span class="n">b2b</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">single</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;b2b&#39;</span><span class="p">):</span>
-            <span class="n">b2b</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">b2b</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">single</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="s2">&quot;replica&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">reps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replica&quot;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="n">corr_type</span> <span class="o">==</span> <span class="s1">&#39;bb&#39;</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">corr_type</span> <span class="o">==</span> <span class="s1">&#39;bib&#39;</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># due to higher usage in current projects,</span>
+    <span class="c1"># compact file format is default</span>
     <span class="n">compact</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">appended</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># get version string</span>
     <span class="n">known_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0c&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0a&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0a&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_versions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;This version is not known!&quot;</span><span class="p">)</span>
+    <span class="c1"># if the letter c is appended to the version,</span>
+    <span class="c1"># the compact fileformat is used (former read_sfcf_c)</span>
     <span class="k">if</span><span class="p">(</span><span class="n">version</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">):</span>
         <span class="n">appended</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">compact</span> <span class="o">=</span> <span class="kc">True</span>
@@ -183,20 +175,22 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
             <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
         <span class="c1"># Exclude folders with different names</span>
         <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">):</span>
                 <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No matching directories found.&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># New version, to cope with ids, etc.</span>
+            <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">])</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="s2">&quot;part of &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; with prefix &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; replica)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read&#39;</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="s1">&#39;part of&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+          <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s1">&#39;names&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">new_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">new_names</span><span class="p">)):</span>
@@ -204,6 +198,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_names</span><span class="p">)</span> <span class="o">!=</span> <span class="n">replica</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Names does not have the required length&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Adjust replica names to new bookmarking system</span>
+
         <span class="n">new_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
@@ -224,6 +220,7 @@
             <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
                 <span class="n">myentry</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="c1"># print(myentry)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">idx</span> <span class="o">=</span> <span class="n">myentry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -233,6 +230,7 @@
                     <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ens_name&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">myentry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">myentry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">myentry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+            <span class="c1"># print(new_names)</span>
     <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ls</span><span class="p">):</span>
@@ -248,16 +246,18 @@
                         <span class="n">sub_ls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dirnames</span><span class="p">)</span>
                     <span class="k">break</span>
 
-                <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                <span class="c1"># print(sub_ls)</span>
+                <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">):</span>
                             <span class="n">sub_ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-                        <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
-                                    <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                    <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s1">&#39;cfg*&#39;</span><span class="p">):</span>
                             <span class="n">sub_ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-                        <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]))</span>
+                    <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]))</span>
+            <span class="c1"># print(sub_ls)</span>
             <span class="n">rep_idl</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">no_cfg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
@@ -269,88 +269,98 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directroy, problem with file &quot;</span> <span class="o">+</span> <span class="n">cfg</span><span class="p">)</span>
             <span class="n">rep_idl</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="c1"># maybe there is a better way to print the idls</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">no_cfg</span><span class="p">,</span> <span class="s1">&#39; configurations&#39;</span><span class="p">)</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rep_idl</span><span class="p">)</span>
+        <span class="c1"># here we have found all the files we need to look into.</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                <span class="c1"># here, we want to find the place within the file,</span>
+                <span class="c1"># where the correlator we need is stored.</span>
+                <span class="c1"># to do so, the pattern needed is put together</span>
+                <span class="c1"># from the input values</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
+                    <span class="n">pattern</span> <span class="o">=</span> <span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; : offset &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, wf &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+                    <span class="c1"># if b2b, a second wf is needed</span>
+                    <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
+                        <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot;, wf_2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
+                    <span class="n">qs</span> <span class="o">=</span> <span class="n">quarks</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                    <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">:</span>
+                            <span class="n">T</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
+                            <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; entries found.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
                     <span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">quarks    &#39;</span> <span class="o">+</span> <span class="n">quarks</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">offset    &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf        &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
                         <span class="n">pattern</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf_2      &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-                        <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-                            <span class="c1"># the start and end point of the correlator</span>
-                            <span class="c1"># in question is extracted for later use in</span>
-                            <span class="c1"># the other files</span>
-                            <span class="n">start_read</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">b2b</span>
-                            <span class="n">end_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\n\s*\n&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():])</span>
-                            <span class="n">T</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">b2b</span>
-                            <span class="k">assert</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;entries, starting to read in line&#39;</span><span class="p">,</span> <span class="n">start_read</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Correlator with pattern</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pattern</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">not found.&#39;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># this part does the same as above,</span>
-                    <span class="c1"># but for non-compactified versions of the files</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                <span class="c1"># check if this is really the right file</span>
-                                <span class="c1"># by matching pattern similar to above</span>
-                                <span class="n">pattern</span> <span class="o">=</span> <span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; : offset &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, wf &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
-                                <span class="c1"># if b2b, a second wf is needed</span>
-                                <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
-                                    <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot;, wf_2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
-                                <span class="n">qs</span> <span class="o">=</span> <span class="n">quarks</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-                                <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
-                                <span class="k">break</span>
-                            <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">:</span>
-                                <span class="n">T</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># and the file is parsed through to find the pattern</span>
+                    <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># for non-compactified versions of the files</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
 
-                            <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                                    <span class="c1"># print(line)</span>
-                                    <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
-                                    <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="s1">&#39;[correlator]&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                                    <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
-                                    <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">b2b</span>
-                                    <span class="n">T</span> <span class="o">-=</span> <span class="n">b2b</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; entries found.&quot;</span><span class="p">)</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="n">start_read</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">b2b</span>
+                        <span class="n">end_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\n\s*\n&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():])</span>
+                        <span class="n">T</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">b2b</span>
+                        <span class="k">assert</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;entries, starting to read in line&#39;</span><span class="p">,</span> <span class="n">start_read</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Correlator with pattern</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pattern</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">not found.&#39;</span><span class="p">)</span>
+                <span class="c1"># we found where the correlator</span>
+                <span class="c1"># that is to be read is in the files</span>
+                <span class="c1"># after preparing the datastructure</span>
+                <span class="c1"># the correlators get parsed into...</span>
                 <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
 
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                 <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_cfg</span><span class="p">))</span>
+            <span class="c1"># ...the actual parsing can start.</span>
             <span class="c1"># we iterate through all measurement files in the path given...</span>
             <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_cfg</span><span class="p">):</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
                         <span class="n">lines</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                        <span class="c1"># check, if the correlator is in fact</span>
+                        <span class="c1"># printed completely</span>
                         <span class="k">if</span><span class="p">(</span><span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
                             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;EOF before end of correlator data! Maybe &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; is corrupted?&quot;</span><span class="p">)</span>
+                        <span class="c1"># and start to read the correlator.</span>
+                        <span class="c1"># the range here is chosen like this,</span>
+                        <span class="c1"># since this allows for implementing</span>
+                        <span class="c1"># a security check for every read correlator later...</span>
                         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_read</span> <span class="o">-</span> <span class="mi">6</span><span class="p">,</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                             <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">start_read</span> <span class="o">-</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">b2b</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">:</span>
-                                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong format&#39;</span><span class="p">,</span>
-                                                    <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span>
+                                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong format&#39;</span><span class="p">,</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span>
                             <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start_read</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                                 <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
                                 <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start_read</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][</span><span class="n">im</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">cnfg</span><span class="p">,</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">):</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subitem</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                        <span class="c1"># since the non-compatified files</span>
+                        <span class="c1"># are typically not so long,</span>
+                        <span class="c1"># we can iterate over the whole file.</span>
+                        <span class="c1"># here one can also implement the chekc from above.</span>
                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
-                            <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
+                            <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start_read</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                                 <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
                                 <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span><span class="p">]</span>
+                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
                                 <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
+                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start_read</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -360,8 +370,6 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">):</span>
                     <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
                 <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;File(s) for correlator &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; not found.&#39;</span><span class="p">)</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">quarks    &#39;</span> <span class="o">+</span> <span class="n">quarks</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">offset    &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf        &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
             <span class="n">pattern</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf_2      &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
@@ -373,9 +381,9 @@
                 <span class="k">for</span> <span class="n">linenumber</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
                     <span class="k">if</span> <span class="s2">&quot;[run]&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                         <span class="n">data_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">linenumber</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">data_starts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
-                            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">))]))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">data_starts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">))]))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Irregularities in file structure found, not all runs have the same output length&quot;</span><span class="p">)</span>
+                <span class="c1"># first chunk of data</span>
                 <span class="n">chunk</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">data_starts</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
                 <span class="k">for</span> <span class="n">linenumber</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gauge_name&quot;</span><span class="p">):</span>
@@ -383,25 +391,31 @@
                     <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[correlator]&quot;</span><span class="p">):</span>
                         <span class="n">corr_line</span> <span class="o">=</span> <span class="n">linenumber</span>
                         <span class="n">found_pat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
                             <span class="n">found_pat</span> <span class="o">+=</span> <span class="n">li</span>
                         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">found_pat</span><span class="p">):</span>
                             <span class="n">start_read</span> <span class="o">=</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">b2b</span>
-                            <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">start_read</span>
+                            <span class="k">break</span>
+                <span class="n">endline</span> <span class="o">=</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">[</span><span class="n">endline</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                    <span class="n">endline</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">endline</span> <span class="o">-</span> <span class="n">start_read</span>
                 <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                         <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">)))</span>
+                <span class="c1"># all other chunks should follow the same structure</span>
                 <span class="k">for</span> <span class="n">cnfg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">)):</span>
                     <span class="n">start</span> <span class="o">=</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">cnfg</span><span class="p">]</span>
                     <span class="n">stop</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">data_starts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">chunk</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
+                    <span class="c1"># meta_data = {}</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">rep_idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="n">gauge_line</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directroy, problem with chunk around line &quot;</span> <span class="o">+</span> <span class="n">gauge_line</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directory, problem with chunk around line &quot;</span><span class="p">,</span> <span class="n">gauge_line</span><span class="p">)</span>
 
                     <span class="n">found_pat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                     <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
@@ -409,7 +423,7 @@
                     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">found_pat</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="n">start_read</span><span class="p">:</span><span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">]):</span>
                             <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-                            <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">rep</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][</span><span class="n">im</span><span class="p">]</span>
+                            <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">rep</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rep_idl</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;check_configs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -440,6 +454,7 @@
     prefix,
     name,
     quarks=&#39;.*&#39;,
+    corr_type=&#39;bi&#39;,
     noffset=0,
     wf=0,
     wf2=0,
@@ -450,57 +465,46 @@
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-              <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read sfcf format from given folder structure.</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_sfcf</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">quarks</span><span class="o">=</span><span class="s1">&#39;.*&#39;</span><span class="p">,</span> <span class="n">corr_type</span><span class="o">=</span><span class="s1">&#39;bi&#39;</span><span class="p">,</span> <span class="n">noffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">wf2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read sfcf c format from given folder structure.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        Path to the measurement files.</span>
-<span class="sd">    prefix : str</span>
-<span class="sd">        Ensemble prefix for which the data is to be extracted.</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Name of the correlation function to be extracted from the file</span>
-<span class="sd">    quarks: str, optional</span>
+<span class="sd">    quarks: str</span>
 <span class="sd">        Label of the quarks used in the sfcf input file. e.g. &quot;quark quark&quot;</span>
 <span class="sd">        for version 0.0 this does NOT need to be given with the typical &quot; - &quot;</span>
 <span class="sd">        that is present in the output file,</span>
 <span class="sd">        this is done automatically for this version</span>
-<span class="sd">    noffset: int, optional</span>
+<span class="sd">    noffset: int</span>
 <span class="sd">        Offset of the source (only relevant when wavefunctions are used)</span>
-<span class="sd">    wf: int, optional</span>
+<span class="sd">    wf: int</span>
 <span class="sd">        ID of wave function</span>
-<span class="sd">    wf2: int, optional</span>
+<span class="sd">    wf2: int</span>
 <span class="sd">        ID of the second wavefunction</span>
 <span class="sd">        (only relevant for boundary-to-boundary correlation functions)</span>
-<span class="sd">    im: bool, optional</span>
+<span class="sd">    im: bool</span>
 <span class="sd">        if True, read imaginary instead of real part</span>
 <span class="sd">        of the correlation function.</span>
-<span class="sd">    b2b: bool, optional</span>
-<span class="sd">        if True, read a time-dependent boundary-to-boundary</span>
-<span class="sd">        correlation function</span>
-<span class="sd">    single: bool, optional</span>
-<span class="sd">        if True, read time independent boundary to boundary</span>
-<span class="sd">        correlation function</span>
-<span class="sd">    names: list, optional</span>
+<span class="sd">    corr_type : str</span>
+<span class="sd">        change between bi (boundary - inner) (default) bib (boundary - inner - boundary) and bb (boundary - boundary)</span>
+<span class="sd">        correlator types</span>
+<span class="sd">    names : list</span>
 <span class="sd">        Alternative labeling for replicas/ensembles.</span>
 <span class="sd">        Has to have the appropriate length</span>
-<span class="sd">    ens_name : str, optional</span>
+<span class="sd">    ens_name : str</span>
 <span class="sd">        replaces the name of the ensemble</span>
-<span class="sd">    version: str, optional</span>
+<span class="sd">    version: str</span>
 <span class="sd">        version of SFCF, with which the measurement was done.</span>
-<span class="sd">        if the compact output option (-c) was specified,</span>
+<span class="sd">        if the compact output option (-c) was spectified,</span>
 <span class="sd">        append a &quot;c&quot; to the version (e.g. &quot;1.0c&quot;)</span>
 <span class="sd">        if the append output option (-a) was specified,</span>
-<span class="sd">        append an &quot;a&quot; to the version. Currently supported versions</span>
-<span class="sd">        are &quot;0.0&quot;, &quot;1.0&quot;, &quot;2.0&quot;, &quot;1.0c&quot;, &quot;2.0c&quot;, &quot;1.0a&quot; and &quot;2.0a&quot;.</span>
-<span class="sd">    replica: list, optional</span>
+<span class="sd">        append an &quot;a&quot; to the version</span>
+<span class="sd">    replica: list</span>
 <span class="sd">        list of replica to be read, default is all</span>
-<span class="sd">    files: list, optional</span>
+<span class="sd">    files: list</span>
 <span class="sd">        list of files to be read per replica, default is all.</span>
-<span class="sd">        for non-compact output format, hand the folders to be read here.</span>
-<span class="sd">    check_configs: list, optional</span>
+<span class="sd">        for non-conpact ouztput format, hand the folders to be read here.</span>
+<span class="sd">    check_configs:</span>
 <span class="sd">        list of list of supposed configs, eg. [range(1,1000)]</span>
 <span class="sd">        for one replicum with 1000 configs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -510,25 +514,28 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">im</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">part</span> <span class="o">=</span> <span class="s1">&#39;real&#39;</span>
-
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;single&#39;</span><span class="p">):</span>
-        <span class="n">b2b</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">single</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;b2b&#39;</span><span class="p">):</span>
-            <span class="n">b2b</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">b2b</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">single</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="s2">&quot;replica&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">reps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replica&quot;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="n">corr_type</span> <span class="o">==</span> <span class="s1">&#39;bb&#39;</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">corr_type</span> <span class="o">==</span> <span class="s1">&#39;bib&#39;</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b2b</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># due to higher usage in current projects,</span>
+    <span class="c1"># compact file format is default</span>
     <span class="n">compact</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">appended</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># get version string</span>
     <span class="n">known_versions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0c&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0c&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0a&quot;</span><span class="p">,</span> <span class="s2">&quot;2.0a&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_versions</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;This version is not known!&quot;</span><span class="p">)</span>
+    <span class="c1"># if the letter c is appended to the version,</span>
+    <span class="c1"># the compact fileformat is used (former read_sfcf_c)</span>
     <span class="k">if</span><span class="p">(</span><span class="n">version</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">):</span>
         <span class="n">appended</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">compact</span> <span class="o">=</span> <span class="kc">True</span>
@@ -553,20 +560,22 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
             <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error, directory not found&#39;</span><span class="p">)</span>
         <span class="c1"># Exclude folders with different names</span>
         <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">):</span>
                 <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ls</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No matching directories found.&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># New version, to cope with ids, etc.</span>
+            <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):])[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">replica</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">])</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="s2">&quot;part of &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; with prefix &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; replica)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Read&#39;</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="s1">&#39;part of&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+          <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">,</span> <span class="s1">&#39;replica&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s1">&#39;names&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">new_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">new_names</span><span class="p">)):</span>
@@ -574,6 +583,8 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_names</span><span class="p">)</span> <span class="o">!=</span> <span class="n">replica</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Names does not have the required length&#39;</span><span class="p">,</span> <span class="n">replica</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Adjust replica names to new bookmarking system</span>
+
         <span class="n">new_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
@@ -594,6 +605,7 @@
             <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
                 <span class="n">myentry</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="c1"># print(myentry)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">idx</span> <span class="o">=</span> <span class="n">myentry</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -603,6 +615,7 @@
                     <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ens_name&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">myentry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">new_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">myentry</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">myentry</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+            <span class="c1"># print(new_names)</span>
     <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">appended</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ls</span><span class="p">):</span>
@@ -618,16 +631,18 @@
                         <span class="n">sub_ls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dirnames</span><span class="p">)</span>
                     <span class="k">break</span>
 
-                <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                <span class="c1"># print(sub_ls)</span>
+                <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">):</span>
                             <span class="n">sub_ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-                        <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
-                                    <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                    <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="s1">&#39;cfg*&#39;</span><span class="p">):</span>
                             <span class="n">sub_ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
-                        <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]))</span>
+                    <span class="n">sub_ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]))</span>
+            <span class="c1"># print(sub_ls)</span>
             <span class="n">rep_idl</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">no_cfg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">sub_ls</span><span class="p">:</span>
@@ -639,88 +654,98 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directroy, problem with file &quot;</span> <span class="o">+</span> <span class="n">cfg</span><span class="p">)</span>
             <span class="n">rep_idl</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="c1"># maybe there is a better way to print the idls</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">no_cfg</span><span class="p">,</span> <span class="s1">&#39; configurations&#39;</span><span class="p">)</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rep_idl</span><span class="p">)</span>
+        <span class="c1"># here we have found all the files we need to look into.</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                <span class="c1"># here, we want to find the place within the file,</span>
+                <span class="c1"># where the correlator we need is stored.</span>
+                <span class="c1"># to do so, the pattern needed is put together</span>
+                <span class="c1"># from the input values</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
+                    <span class="n">pattern</span> <span class="o">=</span> <span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; : offset &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, wf &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+                    <span class="c1"># if b2b, a second wf is needed</span>
+                    <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
+                        <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot;, wf_2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
+                    <span class="n">qs</span> <span class="o">=</span> <span class="n">quarks</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                    <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">:</span>
+                            <span class="n">T</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
+                            <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; entries found.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
                     <span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">quarks    &#39;</span> <span class="o">+</span> <span class="n">quarks</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">offset    &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf        &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
                         <span class="n">pattern</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf_2      &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-                        <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-                            <span class="c1"># the start and end point of the correlator</span>
-                            <span class="c1"># in question is extracted for later use in</span>
-                            <span class="c1"># the other files</span>
-                            <span class="n">start_read</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">b2b</span>
-                            <span class="n">end_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\n\s*\n&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():])</span>
-                            <span class="n">T</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">b2b</span>
-                            <span class="k">assert</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;entries, starting to read in line&#39;</span><span class="p">,</span> <span class="n">start_read</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Correlator with pattern</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pattern</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">not found.&#39;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># this part does the same as above,</span>
-                    <span class="c1"># but for non-compactified versions of the files</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                <span class="c1"># check if this is really the right file</span>
-                                <span class="c1"># by matching pattern similar to above</span>
-                                <span class="n">pattern</span> <span class="o">=</span> <span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; : offset &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, wf &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
-                                <span class="c1"># if b2b, a second wf is needed</span>
-                                <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
-                                    <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot;, wf_2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
-                                <span class="n">qs</span> <span class="o">=</span> <span class="n">quarks</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-                                <span class="n">pattern</span> <span class="o">+=</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; - &quot;</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
-                                <span class="k">break</span>
-                            <span class="k">if</span> <span class="n">read</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">:</span>
-                                <span class="n">T</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># and the file is parsed through to find the pattern</span>
+                    <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># for non-compactified versions of the files</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
 
-                            <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                                    <span class="c1"># print(line)</span>
-                                    <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
-                                    <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="s1">&#39;[correlator]&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                                    <span class="n">read</span> <span class="o">=</span> <span class="mi">1</span>
-                                    <span class="n">start</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">b2b</span>
-                                    <span class="n">T</span> <span class="o">-=</span> <span class="n">b2b</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; entries found.&quot;</span><span class="p">)</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                        <span class="n">start_read</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">b2b</span>
+                        <span class="n">end_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\n\s*\n&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():])</span>
+                        <span class="n">T</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">():]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_match</span><span class="o">.</span><span class="n">start</span><span class="p">())</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">b2b</span>
+                        <span class="k">assert</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;entries, starting to read in line&#39;</span><span class="p">,</span> <span class="n">start_read</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Correlator with pattern</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pattern</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">not found.&#39;</span><span class="p">)</span>
+                <span class="c1"># we found where the correlator</span>
+                <span class="c1"># that is to be read is in the files</span>
+                <span class="c1"># after preparing the datastructure</span>
+                <span class="c1"># the correlators get parsed into...</span>
                 <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
 
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                 <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">no_cfg</span><span class="p">))</span>
+            <span class="c1"># ...the actual parsing can start.</span>
             <span class="c1"># we iterate through all measurement files in the path given...</span>
             <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_cfg</span><span class="p">):</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
                         <span class="n">lines</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                        <span class="c1"># check, if the correlator is in fact</span>
+                        <span class="c1"># printed completely</span>
                         <span class="k">if</span><span class="p">(</span><span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
                             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;EOF before end of correlator data! Maybe &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; is corrupted?&quot;</span><span class="p">)</span>
+                        <span class="c1"># and start to read the correlator.</span>
+                        <span class="c1"># the range here is chosen like this,</span>
+                        <span class="c1"># since this allows for implementing</span>
+                        <span class="c1"># a security check for every read correlator later...</span>
                         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_read</span> <span class="o">-</span> <span class="mi">6</span><span class="p">,</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                             <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">start_read</span> <span class="o">-</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">b2b</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">:</span>
-                                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong format&#39;</span><span class="p">,</span>
-                                                    <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span>
+                                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong format&#39;</span><span class="p">,</span> <span class="n">sub_ls</span><span class="p">[</span><span class="n">cfg</span><span class="p">])</span>
                             <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start_read</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                                 <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
                                 <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start_read</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][</span><span class="n">im</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">cnfg</span><span class="p">,</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub_ls</span><span class="p">):</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">subitem</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                        <span class="c1"># since the non-compatified files</span>
+                        <span class="c1"># are typically not so long,</span>
+                        <span class="c1"># we can iterate over the whole file.</span>
+                        <span class="c1"># here one can also implement the chekc from above.</span>
                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
-                            <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
+                            <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">start_read</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">):</span>
                                 <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
                                 <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;0.0&quot;</span><span class="p">:</span>
-                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span><span class="p">]</span>
+                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
                                 <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
+                                    <span class="n">deltas</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">start_read</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">im</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -730,8 +755,6 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;*.&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">):</span>
                     <span class="n">ls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">exc</span><span class="p">]))</span>
                 <span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;File(s) for correlator &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39; not found.&#39;</span><span class="p">)</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;name      &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">quarks    &#39;</span> <span class="o">+</span> <span class="n">quarks</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">offset    &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noffset</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf        &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">b2b</span><span class="p">:</span>
             <span class="n">pattern</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">wf_2      &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf2</span><span class="p">)</span>
@@ -743,9 +766,9 @@
                 <span class="k">for</span> <span class="n">linenumber</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
                     <span class="k">if</span> <span class="s2">&quot;[run]&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                         <span class="n">data_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">linenumber</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">data_starts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
-                            <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">))]))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">data_starts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">))]))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Irregularities in file structure found, not all runs have the same output length&quot;</span><span class="p">)</span>
+                <span class="c1"># first chunk of data</span>
                 <span class="n">chunk</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">data_starts</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
                 <span class="k">for</span> <span class="n">linenumber</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gauge_name&quot;</span><span class="p">):</span>
@@ -753,25 +776,31 @@
                     <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[correlator]&quot;</span><span class="p">):</span>
                         <span class="n">corr_line</span> <span class="o">=</span> <span class="n">linenumber</span>
                         <span class="n">found_pat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
                             <span class="n">found_pat</span> <span class="o">+=</span> <span class="n">li</span>
                         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">found_pat</span><span class="p">):</span>
                             <span class="n">start_read</span> <span class="o">=</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">b2b</span>
-                            <span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">start_read</span>
+                            <span class="k">break</span>
+                <span class="n">endline</span> <span class="o">=</span> <span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">[</span><span class="n">endline</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                    <span class="n">endline</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">endline</span> <span class="o">-</span> <span class="n">start_read</span>
                 <span class="k">if</span> <span class="n">rep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">deltas</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                         <span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
                     <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">)))</span>
+                <span class="c1"># all other chunks should follow the same structure</span>
                 <span class="k">for</span> <span class="n">cnfg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_starts</span><span class="p">)):</span>
                     <span class="n">start</span> <span class="o">=</span> <span class="n">data_starts</span><span class="p">[</span><span class="n">cnfg</span><span class="p">]</span>
                     <span class="n">stop</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">data_starts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">chunk</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
+                    <span class="c1"># meta_data = {}</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">rep_idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="n">gauge_line</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directroy, problem with chunk around line &quot;</span> <span class="o">+</span> <span class="n">gauge_line</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse idl from directory, problem with chunk around line &quot;</span><span class="p">,</span> <span class="n">gauge_line</span><span class="p">)</span>
 
                     <span class="n">found_pat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                     <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">[</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">corr_line</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">b2b</span><span class="p">]:</span>
@@ -779,7 +808,7 @@
                     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">found_pat</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="n">start_read</span><span class="p">:</span><span class="n">start_read</span> <span class="o">+</span> <span class="n">T</span><span class="p">]):</span>
                             <span class="n">floats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-                            <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">rep</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][</span><span class="n">im</span><span class="p">]</span>
+                            <span class="n">deltas</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">rep</span><span class="p">][</span><span class="n">cnfg</span><span class="p">]</span> <span class="o">=</span> <span class="n">floats</span><span class="p">[</span><span class="n">im</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">single</span><span class="p">]</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rep_idl</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;check_configs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -799,57 +828,46 @@
 
         </details>
 
-            <div class="docstring"><p>Read sfcf format from given folder structure.</p>
+            <div class="docstring"><p>Read sfcf c format from given folder structure.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>path</strong> (str):
-Path to the measurement files.</li>
-<li><strong>prefix</strong> (str):
-Ensemble prefix for which the data is to be extracted.</li>
-<li><strong>name</strong> (str):
-Name of the correlation function to be extracted from the file</li>
-<li><strong>quarks</strong> (str, optional):
+<li><strong>quarks</strong> (str):
 Label of the quarks used in the sfcf input file. e.g. "quark quark"
 for version 0.0 this does NOT need to be given with the typical " - "
 that is present in the output file,
 this is done automatically for this version</li>
-<li><strong>noffset</strong> (int, optional):
+<li><strong>noffset</strong> (int):
 Offset of the source (only relevant when wavefunctions are used)</li>
-<li><strong>wf</strong> (int, optional):
+<li><strong>wf</strong> (int):
 ID of wave function</li>
-<li><strong>wf2</strong> (int, optional):
+<li><strong>wf2</strong> (int):
 ID of the second wavefunction
 (only relevant for boundary-to-boundary correlation functions)</li>
-<li><strong>im</strong> (bool, optional):
+<li><strong>im</strong> (bool):
 if True, read imaginary instead of real part
 of the correlation function.</li>
-<li><strong>b2b</strong> (bool, optional):
-if True, read a time-dependent boundary-to-boundary
-correlation function</li>
-<li><strong>single</strong> (bool, optional):
-if True, read time independent boundary to boundary
-correlation function</li>
-<li><strong>names</strong> (list, optional):
+<li><strong>corr_type</strong> (str):
+change between bi (boundary - inner) (default) bib (boundary - inner - boundary) and bb (boundary - boundary)
+correlator types</li>
+<li><strong>names</strong> (list):
 Alternative labeling for replicas/ensembles.
 Has to have the appropriate length</li>
-<li><strong>ens_name</strong> (str, optional):
+<li><strong>ens_name</strong> (str):
 replaces the name of the ensemble</li>
-<li><strong>version</strong> (str, optional):
+<li><strong>version</strong> (str):
 version of SFCF, with which the measurement was done.
-if the compact output option (-c) was specified,
+if the compact output option (-c) was spectified,
 append a "c" to the version (e.g. "1.0c")
 if the append output option (-a) was specified,
-append an "a" to the version. Currently supported versions
-are "0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a" and "2.0a".</li>
-<li><strong>replica</strong> (list, optional):
+append an "a" to the version</li>
+<li><strong>replica</strong> (list):
 list of replica to be read, default is all</li>
-<li><strong>files</strong> (list, optional):
+<li><strong>files</strong> (list):
 list of files to be read per replica, default is all.
-for non-compact output format, hand the folders to be read here.</li>
-<li><strong>check_configs</strong> (list, optional):
-list of list of supposed configs, eg. [range(1,1000)]
+for non-conpact ouztput format, hand the folders to be read here.</li>
+<li><strong>check_configs:</strong>: list of list of supposed configs, eg. [range(1,1000)]
 for one replicum with 1000 configs</li>
 </ul>
 </div>

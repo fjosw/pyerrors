@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import fnmatch
 import re
@@ -39,7 +36,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         replaces the name of the ensemble
     version: str
         version of SFCF, with which the measurement was done.
-        if the compact output option (-c) was spectified,
+        if the compact output option (-c) was specified,
         append a "c" to the version (e.g. "1.0c")
         if the append output option (-a) was specified,
         append an "a" to the version
@@ -47,7 +44,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         list of replica to be read, default is all
     files: list
         list of files to be read per replica, default is all.
-        for non-conpact ouztput format, hand the folders to be read here.
+        for non-compact output format, hand the folders to be read here.
     check_configs:
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
@@ -69,17 +66,12 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     else:
         b2b = False
         single = False
-    # due to higher usage in current projects,
-    # compact file format is default
     compact = True
     appended = False
-    # get version string
     known_versions = ["0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a", "2.0a"]
 
     if version not in known_versions:
         raise Exception("This version is not known!")
-    # if the letter c is appended to the version,
-    # the compact fileformat is used (former read_sfcf_c)
     if(version[-1] == "c"):
         appended = False
         compact = True
@@ -127,8 +119,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         if len(new_names) != replica:
             raise Exception('Names does not have the required length', replica)
     else:
-        # Adjust replica names to new bookmarking system
-
         new_names = []
         if not appended:
             for entry in ls:
@@ -149,7 +139,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
             for entry in ls:
                 myentry = entry[:-len(name) - 1]
-                # print(myentry)
                 try:
                     idx = myentry.index('r')
                 except Exception:
@@ -159,7 +148,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     new_names.append(kwargs.get('ens_name') + '|' + myentry[idx:])
                 else:
                     new_names.append(myentry[:idx] + '|' + myentry[idx:])
-            # print(new_names)
     idl = []
     if not appended:
         for i, item in enumerate(ls):
@@ -174,8 +162,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     else:
                         sub_ls.extend(dirnames)
                     break
-
-                # print(sub_ls)
                 if compact:
                     for exc in sub_ls:
                         if not fnmatch.fnmatch(exc, prefix + '*'):
@@ -186,7 +172,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         if not fnmatch.fnmatch(exc, 'cfg*'):
                             sub_ls = list(set(sub_ls) - set([exc]))
                     sub_ls.sort(key=lambda x: int(x[3:]))
-            # print(sub_ls)
             rep_idl = []
             no_cfg = len(sub_ls)
             for cfg in sub_ls:
@@ -201,7 +186,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             # maybe there is a better way to print the idls
             print(item, ':', no_cfg, ' configurations')
             idl.append(rep_idl)
-        # here we have found all the files we need to look into.
+            # here we have found all the files we need to look into.
             if i == 0:
                 # here, we want to find the place within the file,
                 # where the correlator we need is stored.
@@ -255,8 +240,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
 
             for t in range(T):
                 deltas[t].append(np.zeros(no_cfg))
-            # ...the actual parsing can start.
-            # we iterate through all measurement files in the path given...
             if compact:
                 for cfg in range(no_cfg):
                     with open(path + '/' + item + '/' + sub_ls[cfg]) as fp:
@@ -312,7 +295,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         data_starts.append(linenumber)
                 if len(set([data_starts[i] - data_starts[i - 1] for i in range(1, len(data_starts))])) > 1:
                     raise Exception("Irregularities in file structure found, not all runs have the same output length")
-                # first chunk of data
                 chunk = content[:data_starts[1]]
                 for linenumber, line in enumerate(chunk):
                     if line.startswith("gauge_name"):
@@ -340,7 +322,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     start = data_starts[cnfg]
                     stop = start + data_starts[1]
                     chunk = content[start:stop]
-                    # meta_data = {}
                     try:
                         rep_idl.append(int(chunk[gauge_line].split("n")[-1]))
                     except Exception:

@@ -16,10 +16,10 @@ class Corr:
     Everything, this class does, can be achieved using lists or arrays of Obs.
     But it is simply more convenient to have a dedicated object for correlators.
     One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
-    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.
+    to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.
+    matrix at every timeslice. Other dependency (eg. spatial) are not supported.
 
     """
 
@@ -174,7 +174,7 @@ class Corr:
             newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
-    def smearing(self, i, j):
+    def item(self, i, j):
         """Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.
 
         Parameters
@@ -185,7 +185,7 @@ class Corr:
             Second index to be picked.
         """
         if self.N == 1:
-            raise Exception("Trying to pick smearing from projected Corr")
+            raise Exception("Trying to pick item from projected Corr")
         newcontent = [None if(item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
@@ -239,13 +239,13 @@ class Corr:
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
-    def smearing_symmetric(self):
-        """Symmetrizes the matrices and therefore make them positive definite."""
+    def matrix_symmetric(self):
+        """Symmetrizes the correlator matrices on every timeslice."""
         if self.N > 1:
             transposed = [None if (G is None) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
         if self.N == 1:
-            raise Exception("Trying to symmetrize a smearing matrix, that already has N=1.")
+            raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
 
     def GEVP(self, t0, ts=None, state=0, sorted_list=None):
         """Solve the general eigenvalue problem on the current correlator
@@ -307,7 +307,7 @@ class Corr:
         return all_vecs
 
     def Eigenvalue(self, t0, state=1):
-        G = self.smearing_symmetric()
+        G = self.matrix_symmetric()
         G0 = G.content[t0]
         L = cholesky(G0)
         Li = inv(L)
@@ -798,8 +798,6 @@ class Corr:
             content_string += "Description: " + self.tag + "\n"
         if self.N != 1:
             return content_string
-        # This avoids a crash for N>1. I do not know, what else to do here. I like the list representation for N==1. We could print only one "smearing" or one matrix. Printing everything will just
-        # be a wall of numbers.
 
         if range[1]:
             range[1] += 1
@@ -878,8 +876,6 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / y.content[t])
-            # Here we set the entire timeslice to undefined, if one of the smearings has encountered an division by zero.
-            # While this might throw away perfectly good values in other smearings, we will never have to check, if all values in our matrix are defined
             for t in range(self.T):
                 if newcontent[t] is None:
                     continue

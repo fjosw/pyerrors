@@ -84,6 +84,33 @@ def test_least_squares():
     assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
 
 
+def test_alternative_solvers():
+    dim = 192
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = 0.1 + 0.1 * np.random.rand(dim)
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    def func(a, x):
+        y = a[0] * np.exp(-a[1] * x)
+        return y
+
+    chisquare_values = []
+    out = pe.least_squares(x, oy, func, method='migrad')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Powell')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Nelder-Mead')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Levenberg-Marquardt')
+    chisquare_values.append(out.chisquare)
+    chisquare_values = np.array(chisquare_values)
+    assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
+
+
 def test_correlated_fit():
     num_samples = 400
     N = 10
@@ -93,10 +120,9 @@ def test_correlated_fit():
     r = np.zeros((N, N))
     for i in range(N):
         for j in range(N):
-            r[i, j] = np.exp(-0.1 * np.fabs(i - j))
+            r[i, j] = np.exp(-0.8 * np.fabs(i - j))
 
     errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2])
-    errl *= 4
     for i in range(N):
         for j in range(N):
             r[i, j] *= errl[i] * errl[j]
@@ -127,7 +153,7 @@ def test_correlated_fit():
         for i in range(2):
             diff = fitp[i] - fitpc[i]
             diff.gamma_method()
-            assert(diff.is_zero_within_error(sigma=1.5))
+            assert(diff.is_zero_within_error(sigma=5))
 
 
 def test_total_least_squares():
@@ -308,6 +334,25 @@ def test_error_band():
         pe.fits.error_band(x, f, fitp.fit_parameters)
     fitp.gamma_method()
     pe.fits.error_band(x, f, fitp.fit_parameters)
+
+
+def test_ks_test():
+    def f(a, x):
+        y = a[0] + a[1] * x
+        return y
+
+    fit_res = []
+
+    for i in range(20):
+        data = []
+        for j in range(10):
+            data.append(pe.pseudo_Obs(j + np.random.normal(0.0, 0.25), 0.25, 'test'))
+        my_corr = pe.Corr(data)
+
+        fit_res.append(my_corr.fit(f, silent=True))
+
+    pe.fits.ks_test()
+    pe.fits.ks_test(fit_res)
 
 
 def fit_general(x, y, func, silent=False, **kwargs):

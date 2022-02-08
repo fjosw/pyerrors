@@ -31,6 +31,13 @@ def test_function_overloading():
             assert np.isclose(con[0].dvalue, t2.dvalue)
             assert np.allclose(con[0].deltas['t'], t2.deltas['t'])
 
+    np.arcsin(corr_a)
+    np.arccos(corr_a)
+    np.arctan(corr_a)
+    np.arcsinh(corr_a)
+    np.arccosh(corr_a + 1.1)
+    np.arctanh(corr_a)
+
 
 def test_modify_correlator():
     corr_content = []
@@ -38,24 +45,58 @@ def test_modify_correlator():
         exponent = np.random.normal(3, 5)
         corr_content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
 
-    corr = pe.correlators.Corr(corr_content)
+    corr = pe.Corr(corr_content)
 
     with pytest.warns(RuntimeWarning):
         corr.symmetric()
     with pytest.warns(RuntimeWarning):
         corr.anti_symmetric()
-    corr.roll(np.random.randint(100))
-    corr.deriv(symmetric=True)
-    corr.deriv(symmetric=False)
-    corr.second_deriv()
+
+    for pad in [0, 2]:
+        corr = pe.Corr(corr_content, padding=[pad, pad])
+        corr.roll(np.random.randint(100))
+        corr.deriv(variant="forward")
+        corr.deriv(variant="symmetric")
+        corr.deriv(variant="improved")
+        corr.deriv().deriv()
+        corr.second_deriv(variant="symmetric")
+        corr.second_deriv(variant="improved")
+        corr.second_deriv().second_deriv()
+
+    for i, e in enumerate(corr.content):
+        corr.content[i] = None
+
+    for func in [pe.Corr.deriv, pe.Corr.second_deriv]:
+        for variant in ["symmetric", "improved", "forward", "gibberish", None]:
+            with pytest.raises(Exception):
+                func(corr, variant=variant)
+
+
+def test_deriv():
+    corr_content = []
+    for t in range(24):
+        exponent = 1.2
+        corr_content.append(pe.pseudo_Obs(2 + t ** exponent, 0.2, 't'))
+
+    corr = pe.Corr(corr_content)
+
+    forward = corr.deriv(variant="forward")
+    backward = corr.deriv(variant="backward")
+    sym = corr.deriv(variant="symmetric")
+    assert np.all([o == 0 for o in (0.5 * (forward + backward) - sym)[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('forward').deriv('backward') - corr.second_deriv())[1:-1]])
+    assert np.all([o == 0 for o in (corr.deriv('backward').deriv('forward') - corr.second_deriv())[1:-1]])
 
 
 def test_m_eff():
-    my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(8, 0.1, 't'), pe.pseudo_Obs(7, 0.05, 't')])
-    my_corr.m_eff('log')
-    my_corr.m_eff('cosh')
-    my_corr.m_eff('sinh')
-    my_corr.m_eff('arccosh')
+    for padding in [0, 4]:
+        my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')], padding=[padding, padding])
+        my_corr.m_eff('log')
+        my_corr.m_eff('cosh')
+        my_corr.m_eff('arccosh')
+
+    with pytest.warns(RuntimeWarning):
+        my_corr.m_eff('sinh')
 
 
 def test_reweighting():
@@ -99,6 +140,31 @@ def test_plateau():
     with pytest.raises(Exception):
         my_corr.plateau()
 
+
+def test_padded_correlator():
+    my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']) for o in range(8)]
+    my_corr = pe.Corr(my_list, padding=[7, 3])
+    my_corr.reweighted
+    [o for o in my_corr]
+
+
+def test_corr_exceptions():
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 99)], ['test'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'], idl=[range(1, 200, 2)])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+    obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
+    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
+    with pytest.raises(Exception):
+        pe.Corr([obs_a, obs_b])
+
+
 def test_utility():
     corr_content = []
     for t in range(8):
@@ -110,10 +176,68 @@ def test_utility():
     corr.print([2, 4])
     corr.show()
 
-    corr.dump('test_dump')
+    corr.dump('test_dump', datatype="pickle", path='.')
+    corr.dump('test_dump', datatype="pickle")
     new_corr = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
         assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
         assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+    corr.dump('test_dump', datatype="json.gz", path='.')
+    corr.dump('test_dump', datatype="json.gz")
+    new_corr = pe.input.json.load_json('test_dump')
+    os.remove('test_dump.json.gz')
+    for o_a, o_b in zip(corr.content, new_corr.content):
+        assert np.isclose(o_a[0].value, o_b[0].value)
+        assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
+        assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+
+def test_matrix_corr():
+    def _gen_corr(val):
+        corr_content = []
+        for t in range(16):
+            corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
+
+        return pe.correlators.Corr(corr_content)
+
+    corr_aa = _gen_corr(1)
+    corr_ab = _gen_corr(0.5)
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.smearing(0, 0)
+
+    vec_0 = corr_mat.GEVP(0, 0)
+    vec_1 = corr_mat.GEVP(0, 0, state=1)
+
+    corr_0 = corr_mat.projected(vec_0)
+    corr_1 = corr_mat.projected(vec_1)
+
+    assert np.all([o == 0 for o in corr_0 - corr_aa])
+    assert np.all([o == 0 for o in corr_1 - corr_aa])
+
+    corr_mat.GEVP(0, 0, sorted_list="Eigenvalue")
+    corr_mat.GEVP(0, 0, sorted_list="Eigenvector")
+
+    with pytest.raises(Exception):
+        corr_mat.plottable()
+
+    with pytest.raises(Exception):
+        corr_mat.show()
+
+    with pytest.raises(Exception):
+        corr_mat.m_eff()
+
+    with pytest.raises(Exception):
+        corr_mat.Hankel()
+
+    with pytest.raises(Exception):
+        corr_mat.plateau()
+
+    with pytest.raises(Exception):
+        corr_mat.plateau([2, 4])
+
+    with pytest.raises(Exception):
+        corr_o.smearing(0, 0)

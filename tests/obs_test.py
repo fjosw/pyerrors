@@ -57,10 +57,16 @@ def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
-    test_obs.dump('test_dump')
+    test_obs.dump('test_dump', datatype="pickle", path=".")
+    test_obs.dump('test_dump', datatype="pickle")
     new_obs = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
-    assert test_obs.deltas['t'].all() == new_obs.deltas['t'].all()
+    assert test_obs == new_obs
+    test_obs.dump('test_dump', dataype="json.gz", path=".")
+    test_obs.dump('test_dump', dataype="json.gz")
+    new_obs = pe.input.json.load_json("test_dump")
+    os.remove('test_dump.json.gz')
+    assert test_obs == new_obs
 
 
 def test_comparison():
@@ -104,6 +110,12 @@ def test_function_overloading():
     assert np.exp(np.log(b)) == b
     assert np.sqrt(b ** 2) == b
     assert np.sqrt(b) ** 2 == b
+
+    np.arcsin(1 / b)
+    np.arccos(1 / b)
+    np.arctan(1 / b)
+    np.arctanh(1 / b)
+    np.sinc(1 / b)
 
 
 def test_overloading_vectorization():
@@ -292,14 +304,14 @@ def test_derived_observables():
     d_Obs_fd = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * np.sin(x[0] * x[1]), [test_obs, test_obs], num_grad=True)
     d_Obs_fd.gamma_method()
 
-    assert d_Obs_ad.value == d_Obs_fd.value
+    assert d_Obs_ad == d_Obs_fd
     assert np.abs(4.0 * np.sin(4.0) - d_Obs_ad.value) < 1000 * np.finfo(np.float64).eps * np.abs(d_Obs_ad.value)
     assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float64).eps * d_Obs_ad.dvalue
 
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
     i_am_one.gamma_method()
 
-    assert i_am_one.value == 1.0
+    assert i_am_one == 1.0
     assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
     assert i_am_one.e_dvalue['t'] <= 2 * np.finfo(np.float64).eps
     assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float64).eps
@@ -428,6 +440,14 @@ def test_reweighting():
     assert r_obs[0].reweighted
     r_obs2 = r_obs[0] * my_obs
     assert r_obs2.reweighted
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.reweight(my_obs, [my_covobs])
+    my_obs2 = pe.Obs([np.random.rand(1000)], ['t2'])
+    with pytest.raises(Exception):
+        pe.reweight(my_obs, [my_obs + my_obs2])
+    with pytest.raises(Exception):
+        pe.reweight(my_irregular_obs, [my_obs])
 
 
 def test_merge_obs():
@@ -436,6 +456,12 @@ def test_merge_obs():
     merged = pe.merge_obs([my_obs1, my_obs2])
     diff = merged - my_obs2 - my_obs1
     assert diff == -(my_obs1.value + my_obs2.value) / 2
+    with pytest.raises(Exception):
+        pe.merge_obs([my_obs1, my_obs1])
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.merge_obs([my_obs1, my_covobs])
+
 
 
 def test_merge_obs_r_values():
@@ -467,6 +493,17 @@ def test_correlate():
     my_obs6 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
     corr3 = pe.correlate(my_obs5, my_obs6)
     assert my_obs5.idl == corr3.idl
+
+    my_new_obs = pe.Obs([np.random.rand(100)], ['q3'])
+    with pytest.raises(Exception):
+        pe.correlate(my_obs1, my_new_obs)
+    my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
+    with pytest.raises(Exception):
+        pe.correlate(my_covobs, my_covobs)
+    r_obs = pe.reweight(my_obs1, [my_obs1])[0]
+    with pytest.warns(RuntimeWarning):
+        pe.correlate(r_obs, r_obs)
+
 
 
 def test_irregular_error_propagation():
@@ -583,7 +620,7 @@ def test_covariance_symmetry():
     cov_ab = pe.covariance(test_obs1, a)
     cov_ba = pe.covariance(a, test_obs1)
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
-    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+    assert np.abs(cov_ab) < test_obs1.dvalue * a.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
 def test_empty_obs():

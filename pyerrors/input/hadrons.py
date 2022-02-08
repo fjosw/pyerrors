@@ -1,6 +1,7 @@
 import os
 import h5py
 import numpy as np
+from collections import Counter
 from ..obs import Obs, CObs
 from ..correlators import Corr
 
@@ -32,6 +33,10 @@ def _get_files(path, filestem, idl):
             filtered_files.append(line)
             cnfg_numbers.append(no)
 
+    if idl:
+        if Counter(list(idl)) != Counter(cnfg_numbers):
+            raise Exception("Not all configurations specified in idl found, configurations " + str(list(Counter(list(idl)) - Counter(cnfg_numbers))) + " are missing.")
+
     # Check that configurations are evenly spaced
     dc = np.unique(np.diff(cnfg_numbers))
     if np.any(dc < 0):
@@ -58,16 +63,13 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=No
     meson : str
         label of the meson to be extracted, standard value meson_0 which
         corresponds to the pseudoscalar pseudoscalar two-point function.
-    tree : str
-        Label of the upmost directory in the hdf5 file, default 'meson'
-        for outputs of the Meson module. Can be altered to read input
-        from other modules with similar structures.
     idl : range
         If specified only configurations in the given range are read in.
     """
 
     files, idx = _get_files(path, filestem, idl)
 
+    tree = meson.rsplit('_')[0]
     corr_data = []
     infos = []
     for hd5_file in files:
@@ -155,7 +157,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
         raw_data = file['ExternalLeg/corr'][0][0].view('complex')
         corr_data.append(raw_data)
         if mom is None:
-            mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+            mom = np.array(str(file['ExternalLeg/info'].attrs['pIn'])[3:-2].strip().split(), dtype=float)
         file.close()
     corr_data = np.array(corr_data)
 
@@ -200,9 +202,9 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
             raw_data = file['Bilinear/Bilinear_' + str(i) + '/corr'][0][0].view('complex')
             corr_data[name].append(raw_data)
             if mom_in is None:
-                mom_in = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+                mom_in = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(), dtype=float)
             if mom_out is None:
-                mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
+                mom_out = np.array(str(file['Bilinear/Bilinear_' + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(), dtype=float)
 
         file.close()
 
@@ -265,9 +267,9 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
                 raw_data = file[tree + str(i) + '/corr'][0][0].view('complex')
                 corr_data[name].append(raw_data)
                 if mom_in is None:
-                    mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(' '), dtype=int)
+                    mom_in = np.array(str(file[tree + str(i) + '/info'].attrs['pIn'])[3:-2].strip().split(), dtype=float)
                 if mom_out is None:
-                    mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(' '), dtype=int)
+                    mom_out = np.array(str(file[tree + str(i) + '/info'].attrs['pOut'])[3:-2].strip().split(), dtype=float)
 
         file.close()
 

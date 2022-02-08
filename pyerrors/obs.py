@@ -4,6 +4,7 @@ import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
 import matplotlib.pyplot as plt
+from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
@@ -287,8 +288,6 @@ class Obs:
             _compute_drho(1)
             if self.tau_exp[e_name] > 0:
                 texp = self.tau_exp[e_name]
-                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
-                #    texp /= self.idl[e_name].step
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")
@@ -434,10 +433,6 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def print(self, level=1):
-        warnings.warn("Method 'print' renamed to 'details'", DeprecationWarning)
-        self.details(level > 1)
-
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
 
@@ -473,8 +468,8 @@ class Obs:
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
 
-        fig = plt.figure()
         for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
             length = int(len(self.e_n_tauint[e_name]))
@@ -499,13 +494,20 @@ class Obs:
             plt.ylim(bottom=0.0)
             plt.draw()
             if save:
-                fig.savefig(save)
+                fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self):
-        """Plot normalized autocorrelation function time for each ensemble."""
+    def plot_rho(self, save=None):
+        """Plot normalized autocorrelation function time for each ensemble.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         for e, e_name in enumerate(self.mc_names):
+            fig = plt.figure()
             plt.xlabel('W')
             plt.ylabel('rho')
             length = int(len(self.e_drho[e_name]))
@@ -522,6 +524,8 @@ class Obs:
             plt.plot([-0.5, xmax], [0, 0], 'k--', lw=1)
             plt.xlim(-0.5, xmax)
             plt.draw()
+            if save:
+                fig.savefig(save + "_" + str(e))
 
     def plot_rep_dist(self):
         """Plot replica distribution for each ensemble with more than one replicum."""
@@ -557,18 +561,24 @@ class Obs:
             plt.figure()
             r_length = []
             tmp = []
+            tmp_expanded = []
             for r, r_name in enumerate(self.e_content[e_name]):
+                tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 if expand:
-                    tmp.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    r_length.append(len(tmp_expanded[-1]))
                 else:
-                    tmp.append(self.deltas[r_name] + self.r_values[r_name])
-                r_length.append(len(tmp[-1]))
+                    r_length.append(len(tmp[-1]))
             e_N = np.sum(r_length)
             x = np.arange(e_N)
-            y = np.concatenate(tmp, axis=0)
+            y_test = np.concatenate(tmp, axis=0)
+            if expand:
+                y = np.concatenate(tmp_expanded, axis=0)
+            else:
+                y = y_test
             plt.errorbar(x, y, fmt='.', markersize=3)
             plt.xlim(-0.5, e_N - 0.5)
-            plt.title(e_name)
+            plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
     def plot_piechart(self):
@@ -587,22 +597,32 @@ class Obs:
 
         return dict(zip(self.e_names, sizes))
 
-    def dump(self, name, **kwargs):
-        """Dump the Obs to a pickle file 'name'.
+    def dump(self, filename, datatype="json.gz", **kwargs):
+        """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
         ----------
-        name : str
+        filename : str
             name of the file to be saved.
+        datatype : str
+            Format of the exported file. Supported formats include
+            "json.gz" and "pickle"
         path : str
             specifies a custom path for the file (default '.')
         """
         if 'path' in kwargs:
-            file_name = kwargs.get('path') + '/' + name + '.p'
+            file_name = kwargs.get('path') + '/' + filename
         else:
-            file_name = name + '.p'
-        with open(file_name, 'wb') as fb:
-            pickle.dump(self, fb)
+            file_name = filename
+
+        if datatype == "json.gz":
+            from .input.json import dump_to_json
+            dump_to_json([self], file_name)
+        elif datatype == "pickle":
+            with open(file_name + '.p', 'wb') as fb:
+                pickle.dump(self, fb)
+        else:
+            raise Exception("Unknown datatype " + str(datatype))
 
     def export_jackknife(self):
         """Export jackknife samples from the Obs
@@ -798,9 +818,6 @@ class Obs:
 
     def arctanh(self):
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
-
-    def sinc(self):
-        return derived_observable(lambda x: anp.sinc(x[0]), [self])
 
 
 class CObs:
@@ -1106,14 +1123,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             raise Exception('Multi mode currently not supported for numerical derivative')
         options = {
             'base_step': 0.1,
-            'step_ratio': 2.5,
-            'num_steps': None,
-            'step_nom': None,
-            'offset': None,
-            'num_extrap': None,
-            'use_exact_steps': None,
-            'check_num_steps': None,
-            'scale': None}
+            'step_ratio': 2.5}
         for key in options.keys():
             kwarg = kwargs.get(key)
             if kwarg is not None:

@@ -556,8 +556,8 @@
             <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
         <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
             <span class="k">return</span> <span class="n">i</span>
 
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
@@ -1633,8 +1633,8 @@
             <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
         <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
             <span class="k">return</span> <span class="n">i</span>
 
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
@@ -2874,8 +2874,8 @@ if this argument is set, a list of vectors (len=self.T) is returned. If it is le
             <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
         <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span>
             <span class="k">return</span> <span class="n">i</span>
 
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>

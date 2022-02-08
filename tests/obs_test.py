@@ -117,6 +117,10 @@ def test_function_overloading():
     np.arctanh(1 / b)
     np.sinc(1 / b)
 
+    b ** b
+    0.5 ** b
+    b ** 0.5
+
 
 def test_overloading_vectorization():
     a = np.random.randint(1, 100, 10)
@@ -392,6 +396,9 @@ def test_cobs():
     obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
 
     my_cobs = pe.CObs(obs1, obs2)
+    my_cobs == my_cobs
+    str(my_cobs)
+    repr(my_cobs)
     assert not (my_cobs + my_cobs.conjugate()).real.is_zero()
     assert (my_cobs + my_cobs.conjugate()).imag.is_zero()
     assert (my_cobs - my_cobs.conjugate()).real.is_zero()
@@ -422,6 +429,23 @@ def test_cobs():
 
         assert (my_cobs / other * other - my_cobs).is_zero()
         assert (other / my_cobs * my_cobs - other).is_zero()
+
+
+def test_cobs_overloading():
+    obs = pe.pseudo_Obs(1.1, 0.1, 't')
+    cobs = pe.CObs(obs, obs)
+
+    cobs + obs
+    obs + cobs
+
+    cobs - obs
+    obs - cobs
+
+    cobs * obs
+    obs * cobs
+
+    cobs / obs
+    obs / cobs
 
 
 def test_reweighting():

@@ -573,7 +573,6 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="1.2", **kwargs):
         found = []
         files = []
         for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-            # print(filenames)
             found.extend(filenames)
             break
         for f in found:

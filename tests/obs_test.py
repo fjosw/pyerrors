@@ -311,7 +311,7 @@ def test_derived_observables():
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
     i_am_one.gamma_method()
 
-    assert i_am_one.value == 1.0
+    assert i_am_one == 1.0
     assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
     assert i_am_one.e_dvalue['t'] <= 2 * np.finfo(np.float64).eps
     assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float64).eps

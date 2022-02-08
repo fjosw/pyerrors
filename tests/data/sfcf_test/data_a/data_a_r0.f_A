@@ -1,0 +1,400 @@
+[run]
+
+version     2.1
+date        2022-01-19 11:04:03 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /data_a_r0_n1
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_af_A
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+
+[run]
+
+version     2.1
+date        2022-01-19 11:04:05 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /data_a_r0_n2
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_af_A
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+
+[run]
+
+version     2.1
+date        2022-01-19 11:04:07 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /data_a_r0_n3
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_af_A
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+
+[run]
+
+version     2.1
+date        2022-01-19 11:04:09 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /data_a_r0_n4
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_af_A
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+
+[run]
+
+version     2.1
+date        2022-01-19 11:04:11 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /data_a_r0_n5
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_af_A
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+

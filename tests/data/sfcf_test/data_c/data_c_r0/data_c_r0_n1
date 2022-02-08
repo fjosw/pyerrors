@@ -1,0 +1,476 @@
+[run]
+
+version     2.1
+date        2022-01-19 11:03:58 +0100
+host        r04n07.palma.wwu
+dir         /scratch/tmp/j_kuhl19
+user        j_kuhl19
+gauge_name  /unity
+gauge_md5   1ea28326e4090996111a320b8372811d
+param_name  sfcf_unity_test.in
+param_md5   d881e90d41188a33b8b0f1bd0bc53ea5
+param_hash  686af5e712ee2902180f5428af94c6e7
+data_name   ./output_10519905/data_c
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        0
+corr_t
+  1 +6.5471188727972304e+01 -6.1214214711790100e-12
+  2 +1.0447210336915187e+00 +8.9219487930753188e-13
+  3 -4.1025094911185178e+01 -4.8315634170546161e-14
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      0
+corr
++3.5119415254545021e+02 +6.7620978057264750e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      1
+corr
++3.5120703575855339e+02 +6.5026340956203663e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      2
+corr
++3.5120808902177868e+02 +6.5443496235264788e-15
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      0
+corr_t
+  1 +6.8367760900851147e+02 +3.0531839956225539e-10
+  2 +6.6131885855823339e+02 +3.9736225045852382e-12
+  3 +6.8367760900810049e+02 -2.5611665964422843e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      1
+corr_t
+  1 +6.8370283168793060e+02 +3.0532966356282939e-10
+  2 +6.6134325636407561e+02 +3.9737690976212336e-12
+  3 +6.8370283168751973e+02 -2.5612610847134760e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        0
+wf_2      2
+corr_t
+  1 +6.8370484437212463e+02 +3.0533056232915147e-10
+  2 +6.6134520322615822e+02 +3.9737807346122766e-12
+  3 +6.8370484437171353e+02 -2.5612686251836130e-10
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        1
+corr_t
+  1 +6.5551520722862705e+01 +2.0963356863957609e-13
+  2 +1.0542820240851569e+00 +2.3989756974599379e-15
+  3 -4.1024441815729936e+01 -5.7107484666182308e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      0
+corr
++3.5120703575855515e+02 +6.9706500417651470e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      1
+corr
++3.5122001235609065e+02 +6.9516150897757419e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      2
+corr
++3.5122104108046199e+02 +6.9232860455434941e-15
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      0
+corr_t
+  1 +6.8370283168792889e+02 +3.0532890521977295e-10
+  2 +6.6134325636407402e+02 +3.9730355551484655e-12
+  3 +6.8370283168751791e+02 -2.5612686681440218e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      1
+corr_t
+  1 +6.8372805529787934e+02 +3.0534016954586185e-10
+  2 +6.6136765507001564e+02 +3.9731820664935325e-12
+  3 +6.8372805529746825e+02 -2.5613631608015786e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        1
+wf_2      2
+corr_t
+  1 +6.8373006805632656e+02 +3.0534106842445933e-10
+  2 +6.6136960200392332e+02 +3.9731937804440792e-12
+  3 +6.8373006805591558e+02 -2.5613707007587266e-10
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    0
+wf        2
+corr_t
+  1 +6.5529951269442847e+01 -6.6512260271334321e-14
+  2 +1.0516822345055969e+00 -2.2935262162529075e-15
+  3 -4.1025142768037746e+01 +3.7566377680004518e-16
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      0
+corr
++3.5120808902177447e+02 +1.0849949614595719e-14
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      1
+corr
++3.5122104108046182e+02 +1.0866063643253473e-14
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      2
+corr
++3.5122207631098047e+02 +1.0827277318679030e-14
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      0
+corr_t
+  1 +6.8370484437212156e+02 +3.0532220084664646e-10
+  2 +6.6134520322615526e+02 +3.9656927030717790e-12
+  3 +6.8370484437171069e+02 -2.5613522400086377e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      1
+corr_t
+  1 +6.8373006805632599e+02 +3.0533346499198999e-10
+  2 +6.6136960200392275e+02 +3.9658390079382195e-12
+  3 +6.8373006805591490e+02 -2.5614467350834153e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    0
+wf        2
+wf_2      2
+corr_t
+  1 +6.8373208082069789e+02 +3.0533436384459901e-10
+  2 +6.6137154894356127e+02 +3.9658506942251639e-12
+  3 +6.8373208082028680e+02 -2.5614542753491032e-10
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        0
+corr_t
+  1 +6.5471188727965909e+01 -1.6112786177915427e-11
+  2 +1.0447210337411881e+00 -7.0387528705692678e-13
+  3 -4.1025094911167137e+01 +4.6509152745618223e-13
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      0
+corr
++3.5119415254545038e+02 +3.0143306723935508e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      1
+corr
++3.5120703575855367e+02 +4.3340379505972648e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      2
+corr
++3.5120808902177902e+02 +3.9652247575094006e-15
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      0
+corr_t
+  1 +6.8367760900918211e+02 -9.5149222536505804e-10
+  2 +6.6131885855810310e+02 +3.2960434859595585e-10
+  3 +6.8367760900806934e+02 -2.3744430846347533e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      1
+corr_t
+  1 +6.8370283168860135e+02 -9.5152732859532533e-10
+  2 +6.6134325636394544e+02 +3.2961650841969937e-10
+  3 +6.8370283168748858e+02 -2.3745306857315358e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        0
+wf_2      2
+corr_t
+  1 +6.8370484437279526e+02 -9.5153012965274573e-10
+  2 +6.6134520322602793e+02 +3.2961747879154288e-10
+  3 +6.8370484437168250e+02 -2.3745376753897864e-10
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        1
+corr_t
+  1 +6.5551520722842213e+01 -8.1976426690345305e-13
+  2 +1.0542820240843382e+00 +2.1626370477046812e-13
+  3 -4.1024441815730086e+01 -2.4147931196409923e-14
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      0
+corr
++3.5120703575855526e+02 -8.2540994138261318e-16
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      1
+corr
++3.5122001235609082e+02 -9.7121215247039609e-16
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      2
+corr
++3.5122104108046227e+02 -9.0872484903683497e-16
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      0
+corr_t
+  1 +6.8370283168859953e+02 -9.5151770701795658e-10
+  2 +6.6134325636394351e+02 +3.2962581533640458e-10
+  3 +6.8370283168748665e+02 -2.3744344699578737e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      1
+corr_t
+  1 +6.8372805529855032e+02 -9.5155281099707234e-10
+  2 +6.6136765506988547e+02 +3.2963797613709602e-10
+  3 +6.8372805529743755e+02 -2.3745220688244645e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        1
+wf_2      2
+corr_t
+  1 +6.8373006805699742e+02 -9.5155561220425917e-10
+  2 +6.6136960200379315e+02 +3.2963894649982994e-10
+  3 +6.8373006805588454e+02 -2.3745290592048597e-10
+
+[correlator]
+
+name      f_A
+quarks    lquark lquark
+offset    1
+wf        2
+corr_t
+  1 +6.5529951269443117e+01 +7.9192560386479701e-14
+  2 +1.0516822345055870e+00 -1.2443038782429568e-14
+  3 -4.1025142768037739e+01 +5.9315333178954509e-17
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      0
+corr
++3.5120808902177453e+02 +5.1331372776616026e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      1
+corr
++3.5122104108046193e+02 +5.0816653044831932e-15
+
+[correlator]
+
+name      f_1
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      2
+corr
++3.5122207631098064e+02 +5.1165649253001659e-15
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      0
+corr_t
+  1 +6.8370484437279174e+02 -9.5153224647433932e-10
+  2 +6.6134520322602452e+02 +3.2961543119772646e-10
+  3 +6.8370484437167897e+02 -2.3745588436057620e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      1
+corr_t
+  1 +6.8373006805699617e+02 -9.5156735103669992e-10
+  2 +6.6136960200379178e+02 +3.2962759157000606e-10
+  3 +6.8373006805588329e+02 -2.3746464475292832e-10
+
+[correlator]
+
+name      F_V0
+quarks    lquark lquark
+offset    1
+wf        2
+wf_2      2
+corr_t
+  1 +6.8373208082136819e+02 -9.5157015223999714e-10
+  2 +6.6137154894343041e+02 +3.2962856194733528e-10
+  3 +6.8373208082025531e+02 -2.3746534378088984e-10
+

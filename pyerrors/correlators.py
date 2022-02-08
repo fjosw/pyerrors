@@ -350,8 +350,8 @@ class Corr:
             new_content.append(array.copy())
 
         def wrap(i):
-            if i >= self.T:
-                return i - self.T
+            while i >= self.T:
+                i -= self.T
             return i
 
         for t in range(self.T):

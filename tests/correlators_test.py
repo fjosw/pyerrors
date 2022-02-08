@@ -207,7 +207,7 @@ def test_matrix_corr():
     corr_ab = _gen_corr(0.5)
 
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
-    corr_mat.smearing(0, 0)
+    corr_mat.item(0, 0)
 
     vec_0 = corr_mat.GEVP(0, 0)
     vec_1 = corr_mat.GEVP(0, 0, state=1)
@@ -220,6 +220,8 @@ def test_matrix_corr():
 
     corr_mat.GEVP(0, 0, sorted_list="Eigenvalue")
     corr_mat.GEVP(0, 0, sorted_list="Eigenvector")
+
+    corr_mat.matrix_symmetric()
 
     with pytest.raises(Exception):
         corr_mat.plottable()
@@ -240,4 +242,16 @@ def test_matrix_corr():
         corr_mat.plateau([2, 4])
 
     with pytest.raises(Exception):
-        corr_o.smearing(0, 0)
+        corr_o.item(0, 0)
+
+
+def test_hankel():
+    corr_content = []
+    for t in range(8):
+        exponent = 1.2
+        corr_content.append(pe.pseudo_Obs(2 + t ** exponent, 0.2, 't'))
+
+    corr = pe.Corr(corr_content)
+    corr.Hankel(2)
+    corr.Hankel(6, periodic=True)
+

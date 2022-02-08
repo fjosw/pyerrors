@@ -98,6 +98,9 @@ def test_m_eff():
     with pytest.warns(RuntimeWarning):
         my_corr.m_eff('sinh')
 
+    with pytest.raises(Exception):
+        my_corr.m_eff('unkown_variant')
+
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
@@ -175,6 +178,7 @@ def test_utility():
     corr.print()
     corr.print([2, 4])
     corr.show()
+    corr.show(comp=corr)
 
     corr.dump('test_dump', datatype="pickle", path='.')
     corr.dump('test_dump', datatype="pickle")
@@ -193,6 +197,21 @@ def test_utility():
         assert np.isclose(o_a[0].value, o_b[0].value)
         assert np.isclose(o_a[0].dvalue, o_b[0].dvalue)
         assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
+
+
+def test_prange():
+    corr_content = []
+    for t in range(8):
+        corr_content.append(pe.pseudo_Obs(2 + 10 ** (1.1 * t), 0.2, 't'))
+    corr = pe.correlators.Corr(corr_content)
+
+    corr.set_prange([2, 4])
+    with pytest.raises(Exception):
+        corr.set_prange([2])
+    with pytest.raises(Exception):
+        corr.set_prange([2, 2.3])
+    with pytest.raises(Exception):
+        corr.set_prange([4, 1])
 
 
 def test_matrix_corr():
@@ -242,7 +261,16 @@ def test_matrix_corr():
         corr_mat.plateau([2, 4])
 
     with pytest.raises(Exception):
-        corr_o.item(0, 0)
+        corr_mat.hankel(3)
+
+    with pytest.raises(Exception):
+        corr_mat.fit(lambda x: x[0])
+
+    with pytest.raises(Exception):
+        corr_0.item(0, 0)
+
+    with pytest.raises(Exception):
+        corr_0.matrix_symmetric()
 
 
 def test_hankel():

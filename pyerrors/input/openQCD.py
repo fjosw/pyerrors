@@ -210,10 +210,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
-    if "idl_offsets" in kwargs:
-        idl_offsets = kwargs.get("idl_offsets")
-    else:
-        idl_offsets = np.ones(nrw, dtype=int)
     result = []
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]], r_step) for rep in range(replica)]
     for t in range(nrw):
@@ -221,8 +217,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin,
-               spatial_extent, fit_range=5, **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwargs):
     """Extract t0 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have

@@ -9,7 +9,7 @@ from ..obs import Obs
 from . import utils
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type = 'bi', noffset=0, wf=0, wf2=0, version="1.0c", **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", **kwargs):
     """Read sfcf c format from given folder structure.
 
     Parameters
@@ -58,10 +58,8 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type = 'bi', noffset=0, wf=0
     else:
         im = 0
         part = 'real'
-    
     if "replica" in kwargs:
         reps = kwargs.get("replica")
-
     if corr_type == 'bb':
         b2b = True
         single = True
@@ -112,7 +110,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type = 'bi', noffset=0, wf=0
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*'):
                 ls = list(set(ls) - set([exc]))
-    
+
     if not appended:
         if len(ls) > 1:
             # New version, to cope with ids, etc.
@@ -210,20 +208,27 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type = 'bi', noffset=0, wf=0
                 # to do so, the pattern needed is put together
                 # from the input values
                 if version == "0.0":
+                    pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
+                    # if b2b, a second wf is needed
+                    if b2b:
+                        pattern += ", wf_2 " + str(wf2)
+                    qs = quarks.split(" ")
+                    pattern += " : " + qs[0] + " - " + qs[1]
+                    file = open(path + '/' + item + '/' + sub_ls[0] + '/' + name, "r")
                     for k, line in enumerate(file):
-                            if read == 1 and not line.strip() and k > start + 1:
-                                break
-                            if read == 1 and k >= start:
-                                T += 1
-                            if pattern in line:
-                                read = 1
-                                start = k + 1
+                        if read == 1 and not line.strip() and k > start + 1:
+                            break
+                        if read == 1 and k >= start:
+                            T += 1
+                        if pattern in line:
+                            read = 1
+                            start = k + 1
                     print(str(T) + " entries found.")
                 else:
                     pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
                     if b2b:
                         pattern += '\nwf_2      ' + str(wf2)
-                    # and the file is parsed through to find the pattern                    
+                    # and the file is parsed through to find the pattern
                     if compact:
                         file = open(path + '/' + item + '/' + sub_ls[0], "r")
                     else:

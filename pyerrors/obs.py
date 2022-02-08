@@ -693,7 +693,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self + o for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
@@ -709,7 +709,7 @@ class Obs:
                 return np.array([self * o for o in y])
             elif isinstance(y, complex):
                 return CObs(self * y.real, self * y.imag)
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
@@ -723,10 +723,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self - o for o in y])
-
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
-
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
@@ -742,7 +740,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self / o for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
@@ -753,7 +751,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([o / self for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])

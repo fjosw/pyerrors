@@ -63,7 +63,7 @@
                                 <a class="function" href="#Corr.projected">projected</a>
                         </li>
                         <li>
-                                <a class="function" href="#Corr.smearing">smearing</a>
+                                <a class="function" href="#Corr.item">item</a>
                         </li>
                         <li>
                                 <a class="function" href="#Corr.plottable">plottable</a>
@@ -75,7 +75,7 @@
                                 <a class="function" href="#Corr.anti_symmetric">anti_symmetric</a>
                         </li>
                         <li>
-                                <a class="function" href="#Corr.smearing_symmetric">smearing_symmetric</a>
+                                <a class="function" href="#Corr.matrix_symmetric">matrix_symmetric</a>
                         </li>
                         <li>
                                 <a class="function" href="#Corr.GEVP">GEVP</a>
@@ -222,10 +222,10 @@
 <span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 <span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
 <span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient</span>
-<span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
+<span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
-<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
+<span class="sd">    matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -380,7 +380,7 @@
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 
 <span class="sd">        Parameters</span>
@@ -391,7 +391,7 @@
 <span class="sd">            Second index to be picked.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick item from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
@@ -445,13 +445,13 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr could not be symmetrized: No redundant values&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">smearing_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Symmetrizes the matrices and therefore make them positive definite.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">transposed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">G</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">G</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">G</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
             <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">transposed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solve the general eigenvalue problem on the current correlator</span>
@@ -513,7 +513,7 @@
         <span class="k">return</span> <span class="n">all_vecs</span>
 
     <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing_symmetric</span><span class="p">()</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_symmetric</span><span class="p">()</span>
         <span class="n">G0</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">cholesky</span><span class="p">(</span><span class="n">G0</span><span class="p">)</span>
         <span class="n">Li</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
@@ -1004,8 +1004,6 @@
             <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Description: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">content_string</span>
-        <span class="c1"># This avoids a crash for N&gt;1. I do not know, what else to do here. I like the list representation for N==1. We could print only one &quot;smearing&quot; or one matrix. Printing everything will just</span>
-        <span class="c1"># be a wall of numbers.</span>
 
         <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1084,8 +1082,6 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
-            <span class="c1"># Here we set the entire timeslice to undefined, if one of the smearings has encountered an division by zero.</span>
-            <span class="c1"># While this might throw away perfectly good values in other smearings, we will never have to check, if all values in our matrix are defined</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">newcontent</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
@@ -1303,10 +1299,10 @@
 <span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 <span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
 <span class="sd">    One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient</span>
-<span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</span>
+<span class="sd">    to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.</span>
 
 <span class="sd">    The correlator can have two types of content: An Obs at every timeslice OR a GEVP</span>
-<span class="sd">    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
+<span class="sd">    matrix at every timeslice. Other dependency (eg. spatial) are not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1461,7 +1457,7 @@
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">[</span><span class="n">t</span><span class="p">]])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 
 <span class="sd">        Parameters</span>
@@ -1472,7 +1468,7 @@
 <span class="sd">            Second index to be picked.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick item from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 
@@ -1526,13 +1522,13 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Corr could not be symmetrized: No redundant values&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">smearing_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Symmetrizes the matrices and therefore make them positive definite.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">transposed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">G</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">G</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">G</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
             <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">transposed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sorted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solve the general eigenvalue problem on the current correlator</span>
@@ -1594,7 +1590,7 @@
         <span class="k">return</span> <span class="n">all_vecs</span>
 
     <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing_symmetric</span><span class="p">()</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_symmetric</span><span class="p">()</span>
         <span class="n">G0</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">cholesky</span><span class="p">(</span><span class="n">G0</span><span class="p">)</span>
         <span class="n">Li</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
@@ -2085,8 +2081,6 @@
             <span class="n">content_string</span> <span class="o">+=</span> <span class="s2">&quot;Description: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">content_string</span>
-        <span class="c1"># This avoids a crash for N&gt;1. I do not know, what else to do here. I like the list representation for N==1. We could print only one &quot;smearing&quot; or one matrix. Printing everything will just</span>
-        <span class="c1"># be a wall of numbers.</span>
 
         <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -2165,8 +2159,6 @@
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">y</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
-            <span class="c1"># Here we set the entire timeslice to undefined, if one of the smearings has encountered an division by zero.</span>
-            <span class="c1"># While this might throw away perfectly good values in other smearings, we will never have to check, if all values in our matrix are defined</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">newcontent</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
@@ -2324,10 +2316,10 @@
 <p>Everything, this class does, can be achieved using lists or arrays of Obs.
 But it is simply more convenient to have a dedicated object for correlators.
 One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
-to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.</p>
+to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.</p>
 
 <p>The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
+matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
 </div>
 
 
@@ -2543,17 +2535,17 @@ By default it will return the lowest source, which usually means unsmeared-unsme
 
 
                             </div>
-                            <div id="Corr.smearing" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Corr.smearing">#&nbsp;&nbsp</a>
+                            <div id="Corr.item" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Corr.item">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">smearing</span><span class="signature">(self, i, j)</span>:
+            <span class="name">item</span><span class="signature">(self, i, j)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">smearing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 
 <span class="sd">        Parameters</span>
@@ -2564,7 +2556,7 @@ By default it will return the lowest source, which usually means unsmeared-unsme
 <span class="sd">            Second index to be picked.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick smearing from projected Corr&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to pick item from projected Corr&quot;</span><span class="p">)</span>
         <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span><span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </pre></div>
@@ -2692,28 +2684,28 @@ timeslice and the error on each timeslice.</p>
 
 
                             </div>
-                            <div id="Corr.smearing_symmetric" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Corr.smearing_symmetric">#&nbsp;&nbsp</a>
+                            <div id="Corr.matrix_symmetric" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Corr.matrix_symmetric">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">smearing_symmetric</span><span class="signature">(self)</span>:
+            <span class="name">matrix_symmetric</span><span class="signature">(self)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">smearing_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Symmetrizes the matrices and therefore make them positive definite.&quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">transposed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">G</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">G</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">G</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
             <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">transposed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a smearing matrix, that already has N=1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Symmetrizes the matrices and therefore make them positive definite.</p>
+            <div class="docstring"><p>Symmetrizes the correlator matrices on every timeslice.</p>
 </div>
 
 
@@ -2823,7 +2815,7 @@ if this argument is set, a list of vectors (len=self.T) is returned. If it is le
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smearing_symmetric</span><span class="p">()</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_symmetric</span><span class="p">()</span>
         <span class="n">G0</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t0</span><span class="p">]</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">cholesky</span><span class="p">(</span><span class="n">G0</span><span class="p">)</span>
         <span class="n">Li</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>

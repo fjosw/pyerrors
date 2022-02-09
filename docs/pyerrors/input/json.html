@@ -257,6 +257,9 @@
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">my_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+        <span class="n">my_obs</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">_covobs</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">_covobs</span><span class="p">:</span>
+            <span class="n">my_obs</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">my_obs</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">reweighted</span>
         <span class="n">my_obs</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">is_merged</span>
         <span class="k">return</span> <span class="n">my_obs</span>
@@ -978,6 +981,9 @@
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">my_obs</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
+        <span class="n">my_obs</span><span class="o">.</span><span class="n">_covobs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">_covobs</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">_covobs</span><span class="p">:</span>
+            <span class="n">my_obs</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">my_obs</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">reweighted</span>
         <span class="n">my_obs</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">is_merged</span>
         <span class="k">return</span> <span class="n">my_obs</span>

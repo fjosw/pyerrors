@@ -35,6 +35,38 @@ def load_object(path):
         return pickle.load(file)
 
 
+def pseudo_Obs(value, dvalue, name, samples=1000):
+    """Generate an Obs object with given value, dvalue and name for test purposes
+
+    Parameters
+    ----------
+    value : float
+        central value of the Obs to be generated.
+    dvalue : float
+        error of the Obs to be generated.
+    name : str
+        name of the ensemble for which the Obs is to be generated.
+    samples: int
+        number of samples for the Obs (default 1000).
+    """
+    if dvalue <= 0.0:
+        return Obs([np.zeros(samples) + value], [name])
+    else:
+        for _ in range(100):
+            deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
+            deltas -= np.mean(deltas)
+            deltas *= dvalue / np.sqrt((np.var(deltas) / samples)) / np.sqrt(1 + 3 / samples)
+            deltas += value
+            res = Obs(deltas, [name])
+            res.gamma_method(S=2, tau_exp=0)
+            if abs(res.dvalue - dvalue) < 1e-10 * dvalue:
+                break
+
+        res._value = float(value)
+
+        return res
+
+
 def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     """ Generate observables with given covariance and autocorrelation times.
 

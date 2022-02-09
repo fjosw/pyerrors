@@ -245,7 +245,7 @@
 <span class="sd">            region indentified for this correlator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># Input is an array of Corrs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 
             <span class="c1"># This only works, if the array fulfills the conditions below</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
@@ -301,7 +301,6 @@
         <span class="c1"># An undefined timeslice is represented by the None object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -366,9 +365,6 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
                 <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
-            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
-                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
-
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -1322,7 +1318,7 @@
 <span class="sd">            region indentified for this correlator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># Input is an array of Corrs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 
             <span class="c1"># This only works, if the array fulfills the conditions below</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
@@ -1378,7 +1374,6 @@
         <span class="c1"># An undefined timeslice is represented by the None object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -1443,9 +1438,6 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
                 <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
-            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
-                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
-
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -2348,7 +2340,7 @@ matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
 <span class="sd">            region indentified for this correlator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># Input is an array of Corrs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_input</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 
             <span class="c1"># This only works, if the array fulfills the conditions below</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
@@ -2404,7 +2396,6 @@ matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
         <span class="c1"># An undefined timeslice is represented by the None object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -2509,9 +2500,6 @@ region indentified for this correlator.</li>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Vectors are of wrong shape!&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
                 <span class="n">vector_l</span><span class="p">,</span> <span class="n">vector_r</span> <span class="o">=</span> <span class="n">vector_l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vector_l</span> <span class="o">@</span> <span class="n">vector_l</span><span class="p">)),</span> <span class="n">vector_r</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vector_r</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">)</span>
-            <span class="c1"># if (not (0.95 &lt; vector_r @ vector_r &lt; 1.05)) or (not (0.95 &lt; vector_l @ vector_l &lt; 1.05)):</span>
-                <span class="c1"># print(&quot;Vectors are normalized before projection!&quot;)</span>
-
             <span class="n">newcontent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">vector_l</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">item</span> <span class="o">@</span> <span class="n">vector_r</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>

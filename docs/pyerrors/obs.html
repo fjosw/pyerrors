@@ -1615,7 +1615,7 @@
 
 <span class="sd">    Keep in mind to only correlate primary observables which have not been reweighted</span>
 <span class="sd">    yet. The reweighting has to be applied after correlating the observables.</span>
-<span class="sd">    Currently only works if ensembles are identical. This is not really necessary.</span>
+<span class="sd">    Currently only works if ensembles are identical (this is not strictly necessary).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obs_a</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obs_b</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
@@ -1776,7 +1776,7 @@
 
 
 <span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Generate a pseudo Obs with given value, dvalue and name</span>
+    <span class="sd">&quot;&quot;&quot;Generate an Obs object with given value, dvalue and name for test purposes</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -4771,7 +4771,7 @@ on the configurations in obs[i].idl.</li>
 
 <span class="sd">    Keep in mind to only correlate primary observables which have not been reweighted</span>
 <span class="sd">    yet. The reweighting has to be applied after correlating the observables.</span>
-<span class="sd">    Currently only works if ensembles are identical. This is not really necessary.</span>
+<span class="sd">    Currently only works if ensembles are identical (this is not strictly necessary).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obs_a</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obs_b</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
@@ -4814,7 +4814,7 @@ First observable</li>
 Second observable</li>
 <li><strong>Keep in mind to only correlate primary observables which have not been reweighted</strong></li>
 <li><strong>yet. The reweighting has to be applied after correlating the observables.</strong></li>
-<li><strong>Currently only works if ensembles are identical. This is not really necessary.</strong></li>
+<li><strong>Currently only works if ensembles are identical (this is not strictly necessary).</strong></li>
 </ul>
 </div>
 
@@ -4989,7 +4989,7 @@ is constrained to the maximum value.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Generate a pseudo Obs with given value, dvalue and name</span>
+    <span class="sd">&quot;&quot;&quot;Generate an Obs object with given value, dvalue and name for test purposes</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -5022,7 +5022,7 @@ is constrained to the maximum value.</p>
 
         </details>
 
-            <div class="docstring"><p>Generate a pseudo Obs with given value, dvalue and name</p>
+            <div class="docstring"><p>Generate an Obs object with given value, dvalue and name for test purposes</p>
 
 <h6 id="parameters">Parameters</h6>
 

@@ -283,3 +283,11 @@ def test_hankel():
     corr.Hankel(2)
     corr.Hankel(6, periodic=True)
 
+
+def test_thin():
+    c = pe.Corr([pe.pseudo_Obs(i, .1, 'test') for i in range(10)])
+    c *= pe.cov_Obs(1., .1, '#ren')
+    thin = c.thin()
+    thin.fit(lambda a, x: a[0] * x)
+    c.thin(offset=1)
+    c.thin(3, offset=1)

@@ -196,6 +196,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             else:
                 try:
                     r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
+                    if r_stop_index[-1] == len(configlist[-1]):
+                        r_stop_index[-1] -= 1
                 except ValueError:
                     raise Exception('Config %d not in file with range [%d, %d]' % (
                         r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
@@ -394,6 +396,8 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
         else:
             try:
                 r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
+                if r_stop_index[-1] == len(configlist[-1]):
+                    r_stop_index[-1] -= 1
             except ValueError:
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
@@ -717,6 +721,8 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
         else:
             try:
                 r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
+                if r_stop_index[-1] == len(configlist[-1]):
+                    r_stop_index[-1] -= 1
             except ValueError:
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None

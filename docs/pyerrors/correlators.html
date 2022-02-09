@@ -93,6 +93,9 @@
                                 <a class="function" href="#Corr.reverse">reverse</a>
                         </li>
                         <li>
+                                <a class="function" href="#Corr.thin">thin</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Corr.correlate">correlate</a>
                         </li>
                         <li>
@@ -581,6 +584,24 @@
     <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spacing : int</span>
+<span class="sd">            Keep only every &#39;spacing&#39;th entry of the correlator</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            Offset the equal spacing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
@@ -1654,6 +1675,24 @@
     <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spacing : int</span>
+<span class="sd">            Keep only every &#39;spacing&#39;th entry of the correlator</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            Offset the equal spacing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
@@ -2953,6 +2992,51 @@ number of timeslices</li>
         </details>
 
             <div class="docstring"><p>Reverse the time ordering of the Corr</p>
+</div>
+
+
+                            </div>
+                            <div id="Corr.thin" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Corr.thin">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">thin</span><span class="signature">(self, spacing=2, offset=0)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spacing : int</span>
+<span class="sd">            Keep only every &#39;spacing&#39;th entry of the correlator</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            Offset the equal spacing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Thin out a correlator to suppress correlations</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>spacing</strong> (int):
+Keep only every 'spacing'th entry of the correlator</li>
+<li><strong>offset</strong> (int):
+Offset the equal spacing</li>
+</ul>
 </div>
 
 

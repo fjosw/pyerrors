@@ -242,3 +242,12 @@ def test_json_dict_io():
         jsonio.dump_dict_to_json(od, fname, description=desc)
 
     os.remove(fname + '.json.gz')
+
+
+def test_renorm_deriv_of_corr(tmp_path):
+    c = pe.Corr([pe.pseudo_Obs(i, .1, 'test') for i in range(10)])
+    c *= pe.cov_Obs(1., .1, '#ren')
+    c = c.deriv()
+    pe.input.json.dump_to_json(c, (tmp_path / 'test').as_posix())
+    recover = pe.input.json.load_json((tmp_path / 'test').as_posix())
+    assert np.all([o == 0 for o in (c - recover)[1:-1]])

@@ -39,7 +39,7 @@ class Corr:
             region indentified for this correlator.
         """
 
-        if isinstance(data_input, np.ndarray):  # Input is an array of Corrs
+        if isinstance(data_input, np.ndarray):
 
             # This only works, if the array fulfills the conditions below
             if not len(data_input.shape) == 2 and data_input.shape[0] == data_input.shape[1]:
@@ -95,7 +95,6 @@ class Corr:
         # An undefined timeslice is represented by the None object
         self.content = [None] * padding[0] + self.content + [None] * padding[1]
         self.T = len(self.content)
-
         self.prange = prange
 
         self.gamma_method()
@@ -160,9 +159,6 @@ class Corr:
                 raise Exception("Vectors are of wrong shape!")
             if normalize:
                 vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
-            # if (not (0.95 < vector_r @ vector_r < 1.05)) or (not (0.95 < vector_l @ vector_l < 1.05)):
-                # print("Vectors are normalized before projection!")
-
             newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
 
         else:

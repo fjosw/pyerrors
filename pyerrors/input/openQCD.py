@@ -704,7 +704,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
             else:
                 steps = traj_list[1] - traj_list[0]
 
-        configlist.append([tr // steps / dtr_cnfg for tr in traj_list])
+        configlist.append([tr // steps // dtr_cnfg for tr in traj_list])
         if configlist[-1][0] > 1:
             offset = configlist[-1][0] - 1
             warnings.warn('Assume thermalization and that the first measurement belongs to the first config. Offset = %d configs (%d trajectories / cycles)' % (
@@ -838,8 +838,6 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     Zeuthen_flow : bool
         (optional) If True, the Zeuthen flow is used for Qtop. Only possible
         for version=='sfqcd' If False, the Wilson flow is used.
-    integer_charge : bool
-        If True, the charge is rounded towards the nearest integer on each config.
     """
 
     if not isinstance(target, int):

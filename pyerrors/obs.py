@@ -1301,7 +1301,7 @@ def correlate(obs_a, obs_b):
 
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
-    Currently only works if ensembles are identical. This is not really necessary.
+    Currently only works if ensembles are identical (this is not strictly necessary).
     """
 
     if sorted(obs_a.names) != sorted(obs_b.names):
@@ -1462,7 +1462,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
 
 def pseudo_Obs(value, dvalue, name, samples=1000):
-    """Generate a pseudo Obs with given value, dvalue and name
+    """Generate an Obs object with given value, dvalue and name for test purposes
 
     Parameters
     ----------

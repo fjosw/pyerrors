@@ -1,7 +1,5 @@
 import autograd.numpy as np
 import os
-import random
-import string
 import copy
 import pyerrors as pe
 import pytest
@@ -142,7 +140,7 @@ def test_overloading_vectorization():
     assert [o.value for o in b / a] == [o.value for o in [b / p for p in a]]
 
 
-def test_gamma_method():
+def test_gamma_method_standard_data():
     for data in [np.tile([1, -1], 1000),
                  np.random.rand(100001),
                  np.zeros(1195),
@@ -285,7 +283,7 @@ def test_covariance_symmetry():
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
-def test_gamma_method():
+def test_gamma_method_uncorrelated():
     # Construct pseudo Obs with random shape
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

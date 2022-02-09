@@ -1,7 +1,6 @@
 import numpy as np
 import pyerrors as pe
 import pytest
-import time
 
 np.random.seed(0)
 

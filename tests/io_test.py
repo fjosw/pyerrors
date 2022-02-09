@@ -283,3 +283,7 @@ def test_openqcd():
     assert(len(rwfo) == 2)
     assert(rwfo[0].value == 0.9999974970236312)
     assert(rwfo[1].value == 1.184681251089919)
+    repname = list(rwfo[0].idl.keys())[0]
+    assert(rwfo[0].idl[repname] == range(1, 10))
+    rwfo = pe.input.openQCD.read_rwms(path, prefix, version='2.0', files=files, names=names, r_start=[1], r_stop=[8])
+    assert(rwfo[0].idl[repname] == range(1, 9))

@@ -182,6 +182,13 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                                 print('Partial factor:', tmp_nfct)
                     tmp_array[i].append(tmp_nfct)
 
+            diffmeas = configlist[-1][-1] - configlist[-1][-2]
+            configlist[-1] = [item // diffmeas for item in configlist[-1]]
+            if configlist[-1][0] > 1 and diffmeas > 1:
+                warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')
+                offset = configlist[-1][0] - 1
+                configlist[-1] = [item - offset for item in configlist[-1]]
+
             if r_start[rep] is None:
                 r_start_index.append(0)
             else:
@@ -195,15 +202,13 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 r_stop_index.append(len(configlist[-1]) - 1)
             else:
                 try:
-                    r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
-                    if r_stop_index[-1] == len(configlist[-1]):
-                        r_stop_index[-1] -= 1
+                    r_stop_index.append(configlist[-1].index(r_stop[rep]))
                 except ValueError:
                     raise Exception('Config %d not in file with range [%d, %d]' % (
                         r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
 
             for k in range(nrw):
-                deltas[k].append(tmp_array[k][r_start_index[rep]:r_stop_index[rep]][::r_step])
+                deltas[k].append(tmp_array[k][r_start_index[rep]:r_stop_index[rep] + 1][::r_step])
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
@@ -213,7 +218,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
-    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]], r_step) for rep in range(replica)]
+    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
+
     for t in range(nrw):
         result.append(Obs(deltas[t], rep_names, idl=idl))
     return result
@@ -395,9 +401,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
             r_stop_index.append(len(configlist[-1]) - 1)
         else:
             try:
-                r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
-                if r_stop_index[-1] == len(configlist[-1]):
-                    r_stop_index[-1] -= 1
+                r_stop_index.append(configlist[-1].index(r_stop[rep]))
             except ValueError:
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
@@ -408,7 +412,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     if np.any([step != 1 for step in stepsizes]):
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
 
-    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]], r_step) for rep in range(replica)]
+    idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
     t2E_dict = {}
     for n in range(nn + 1):
         samples = []
@@ -416,7 +420,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
             samples.append([])
             for cnfg in rep:
                 samples[-1].append(cnfg[n])
-            samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep]][::r_step]
+            samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep] + 1][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)
         t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
 
@@ -720,9 +724,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
             r_stop_index.append(len(configlist[-1]) - 1)
         else:
             try:
-                r_stop_index.append(configlist[-1].index(r_stop[rep]) + 1)
-                if r_stop_index[-1] == len(configlist[-1]):
-                    r_stop_index[-1] -= 1
+                r_stop_index.append(configlist[-1].index(r_stop[rep]))
             except ValueError:
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
@@ -766,8 +768,8 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
             rep_names = names
         deltas.append(Q_top)
 
-    idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]), 1) for rep in range(len(deltas))]
-    deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep]] for nrep in range(len(deltas))]
+    idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]) + 1, 1) for rep in range(len(deltas))]
+    deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep] + 1] for nrep in range(len(deltas))]
     result = Obs(deltas, rep_names, idl=idl)
     return result
 

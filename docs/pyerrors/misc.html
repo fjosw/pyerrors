@@ -54,6 +54,9 @@
                     <a class="function" href="#load_object">load_object</a>
             </li>
             <li>
+                    <a class="function" href="#pseudo_Obs">pseudo_Obs</a>
+            </li>
+            <li>
                     <a class="function" href="#gen_correlated_data">gen_correlated_data</a>
             </li>
     </ul>
@@ -110,6 +113,38 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate an Obs object with given value, dvalue and name for test purposes</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        central value of the Obs to be generated.</span>
+<span class="sd">    dvalue : float</span>
+<span class="sd">        error of the Obs to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble for which the Obs is to be generated.</span>
+<span class="sd">    samples: int</span>
+<span class="sd">        number of samples for the Obs (default 1000).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dvalue</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">+</span> <span class="n">value</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dvalue</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">samples</span><span class="p">)]</span>
+            <span class="n">deltas</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">*=</span> <span class="n">dvalue</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span> <span class="o">/</span> <span class="n">samples</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">/</span> <span class="n">samples</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">+=</span> <span class="n">value</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tau_exp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">-</span> <span class="n">dvalue</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span> <span class="o">*</span> <span class="n">dvalue</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">res</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">res</span>
 
 
 <span class="k">def</span> <span class="nf">gen_correlated_data</span><span class="p">(</span><span class="n">means</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
@@ -247,6 +282,68 @@ specifies a custom path for the file (default '.')</li>
 <ul>
 <li><strong>path</strong> (str):
 path to the file</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="pseudo_Obs">
+                            <div class="attr function"><a class="headerlink" href="#pseudo_Obs">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">pseudo_Obs</span><span class="signature">(value, dvalue, name, samples=1000)</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">pseudo_Obs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dvalue</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate an Obs object with given value, dvalue and name for test purposes</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        central value of the Obs to be generated.</span>
+<span class="sd">    dvalue : float</span>
+<span class="sd">        error of the Obs to be generated.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        name of the ensemble for which the Obs is to be generated.</span>
+<span class="sd">    samples: int</span>
+<span class="sd">        number of samples for the Obs (default 1000).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dvalue</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">+</span> <span class="n">value</span><span class="p">],</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dvalue</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">samples</span><span class="p">)]</span>
+            <span class="n">deltas</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">*=</span> <span class="n">dvalue</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">deltas</span><span class="p">)</span> <span class="o">/</span> <span class="n">samples</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">/</span> <span class="n">samples</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">+=</span> <span class="n">value</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tau_exp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">-</span> <span class="n">dvalue</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span> <span class="o">*</span> <span class="n">dvalue</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">res</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">res</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Generate an Obs object with given value, dvalue and name for test purposes</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (float):
+central value of the Obs to be generated.</li>
+<li><strong>dvalue</strong> (float):
+error of the Obs to be generated.</li>
+<li><strong>name</strong> (str):
+name of the ensemble for which the Obs is to be generated.</li>
+<li><strong>samples</strong> (int):
+number of samples for the Obs (default 1000).</li>
 </ul>
 </div>
 

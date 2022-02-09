@@ -376,6 +376,24 @@ class Corr:
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[:: -1])
 
+    def thin(self, spacing=2, offset=0):
+        """Thin out a correlator to suppress correlations
+
+        Parameters
+        ----------
+        spacing : int
+            Keep only every 'spacing'th entry of the correlator
+        offset : int
+            Offset the equal spacing
+        """
+        new_content = []
+        for t in range(self.T):
+            if (offset + t) % spacing != 0:
+                new_content.append(None)
+            else:
+                new_content.append(self.content[t])
+        return Corr(new_content)
+
     def correlate(self, partner):
         """Correlate the correlator with another correlator or Obs
 

@@ -171,6 +171,9 @@ def create_json_string(ol, description='', indent=1):
             names.append(key)
             idl.append(value)
         my_obs = Obs(samples, names, idl)
+        my_obs._covobs = obs._covobs
+        for name in obs._covobs:
+            my_obs.names.append(name)
         my_obs.reweighted = obs.reweighted
         my_obs.is_merged = obs.is_merged
         return my_obs

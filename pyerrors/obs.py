@@ -1214,6 +1214,9 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 def _reduce_deltas(deltas, idx_old, idx_new):
     """Extract deltas defined on idx_old on all configs of idx_new.
 
+    Assumes, that idx_old and idx_new are correctly defined idl, i.e., they
+    are ordered in an ascending order.
+
     Parameters
     ----------
     deltas : list
@@ -1233,8 +1236,6 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     ret = np.zeros(shape)
     oldpos = 0
     for i in range(shape):
-        if oldpos == idx_old[i]:
-            raise Exception('idx_old and idx_new do not match!')
         pos = -1
         for j in range(oldpos, len(idx_old)):
             if idx_old[j] == idx_new[i]:
@@ -1242,7 +1243,8 @@ def _reduce_deltas(deltas, idx_old, idx_new):
                 break
         if pos < 0:
             raise Exception('Error in _reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
-        ret[i] = deltas[j]
+        ret[i] = deltas[pos]
+        oldpos = pos
     return np.array(ret)
 
 

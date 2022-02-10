@@ -675,3 +675,19 @@ def test_import_jackknife():
     my_jacks = my_obs.export_jackknife()
     reconstructed_obs = pe.import_jackknife(my_jacks, 'test')
     assert my_obs == reconstructed_obs
+
+
+def test_reduce_deltas():
+    idx_old = range(1, 101)
+    deltas = [float(i) for i in idx_old]
+    idl = [
+        range(2, 26, 2),
+        range(1, 101),
+        np.arange(1, 101),
+        [1, 2, 3, 5, 6, 7, 9, 12],
+        [7],
+    ]
+    for idx_new in idl:
+        new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
+        print(new)
+        assert(np.alltrue([float(i) for i in idx_new] == new))

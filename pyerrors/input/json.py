@@ -309,9 +309,10 @@ def import_json_string(json_string, verbose=True, full_output=False):
                 for rep in ens['replica']:
                     rep_name = rep['name']
                     if len(rep_name) > len(ens["id"]):
-                        tmp_list = list(rep_name)
-                        tmp_list[len(ens["id"])] = "|"
-                        rep_name = ''.join(tmp_list)
+                        if rep_name[len(ens["id"])] != "|":
+                            tmp_list = list(rep_name)
+                            tmp_list = tmp_list[:len(ens["id"])] + ["|"] + tmp_list[len(ens["id"]):]
+                            rep_name = ''.join(tmp_list)
                     retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])
                     retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))

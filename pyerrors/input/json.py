@@ -307,10 +307,16 @@ def import_json_string(json_string, verbose=True, full_output=False):
             retd['is_merged'] = {}
             for ens in d:
                 for rep in ens['replica']:
-                    retd['names'].append(rep['name'])
+                    rep_name = rep['name']
+                    if len(rep_name) > len(ens["id"]):
+                        if rep_name[len(ens["id"])] != "|":
+                            tmp_list = list(rep_name)
+                            tmp_list = tmp_list[:len(ens["id"])] + ["|"] + tmp_list[len(ens["id"]):]
+                            rep_name = ''.join(tmp_list)
+                    retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])
                     retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))
-                    retd['is_merged'][rep['name']] = rep.get('is_merged', False)
+                    retd['is_merged'][rep_name] = rep.get('is_merged', False)
         return retd
 
     def _gen_covobsd_from_cdatad(d):

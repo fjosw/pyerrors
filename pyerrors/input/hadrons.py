@@ -1,7 +1,7 @@
 import os
+from collections import Counter
 import h5py
 import numpy as np
-from collections import Counter
 from ..obs import Obs, CObs
 from ..correlators import Corr
 

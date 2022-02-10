@@ -69,10 +69,10 @@ class Corr:
 
         if isinstance(data_input, list):
 
-            if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
+            if all([isinstance(item, (Obs, CObs)) for item in data_input]):
                 _assert_equal_properties(data_input)
                 self.content = [np.asarray([item]) for item in data_input]
-            if all([(isinstance(item, Obs) or isinstance(item, CObs)) or item is None for item in data_input]):
+            if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None])
                 self.content = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
@@ -735,7 +735,7 @@ class Corr:
             else:
                 ax1.set_ylim(y_range)
         if comp:
-            if isinstance(comp, Corr) or isinstance(comp, list):
+            if isinstance(comp, (Corr, list)):
                 for corr in comp if isinstance(comp, list) else [comp]:
                     x, y, y_err = corr.plottable()
                     plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
@@ -846,7 +846,7 @@ class Corr:
                     newcontent.append(self.content[t] + y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -869,7 +869,7 @@ class Corr:
                     newcontent.append(self.content[t] * y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -900,7 +900,7 @@ class Corr:
                 raise Exception("Division returns completely undefined correlator")
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, CObs)):
             if isinstance(y, Obs):
                 if y.value == 0:
                     raise Exception('Division by zero will return undefined correlator')
@@ -916,7 +916,7 @@ class Corr:
                     newcontent.append(self.content[t] / y)
             return Corr(newcontent, prange=self.prange)
 
-        elif isinstance(y, int) or isinstance(y, float):
+        elif isinstance(y, (int, float)):
             if y == 0:
                 raise Exception('Division by zero will return undefined correlator')
             newcontent = []
@@ -937,7 +937,7 @@ class Corr:
         return self + (-y)
 
     def __pow__(self, y):
-        if isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        if isinstance(y, (Obs, int, float, CObs)):
             newcontent = [None if (item is None) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
         else:

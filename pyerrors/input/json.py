@@ -1,12 +1,12 @@
 import json
 import gzip
-import numpy as np
 import getpass
 import socket
 import datetime
 import platform
 import warnings
 import re
+import numpy as np
 from ..obs import Obs
 from ..covobs import Covobs
 from ..correlators import Corr

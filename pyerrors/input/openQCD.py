@@ -2,8 +2,8 @@ import os
 import fnmatch
 import re
 import struct
-import numpy as np  # Thinly-wrapped numpy
 import warnings
+import numpy as np  # Thinly-wrapped numpy
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs

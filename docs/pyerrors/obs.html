@@ -1525,6 +1525,9 @@
 <span class="k">def</span> <span class="nf">_reduce_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx_old</span><span class="p">,</span> <span class="n">idx_new</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extract deltas defined on idx_old on all configs of idx_new.</span>
 
+<span class="sd">    Assumes, that idx_old and idx_new are correctly defined idl, i.e., they</span>
+<span class="sd">    are ordered in an ascending order.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    deltas : list</span>
@@ -1544,8 +1547,6 @@
     <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">oldpos</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">oldpos</span> <span class="o">==</span> <span class="n">idx_old</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;idx_old and idx_new do not match!&#39;</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oldpos</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_old</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">idx_old</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
@@ -1553,7 +1554,8 @@
                 <span class="k">break</span>
         <span class="k">if</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error in _reduce_deltas: Config </span><span class="si">%d</span><span class="s1"> not in idx_old&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx_new</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+        <span class="n">oldpos</span> <span class="o">=</span> <span class="n">pos</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 
 

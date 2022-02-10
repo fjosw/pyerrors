@@ -4,7 +4,7 @@ import pyerrors as pe
 import pytest
 
 
-def test_openqcd():
+def test_rwms():
     path = './tests//data/openqcd_test/'
     prefix = 'sfqcd'
     postfix = '.rwms'
@@ -45,10 +45,29 @@ def test_openqcd():
     assert(rwfo[1].value == 1.184681251089919)
     repname = list(rwfo[0].idl.keys())[0]
     assert(rwfo[0].idl[repname] == range(1, 10))
-    rwfo = pe.input.openQCD.read_rwms(path, prefix, version='2.0', files=files, names=names, r_start=[1], r_stop=[8])
+    rwfo = pe.input.openQCD.read_rwms(path, prefix, version='2.0', files=files, names=names, r_start=[1], r_stop=[8], print_err=True)
     assert(rwfo[0].idl[repname] == range(1, 9))
 
-    # Qtop
+    # t0
+    prefix = 'openqcd'
+
+    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4)
+    files = ['openqcd2r1.ms.dat']
+    names = ['openqcd2|r1']
+    t0 = pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2)
+    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, r_start=[1])
+    repname = list(rwfo[0].idl.keys())[0]
+    assert(t0.idl[repname] == range(1, 10))
+    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, r_start=[2], r_stop=[8])
+    repname = list(rwfo[0].idl.keys())[0]
+    assert(t0.idl[repname] == range(2, 9))
+    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, fit_range=2, plaquette=True, assume_thermalization=True)
+
+    pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
+
+def test_Qtop():
+    path = './tests//data/openqcd_test/'
+    prefix = 'sfqcd'
 
     qtop = pe.input.openQCD.read_qtop(path, prefix, c=0.3, version='sfqcd')
     repname = list(qtop.idl.keys())[0]
@@ -78,18 +97,3 @@ def test_openqcd():
     qs = pe.input.openQCD.read_qtop_sector(path, '', 0.3, target=0, Zeuthen_flow=True, version='sfqcd')
 
     assert((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
-
-    # t0
-
-    prefix = 'openqcd'
-    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4)
-    files = ['openqcd2r1.ms.dat']
-    names = ['openqcd2|r1']
-    t0 = pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2)
-    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, r_start=[1])
-    repname = list(rwfo[0].idl.keys())[0]
-    assert(t0.idl[repname] == range(1, 10))
-    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, r_start=[2], r_stop=[8])
-    repname = list(rwfo[0].idl.keys())[0]
-    assert(t0.idl[repname] == range(2, 9))
-    t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, fit_range=2, plaquette=True, assume_thermalization=True)

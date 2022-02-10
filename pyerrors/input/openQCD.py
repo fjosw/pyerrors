@@ -467,7 +467,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
         ax1.set_ylabel('Residuals')
         ax1.set_xlabel(r'$t/a^2$')
 
-        plt.show()
+        plt.draw()
     return -fit_result[0] / fit_result[1]
 
 
@@ -504,7 +504,7 @@ def _read_array_openQCD2(fp):
     elif size == 16:
         types = 'dd'
     else:
-        print('Type not known!')
+        raise Exception("Type for size '" + str(size) + "' not known.")
     m = n[0]
     for i in range(1, d):
         m *= n[i]

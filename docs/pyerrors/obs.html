@@ -908,7 +908,7 @@
 
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_names</span><span class="p">,</span> <span class="n">sizes</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
@@ -918,6 +918,8 @@
 <span class="sd">        datatype : str</span>
 <span class="sd">            Format of the exported file. Supported formats include</span>
 <span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
+<span class="sd">        description : str</span>
+<span class="sd">            Description for output file, only relevant for json.gz format.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -928,7 +930,7 @@
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
@@ -2466,7 +2468,7 @@
 
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_names</span><span class="p">,</span> <span class="n">sizes</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
@@ -2476,6 +2478,8 @@
 <span class="sd">        datatype : str</span>
 <span class="sd">            Format of the exported file. Supported formats include</span>
 <span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
+<span class="sd">        description : str</span>
+<span class="sd">            Description for output file, only relevant for json.gz format.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2486,7 +2490,7 @@
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
@@ -3660,12 +3664,12 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 
         
             <span class="def">def</span>
-            <span class="name">dump</span><span class="signature">(self, filename, datatype=&#39;json.gz&#39;, **kwargs)</span>:
+            <span class="name">dump</span><span class="signature">(self, filename, datatype=&#39;json.gz&#39;, description=&#39;&#39;, **kwargs)</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dump the Obs to a file &#39;name&#39; of chosen format.</span>
 
 <span class="sd">        Parameters</span>
@@ -3675,6 +3679,8 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 <span class="sd">        datatype : str</span>
 <span class="sd">            Format of the exported file. Supported formats include</span>
 <span class="sd">            &quot;json.gz&quot; and &quot;pickle&quot;</span>
+<span class="sd">        description : str</span>
+<span class="sd">            Description for output file, only relevant for json.gz format.</span>
 <span class="sd">        path : str</span>
 <span class="sd">            specifies a custom path for the file (default &#39;.&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3685,7 +3691,7 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
@@ -3705,6 +3711,8 @@ name of the file to be saved.</li>
 <li><strong>datatype</strong> (str):
 Format of the exported file. Supported formats include
 "json.gz" and "pickle"</li>
+<li><strong>description</strong> (str):
+Description for output file, only relevant for json.gz format.</li>
 <li><strong>path</strong> (str):
 specifies a custom path for the file (default '.')</li>
 </ul>

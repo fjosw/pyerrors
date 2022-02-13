@@ -928,7 +928,7 @@
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
@@ -2486,7 +2486,7 @@
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>
@@ -3685,7 +3685,7 @@ ensemble to the error and returns a dictionary containing the fractions.</p>
 
         <span class="k">if</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;json.gz&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">.input.json</span> <span class="kn">import</span> <span class="n">dump_to_json</span>
-            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="n">dump_to_json</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">datatype</span> <span class="o">==</span> <span class="s2">&quot;pickle&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s1">&#39;.p&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fb</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fb</span><span class="p">)</span>

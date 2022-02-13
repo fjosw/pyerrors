@@ -617,7 +617,7 @@ class Obs:
 
         if datatype == "json.gz":
             from .input.json import dump_to_json
-            dump_to_json([self], file_name)
+            dump_to_json([self], file_name, **kwargs)
         elif datatype == "pickle":
             with open(file_name + '.p', 'wb') as fb:
                 pickle.dump(self, fb)

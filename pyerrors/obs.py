@@ -597,7 +597,7 @@ class Obs:
 
         return dict(zip(self.e_names, sizes))
 
-    def dump(self, filename, datatype="json.gz", **kwargs):
+    def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
@@ -607,6 +607,8 @@ class Obs:
         datatype : str
             Format of the exported file. Supported formats include
             "json.gz" and "pickle"
+        description : str
+            Description for output file, only relevant for json.gz format.
         path : str
             specifies a custom path for the file (default '.')
         """
@@ -617,7 +619,7 @@ class Obs:
 
         if datatype == "json.gz":
             from .input.json import dump_to_json
-            dump_to_json([self], file_name)
+            dump_to_json([self], file_name, description=description)
         elif datatype == "pickle":
             with open(file_name + '.p', 'wb') as fb:
                 pickle.dump(self, fb)

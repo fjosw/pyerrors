@@ -326,7 +326,7 @@ def func(a, x):
 For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 
 # Matrix operations
-`pyerrors` provides wrappers for `Obs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
+`pyerrors` provides wrappers for `Obs`- and `CObs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
 - `inv` for the matrix inverse.
 - `cholseky` for the Cholesky decomposition.
 - `det` for the matrix determinant.

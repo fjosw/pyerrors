@@ -247,7 +247,7 @@ my_new_corr = 0.3 * my_corr[2] * my_corr * my_corr + 12 / my_corr
 
 For the full API see `pyerrors.correlators.Corr`.
 
-# Complex observables
+# Complex valued observables
 
 `pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.
 `CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.
@@ -270,9 +270,60 @@ print(my_derived_cobs)
 > (1.668(23)+0.0j)
 ```
 
-# Optimization / fits / roots
-`pyerrors.fits`
-`pyerrors.roots`
+# Error propagation in iterative algorithms
+
+`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
+
+## Least squares fits
+
+Standard non-linear least square fits with errors on the dependent but not the independent variables can be performed with `pyerrors.fits.least_squares`. As default solver the Levenberg-Marquardt algorithm implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html) is used.
+
+Fit functions have to be of the following form
+```python
+import autograd.numpy as anp
+
+def func(a, x):
+    return a[1] * anp.exp(-a[0] * x)
+```
+**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation to work properly.**
+
+Fits can then be performed via
+```python
+fit_result = pe.fits.least_squares(x, y, func)
+print("\n", fit_result)
+> Fit with 2 parameters
+> Method: Levenberg-Marquardt
+> `ftol` termination condition is satisfied.
+> chisquare/d.o.f.: 0.9593035785160936
+
+>  Goodness of fit:
+> χ²/d.o.f. = 0.959304
+> p-value   = 0.5673
+> Fit parameters:
+> 0	 0.0548(28)
+> 1	 1.933(64)
+```
+where x is a `list` or `numpy.array` of `floats` and y is a `list` or `numpy.array` of `Obs`.
+
+Data stored in `Corr` objects can be fitted directly using the `Corr.fit` method.
+```python
+my_corr = pe.Corr(y)
+fit_result = my_corr.fit(func, fitrange=[12, 25])
+```
+this can simplify working with absolute fit ranges and takes care of gaps in the data automatically.
+
+For fit functions with multiple independent variables the fit function can be of the form
+
+```python
+def func(a, x):
+    (x1, x2) = x
+    return a[0] * x1 ** 2 + a[1] * x2
+```
+
+## Total least squares fits
+`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.
+
+For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 
 # Matrix operations
 `pyerrors` provides wrappers for `Obs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
@@ -295,6 +346,12 @@ See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for 
 
 # Input
 `pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.
+
+# Citing
+If you use `pyerrors` for research that leads to a publication please consider citing:
+- Ulli Wolff, "Monte Carlo errors with less errors". Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).
+- Stefan Schaefer, Rainer Sommer, Francesco Virotta, "Critical slowing down and error analysis in lattice QCD simulations". Nucl.Phys.B 845 (2011) 93-119.
+- Alberto Ramos, "Automatic differentiation for error analysis of Monte Carlo data". Comput.Phys.Commun. 238 (2019) 19-35.
 '''
 from .obs import *
 from .correlators import *

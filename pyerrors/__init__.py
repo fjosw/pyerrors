@@ -338,20 +338,18 @@ For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding r
 For the full API see `pyerrors.linalg`.
 
 # Export data
-The preferred exported file format within `pyerrors` is json.gz
+
+The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this formats will be listed here soon.
 
 ## Jackknife samples
 For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
 See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 
-# Input
-`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.
-
 # Citing
 If you use `pyerrors` for research that leads to a publication please consider citing:
-- Ulli Wolff, "Monte Carlo errors with less errors". Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).
-- Stefan Schaefer, Rainer Sommer, Francesco Virotta, "Critical slowing down and error analysis in lattice QCD simulations". Nucl.Phys.B 845 (2011) 93-119.
-- Alberto Ramos, "Automatic differentiation for error analysis of Monte Carlo data". Comput.Phys.Commun. 238 (2019) 19-35.
+- Ulli Wolff, *Monte Carlo errors with less errors*. Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).
+- Stefan Schaefer, Rainer Sommer, Francesco Virotta, *Critical slowing down and error analysis in lattice QCD simulations*. Nucl.Phys.B 845 (2011) 93-119.
+- Alberto Ramos, *Automatic differentiation for error analysis of Monte Carlo data*. Comput.Phys.Commun. 238 (2019) 19-35.
 '''
 from .obs import *
 from .correlators import *

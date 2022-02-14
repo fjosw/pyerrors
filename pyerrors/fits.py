@@ -72,9 +72,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         fit function, has to be of the form
 
         ```python
+        import autograd.numpy as anp
+
         def func(a, x):
-            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-            return y
+            return a[0] + a[1] * x + a[2] * anp.sinh(x)
         ```
 
         For multiple x values func can be of the form
@@ -133,9 +134,10 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         func has to be of the form
 
         ```python
+        import autograd.numpy as anp
+
         def func(a, x):
-            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-            return y
+            return a[0] + a[1] * x + a[2] * anp.sinh(x)
         ```
 
         For multiple x values func can be of the form

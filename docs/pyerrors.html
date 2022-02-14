@@ -62,7 +62,6 @@
   <ul>
     <li><a href="#jackknife-samples">Jackknife samples</a></li>
   </ul></li>
-  <li><a href="#input">Input</a></li>
   <li><a href="#citing">Citing</a></li>
 </ul>
 
@@ -439,25 +438,21 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h1 id="export-data">Export data</h1>
 
-<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz</p>
+<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz. The exact specifications of this formats will be listed here soon.</p>
 
 <h2 id="jackknife-samples">Jackknife samples</h2>
 
 <p>For comparison with other analysis workflows <code><a href="">pyerrors</a></code> can generate jackknife samples from an <code>Obs</code> object or import jackknife samples into an <code>Obs</code> object.
 See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.export_jackknife</a></code> and <code><a href="pyerrors/obs.html#import_jackknife">pyerrors.obs.import_jackknife</a></code> for details.</p>
 
-<h1 id="input">Input</h1>
-
-<p><code><a href="">pyerrors</a></code> includes an <code>input</code> submodule in which input routines and parsers for the output of various numerical programs are contained. For details see <code><a href="pyerrors/input.html">pyerrors.input</a></code>.</p>
-
 <h1 id="citing">Citing</h1>
 
 <p>If you use <code><a href="">pyerrors</a></code> for research that leads to a publication please consider citing:</p>
 
 <ul>
-<li>Ulli Wolff, "Monte Carlo errors with less errors". Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).</li>
-<li>Stefan Schaefer, Rainer Sommer, Francesco Virotta, "Critical slowing down and error analysis in lattice QCD simulations". Nucl.Phys.B 845 (2011) 93-119.</li>
-<li>Alberto Ramos, "Automatic differentiation for error analysis of Monte Carlo data". Comput.Phys.Commun. 238 (2019) 19-35.</li>
+<li>Ulli Wolff, <em>Monte Carlo errors with less errors</em>. Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).</li>
+<li>Stefan Schaefer, Rainer Sommer, Francesco Virotta, <em>Critical slowing down and error analysis in lattice QCD simulations</em>. Nucl.Phys.B 845 (2011) 93-119.</li>
+<li>Alberto Ramos, <em>Automatic differentiation for error analysis of Monte Carlo data</em>. Comput.Phys.Commun. 238 (2019) 19-35.</li>
 </ul>
 </div>
 
@@ -803,20 +798,18 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">For the full API see `pyerrors.linalg`.</span>
 
 <span class="sd"># Export data</span>
-<span class="sd">The preferred exported file format within `pyerrors` is json.gz</span>
+
+<span class="sd">The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this formats will be listed here soon.</span>
 
 <span class="sd">## Jackknife samples</span>
 <span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>
 <span class="sd">See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.</span>
 
-<span class="sd"># Input</span>
-<span class="sd">`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.</span>
-
 <span class="sd"># Citing</span>
 <span class="sd">If you use `pyerrors` for research that leads to a publication please consider citing:</span>
-<span class="sd">- Ulli Wolff, &quot;Monte Carlo errors with less errors&quot;. Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).</span>
-<span class="sd">- Stefan Schaefer, Rainer Sommer, Francesco Virotta, &quot;Critical slowing down and error analysis in lattice QCD simulations&quot;. Nucl.Phys.B 845 (2011) 93-119.</span>
-<span class="sd">- Alberto Ramos, &quot;Automatic differentiation for error analysis of Monte Carlo data&quot;. Comput.Phys.Commun. 238 (2019) 19-35.</span>
+<span class="sd">- Ulli Wolff, *Monte Carlo errors with less errors*. Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).</span>
+<span class="sd">- Stefan Schaefer, Rainer Sommer, Francesco Virotta, *Critical slowing down and error analysis in lattice QCD simulations*. Nucl.Phys.B 845 (2011) 93-119.</span>
+<span class="sd">- Alberto Ramos, *Automatic differentiation for error analysis of Monte Carlo data*. Comput.Phys.Commun. 238 (2019) 19-35.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.correlators</span> <span class="kn">import</span> <span class="o">*</span>

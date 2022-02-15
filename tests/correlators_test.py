@@ -24,6 +24,7 @@ def test_function_overloading():
 
     for i, f in enumerate(fs):
         t1 = f([corr_a, corr_b])
+        t1.gamma_method()
         for o_a, o_b, con in zip(corr_content_a, corr_content_b, t1.content):
             t2 = f([o_a, o_b])
             t2.gamma_method()
@@ -175,6 +176,7 @@ def test_utility():
         corr_content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
 
     corr = pe.correlators.Corr(corr_content)
+    corr.gamma_method()
     corr.print()
     corr.print([2, 4])
     corr.show()
@@ -183,6 +185,7 @@ def test_utility():
     corr.dump('test_dump', datatype="pickle", path='.')
     corr.dump('test_dump', datatype="pickle")
     new_corr = pe.load_object('test_dump.p')
+    new_corr.gamma_method()
     os.remove('test_dump.p')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
@@ -192,6 +195,7 @@ def test_utility():
     corr.dump('test_dump', datatype="json.gz", path='.')
     corr.dump('test_dump', datatype="json.gz")
     new_corr = pe.input.json.load_json('test_dump')
+    new_corr.gamma_method()
     os.remove('test_dump.json.gz')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
@@ -288,6 +292,7 @@ def test_thin():
     c = pe.Corr([pe.pseudo_Obs(i, .1, 'test') for i in range(10)])
     c *= pe.cov_Obs(1., .1, '#ren')
     thin = c.thin()
+    thin.gamma_method()
     thin.fit(lambda a, x: a[0] * x)
     c.thin(offset=1)
     c.thin(3, offset=1)

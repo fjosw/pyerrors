@@ -364,7 +364,7 @@
     <span class="n">N_sigma_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">filter_eps</span> <span class="o">=</span> <span class="mf">1e-10</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -375,12 +375,9 @@
 <span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
-<span class="sd">        means : list, optional</span>
-<span class="sd">            list of mean values for the case that the mean values were</span>
-<span class="sd">            already subtracted from the samples</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Length of samples and names incompatible.&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">idl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -426,8 +423,8 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">means</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">))):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span>
@@ -1924,7 +1921,7 @@
     <span class="n">N_sigma_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">filter_eps</span> <span class="o">=</span> <span class="mf">1e-10</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -1935,12 +1932,9 @@
 <span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
-<span class="sd">        means : list, optional</span>
-<span class="sd">            list of mean values for the case that the mean values were</span>
-<span class="sd">            already subtracted from the samples</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Length of samples and names incompatible.&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">idl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1986,8 +1980,8 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">means</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">))):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span>
@@ -2729,12 +2723,12 @@ this overwrites the standard value for that ensemble.</li>
                                         <div class="attr function"><a class="headerlink" href="#Obs.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">Obs</span><span class="signature">(samples, names, idl=None, means=None, **kwargs)</span>
+            <span class="name">Obs</span><span class="signature">(samples, names, idl=None, **kwargs)</span>
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize Obs object.</span>
 
 <span class="sd">        Parameters</span>
@@ -2745,12 +2739,9 @@ this overwrites the standard value for that ensemble.</li>
 <span class="sd">            list of strings labeling the individual samples</span>
 <span class="sd">        idl : list, optional</span>
 <span class="sd">            list of ranges or lists on which the samples are defined</span>
-<span class="sd">        means : list, optional</span>
-<span class="sd">            list of mean values for the case that the mean values were</span>
-<span class="sd">            already subtracted from the samples</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Length of samples and names incompatible.&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">idl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2796,8 +2787,8 @@ this overwrites the standard value for that ensemble.</li>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">if</span> <span class="n">means</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">means</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">mean</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;means&quot;</span><span class="p">))):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idl</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">r_values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span>
@@ -2840,9 +2831,6 @@ list of numpy arrays containing the Monte Carlo samples</li>
 list of strings labeling the individual samples</li>
 <li><strong>idl</strong> (list, optional):
 list of ranges or lists on which the samples are defined</li>
-<li><strong>means</strong> (list, optional):
-list of mean values for the case that the mean values were
-already subtracted from the samples</li>
 </ul>
 </div>
 

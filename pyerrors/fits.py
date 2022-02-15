@@ -39,7 +39,6 @@ class Fit_result(Sequence):
         [o.gamma_method() for o in self.fit_parameters]
 
     def __str__(self):
-        self.gamma_method()
         my_str = 'Goodness of fit:\n'
         if hasattr(self, 'chisquare_by_dof'):
             my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'

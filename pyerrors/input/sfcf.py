@@ -6,7 +6,7 @@ from ..obs import Obs
 from . import utils
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", **kwargs):
     """Read sfcf c format from given folder structure.
 
     Parameters
@@ -40,6 +40,8 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         append a "c" to the version (e.g. "1.0c")
         if the append output option (-a) was specified,
         append an "a" to the version
+    cfg_separator : str
+        String that separates the ensemble identifier from the configuration number (default 'n').
     replica: list
         list of replica to be read, default is all
     files: list
@@ -177,7 +179,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             for cfg in sub_ls:
                 try:
                     if compact:
-                        rep_idl.append(int(cfg.split("n")[-1]))
+                        rep_idl.append(int(cfg.split(cfg_separator)[-1]))
                     else:
                         rep_idl.append(int(cfg[3:]))
                 except Exception:
@@ -323,7 +325,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     stop = start + data_starts[1]
                     chunk = content[start:stop]
                     try:
-                        rep_idl.append(int(chunk[gauge_line].split("n")[-1]))
+                        rep_idl.append(int(chunk[gauge_line].split(cfg_separator)[-1]))
                     except Exception:
                         raise Exception("Couldn't parse idl from directory, problem with chunk around line ", gauge_line)
 

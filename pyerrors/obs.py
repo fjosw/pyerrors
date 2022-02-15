@@ -53,7 +53,7 @@ class Obs:
     N_sigma_dict = {}
     filter_eps = 1e-10
 
-    def __init__(self, samples, names, idl=None, means=None, **kwargs):
+    def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -64,12 +64,9 @@ class Obs:
             list of strings labeling the individual samples
         idl : list, optional
             list of ranges or lists on which the samples are defined
-        means : list, optional
-            list of mean values for the case that the mean values were
-            already subtracted from the samples
         """
 
-        if means is None and len(samples):
+        if kwargs.get("means") is None and len(samples):
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
@@ -115,8 +112,8 @@ class Obs:
 
             self._value = 0
             self.N = 0
-            if means is not None:
-                for name, sample, mean in sorted(zip(names, samples, means)):
+            if kwargs.get("means") is not None:
+                for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
                     self.shape[name] = len(self.idl[name])
                     self.N += self.shape[name]
                     self.r_values[name] = mean

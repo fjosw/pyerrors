@@ -211,6 +211,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                             read = 1
                             start = k + 1
                     print(str(T) + " entries found.")
+                    file.close()
                 else:
                     pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
                     if b2b:
@@ -230,8 +231,11 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
                         assert T > 0
                         print(T, 'entries, starting to read in line', start_read)
+                        file.close()
                     else:
+                        file.close()
                         raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
+
                 # we found where the correlator
                 # that is to be read is in the files
                 # after preparing the datastructure

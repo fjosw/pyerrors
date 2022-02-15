@@ -97,8 +97,6 @@ class Corr:
         self.T = len(self.content)
         self.prange = prange
 
-        self.gamma_method()
-
     def __getitem__(self, idx):
         """Return the content of timeslice idx"""
         if self.content[idx] is None:
@@ -138,8 +136,6 @@ class Corr:
         """
         if self.N == 1:
             raise Exception("Trying to project a Corr, that already has N=1.")
-
-        self.gamma_method()
 
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
@@ -642,7 +638,6 @@ class Corr:
         xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
-        result.gamma_method()
         return result
 
     def plateau(self, plateau_range=None, method="fit"):
@@ -673,7 +668,6 @@ class Corr:
             return self.fit(const_func, plateau_range)[0]
         elif method in ["avg", "average", "mean"]:
             returnvalue = np.mean([item[0] for item in self.content[plateau_range[0]:plateau_range[1] + 1] if item is not None])
-            returnvalue.gamma_method()
             return returnvalue
 
         else:

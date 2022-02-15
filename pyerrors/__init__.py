@@ -195,7 +195,7 @@ Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho
 For the full API see `pyerrors.obs.Obs`.
 
 # Correlators
-When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs´
+When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs`
 ```python
 my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3])
 print(my_corr)

@@ -248,7 +248,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     else:
                         file.close()
                         raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
-                    
+
                 # we found where the correlator
                 # that is to be read is in the files
                 # after preparing the datastructure

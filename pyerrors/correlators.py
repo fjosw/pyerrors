@@ -457,9 +457,10 @@ class Corr:
         T_partner = parity * partner.reverse()
 
         t_slices = []
-        for x0, t_slice in enumerate((self - T_partner).content):
+        test = (self - T_partner)
+        test.gamma_method()
+        for x0, t_slice in enumerate(test):
             if t_slice is not None:
-                t_slice.gamma_method()
                 if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)
         if t_slices:

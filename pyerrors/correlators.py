@@ -459,7 +459,7 @@ class Corr:
         t_slices = []
         test = (self - T_partner)
         test.gamma_method()
-        for x0, t_slice in enumerate(test):
+        for x0, t_slice in enumerate(test.content):
             if t_slice is not None:
                 if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)

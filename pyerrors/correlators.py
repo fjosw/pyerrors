@@ -689,8 +689,8 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None):
-        """Plots the correlator, uses tag as label if available.
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False):
+        """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
         ----------
@@ -698,19 +698,26 @@ class Corr:
             list of two values, determining the range of the x-axis e.g. [4, 8]
         comp : Corr or list of Corr
             Correlator or list of correlators which are plotted for comparison.
+            The tags of these correlators are used as labels if available.
         logscale : bool
             Sets y-axis to logscale
         plateau : Obs
-            plateau to be visualized in the figure
+            Plateau value to be visualized in the figure
         fit_res : Fit_result
             Fit_result object to be visualized
         ylabel : str
             Label for the y-axis
         save : str
             path to file in which the figure should be saved
+        auto_gamma : bool
+            Apply the gamma method with standard parameters to all correlators and plateau values before plotting.
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
+
+        if auto_gamma:
+            self.gamma_method()
+
         if x_range is None:
             x_range = [0, self.T - 1]
 
@@ -722,7 +729,6 @@ class Corr:
         if logscale:
             ax1.set_yscale('log')
         else:
-            # we generate ylim instead of using autoscaling.
             if y_range is None:
                 try:
                     y_min = min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
@@ -735,17 +741,21 @@ class Corr:
         if comp:
             if isinstance(comp, (Corr, list)):
                 for corr in comp if isinstance(comp, list) else [comp]:
+                    if auto_gamma:
+                        corr.gamma_method()
                     x, y, y_err = corr.plottable()
                     plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
-                raise Exception('comp must be a correlator or a list of correlators.')
+                raise Exception("'comp' must be a correlator or a list of correlators.")
 
         if plateau:
             if isinstance(plateau, Obs):
+                if auto_gamma:
+                    plateau.gamma_method()
                 ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=str(plateau))
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
-                raise Exception('plateau must be an Obs')
+                raise Exception("'plateau' must be an Obs")
         if self.prange:
             ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
             ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')
@@ -770,7 +780,7 @@ class Corr:
             if isinstance(save, str):
                 fig.savefig(save)
             else:
-                raise Exception("Safe has to be a string.")
+                raise Exception("'save' has to be a string.")
 
         return
 

@@ -6,6 +6,7 @@ import datetime
 import platform
 import warnings
 import re
+import gc
 import numpy as np
 from ..obs import Obs
 from ..covobs import Covobs
@@ -38,6 +39,8 @@ def create_json_string(ol, description='', indent=1):
     my_encoder.default = _default
 
     class Deltalist:
+        __slots__ = ['cnfg', 'deltas']
+
         def __init__(self, li):
             self.cnfg = li[0]
             self.deltas = li[1:]
@@ -53,6 +56,8 @@ def create_json_string(ol, description='', indent=1):
             return self.__repr__()
 
     class Floatlist:
+        __slots__ = ['li']
+
         def __init__(self, li):
             self.li = list(li)
 
@@ -222,14 +227,18 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
-    jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
+    jsonstring = ''
+    for chunk in my_encoder(indent=indent, ensure_ascii=False).iterencode(d):
+        jsonstring += chunk
 
-    def remove_quotationmarks(s):
+    del d
+    gc.collect()
+
+    def remove_quotationmarks_split(split):
         """Workaround for un-quoting of delta lists, adds 5% of work
            but is save, compared to a simple replace that could destroy the structure
         """
         deltas = False
-        split = s.split('\n')
         for i in range(len(split)):
             if '"deltas":' in split[i] or '"cov":' in split[i] or '"grad":' in split[i]:
                 deltas = True
@@ -239,7 +248,8 @@ def create_json_string(ol, description='', indent=1):
                     deltas = False
         return '\n'.join(split)
 
-    jsonstring = remove_quotationmarks(jsonstring)
+    jsonstring = jsonstring.split('\n')
+    jsonstring = remove_quotationmarks_split(jsonstring)
     jsonstring = jsonstring.replace('nan', 'NaN')
     return jsonstring
 

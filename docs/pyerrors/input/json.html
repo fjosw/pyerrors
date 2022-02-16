@@ -92,6 +92,7 @@
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
 <span class="kn">from</span> <span class="nn">..covobs</span> <span class="kn">import</span> <span class="n">Covobs</span>
@@ -124,6 +125,8 @@
     <span class="n">my_encoder</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_default</span>
 
     <span class="k">class</span> <span class="nc">Deltalist</span><span class="p">:</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cnfg&#39;</span><span class="p">,</span> <span class="s1">&#39;deltas&#39;</span><span class="p">]</span>
+
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cnfg</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -139,6 +142,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
     <span class="k">class</span> <span class="nc">Floatlist</span><span class="p">:</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;li&#39;</span><span class="p">]</span>
+
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">li</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
 
@@ -308,14 +313,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unkown datatype.&quot;</span><span class="p">)</span>
 
-    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">my_encoder</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">my_encoder</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">iterencode</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">jsonstring</span> <span class="o">+=</span> <span class="n">chunk</span>
 
-    <span class="k">def</span> <span class="nf">remove_quotationmarks</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">d</span>
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">remove_quotationmarks_split</span><span class="p">(</span><span class="n">split</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Workaround for un-quoting of delta lists, adds 5% of work</span>
 <span class="sd">           but is save, compared to a simple replace that could destroy the structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">split</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)):</span>
             <span class="k">if</span> <span class="s1">&#39;&quot;deltas&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&quot;cov&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&quot;grad&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">deltas</span> <span class="o">=</span> <span class="kc">True</span>
@@ -325,7 +334,8 @@
                     <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
 
-    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">remove_quotationmarks</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">jsonstring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">remove_quotationmarks_split</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">)</span>
     <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">jsonstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">,</span> <span class="s1">&#39;NaN&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">jsonstring</span>
 
@@ -367,8 +377,9 @@
     <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
+<span class="k">def</span> <span class="nf">_parse_json_dict</span><span class="p">(</span><span class="n">json_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a dict that</span>
+<span class="sd">    was built out of a json string.</span>
 
 <span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 <span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
@@ -522,8 +533,6 @@
         <span class="n">my_corr</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">temp_prange</span>
         <span class="k">return</span> <span class="n">my_corr</span>
 
-    <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
-
     <span class="n">prog</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;program&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">version</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">who</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;who&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -571,6 +580,26 @@
         <span class="k">return</span> <span class="n">ol</span>
 
 
+<span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
+
+<span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
+<span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json_string : str</span>
+<span class="sd">        json string containing the data.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Print additional information that was written to the file.</span>
+<span class="sd">    full_output : bool</span>
+<span class="sd">        If True, a dict containing auxiliary information and the data is returned.</span>
+<span class="sd">        If False, only the data is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_parse_json_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">),</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json(.gz) file.</span>
 
@@ -595,14 +624,14 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
             <span class="n">fname</span> <span class="o">+=</span> <span class="s1">&#39;.gz&#39;</span>
         <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying to read from </span><span class="si">%s</span><span class="s2"> without unzipping!&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
-    <span class="k">return</span> <span class="n">import_json_string</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_parse_json_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_ol_from_dict</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">):</span>
@@ -854,6 +883,8 @@
     <span class="n">my_encoder</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_default</span>
 
     <span class="k">class</span> <span class="nc">Deltalist</span><span class="p">:</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cnfg&#39;</span><span class="p">,</span> <span class="s1">&#39;deltas&#39;</span><span class="p">]</span>
+
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cnfg</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -869,6 +900,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
     <span class="k">class</span> <span class="nc">Floatlist</span><span class="p">:</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;li&#39;</span><span class="p">]</span>
+
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">li</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">li</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
 
@@ -1038,14 +1071,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unkown datatype.&quot;</span><span class="p">)</span>
 
-    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">my_encoder</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">my_encoder</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">iterencode</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">jsonstring</span> <span class="o">+=</span> <span class="n">chunk</span>
 
-    <span class="k">def</span> <span class="nf">remove_quotationmarks</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">d</span>
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">remove_quotationmarks_split</span><span class="p">(</span><span class="n">split</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Workaround for un-quoting of delta lists, adds 5% of work</span>
 <span class="sd">           but is save, compared to a simple replace that could destroy the structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">split</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)):</span>
             <span class="k">if</span> <span class="s1">&#39;&quot;deltas&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&quot;cov&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&quot;grad&quot;:&#39;</span> <span class="ow">in</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">deltas</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1055,7 +1092,8 @@
                     <span class="n">deltas</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
 
-    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">remove_quotationmarks</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">jsonstring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">remove_quotationmarks_split</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">)</span>
     <span class="n">jsonstring</span> <span class="o">=</span> <span class="n">jsonstring</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">,</span> <span class="s1">&#39;NaN&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">jsonstring</span>
 </pre></div>
@@ -1181,191 +1219,7 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
 <span class="sd">        If False, only the data is returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_gen_obsd_from_datad</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">retd</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
-            <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;idl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;is_merged&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">ens</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="n">ens</span><span class="p">[</span><span class="s1">&#39;replica&#39;</span><span class="p">]:</span>
-                    <span class="n">rep_name</span> <span class="o">=</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep_name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ens</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
-                        <span class="k">if</span> <span class="n">rep_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">ens</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])]</span> <span class="o">!=</span> <span class="s2">&quot;|&quot;</span><span class="p">:</span>
-                            <span class="n">tmp_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rep_name</span><span class="p">)</span>
-                            <span class="n">tmp_list</span> <span class="o">=</span> <span class="n">tmp_list</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">ens</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;|&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">tmp_list</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">ens</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]):]</span>
-                            <span class="n">rep_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_list</span><span class="p">)</span>
-                    <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rep_name</span><span class="p">)</span>
-                    <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;idl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">di</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]])</span>
-                    <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">di</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">rep</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]]))</span>
-                    <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;is_merged&#39;</span><span class="p">][</span><span class="n">rep_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rep</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;is_merged&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">retd</span>
-
-    <span class="k">def</span> <span class="nf">_gen_covobsd_from_cdatad</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">retd</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">ens</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
-            <span class="n">retl</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">ens</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-            <span class="n">layouts</span> <span class="o">=</span> <span class="n">ens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="n">layout</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ls</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">ls</span> <span class="ow">in</span> <span class="n">layouts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ens</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">],</span> <span class="n">layout</span><span class="p">)</span>
-            <span class="n">grad</span> <span class="o">=</span> <span class="n">ens</span><span class="p">[</span><span class="s1">&#39;grad&#39;</span><span class="p">]</span>
-            <span class="n">nobs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grad</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nobs</span><span class="p">):</span>
-                <span class="n">retl</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;cov&#39;</span><span class="p">:</span> <span class="n">cov</span><span class="p">,</span> <span class="s1">&#39;grad&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">grad</span><span class="p">]})</span>
-            <span class="n">retd</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">retl</span>
-        <span class="k">return</span> <span class="n">retd</span>
-
-    <span class="k">def</span> <span class="nf">get_Obs_from_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
-        <span class="n">layouts</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">layouts</span> <span class="o">!=</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;layout is </span><span class="si">%s</span><span class="s2"> has to be 1 for type Obs.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">layouts</span><span class="p">),</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
-
-        <span class="n">values</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
-        <span class="n">od</span> <span class="o">=</span> <span class="n">_gen_obsd_from_datad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-        <span class="n">cd</span> <span class="o">=</span> <span class="n">_gen_covobsd_from_cdatad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cdata&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-
-        <span class="k">if</span> <span class="n">od</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([[</span><span class="n">ddi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ddi</span> <span class="ow">in</span> <span class="n">di</span><span class="p">]</span> <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]],</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="n">od</span><span class="p">[</span><span class="s1">&#39;idl&#39;</span><span class="p">])</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;is_merged&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([],</span> <span class="p">[])</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cd</span><span class="p">:</span>
-            <span class="n">co</span> <span class="o">=</span> <span class="n">cd</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">_covobs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Covobs</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">],</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">grad</span><span class="o">=</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;grad&#39;</span><span class="p">])</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-
-        <span class="n">ret</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reweighted&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
-    <span class="k">def</span> <span class="nf">get_List_from_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
-        <span class="n">layouts</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">layout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">layouts</span><span class="p">)</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
-        <span class="n">od</span> <span class="o">=</span> <span class="n">_gen_obsd_from_datad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-        <span class="n">cd</span> <span class="o">=</span> <span class="n">_gen_covobsd_from_cdatad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cdata&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">taglist</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="n">layout</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layout</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">od</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">di</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]],</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="n">od</span><span class="p">[</span><span class="s1">&#39;idl&#39;</span><span class="p">]))</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;is_merged&#39;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([],</span> <span class="p">[]))</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Created Obs with means= &#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cd</span><span class="p">:</span>
-                <span class="n">co</span> <span class="o">=</span> <span class="n">cd</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_covobs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Covobs</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">],</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">grad</span><span class="o">=</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;grad&#39;</span><span class="p">])</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-
-            <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reweighted&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">taglist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
-    <span class="k">def</span> <span class="nf">get_Array_from_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
-        <span class="n">layouts</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;layout&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">layout</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ls</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">ls</span> <span class="ow">in</span> <span class="n">layouts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
-        <span class="n">od</span> <span class="o">=</span> <span class="n">_gen_obsd_from_datad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-        <span class="n">cd</span> <span class="o">=</span> <span class="n">_gen_covobsd_from_cdatad</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cdata&#39;</span><span class="p">,</span> <span class="p">{}))</span>
-
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">taglist</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">od</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="n">di</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;deltas&#39;</span><span class="p">]],</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="n">od</span><span class="p">[</span><span class="s1">&#39;idl&#39;</span><span class="p">]))</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_merged</span> <span class="o">=</span> <span class="n">od</span><span class="p">[</span><span class="s1">&#39;is_merged&#39;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([],</span> <span class="p">[]))</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cd</span><span class="p">:</span>
-                <span class="n">co</span> <span class="o">=</span> <span class="n">cd</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_covobs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Covobs</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">],</span> <span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">grad</span><span class="o">=</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;grad&#39;</span><span class="p">])</span>
-                <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">co</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-            <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reweighted</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reweighted&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">taglist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_Corr_from_dict</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">),</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># supports the old way</span>
-            <span class="n">taglist</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span>  <span class="c1"># This had to be modified to get the taglist from the dictionary</span>
-            <span class="n">temp_prange</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">tagdic</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span>
-            <span class="n">taglist</span> <span class="o">=</span> <span class="n">tagdic</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s1">&#39;prange&#39;</span> <span class="ow">in</span> <span class="n">tagdic</span><span class="p">:</span>
-                <span class="n">temp_prange</span> <span class="o">=</span> <span class="n">tagdic</span><span class="p">[</span><span class="s1">&#39;prange&#39;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">temp_prange</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The tag is not a list or dict&quot;</span><span class="p">)</span>
-
-        <span class="n">corr_tag</span> <span class="o">=</span> <span class="n">taglist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">tmp_o</span> <span class="o">=</span> <span class="n">o</span>
-        <span class="n">tmp_o</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">taglist</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_o</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">tmp_o</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span>
-        <span class="n">dat</span> <span class="o">=</span> <span class="n">get_Array_from_dict</span><span class="p">(</span><span class="n">tmp_o</span><span class="p">)</span>
-        <span class="n">my_corr</span> <span class="o">=</span> <span class="n">Corr</span><span class="p">([</span><span class="kc">None</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dat</span><span class="p">)])</span>
-        <span class="k">if</span> <span class="n">corr_tag</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
-            <span class="n">my_corr</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">corr_tag</span>
-
-        <span class="n">my_corr</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">temp_prange</span>
-        <span class="k">return</span> <span class="n">my_corr</span>
-
-    <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
-
-    <span class="n">prog</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;program&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">version</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">who</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;who&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">date</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">host</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">prog</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data has been written using </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prog</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Format version </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">version</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="n">who</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">host</span><span class="p">]</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Written by </span><span class="si">%s</span><span class="s1"> on </span><span class="si">%s</span><span class="s1"> on host </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">host</span><span class="p">))</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">description</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Description: &#39;</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
-    <span class="n">obsdata</span> <span class="o">=</span> <span class="n">json_dict</span><span class="p">[</span><span class="s1">&#39;obsdata&#39;</span><span class="p">]</span>
-    <span class="n">ol</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">io</span> <span class="ow">in</span> <span class="n">obsdata</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Obs&#39;</span><span class="p">:</span>
-            <span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_Obs_from_dict</span><span class="p">(</span><span class="n">io</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;List&#39;</span><span class="p">:</span>
-            <span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_List_from_dict</span><span class="p">(</span><span class="n">io</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Array&#39;</span><span class="p">:</span>
-            <span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_Array_from_dict</span><span class="p">(</span><span class="n">io</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Corr&#39;</span><span class="p">:</span>
-            <span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_Corr_from_dict</span><span class="p">(</span><span class="n">io</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unkown datatype.&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">full_output</span><span class="p">:</span>
-        <span class="n">retd</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;program&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prog</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;who&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">who</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">host</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
-        <span class="n">retd</span><span class="p">[</span><span class="s1">&#39;obsdata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ol</span>
-
-        <span class="k">return</span> <span class="n">retd</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obsdata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">ol</span> <span class="o">=</span> <span class="n">ol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">ol</span>
+    <span class="k">return</span> <span class="n">_parse_json_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">),</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -1424,14 +1278,14 @@ If False, only the data is returned.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
             <span class="n">fname</span> <span class="o">+=</span> <span class="s1">&#39;.gz&#39;</span>
         <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying to read from </span><span class="si">%s</span><span class="s2"> without unzipping!&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
-    <span class="k">return</span> <span class="n">import_json_string</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_parse_json_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">full_output</span><span class="p">)</span>
 </pre></div>
 
         </details>

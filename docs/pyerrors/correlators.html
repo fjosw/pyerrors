@@ -898,8 +898,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plots the correlator, uses tag as label if available.</span>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -907,19 +907,26 @@
 <span class="sd">            list of two values, determining the range of the x-axis e.g. [4, 8]</span>
 <span class="sd">        comp : Corr or list of Corr</span>
 <span class="sd">            Correlator or list of correlators which are plotted for comparison.</span>
+<span class="sd">            The tags of these correlators are used as labels if available.</span>
 <span class="sd">        logscale : bool</span>
 <span class="sd">            Sets y-axis to logscale</span>
 <span class="sd">        plateau : Obs</span>
-<span class="sd">            plateau to be visualized in the figure</span>
+<span class="sd">            Plateau value to be visualized in the figure</span>
 <span class="sd">        fit_res : Fit_result</span>
 <span class="sd">            Fit_result object to be visualized</span>
 <span class="sd">        ylabel : str</span>
 <span class="sd">            Label for the y-axis</span>
 <span class="sd">        save : str</span>
 <span class="sd">            path to file in which the figure should be saved</span>
+<span class="sd">        auto_gamma : bool</span>
+<span class="sd">            Apply the gamma method with standard parameters to all correlators and plateau values before plotting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before plotting&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 
@@ -931,7 +938,6 @@
         <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># we generate ylim instead of using autoscaling.</span>
             <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">y_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">x_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)])</span>
@@ -944,17 +950,21 @@
         <span class="k">if</span> <span class="n">comp</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="p">(</span><span class="n">Corr</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
                 <span class="k">for</span> <span class="n">corr</span> <span class="ow">in</span> <span class="n">comp</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">comp</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                        <span class="n">corr</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">plottable</span><span class="p">()</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;comp must be a correlator or a list of correlators.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plateau</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plateau</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                    <span class="n">plateau</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">plateau</span><span class="p">))</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhspan</span><span class="p">(</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;plateau must be an Obs&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;plateau&#39; must be an Obs&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
@@ -979,7 +989,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Safe has to be a string.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;save&#39; has to be a string.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span>
 
@@ -1987,8 +1997,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plots the correlator, uses tag as label if available.</span>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1996,19 +2006,26 @@
 <span class="sd">            list of two values, determining the range of the x-axis e.g. [4, 8]</span>
 <span class="sd">        comp : Corr or list of Corr</span>
 <span class="sd">            Correlator or list of correlators which are plotted for comparison.</span>
+<span class="sd">            The tags of these correlators are used as labels if available.</span>
 <span class="sd">        logscale : bool</span>
 <span class="sd">            Sets y-axis to logscale</span>
 <span class="sd">        plateau : Obs</span>
-<span class="sd">            plateau to be visualized in the figure</span>
+<span class="sd">            Plateau value to be visualized in the figure</span>
 <span class="sd">        fit_res : Fit_result</span>
 <span class="sd">            Fit_result object to be visualized</span>
 <span class="sd">        ylabel : str</span>
 <span class="sd">            Label for the y-axis</span>
 <span class="sd">        save : str</span>
 <span class="sd">            path to file in which the figure should be saved</span>
+<span class="sd">        auto_gamma : bool</span>
+<span class="sd">            Apply the gamma method with standard parameters to all correlators and plateau values before plotting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before plotting&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 
@@ -2020,7 +2037,6 @@
         <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># we generate ylim instead of using autoscaling.</span>
             <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">y_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">x_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)])</span>
@@ -2033,17 +2049,21 @@
         <span class="k">if</span> <span class="n">comp</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="p">(</span><span class="n">Corr</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
                 <span class="k">for</span> <span class="n">corr</span> <span class="ow">in</span> <span class="n">comp</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">comp</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                        <span class="n">corr</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">plottable</span><span class="p">()</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;comp must be a correlator or a list of correlators.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plateau</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plateau</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                    <span class="n">plateau</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">plateau</span><span class="p">))</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhspan</span><span class="p">(</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;plateau must be an Obs&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;plateau&#39; must be an Obs&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
@@ -2068,7 +2088,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Safe has to be a string.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;save&#39; has to be a string.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span>
 
@@ -3592,14 +3612,15 @@ method to extract the plateau.
     plateau=None,
     fit_res=None,
     ylabel=None,
-    save=None
+    save=None,
+    auto_gamma=False
 )</span>:
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plots the correlator, uses tag as label if available.</span>
+            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3607,19 +3628,26 @@ method to extract the plateau.
 <span class="sd">            list of two values, determining the range of the x-axis e.g. [4, 8]</span>
 <span class="sd">        comp : Corr or list of Corr</span>
 <span class="sd">            Correlator or list of correlators which are plotted for comparison.</span>
+<span class="sd">            The tags of these correlators are used as labels if available.</span>
 <span class="sd">        logscale : bool</span>
 <span class="sd">            Sets y-axis to logscale</span>
 <span class="sd">        plateau : Obs</span>
-<span class="sd">            plateau to be visualized in the figure</span>
+<span class="sd">            Plateau value to be visualized in the figure</span>
 <span class="sd">        fit_res : Fit_result</span>
 <span class="sd">            Fit_result object to be visualized</span>
 <span class="sd">        ylabel : str</span>
 <span class="sd">            Label for the y-axis</span>
 <span class="sd">        save : str</span>
 <span class="sd">            path to file in which the figure should be saved</span>
+<span class="sd">        auto_gamma : bool</span>
+<span class="sd">            Apply the gamma method with standard parameters to all correlators and plateau values before plotting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before plotting&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">x_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 
@@ -3631,7 +3659,6 @@ method to extract the plateau.
         <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># we generate ylim instead of using autoscaling.</span>
             <span class="k">if</span> <span class="n">y_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">y_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">x_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dvalue</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)])</span>
@@ -3644,17 +3671,21 @@ method to extract the plateau.
         <span class="k">if</span> <span class="n">comp</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="p">(</span><span class="n">Corr</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
                 <span class="k">for</span> <span class="n">corr</span> <span class="ow">in</span> <span class="n">comp</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">comp</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                        <span class="n">corr</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">plottable</span><span class="p">()</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_err</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;comp must be a correlator or a list of correlators.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plateau</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plateau</span><span class="p">,</span> <span class="n">Obs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">auto_gamma</span><span class="p">:</span>
+                    <span class="n">plateau</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">plateau</span><span class="p">))</span>
                 <span class="n">ax1</span><span class="o">.</span><span class="n">axhspan</span><span class="p">(</span><span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">plateau</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">plateau</span><span class="o">.</span><span class="n">dvalue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;text.color&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;plateau must be an Obs&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;plateau&#39; must be an Obs&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">:</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
@@ -3679,14 +3710,14 @@ method to extract the plateau.
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Safe has to be a string.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;save&#39; has to be a string.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Plots the correlator, uses tag as label if available.</p>
+            <div class="docstring"><p>Plots the correlator using the tag of the correlator as label if available.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3694,17 +3725,20 @@ method to extract the plateau.
 <li><strong>x_range</strong> (list):
 list of two values, determining the range of the x-axis e.g. [4, 8]</li>
 <li><strong>comp</strong> (Corr or list of Corr):
-Correlator or list of correlators which are plotted for comparison.</li>
+Correlator or list of correlators which are plotted for comparison.
+The tags of these correlators are used as labels if available.</li>
 <li><strong>logscale</strong> (bool):
 Sets y-axis to logscale</li>
 <li><strong>plateau</strong> (Obs):
-plateau to be visualized in the figure</li>
+Plateau value to be visualized in the figure</li>
 <li><strong>fit_res</strong> (Fit_result):
 Fit_result object to be visualized</li>
 <li><strong>ylabel</strong> (str):
 Label for the y-axis</li>
 <li><strong>save</strong> (str):
 path to file in which the figure should be saved</li>
+<li><strong>auto_gamma</strong> (bool):
+Apply the gamma method with standard parameters to all correlators and plateau values before plotting.</li>
 </ul>
 </div>
 

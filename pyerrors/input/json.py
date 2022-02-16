@@ -6,6 +6,7 @@ import datetime
 import platform
 import warnings
 import re
+import gc
 import numpy as np
 from ..obs import Obs
 from ..covobs import Covobs
@@ -38,6 +39,8 @@ def create_json_string(ol, description='', indent=1):
     my_encoder.default = _default
 
     class Deltalist:
+        __slots__ = ['cnfg', 'deltas']
+
         def __init__(self, li):
             self.cnfg = li[0]
             self.deltas = li[1:]
@@ -53,6 +56,8 @@ def create_json_string(ol, description='', indent=1):
             return self.__repr__()
 
     class Floatlist:
+        __slots__ = ['li']
+
         def __init__(self, li):
             self.li = list(li)
 
@@ -222,14 +227,18 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
-    jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
+    jsonstring = ''
+    for chunk in my_encoder(indent=indent, ensure_ascii=False).iterencode(d):
+        jsonstring += chunk
 
-    def remove_quotationmarks(s):
+    del d
+    gc.collect()
+
+    def remove_quotationmarks_split(split):
         """Workaround for un-quoting of delta lists, adds 5% of work
            but is save, compared to a simple replace that could destroy the structure
         """
         deltas = False
-        split = s.split('\n')
         for i in range(len(split)):
             if '"deltas":' in split[i] or '"cov":' in split[i] or '"grad":' in split[i]:
                 deltas = True
@@ -239,7 +248,8 @@ def create_json_string(ol, description='', indent=1):
                     deltas = False
         return '\n'.join(split)
 
-    jsonstring = remove_quotationmarks(jsonstring)
+    jsonstring = jsonstring.split('\n')
+    jsonstring = remove_quotationmarks_split(jsonstring)
     jsonstring = jsonstring.replace('nan', 'NaN')
     return jsonstring
 
@@ -281,8 +291,9 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     fp.close()
 
 
-def import_json_string(json_string, verbose=True, full_output=False):
-    """Reconstruct a list of Obs or structures containing Obs from a json string.
+def _parse_json_dict(json_dict, verbose=True, full_output=False):
+    """Reconstruct a list of Obs or structures containing Obs from a dict that
+    was built out of a json string.
 
     The following structures are supported: Obs, list, numpy.ndarray, Corr
     If the list contains only one element, it is unpacked from the list.
@@ -436,8 +447,6 @@ def import_json_string(json_string, verbose=True, full_output=False):
         my_corr.prange = temp_prange
         return my_corr
 
-    json_dict = json.loads(json_string)
-
     prog = json_dict.get('program', '')
     version = json_dict.get('version', '')
     who = json_dict.get('who', '')
@@ -485,6 +494,26 @@ def import_json_string(json_string, verbose=True, full_output=False):
         return ol
 
 
+def import_json_string(json_string, verbose=True, full_output=False):
+    """Reconstruct a list of Obs or structures containing Obs from a json string.
+
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
+    If the list contains only one element, it is unpacked from the list.
+
+    Parameters
+    ----------
+    json_string : str
+        json string containing the data.
+    verbose : bool
+        Print additional information that was written to the file.
+    full_output : bool
+        If True, a dict containing auxiliary information and the data is returned.
+        If False, only the data is returned.
+    """
+
+    return _parse_json_dict(json.loads(json_string), verbose, full_output)
+
+
 def load_json(fname, verbose=True, gz=True, full_output=False):
     """Import a list of Obs or structures containing Obs from a .json(.gz) file.
 
@@ -509,14 +538,14 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname, 'r') as fin:
-            d = fin.read().decode('utf-8')
+            d = json.load(fin)
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         with open(fname, 'r', encoding='utf-8') as fin:
-            d = fin.read()
+            d = json.loads(fin.read())
 
-    return import_json_string(d, verbose, full_output)
+    return _parse_json_dict(d, verbose, full_output)
 
 
 def _ol_from_dict(ind, reps='DICTOBS'):

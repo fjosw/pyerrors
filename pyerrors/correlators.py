@@ -1,4 +1,5 @@
 import warnings
+from itertools import permutations
 import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
@@ -1059,7 +1060,7 @@ def _sort_vectors(vec_set, ts):
         if vec_set[t] is None:
             sorted_vec_set.append(None)
         elif not t == ts:
-            perms = permutation([i for i in range(N)])
+            perms = [list(o) for o in permutations([i for i in range(N)], N)]
             best_score = 0
             for perm in perms:
                 current_score = 1
@@ -1075,19 +1076,6 @@ def _sort_vectors(vec_set, ts):
             sorted_vec_set.append(vec_set[t])
 
     return sorted_vec_set
-
-
-def permutation(lst):  # Shamelessly copied
-    if len(lst) == 1:
-        return [lst]
-    ll = []
-    for i in range(len(lst)):
-        m = lst[i]
-        remLst = lst[:i] + lst[i + 1:]
-        # Generating all permutations where m is first
-        for p in permutation(remLst):
-            ll.append([m] + p)
-    return ll
 
 
 def _GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks

@@ -49,7 +49,7 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=None):
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters

@@ -360,6 +360,5 @@ from . import input
 from . import linalg
 from . import mpm
 from . import roots
-from . import utils
 
 from .version import __version__

@@ -71,7 +71,7 @@ class Corr:
         if isinstance(data_input, list):
 
             if all([isinstance(item, (Obs, CObs)) for item in data_input]):
-                _assert_equal_properties(data_input,allow_missing=True)
+                _assert_equal_properties(data_input, allow_missing=True)
                 self.content = [np.asarray([item]) for item in data_input]
             if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None], allow_missing=True)

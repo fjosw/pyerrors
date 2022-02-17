@@ -55,8 +55,8 @@ class Corr:
             N = data_input.shape[0]
             input_as_list = []
             for t in range(T):
-                if any([(item.content[t][0] is None) for item in data_input.flatten()]):
-                    if not all([(item.content[t][0] is None) for item in data_input.flatten()]):
+                if any([(item.content[t] is None) for item in data_input.flatten()]):
+                    if not all([(item.content[t] is None) for item in data_input.flatten()]):
                         warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss!", RuntimeWarning)
                     input_as_list.append(None)
                 else:
@@ -644,7 +644,7 @@ class Corr:
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         return result
 
-    def plateau(self, plateau_range=None, method="fit"):
+    def plateau(self, plateau_range=None, method="fit", auto_gamma=False):
         """ Extract a plateau value from a Corr object
 
         Parameters
@@ -666,6 +666,8 @@ class Corr:
             raise Exception("Correlator must be projected before getting a plateau.")
         if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
             raise Exception("plateau is undefined at all timeslices in plateaurange.")
+        if auto_gamma:
+            self.gamma_method()  # This might be a bit dangerous, because the auto_errors persist within the correlator.
         if method == "fit":
             def const_func(a, t):
                 return a[0]

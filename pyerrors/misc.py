@@ -104,7 +104,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol, otype=Obs):
+def _assert_equal_properties(ol, otype=Obs, allow_missing=False):
     if not isinstance(ol[0], otype):
         raise Exception("Wrong data type in list.")
     for o in ol[1:]:
@@ -116,5 +116,6 @@ def _assert_equal_properties(ol, otype=Obs):
             raise Exception("All Obs in list have to have the same property 'reweighted'.")
         if not ol[0].e_content == o.e_content:
             raise Exception("All Obs in list have to be defined on the same set of configs.")
-        if not ol[0].idl == o.idl:
-            raise Exception("All Obs in list have to be defined on the same set of configurations.")
+        if not allow_missing:
+            if not ol[0].idl == o.idl:
+                raise Exception("All Obs in list have to be defined on the same set of configurations.")

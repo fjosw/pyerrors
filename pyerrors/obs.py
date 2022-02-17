@@ -1551,6 +1551,3 @@ def cov_Obs(means, cov, name, grad=None):
     if len(ol) == 1:
         return ol[0]
     return ol
-
-
-

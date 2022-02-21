@@ -266,10 +266,11 @@ class Corr:
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
+            symmetric_corr = self.matrix_symmetric()
             for i in range(self.N):
                 for j in range(self.N):
-                    G0[i, j] = self.matrix_symmetric().content[t0][i, j].value
-                    Gt[i, j] = self.matrix_symmetric().content[ts][i, j].value
+                    G0[i, j] = symmetric_corr.content[t0][i, j].value
+                    Gt[i, j] = symmetric_corr[ts][i, j].value
 
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]

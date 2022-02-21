@@ -7,7 +7,7 @@ import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
-from .linalg import eigh, inv, cholesky
+# from .linalg import eigh, inv, cholesky
 from .roots import find_root
 
 
@@ -268,8 +268,8 @@ class Corr:
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
             for i in range(self.N):
                 for j in range(self.N):
-                    G0[i, j] = self.content[t0][i, j].value
-                    Gt[i, j] = self.content[ts][i, j].value
+                    G0[i, j] = self.matrix_symmetric().content[t0][i, j].value
+                    Gt[i, j] = self.matrix_symmetric().content[ts][i, j].value
 
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]
@@ -301,24 +301,9 @@ class Corr:
 
         return all_vecs
 
-    def Eigenvalue(self, t0, state=1):
-        G = self.matrix_symmetric()
-        G0 = G.content[t0]
-        L = cholesky(G0)
-        Li = inv(L)
-        LT = L.T
-        LTi = inv(LT)
-        newcontent = []
-        for t in range(self.T):
-            if self.content[t] is None:
-                newcontent.append(None)
-            else:
-                Gt = G.content[t]
-                M = Li @ Gt @ LTi
-                eigenvalues = eigh(M)[0]
-                eigenvalue = eigenvalues[-state]
-                newcontent.append(eigenvalue)
-        return Corr(newcontent)
+    def Eigenvalue(self, t0, ts=None, state=0, sorted_list=None):
+        vec = self.GEVP(self, t0=t0, ts=ts, state=state, sorted_list=sorted_list)
+        return self.projected(vec)
 
     def Hankel(self, N, periodic=False):
         """Constructs an NxN Hankel matrix
@@ -1081,7 +1066,7 @@ def _sort_vectors(vec_set, ts):
 
 
 def _GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
-    sp_val, sp_vecs = scipy.linalg.eig(Gt, G0)
+    sp_val, sp_vecs = scipy.linalg.eigh(Gt, G0)
     sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
     sp_vecs = [v / np.sqrt((v.T @ G0 @ v)) for v in sp_vecs]
     return sp_vecs

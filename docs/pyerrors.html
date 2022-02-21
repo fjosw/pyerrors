@@ -458,10 +458,10 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <li><code>description</code> contains information on the content of the file. This field is not filled automatically in <code><a href="">pyerrors</a></code>. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.</li>
 </ul>
 
-<p>The only necessary entry of the file is the field 
+<p>The only necessary entry of the file is the field
 -<code>obsdata</code>, an array that contains the actual data.</p>
 
-<p>Each entry of the array belongs to a single structure of observables. Currently, these strucutres can be eiter of <code>Obs</code>, <code>list</code>, <code>numpy.ndarray</code>, <code>Corr</code>. All <code>Obs</code> inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array <code>obsdata</code>, are treated independently. Each entry of the array <code>obsdata</code> has the following required entries:</p>
+<p>Each entry of the array belongs to a single structure of observables. Currently, these structures can be either of <code>Obs</code>, <code>list</code>, <code>numpy.ndarray</code>, <code>Corr</code>. All <code>Obs</code> inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array <code>obsdata</code>, are treated independently. Each entry of the array <code>obsdata</code> has the following required entries:</p>
 
 <ul>
 <li><code>type</code> is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.</li>
@@ -478,12 +478,12 @@ The following entries are optional:</li>
 
 <ul>
 <li><code>id</code>, a string that contains the name of the ensemble</li>
-<li><code>replica</code>, an array that contains an entry per replica of the ensemble. </li>
+<li><code>replica</code>, an array that contains an entry per replica of the ensemble.</li>
 </ul>
 
 <p>Each entry of <code>replica</code> contains
 <code>name</code>, a string that contains the name of the replica
-<code>deltas</code>, an array that contains the actual data. </p>
+<code>deltas</code>, an array that contains the actual data.</p>
 
 <p>Each entry in <code>deltas</code> corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each <code>Obs</code> inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.</p>
 
@@ -497,6 +497,8 @@ The following entries are optional:</li>
 </ul>
 
 <p>A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.</p>
+
+<p>Julia I/O routines for the json.gz format, compatible with <a href="https://gitlab.ift.uam-csic.es/alberto/aderrors.jl">ADerrors.jl</a>, can be found <a href="https://github.com/fjosw/ADjson.jl">here</a>.</p>
 
 <h2 id="jackknife-samples">Jackknife samples</h2>
 
@@ -870,10 +872,10 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- `host` is a string and contains the hostname of the machine where the file has been written.</span>
 <span class="sd">- `description` contains information on the content of the file. This field is not filled automatically in `pyerrors`. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.</span>
 
-<span class="sd">The only necessary entry of the file is the field </span>
+<span class="sd">The only necessary entry of the file is the field</span>
 <span class="sd">-`obsdata`, an array that contains the actual data.</span>
 
-<span class="sd">Each entry of the array belongs to a single structure of observables. Currently, these strucutres can be eiter of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:</span>
+<span class="sd">Each entry of the array belongs to a single structure of observables. Currently, these structures can be either of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:</span>
 <span class="sd">- `type` is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.</span>
 <span class="sd">- `value` is an array that contains the mean values of the Obs inside the structure.</span>
 <span class="sd">The following entries are optional:</span>
@@ -885,11 +887,11 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">The array `data` contains the data from MC chains. Each entry of the array corresponds to one ensemble and contains:</span>
 <span class="sd">- `id`, a string that contains the name of the ensemble</span>
-<span class="sd">- `replica`, an array that contains an entry per replica of the ensemble. </span>
+<span class="sd">- `replica`, an array that contains an entry per replica of the ensemble.</span>
 
 <span class="sd">Each entry of `replica` contains</span>
 <span class="sd">`name`, a string that contains the name of the replica</span>
-<span class="sd">`deltas`, an array that contains the actual data. </span>
+<span class="sd">`deltas`, an array that contains the actual data.</span>
 
 <span class="sd">Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.</span>
 
@@ -900,6 +902,8 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.</span>
 
 <span class="sd">A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.</span>
+
+<span class="sd">Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).</span>
 
 <span class="sd">## Jackknife samples</span>
 <span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>

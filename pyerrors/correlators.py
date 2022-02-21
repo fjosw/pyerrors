@@ -302,7 +302,7 @@ class Corr:
         return all_vecs
 
     def Eigenvalue(self, t0, ts=None, state=0, sorted_list=None):
-        vec = self.GEVP(self, t0=t0, ts=ts, state=state, sorted_list=sorted_list)
+        vec = self.GEVP(t0, ts=ts, state=state, sorted_list=sorted_list)
         return self.projected(vec)
 
     def Hankel(self, N, periodic=False):

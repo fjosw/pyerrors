@@ -26,7 +26,7 @@ print(my_new_obs)                             # Print the result to stdout
 # The `Obs` class
 
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
+An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
@@ -38,7 +38,7 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 
 ## Error propagation
 
-When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care of using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -96,7 +96,7 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
-If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.
 
 ### Exponential tails
@@ -285,7 +285,7 @@ import autograd.numpy as anp
 def func(a, x):
     return a[1] * anp.exp(-a[0] * x)
 ```
-**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation to work properly.**
+**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation in iterative algorithms to work properly.**
 
 Fits can then be performed via
 ```python
@@ -339,7 +339,7 @@ For the full API see `pyerrors.linalg`.
 
 # Export data
 
-The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this formats will be listed here soon.
+The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this format will be listed here soon.
 
 ## Jackknife samples
 For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.

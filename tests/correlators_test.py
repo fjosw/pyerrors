@@ -296,3 +296,18 @@ def test_thin():
     thin.fit(lambda a, x: a[0] * x)
     c.thin(offset=1)
     c.thin(3, offset=1)
+
+
+def test_corr_matrix_none_entries():
+    dim = 8
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = [0.1] * dim
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    corr = pe.Corr(oy)
+    corr = corr.deriv()
+    pe.Corr(np.array([[corr, corr], [corr, corr]]))

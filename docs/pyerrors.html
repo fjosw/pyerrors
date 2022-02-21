@@ -126,7 +126,7 @@ It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
 
 <p><code><a href="">pyerrors</a></code> introduces a new datatype, <code>Obs</code>, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An <code>Obs</code> object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
+An <code>Obs</code> object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</p>
 
@@ -137,7 +137,7 @@ The second argument is a list containing the names of the respective Monte Carlo
 
 <h2 id="error-propagation">Error propagation</h2>
 
-<p>When performing mathematical operations on <code>Obs</code> objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+<p>When performing mathematical operations on <code>Obs</code> objects the correct error propagation is intrinsically taken care of using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
@@ -190,7 +190,7 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code> and <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
-<p>If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+<p>If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.</p>
 
 <h3 id="exponential-tails">Exponential tails</h3>
@@ -379,7 +379,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">anp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 </code></pre></div>
 
-<p><strong>It is important that numerical functions refer to <code>autograd.numpy</code> instead of <code>numpy</code> for the automatic differentiation to work properly.</strong></p>
+<p><strong>It is important that numerical functions refer to <code>autograd.numpy</code> instead of <code>numpy</code> for the automatic differentiation in iterative algorithms to work properly.</strong></p>
 
 <p>Fits can then be performed via</p>
 
@@ -439,7 +439,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <h1 id="export-data">Export data</h1>
 
-<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz. The exact specifications of this formats will be listed here soon.</p>
+<p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz. The exact specifications of this format will be listed here soon.</p>
 
 <h2 id="jackknife-samples">Jackknife samples</h2>
 
@@ -487,7 +487,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd"># The `Obs` class</span>
 
 <span class="sd">`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.</span>
-<span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.</span>
+<span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.</span>
 <span class="sd">The samples can either be provided as python list or as numpy array.</span>
 <span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</span>
 
@@ -499,7 +499,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">## Error propagation</span>
 
-<span class="sd">When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion</span>
+<span class="sd">When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care of using a first order Taylor expansion</span>
 <span class="sd">$$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$</span>
 <span class="sd">as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).</span>
 <span class="sd">The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
@@ -557,7 +557,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.</span>
 
-<span class="sd">If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.</span>
+<span class="sd">If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.</span>
 <span class="sd">In this case the error estimate is identical to the sample standard error.</span>
 
 <span class="sd">### Exponential tails</span>
@@ -746,7 +746,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 <span class="sd">def func(a, x):</span>
 <span class="sd">    return a[1] * anp.exp(-a[0] * x)</span>
 <span class="sd">```</span>
-<span class="sd">**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation to work properly.**</span>
+<span class="sd">**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation in iterative algorithms to work properly.**</span>
 
 <span class="sd">Fits can then be performed via</span>
 <span class="sd">```python</span>
@@ -800,7 +800,7 @@ See <code><a href="pyerrors/obs.html#Obs.export_jackknife">pyerrors.obs.Obs.expo
 
 <span class="sd"># Export data</span>
 
-<span class="sd">The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this formats will be listed here soon.</span>
+<span class="sd">The preferred exported file format within `pyerrors` is json.gz. The exact specifications of this format will be listed here soon.</span>
 
 <span class="sd">## Jackknife samples</span>
 <span class="sd">For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>

@@ -26,7 +26,7 @@ print(my_new_obs)                             # Print the result to stdout
 # The `Obs` class
 
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
+An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
@@ -38,7 +38,7 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 
 ## Error propagation
 
-When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care of using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -96,7 +96,7 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
-If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.
 
 ### Exponential tails
@@ -285,7 +285,7 @@ import autograd.numpy as anp
 def func(a, x):
     return a[1] * anp.exp(-a[0] * x)
 ```
-**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation to work properly.**
+**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation in iterative algorithms to work properly.**
 
 Fits can then be performed via
 ```python
@@ -344,42 +344,42 @@ The preferred exported file format within `pyerrors` is json.gz. Files written t
 - How does each single ensemble or external quantity contribute to the error of the observable?
 - Who did write the file when and on which machine?
 
-This can be achieved by storing all information in on single file. The export routines of `pyerrors` are written such that as much information is written automatically. The first entries of the file provide optional auxiliary information:
+This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically. The first entries of the file provide optional auxiliary information:
 - `program` is a string that indicates which program was used to write the file.
 - `version` is a string that specifies the version of the format.
-- `who' is a string that specifies the user name of the creator of the file.
+- `who` is a string that specifies the user name of the creator of the file.
 - `date` is a string and contains the creation date of the file.
-- `host` is a string and contains the hostname on which the file was written.
-- `description` contains information on the content of the file. This field is not filled automatically. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.
+- `host` is a string and contains the hostname of the machine where the file has been written.
+- `description` contains information on the content of the file. This field is not filled automatically in `pyerrors`. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.
 
 The only necessary entry of the file is the field 
 -`obsdata`, an array that contains the actual data.
 
-Each entry of the array belongs to a single structure of observables. Currently, these strucutres can be eiter of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension > 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of this array has the following required entries:
+Each entry of the array belongs to a single structure of observables. Currently, these strucutres can be eiter of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension > 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:
 - `type` is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.
 - `value` is an array that contains the mean values of the Obs inside the structure.
 The following entries are optional:
-- `layout` is a string that specifies the layout of multi-dimensional structures. Examples are "2, 2" for a 2x2 dimensional matrix or  "64, 4, 4" for a Corr with T=64 and 4x4 matrices at each time slices. "1" denotes a single Obs.
+- `layout` is a string that specifies the layout of multi-dimensional structures. Examples are "2, 2" for a 2x2 dimensional matrix or  "64, 4, 4" for a Corr with $T=64$ and 4x4 matrices on each time slices. "1" denotes a single Obs. Multi-dimensional structures are stored in row-major format (see below).
 - `tag` is any JSON type. It contains additional information concerning the structure. The `tag` of an `Obs` in `pyerrors` is written here.
 - `reweighted` is a Bool that may be used to specify, whether the `Obs` in the structure have been reweighted.
 - `data` is an array that contains the data from MC chains. We will define it below.
 - `cdata` is an array that contains the data from external quantities with an error (`Covobs` in `pyerrors`). We will define it below.
 
 The array `data` contains the data from MC chains. Each entry of the array corresponds to one ensemble and contains:
-- `id`, a string giving the name of the ensemble
+- `id`, a string that contains the name of the ensemble
 - `replica`, an array that contains an entry per replica of the ensemble. 
 
 Each entry of `replica` contains
 `name`, a string that contains the name of the replica
 `deltas`, an array that contains the actual data. 
 
-Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format.
+Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.
 
 The array `cdata` contains information about the contribution of auxiliary observables, represented by `Covobs` in `pyerrors`, to the total error of the observables. Each entry of the array belongs to one auxiliary covariance matrix and contains:
 - `id`, a string that identifies the covariance matrix
-- `layout`, a string that defines the dimensions of the $M\times M$ covariance matrix (has to be "M, M").
+- `layout`, a string that defines the dimensions of the $M\times M$ covariance matrix (has to be "M, M" or "1").
 - `cov`, an array that contains the $M\times M$ many entries of the covariance matrix, stored in row-major format.
-- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry is an array, that contains the M gradients of the Nth observable with respect to the values that correspond to the diagonal entries of the covariance matrix.
+- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.
 
 ## Jackknife samples
 For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.

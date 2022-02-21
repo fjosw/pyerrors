@@ -381,6 +381,8 @@ The array `cdata` contains information about the contribution of auxiliary obser
 - `cov`, an array that contains the $M\times M$ many entries of the covariance matrix, stored in row-major format.
 - `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.
 
+A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.
+
 ## Jackknife samples
 For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
 See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.

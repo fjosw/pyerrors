@@ -1073,6 +1073,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Corr + wrong type&quot;</span><span class="p">)</span>
 
@@ -1096,6 +1101,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Corr * wrong type&quot;</span><span class="p">)</span>
 
@@ -1145,6 +1155,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr / wrong type&#39;</span><span class="p">)</span>
 
@@ -2163,6 +2178,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Corr + wrong type&quot;</span><span class="p">)</span>
 
@@ -2186,6 +2206,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Corr * wrong type&quot;</span><span class="p">)</span>
 
@@ -2235,6 +2260,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">newcontent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">,):</span>
+                <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;operands could not be broadcast together&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Corr / wrong type&#39;</span><span class="p">)</span>
 

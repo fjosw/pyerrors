@@ -273,7 +273,7 @@ print(my_derived_cobs)
 # The `Covobs` class
 In many projects, auxiliary data that is not based on Monte Carlo chains enters. Examples are experimentally determined mesons masses which are used to set the scale or renormalization constants. These numbers come with an error that has to be propagated through the analysis. The `Covobs` class allows to define such quantities in `pyerrors`. Furthermore, external input might consist of correlated quantities. An example are the parameters of an interpolation formula, which are defined via mean values and a covariance matrix between all parameters. The contribution of the interpolation formula to the error of a derived quantity therefore might depend on the complete covariance matrix.
 
-This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissable, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters `cov_Obs`, since the second argument of this function is the covariance matrix of the `Covobs`.
+This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters `cov_Obs`, since the second argument of this function is the covariance matrix of the `Covobs`.
 
 ```python
 import pyerrors.obs as pe
@@ -284,11 +284,11 @@ mpi.details()
 > Result	 1.34976800e+02 +/- 5.00000000e-04 +/- 0.00000000e+00 (0.000%)
 >  pi^0 mass 	 5.00000000e-04
 > 0 samples in 1 ensemble:
->   · Covobs   'pi^0 mass' 
+>   · Covobs   'pi^0 mass'
 ```
-The resulting object `mpi` is an `Obs` that contains a `Covobs`. In the following, it may be handled as any other `Obs`. The contribution of the covariance matrix to the error of an `Obs` is determined from the $M \times M$ covariance matrix $\Sigma$ and the gradient of the `Obs` with respect to the external quantitites, which is the $1\times M$ Jacobian matrix $J$, via
+The resulting object `mpi` is an `Obs` that contains a `Covobs`. In the following, it may be handled as any other `Obs`. The contribution of the covariance matrix to the error of an `Obs` is determined from the $M \times M$ covariance matrix $\Sigma$ and the gradient of the `Obs` with respect to the external quantities, which is the $1\times M$ Jacobian matrix $J$, via
 $$s = \sqrt{J^T \Sigma J}\,,$$
-where the Jacobian is computed for each derived quantity via automatic differentiation. 
+where the Jacobian is computed for each derived quantity via automatic differentiation.
 
 Correlated auxiliary data is defined similarly to above, e.g., via
 ```python
@@ -298,7 +298,7 @@ print(RAP)
 ```
 where `RAP` now is a list of two `Obs` that contains the two correlated parameters.
 
-Since the gradient of a derived observable with respect to an external covariance matrix is propagated through the entire analysis, the `Covobs` class allows to quote the derivative of a result with respect to the external quantities. If these derivatives are published together with the result, small shifts in the definition of external quantities, e.g., the definition of the physical point, can be performed a posteriori based on the published information. This may help to compare results of different groups. The gradient of an `Obs` `o` with respect to a covariance matrix with the identificating string `k` may be accessed via
+Since the gradient of a derived observable with respect to an external covariance matrix is propagated through the entire analysis, the `Covobs` class allows to quote the derivative of a result with respect to the external quantities. If these derivatives are published together with the result, small shifts in the definition of external quantities, e.g., the definition of the physical point, can be performed a posteriori based on the published information. This may help to compare results of different groups. The gradient of an `Obs` `o` with respect to a covariance matrix with the identifying string `k` may be accessed via
 ```python
 o.covobs[k].grad
 ```
@@ -417,10 +417,6 @@ The array `cdata` contains information about the contribution of auxiliary obser
 A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.
 
 Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).
-
-# Jackknife samples
-For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
-See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 
 # Citing
 If you use `pyerrors` for research that leads to a publication please consider citing:

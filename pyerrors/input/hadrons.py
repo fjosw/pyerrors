@@ -73,14 +73,16 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
     corr_data = []
     infos = []
     for hd5_file in files:
-        file = h5py.File(path + '/' + hd5_file, "r")
-        raw_data = list(file[tree + '/' + meson + '/corr'])
+        h5file = h5py.File(path + '/' + hd5_file, "r")
+        if not tree + '/' + meson in h5file:
+            raise Exception("Entry '" + meson + "' not contained in the files.")
+        raw_data = list(h5file[tree + '/' + meson + '/corr'])
         real_data = [o[0] for o in raw_data]
         corr_data.append(real_data)
         if not infos:
-            for k, i in file[tree + '/' + meson].attrs.items():
+            for k, i in h5file[tree + '/' + meson].attrs.items():
                 infos.append(k + ': ' + i[0].decode())
-        file.close()
+        h5file.close()
     corr_data = np.array(corr_data)
 
     l_obs = []

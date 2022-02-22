@@ -43,6 +43,11 @@
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
 
+        <h2>Contents</h2>
+        <ul>
+  <li><a href="#jackknife-samples">Jackknife samples</a></li>
+</ul>
+
 
         <h2>Submodules</h2>
         <ul>
@@ -70,12 +75,21 @@
 <a href="./../pyerrors.html">pyerrors</a><wbr>.input    </h1>
 
                         <div class="docstring"><p><code><a href="../pyerrors.html">pyerrors</a></code> includes an <code>input</code> submodule in which input routines and parsers for the output of various numerical programs are contained.</p>
+
+<h1 id="jackknife-samples">Jackknife samples</h1>
+
+<p>For comparison with other analysis workflows <code><a href="../pyerrors.html">pyerrors</a></code> can also generate jackknife samples from an <code>Obs</code> object or import jackknife samples into an <code>Obs</code> object.
+See <code><a href="obs.html#Obs.export_jackknife">pyerrors.obs.Obs.export_jackknife</a></code> and <code><a href="obs.html#import_jackknife">pyerrors.obs.import_jackknife</a></code> for details.</p>
 </div>
 
                         <details>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained.</span>
+
+<span class="sd"># Jackknife samples</span>
+<span class="sd">For comparison with other analysis workflows `pyerrors` can also generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.</span>
+<span class="sd">See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">bdio</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">hadrons</span>

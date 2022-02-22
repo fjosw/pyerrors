@@ -60,7 +60,10 @@
     <li><a href="#total-least-squares-fits">Total least squares fits</a></li>
   </ul></li>
   <li><a href="#matrix-operations">Matrix operations</a></li>
-  <li><a href="#export-data">Export data</a></li>
+  <li><a href="#export-data">Export data</a>
+  <ul>
+    <li><a href="#jsongz-format-specification">json.gz format specification</a></li>
+  </ul></li>
   <li><a href="#citing">Citing</a></li>
 </ul>
 
@@ -480,7 +483,24 @@ where the Jacobian is computed for each derived quantity via automatic different
 <li>Who did write the file when and on which machine?</li>
 </ul>
 
-<p>This can be achieved by storing all information in one single file. The export routines of <code><a href="">pyerrors</a></code> are written such that as much information as possible is written automatically. The first entries of the file provide optional auxiliary information:</p>
+<p>This can be achieved by storing all information in one single file. The export routines of <code><a href="">pyerrors</a></code> are written such that as much information as possible is written automatically as described in the following example</p>
+
+<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;test_ensemble&quot;</span><span class="p">])</span>
+<span class="n">my_obs</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;My observable&quot;</span>
+
+<span class="n">pe</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dump_to_json</span><span class="p">(</span><span class="n">my_obs</span><span class="p">,</span> <span class="s2">&quot;test_output_file&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
+<span class="c1"># For a single observable one can equivalently use the class method dump</span>
+<span class="n">my_obs</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s2">&quot;test_output&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
+
+<span class="n">check</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;test_output_file&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">my_obs</span> <span class="o">==</span> <span class="n">check</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="kc">True</span>
+</code></pre></div>
+
+<h2 id="jsongz-format-specification">json.gz format specification</h2>
+
+<p>The first entries of the file provide optional auxiliary information:</p>
 
 <ul>
 <li><code>program</code> is a string that indicates which program was used to write the file.</li>
@@ -925,7 +945,23 @@ The following entries are optional:</li>
 <span class="sd">- How does each single ensemble or external quantity contribute to the error of the observable?</span>
 <span class="sd">- Who did write the file when and on which machine?</span>
 
-<span class="sd">This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically. The first entries of the file provide optional auxiliary information:</span>
+<span class="sd">This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically as described in the following example</span>
+<span class="sd">```python</span>
+<span class="sd">my_obs = pe.Obs([samples], [&quot;test_ensemble&quot;])</span>
+<span class="sd">my_obs.tag = &quot;My observable&quot;</span>
+
+<span class="sd">pe.input.json.dump_to_json(my_obs, &quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
+<span class="sd"># For a single observable one can equivalently use the class method dump</span>
+<span class="sd">my_obs.dump(&quot;test_output&quot;, description=&quot;This file contains a test observable&quot;)</span>
+
+<span class="sd">check = pe.input.json.load_json(&quot;test_output_file&quot;)</span>
+
+<span class="sd">print(my_obs == check)</span>
+<span class="sd">&gt; True</span>
+<span class="sd">```</span>
+
+<span class="sd">## json.gz format specification</span>
+<span class="sd">The first entries of the file provide optional auxiliary information:</span>
 <span class="sd">- `program` is a string that indicates which program was used to write the file.</span>
 <span class="sd">- `version` is a string that specifies the version of the format.</span>
 <span class="sd">- `who` is a string that specifies the user name of the creator of the file.</span>

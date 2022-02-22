@@ -780,7 +780,7 @@ def qtop_projection(qtop, target=0):
     Parameters
     ----------
     path : Obs
-        Topological charge, rounded to nearest integer on each config.
+        Topological charge.
     target : int
         Specifies the topological sector to be reweighted to (default 0)
     """
@@ -789,7 +789,7 @@ def qtop_projection(qtop, target=0):
 
     proj_qtop = []
     for n in qtop.deltas:
-        proj_qtop.append(np.array([1 if int(qtop.value + q) == target else 0 for q in qtop.deltas[n]]))
+        proj_qtop.append(np.array([1 if round(qtop.value + q) == target else 0 for q in qtop.deltas[n]]))
 
     reto = Obs(proj_qtop, qtop.names, idl=[qtop.idl[name] for name in qtop.names])
     reto.is_merged = qtop.is_merged

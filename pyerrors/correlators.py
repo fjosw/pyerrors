@@ -7,7 +7,6 @@ import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
-# from .linalg import eigh, inv, cholesky
 from .roots import find_root
 
 

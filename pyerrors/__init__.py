@@ -270,6 +270,39 @@ print(my_derived_cobs)
 > (1.668(23)+0.0j)
 ```
 
+# The `Covobs` class
+In many projects, auxiliary data that is not based on Monte Carlo chains enters. Examples are experimentally determined mesons masses which are used to set the scale or renormalization constants. These numbers come with an error that has to be propagated through the analysis. The `Covobs` class allows to define such quantities in `pyerrors`. Furthermore, external input might consist of correlated quantities. An example are the parameters of an interpolation formula, which are defined via mean values and a covariance matrix between all parameters. The contribution of the interpolation formula to the error of a derived quantity therefore might depend on the complete covariance matrix.
+
+This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissable, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters `cov_Obs`, since the second argument of this function is the covariance matrix of the `Covobs`.
+
+```python
+import pyerrors.obs as pe
+
+mpi = pe.cov_Obs(134.9768, 0.0005**2, 'pi^0 mass')
+mpi.gamma_method()
+mpi.details()
+> Result	 1.34976800e+02 +/- 5.00000000e-04 +/- 0.00000000e+00 (0.000%)
+>  pi^0 mass 	 5.00000000e-04
+> 0 samples in 1 ensemble:
+>   · Covobs   'pi^0 mass' 
+```
+The resulting object `mpi` is an `Obs` that contains a `Covobs`. In the following, it may be handled as any other `Obs`. The contribution of the covariance matrix to the error of an `Obs` is determined from the $M \times M$ covariance matrix $\Sigma$ and the gradient of the `Obs` with respect to the external quantitites, which is the $1\times M$ Jacobian matrix $J$, via
+$$s = \sqrt{J^T \Sigma J}\,,$$
+where the Jacobian is computed for each derived quantity via automatic differentiation. 
+
+Correlated auxiliary data is defined similarly to above, e.g., via
+```python
+RAP = pe.cov_Obs([16.7457, -19.0475], [[3.49591, -6.07560], [-6.07560, 10.5834]], 'R_AP, 1906.03445, (5.3a)')
+print(RAP)
+> [Obs[16.7(1.9)], Obs[-19.0(3.3)]]
+```
+where `RAP` now is a list of two `Obs` that contains the two correlated parameters.
+
+Since the gradient of a derived observable with respect to an external covariance matrix is propagated through the entire analysis, the `Covobs` class allows to quote the derivative of a result with respect to the external quantities. If these derivatives are published together with the result, small shifts in the definition of external quantities, e.g., the definition of the physical point, can be performed a posteriori based on the published information. This may help to compare results of different groups. The gradient of an `Obs` `o` with respect to a covariance matrix with the identificating string `k` may be accessed via
+```python
+o.covobs[k].grad
+```
+
 # Error propagation in iterative algorithms
 
 `pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -385,7 +418,7 @@ A JSON schema that may be used to verify the correctness of a file with respect 
 
 Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).
 
-## Jackknife samples
+# Jackknife samples
 For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
 See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 

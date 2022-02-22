@@ -384,13 +384,14 @@ my_obs.tag = "My observable"
 
 pe.input.json.dump_to_json(my_obs, "test_output_file", description="This file contains a test observable")
 # For a single observable one can equivalently use the class method dump
-my_obs.dump("test_output", description="This file contains a test observable")
+my_obs.dump("test_output_file", description="This file contains a test observable")
 
 check = pe.input.json.load_json("test_output_file")
 
 print(my_obs == check)
 > True
 ```
+The format also allows to directly write out the content of `Corr` objects or lists and arrays of `Obs` objects by passing the desired data to `pyerrors.input.json.dump_to_json`.
 
 ## json.gz format specification
 The first entries of the file provide optional auxiliary information:

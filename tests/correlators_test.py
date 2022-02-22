@@ -220,7 +220,7 @@ def test_prange():
 
 def test_matrix_corr():
     corr_aa = _gen_corr(1)
-    corr_ab = _gen_corr(0.5)
+    corr_ab = 0.5 * corr_aa
 
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
     corr_mat.item(0, 0)

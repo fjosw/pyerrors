@@ -255,9 +255,9 @@ class Corr:
             The state one is interested in ordered by energy. The lowest state is zero.
         sorted_list : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
-             "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
+             "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
-                                 The referense state is identified by its eigenvalue at t=ts
+                              The reference state is identified by its eigenvalue at t=ts
         """
         if sorted_list is None:
             if (ts is None):
@@ -302,6 +302,23 @@ class Corr:
         return all_vecs
 
     def Eigenvalue(self, t0, ts=None, state=0, sorted_list=None):
+        """Determines the eigenvalue of the GEVP by solving and projecting the correlator
+
+        Parameters
+        ----------
+        t0 : int
+            The time t0 for G(t)v= lambda G(t_0)v
+        ts : int
+            fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
+            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
+        state : int
+            The state one is interested in ordered by energy. The lowest state is zero.
+        sorted_list : string
+            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
+             "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
+             "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
+                              The reference state is identified by its eigenvalue at t=ts
+        """
         vec = self.GEVP(t0, ts=ts, state=state, sorted_list=sorted_list)
         return self.projected(vec)
 

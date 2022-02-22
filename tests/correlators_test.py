@@ -219,13 +219,6 @@ def test_prange():
 
 
 def test_matrix_corr():
-    def _gen_corr(val):
-        corr_content = []
-        for t in range(16):
-            corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
-
-        return pe.correlators.Corr(corr_content)
-
     corr_aa = _gen_corr(1)
     corr_ab = _gen_corr(0.5)
 
@@ -311,3 +304,26 @@ def test_corr_matrix_none_entries():
     corr = pe.Corr(oy)
     corr = corr.deriv()
     pe.Corr(np.array([[corr, corr], [corr, corr]]))
+
+
+def test_corr_vector_operations():
+    my_corr = _gen_corr(1.0)
+    my_vec = np.arange(1, 17)
+
+    my_corr + my_vec
+    my_corr - my_vec
+    my_corr * my_vec
+    my_corr / my_vec
+
+    assert np.all([o == 0 for o in ((my_corr + my_vec) - my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr - my_vec) + my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr * my_vec) / my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr / my_vec) * my_vec) - my_corr])
+
+def _gen_corr(val):
+    corr_content = []
+    for t in range(16):
+        corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
+
+    return pe.correlators.Corr(corr_content)
+

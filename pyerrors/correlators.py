@@ -867,6 +867,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] + y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T + y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError("Corr + wrong type")
 
@@ -890,6 +895,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] * y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T * y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError("Corr * wrong type")
 
@@ -939,6 +949,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] / y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T / y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError('Corr / wrong type')
 

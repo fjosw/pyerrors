@@ -377,7 +377,23 @@ The preferred exported file format within `pyerrors` is json.gz. Files written t
 - How does each single ensemble or external quantity contribute to the error of the observable?
 - Who did write the file when and on which machine?
 
-This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically. The first entries of the file provide optional auxiliary information:
+This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically as described in the following example
+```python
+my_obs = pe.Obs([samples], ["test_ensemble"])
+my_obs.tag = "My observable"
+
+pe.input.json.dump_to_json(my_obs, "test_output_file", description="This file contains a test observable")
+# For a single observable one can equivalently use the class method dump
+my_obs.dump("test_output", description="This file contains a test observable")
+
+check = pe.input.json.load_json("test_output_file")
+
+print(my_obs == check)
+> True
+```
+
+## json.gz format specification
+The first entries of the file provide optional auxiliary information:
 - `program` is a string that indicates which program was used to write the file.
 - `version` is a string that specifies the version of the format.
 - `who` is a string that specifies the user name of the creator of the file.

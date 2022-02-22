@@ -46,8 +46,8 @@
    "description": "Hostname of the machine where the file has been written."
   },
   "description": {
-   "type": "string",
-   "description": "A string that describes the content of the file."
+   "type": ["number","string","boolean","object","array","null"],
+   "description": "A description of the content of the file."
   },
   "obsdata": {
    "type": "array",
@@ -101,7 +101,7 @@
      }]
     },
     "tag": {
-     "type": "string",
+     "type": ["number","string","boolean","object","array","null"],
      "description": "Optional descriptor of the structure."
     },
     "reweighted": {

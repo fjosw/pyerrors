@@ -490,13 +490,15 @@ where the Jacobian is computed for each derived quantity via automatic different
 
 <span class="n">pe</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dump_to_json</span><span class="p">(</span><span class="n">my_obs</span><span class="p">,</span> <span class="s2">&quot;test_output_file&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
 <span class="c1"># For a single observable one can equivalently use the class method dump</span>
-<span class="n">my_obs</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s2">&quot;test_output&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
+<span class="n">my_obs</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="s2">&quot;test_output_file&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
 
 <span class="n">check</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="s2">&quot;test_output_file&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">my_obs</span> <span class="o">==</span> <span class="n">check</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="kc">True</span>
 </code></pre></div>
+
+<p>The format also allows to directly write out the content of <code>Corr</code> objects or lists and arrays of <code>Obs</code> objects by passing the desired data to <code><a href="pyerrors/input/json.html#dump_to_json">pyerrors.input.json.dump_to_json</a></code>.</p>
 
 <h2 id="jsongz-format-specification">json.gz format specification</h2>
 
@@ -952,13 +954,14 @@ The following entries are optional:</li>
 
 <span class="sd">pe.input.json.dump_to_json(my_obs, &quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
 <span class="sd"># For a single observable one can equivalently use the class method dump</span>
-<span class="sd">my_obs.dump(&quot;test_output&quot;, description=&quot;This file contains a test observable&quot;)</span>
+<span class="sd">my_obs.dump(&quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
 
 <span class="sd">check = pe.input.json.load_json(&quot;test_output_file&quot;)</span>
 
 <span class="sd">print(my_obs == check)</span>
 <span class="sd">&gt; True</span>
 <span class="sd">```</span>
+<span class="sd">The format also allows to directly write out the content of `Corr` objects or lists and arrays of `Obs` objects by passing the desired data to `pyerrors.input.json.dump_to_json`.</span>
 
 <span class="sd">## json.gz format specification</span>
 <span class="sd">The first entries of the file provide optional auxiliary information:</span>

@@ -834,7 +834,7 @@
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
-<span class="sd">            Range in which the function is to be fitted to the data.</span>
+<span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
@@ -847,6 +847,11 @@
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitrange</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to be a list with two elements&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fitrange</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to have exactly two elements [fit_start, fit_stop]&quot;</span><span class="p">)</span>
 
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
@@ -1942,7 +1947,7 @@
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
-<span class="sd">            Range in which the function is to be fitted to the data.</span>
+<span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
@@ -1955,6 +1960,11 @@
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitrange</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to be a list with two elements&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fitrange</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to have exactly two elements [fit_start, fit_stop]&quot;</span><span class="p">)</span>
 
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
@@ -3516,7 +3526,7 @@ guess for the root finder, only relevant for the root variant</li>
 <span class="sd">        function : obj</span>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
-<span class="sd">            Range in which the function is to be fitted to the data.</span>
+<span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
@@ -3529,6 +3539,11 @@ guess for the root finder, only relevant for the root variant</li>
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prange</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fitrange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitrange</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to be a list with two elements&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fitrange</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;fitrange has to have exactly two elements [fit_start, fit_stop]&quot;</span><span class="p">)</span>
 
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fitrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
@@ -3546,7 +3561,7 @@ guess for the root finder, only relevant for the root variant</li>
 <li><strong>function</strong> (obj):
 function to fit to the data. See fits.least_squares for details.</li>
 <li><strong>fitrange</strong> (list):
-Range in which the function is to be fitted to the data.
+Two element list containing the timeslices on which the fit is supposed to start and stop.
 If not specified, self.prange or all timeslices are used.</li>
 <li><strong>silent</strong> (bool):
 Decides whether output is printed to the standard output.</li>

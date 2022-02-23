@@ -135,6 +135,11 @@ def test_fit_correlator():
     assert fit_res[0] == my_corr[0]
     assert fit_res[1] == my_corr[1] - my_corr[0]
 
+    with pytest.raises(Exception):
+        my_corr.fit(f, "from 0 to 3")
+    with pytest.raises(Exception):
+        my_corr.fit(f, [0, 2, 3])
+
 
 def test_plateau():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(1.042345, 0.008, 't')])

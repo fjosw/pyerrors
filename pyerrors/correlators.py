@@ -628,7 +628,7 @@ class Corr:
         function : obj
             function to fit to the data. See fits.least_squares for details.
         fitrange : list
-            Range in which the function is to be fitted to the data.
+            Two element list containing the timeslices on which the fit is supposed to start and stop.
             If not specified, self.prange or all timeslices are used.
         silent : bool
             Decides whether output is printed to the standard output.
@@ -641,6 +641,11 @@ class Corr:
                 fitrange = self.prange
             else:
                 fitrange = [0, self.T - 1]
+        else:
+            if not isinstance(fitrange, list):
+                raise Exception("fitrange has to be a list with two elements")
+            if len(fitrange) != 2:
+                raise Exception("fitrange has to have exactly two elements [fit_start, fit_stop]")
 
         xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]

@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pyerrors',
-      version='2.0.0-rc.1',
+      version='2.0.0-rc.2+dev',
       description='Error analysis for lattice QCD',
       author='Fabian Joswig',
       author_email='fabian.joswig@ed.ac.uk',

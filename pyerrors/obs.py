@@ -971,7 +971,7 @@ def _merge_idx(idl):
             idstep = min([idx.step for idx in idl])
             return range(idstart, idstop, idstep)
 
-    return list(set().union(*idl))
+    return sorted(set().union(*idl))
 
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):

@@ -97,7 +97,6 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             for suffix in suffixes:
                 if truncated_entry.endswith(suffix):
                     truncated_entry = truncated_entry[0:-len(suffix)]
-            truncated_entry = entry.split('.')[0]
             idx = truncated_entry.index('r')
             rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
     else:

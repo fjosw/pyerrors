@@ -934,7 +934,7 @@ def _expand_deltas(deltas, idx, shape):
     deltas : list
         List of fluctuations
     idx : list
-        List or range of configs on which the deltas are defined.
+        List or range of configs on which the deltas are defined, has to be sorted in ascending order.
     shape : int
         Number of configs in idx.
     """
@@ -948,7 +948,7 @@ def _expand_deltas(deltas, idx, shape):
 
 
 def _merge_idx(idl):
-    """Returns the union of all lists in idl
+    """Returns the union of all lists in idl as sorted list
 
     Parameters
     ----------
@@ -985,11 +985,11 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
         List of fluctuations
     idx : list
         List or range of configs on which the deltas are defined.
-        Has to be a subset of new_idx.
+        Has to be a subset of new_idx and has to be sorted in ascending order.
     shape : list
         Number of configs in idx.
     new_idx : list
-        List of configs that defines the new range.
+        List of configs that defines the new range, has to be sorted in ascending order.
     """
 
     if type(idx) is range and type(new_idx) is range:

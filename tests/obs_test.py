@@ -613,6 +613,12 @@ def test_gamma_method_irregular():
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
 
+    a = pe.pseudo_Obs(1, .1, 'a', samples=10)
+    a.idl['a'] = range(4, 15)
+    b = pe.pseudo_Obs(1, .1, 'a', samples=151)
+    b.idl['a'] = range(4, 608, 4)
+    ol = [a, b]
+    o = (ol[0] - ol[1]) / (ol[1])
 
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
@@ -691,3 +697,11 @@ def test_reduce_deltas():
         new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
         print(new)
         assert(np.alltrue([float(i) for i in idx_new] == new))
+
+
+def test_merge_idx():
+    idl = [list(np.arange(1, 14)) + list(range(16, 100, 4)), range(4, 604, 4), [2, 4, 5, 6, 8, 9, 12, 24], range(1, 20, 1), range(50, 789, 7)]
+    new_idx = pe.obs._merge_idx(idl)
+    assert(new_idx[-1] > new_idx[0])
+    for i in range(1, len(new_idx)):
+        assert(new_idx[i - 1] < new_idx[i])

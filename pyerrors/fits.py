@@ -652,7 +652,13 @@ def residual_plot(x, y, func, fit_res):
 
 
 def covariance_matrix(y):
-    """Returns the covariance matrix of y."""
+    """Returns the covariance matrix of y.
+
+    Parameters
+    ----------
+    y : list or numpy.ndarray
+        List or one dimensional array of Obs
+    """
     length = len(y)
     cov = np.zeros((length, length))
     for i, item in enumerate(y):
@@ -661,7 +667,12 @@ def covariance_matrix(y):
                 cov[i, j] = item.dvalue ** 2
             else:
                 cov[i, j] = covariance(item, jtem)
-    return cov + cov.T - np.diag(np.diag(cov))
+    cov = cov + cov.T - np.diag(np.diag(cov))
+    eigenvalues = np.linalg.eigh(cov)[0]
+    if not np.all(eigenvalues >= 0):
+        warnings.warn("Covariance matrix is not positive semi-definite", RuntimeWarning)
+        print("Eigenvalues of the covariance matrix:", eigenvalues)
+    return cov
 
 
 def error_band(x, func, beta):

@@ -1341,10 +1341,10 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
     is constrained to the maximum value.
 
-    Keyword arguments
-    -----------------
-    correlation -- if true the correlation instead of the covariance is
-                   returned (default False)
+    Parameters
+    ----------
+    correlation : bool
+        if true the correlation instead of the covariance is returned (default False)
     """
 
     def expand_deltas(deltas, idx, shape, new_idx):

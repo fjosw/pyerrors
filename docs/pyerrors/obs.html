@@ -1652,10 +1652,10 @@
 <span class="sd">    If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance</span>
 <span class="sd">    is constrained to the maximum value.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    correlation -- if true the correlation instead of the covariance is</span>
-<span class="sd">                   returned (default False)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    correlation : bool</span>
+<span class="sd">        if true the correlation instead of the covariance is returned (default False)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
@@ -4841,10 +4841,10 @@ Second observable</li>
 <span class="sd">    If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance</span>
 <span class="sd">    is constrained to the maximum value.</span>
 
-<span class="sd">    Keyword arguments</span>
-<span class="sd">    -----------------</span>
-<span class="sd">    correlation -- if true the correlation instead of the covariance is</span>
-<span class="sd">                   returned (default False)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    correlation : bool</span>
+<span class="sd">        if true the correlation instead of the covariance is returned (default False)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
@@ -4972,10 +4972,12 @@ The gamma method has to be applied first to both observables.</p>
 <p>If abs(covariance(obs1, obs2)) &gt; obs1.dvalue * obs2.dvalue, the covariance
 is constrained to the maximum value.</p>
 
-<h6 id="keyword-arguments">Keyword arguments</h6>
+<h6 id="parameters">Parameters</h6>
 
-<p>correlation -- if true the correlation instead of the covariance is
-               returned (default False)</p>
+<ul>
+<li><strong>correlation</strong> (bool):
+if true the correlation instead of the covariance is returned (default False)</li>
+</ul>
 </div>
 
 

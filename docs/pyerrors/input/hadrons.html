@@ -373,7 +373,10 @@
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">lorentz_names</span> <span class="o">=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="n">lorentz_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYT&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;SigmaYT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXZ&#39;</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXY&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaZT&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaXT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYZ&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaYZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXT&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaZT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXY&#39;</span><span class="p">)]:</span>
                 <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1026,7 +1029,10 @@ If specified only configurations in the given range are read in.</li>
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">lorentz_names</span> <span class="o">=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="n">lorentz_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYT&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;SigmaYT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXZ&#39;</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXY&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaZT&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaXT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYZ&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaYZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXT&#39;</span><span class="p">),</span>
+                          <span class="p">(</span><span class="s1">&#39;SigmaZT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXY&#39;</span><span class="p">)]:</span>
                 <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>

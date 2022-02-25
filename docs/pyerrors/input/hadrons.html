@@ -96,6 +96,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span><span class="p">,</span> <span class="n">CObs</span>
 <span class="kn">from</span> <span class="nn">..correlators</span> <span class="kn">import</span> <span class="n">Corr</span>
+<span class="kn">from</span> <span class="nn">..dirac</span> <span class="kn">import</span> <span class="n">epsilon_tensor_rank4</span>
 
 
 <span class="k">def</span> <span class="nf">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">):</span>
@@ -372,10 +373,14 @@
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">lorentz_names</span> <span class="o">=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="n">lorentz_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">intermediate_dict</span><span class="p">:</span>
-                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYT&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;SigmaYT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXZ&#39;</span><span class="p">)]:</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">intermediate_dict</span><span class="p">:</span>
+                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
 
     <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -395,12 +400,27 @@
 
 
 <span class="k">def</span> <span class="nf">_get_lorentz_names</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="n">lorentz_index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">]</span>
 
     <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Name can only contain &#39;S&#39;, &#39;P&#39;, &#39;V&#39;, &#39;A&#39; or &#39;T&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TT&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Sigma&quot;</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="s2">&quot;Sigma&quot;</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TTtilde&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                        <span class="n">fac</span> <span class="o">=</span> <span class="n">epsilon_tensor_rank4</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">fac</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+                            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Sigma&quot;</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="s2">&quot;Sigma&quot;</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">lorentz_index</span><span class="p">[</span><span class="n">o</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
 
     <span class="k">if</span> <span class="s1">&#39;S&#39;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;P&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">]):</span>
@@ -411,14 +431,9 @@
 
         <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">g_names</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">g_names</span><span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">]]))</span>
 
-    <span class="k">elif</span> <span class="s1">&#39;T&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;T&#39;</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39; is not a Lorentz scalar&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Tensor operators not yet implemented.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39; is not a Lorentz scalar&quot;</span><span class="p">)</span>
-        <span class="n">lorentz_index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">lorentz_index</span><span class="p">:</span>
             <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;Gamma&#39;</span> <span class="o">+</span> <span class="n">ind</span> <span class="o">+</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="s1">&#39;Gamma5&#39;</span><span class="p">,</span>
@@ -1011,10 +1026,14 @@ If specified only configurations in the given range are read in.</li>
     <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
         <span class="n">lorentz_names</span> <span class="o">=</span> <span class="n">_get_lorentz_names</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="n">lorentz_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">intermediate_dict</span><span class="p">:</span>
-                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">v_name</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;SigmaXZ&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaYT&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;SigmaYT&#39;</span><span class="p">,</span> <span class="s1">&#39;SigmaXZ&#39;</span><span class="p">)]:</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">intermediate_dict</span><span class="p">:</span>
+                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">intermediate_dict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corr_data</span><span class="p">[</span><span class="n">v_name</span><span class="p">])</span>
 
     <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{}</span>
 

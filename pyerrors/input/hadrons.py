@@ -281,7 +281,10 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
     for vertex in vertices:
         lorentz_names = _get_lorentz_names(vertex)
         for v_name in lorentz_names:
-            if v_name in [('SigmaXZ', 'SigmaYT'), ('SigmaYT', 'SigmaXZ')]:
+            if v_name in [('SigmaXY', 'SigmaZT'),
+                          ('SigmaXT', 'SigmaYZ'),
+                          ('SigmaYZ', 'SigmaXT'),
+                          ('SigmaZT', 'SigmaXY')]:
                 sign = -1
             else:
                 sign = 1

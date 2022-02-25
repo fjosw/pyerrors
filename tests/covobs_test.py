@@ -78,9 +78,8 @@ def test_covobs_init():
     covobs = pe.cov_Obs(0.5, 0.002, 'test')
     covobs = pe.cov_Obs([1, 2], [0.1, 0.2], 'test')
     covobs = pe.cov_Obs([1, 2], np.array([0.1, 0.2]), 'test')
-    covobs = pe.cov_Obs([1, 2], [[0.1, 0.2], [0.1, 0.2]], 'test')
-    covobs = pe.cov_Obs([1, 2], np.array([[0.1, 0.2], [0.1, 0.2]]), 'test')
-
+    covobs = pe.cov_Obs([1, 2], [[0.21, 0.2], [0.2, 0.21]], 'test')
+    covobs = pe.cov_Obs([1, 2], np.array([[0.21, 0.2], [0.2, 0.21]]), 'test')
 
 
 def test_covobs_exceptions():
@@ -92,3 +91,7 @@ def test_covobs_exceptions():
         covobs = pe.cov_Obs([0.5, 0.1], np.array([[2, 1, 3], [1, 2, 3]]), 'test')
     with pytest.raises(Exception):
         covobs = pe.cov_Obs([0.5, 0.1], np.random.random((2, 2, 2)), 'test')
+    with pytest.raises(Exception):
+        covobs = pe.cov_Obs([1.5, 0.1], [[1., .2,], [.3, .5]] , 'test')
+    with pytest.raises(Exception):
+        covobs = pe.cov_Obs([1.5, 0.1], [[8, 4,], [4, -2]] , 'test')

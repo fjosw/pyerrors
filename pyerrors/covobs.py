@@ -45,6 +45,16 @@ class Covobs:
         return float(np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)))
 
     def _set_cov(self, cov):
+        """ Set the covariance matrix of the covobs
+
+        Parameters
+        ----------
+        cov : list or array
+            Has to be either of:
+            0 dimensional number: variance of a single covobs,
+            1 dimensional list or array of lenght N: variances of multiple covobs
+            2 dimensional list or array (N x N): Symmetric, positive-semidefinite covariance matrix
+        """
         self._cov = np.array(cov)
         if self._cov.ndim == 0:
             self.N = 1
@@ -59,7 +69,26 @@ class Covobs:
         else:
             raise Exception('Covariance matrix has to be a 2 dimensional square matrix!')
 
+        for i in range(self.N):
+            for j in range(i):
+                if not self._cov[i][j] == self._cov[j][i]:
+                    raise Exception('Covariance matrix is non-symmetric for (%d, %d' % (i, j))
+
+        evals = np.linalg.eigvalsh(self._cov)
+        for ev in evals:
+            if ev < 0:
+                raise Exception('Covariance matrix is not positive-semidefinite!')
+
     def _set_grad(self, grad):
+        """ Set the gradient of the covobs
+
+        Parameters
+        ----------
+        grad : list or array
+            Has to be either of:
+            0 dimensional number: gradient w.r.t. a single covobs,
+            1 dimensional list or array of lenght N: gradient w.r.t. multiple covobs
+        """
         self._grad = np.array(grad)
         if self._grad.ndim in [0, 1]:
             self._grad = np.reshape(self._grad, (self.N, 1))

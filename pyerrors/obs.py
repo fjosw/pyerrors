@@ -1390,8 +1390,6 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
     dvalue = 0
     e_gamma = {}
     e_dvalue = {}
-    e_n_tauint = {}
-    e_rho = {}
 
     for e_name in obs1.mc_names:
 
@@ -1435,14 +1433,10 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             e_N += np.sum(np.ones_like(idl_d[r_name]))
         e_gamma[e_name] /= gamma_div[:w_max]
 
-        e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-        e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
-        # Make sure no entry of tauint is smaller than 0.5
-        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
+        tau_int = min(obs1.e_tauint[e_name], obs2.e_tauint[e_name])
 
-        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
-        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
+        e_dvalue[e_name] = 2 * (tau_int) * (1 + 1 / e_N) * e_gamma[e_name][0] / e_N
 
         dvalue += e_dvalue[e_name]
 

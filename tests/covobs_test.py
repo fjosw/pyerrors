@@ -82,6 +82,19 @@ def test_covobs_init():
     covobs = pe.cov_Obs([1, 2], np.array([[0.21, 0.2], [0.2, 0.21]]), 'test')
 
 
+def test_covobs_covariance():
+    a = pe.cov_Obs(2.47, 0.03 ** 2, "Cov_obs 1")
+    b = pe.cov_Obs(-4.3, 0.335 ** 2, "Cov_obs 2")
+
+    x = [a + b, a - b]
+    [o.gamma_method() for o in x]
+
+    covariance = pe.fits.covariance_matrix(x)
+
+    assert covariance[0, 0] == covariance[1, 1]
+    assert covariance[0, 1] == a.dvalue ** 2 - b.dvalue ** 2
+
+
 def test_covobs_exceptions():
     with pytest.raises(Exception):
         covobs = pe.cov_Obs(0.1, [[0.1, 0.2], [0.1, 0.2]], 'test')

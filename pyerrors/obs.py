@@ -90,6 +90,9 @@ class Obs:
         self.deltas = {}
         self._covobs = {}
 
+        self._value = 0
+        self.N = 0
+        self.is_merged = {}
         self.idl = {}
         if len(samples):
             if idl is not None:
@@ -110,8 +113,6 @@ class Obs:
                 for name, sample in sorted(zip(names, samples)):
                     self.idl[name] = range(1, len(sample) + 1)
 
-            self._value = 0
-            self.N = 0
             if kwargs.get("means") is not None:
                 for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
                     self.shape[name] = len(self.idl[name])
@@ -128,13 +129,6 @@ class Obs:
                     self.deltas[name] = sample - self.r_values[name]
                     self._value += self.shape[name] * self.r_values[name]
                 self._value /= self.N
-
-            self.is_merged = {}
-
-        else:
-            self._value = 0
-            self.is_merged = {}
-            self.N = 0
 
         self._dvalue = 0.0
         self.ddvalue = 0.0

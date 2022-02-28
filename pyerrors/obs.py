@@ -1470,7 +1470,8 @@ def import_jackknife(jacks, name, idl=None):
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
     samples = jacks[1:] @ prj
-    new_obs = Obs([samples], [name], idl=idl)
+    mean = np.mean(samples)
+    new_obs = Obs([samples - mean], [name], idl=idl, means=[mean])
     new_obs._value = jacks[0]
     return new_obs
 

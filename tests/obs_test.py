@@ -653,7 +653,7 @@ def test_covariance_symmetry():
 
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
-    q = o + pe.Obs([], [])
+    q = o + pe.Obs([], [], means=[])
     assert q == o
 
 

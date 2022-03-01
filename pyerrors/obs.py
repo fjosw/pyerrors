@@ -1335,7 +1335,6 @@ def correlate(obs_a, obs_b):
 def covariance(obs, visualize=False, correlation=False, **kwargs):
     """Calculates the covariance matrix of a set of observables.
 
-    covariance([obs, obs])[0,1] is equal to obs.dvalue ** 2
     The gamma method has to be applied first to all observables.
 
     Parameters
@@ -1346,6 +1345,14 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
         If True plots the corresponding normalized correlation matrix (default False).
     correlation : bool
         If True the correlation instead of the covariance is returned (default False).
+
+    Notes
+    -----
+    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. This is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
+    $$
+    \tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}
+    $$
+    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
     """
 
     length = len(obs)

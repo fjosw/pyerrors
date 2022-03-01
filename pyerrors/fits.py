@@ -239,7 +239,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         if kwargs.get('covariance') is not None:
             cov = kwargs.get('covariance')
         else:
-            cov = covariance_matrix(np.concatenate((y, x.ravel())))
+            cov = covariance(np.concatenate((y, x.ravel())))
 
         number_of_x_parameters = int(m / x_f.shape[-1])
 
@@ -455,7 +455,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
-        cov = covariance_matrix(y)
+        cov = covariance(y)
         covdiag = np.diag(1. / np.sqrt(np.diag(cov)))
         corr = np.copy(cov)
         for i in range(len(y)):
@@ -527,7 +527,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if kwargs.get('expected_chisquare') is True:
         if kwargs.get('correlated_fit') is not True:
             W = np.diag(1 / np.asarray(dy_f))
-            cov = covariance_matrix(y)
+            cov = covariance(y)
             A = W @ jacobian(func)(fit_result.x, x)
             P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
@@ -651,33 +651,9 @@ def residual_plot(x, y, func, fit_res):
     plt.draw()
 
 
-def covariance_matrix(y):
-    """Returns the covariance matrix of y.
-
-    Parameters
-    ----------
-    y : list or numpy.ndarray
-        List or one dimensional array of Obs
-    """
-    length = len(y)
-    cov = np.zeros((length, length))
-    for i, item in enumerate(y):
-        for j, jtem in enumerate(y[:i + 1]):
-            if i == j:
-                cov[i, j] = item.dvalue ** 2
-            else:
-                cov[i, j] = covariance(item, jtem)
-    cov = cov + cov.T - np.diag(np.diag(cov))
-    eigenvalues = np.linalg.eigh(cov)[0]
-    if not np.all(eigenvalues >= 0):
-        warnings.warn("Covariance matrix is not positive semi-definite", RuntimeWarning)
-        print("Eigenvalues of the covariance matrix:", eigenvalues)
-    return cov
-
-
 def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
-    cov = covariance_matrix(beta)
+    cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 

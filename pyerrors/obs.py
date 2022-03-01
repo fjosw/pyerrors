@@ -1332,19 +1332,49 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs1, obs2, correlation=False, **kwargs):
-    """Calculates the covariance of two observables.
+def covariance(obs, window=min, correlation=False, **kwargs):
+    """Calculates the covariance matrix of a set of observables.
 
-    covariance(obs, obs) is equal to obs.dvalue ** 2
+    covariance([obs, obs])[0,1] is equal to obs.dvalue ** 2
     The gamma method has to be applied first to both observables.
-
-    If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value.
 
     Parameters
     ----------
+    obs : list or numpy.ndarray
+        List or one dimensional array of Obs
+    window: function or dict
+        Function which selects the window for each ensemble, examples 'min', 'max', 'np.mean', 'np.median'
+        Alternatively a dictionary with an entry for every ensemble can be manually specified.
     correlation : bool
         if true the correlation instead of the covariance is returned (default False)
+    """
+    if isinstance(window, dict):
+        window_dict = window
+    else:
+        window_dict = {}
+        names = sorted(set([item for sublist in [o.mc_names for o in obs] for item in sublist]))
+        for name in names:
+            window_list = []
+            for ob in obs:
+                if ob.e_windowsize.get(name) is not None:
+                    window_list.append(ob.e_windowsize[name])
+            window_dict[name] = int(window(window_list))
+
+    length = len(obs)
+    cov = np.zeros((length, length))
+    for i, item in enumerate(obs):
+        for j, jtem in enumerate(obs[:i + 1]):
+            cov[i, j] = _covariance_element(item, jtem, window_dict)
+    cov = cov + cov.T - np.diag(np.diag(cov))
+    eigenvalues = np.linalg.eigh(cov)[0]
+    if not np.all(eigenvalues >= 0):
+        warnings.warn("Covariance matrix is not positive semi-definite", RuntimeWarning)
+        print("Eigenvalues of the covariance matrix:", eigenvalues)
+    return cov
+
+
+def _covariance_element(obs1, obs2, window_dict, correlation=False, **kwargs):
+    """TODO
     """
 
     def expand_deltas(deltas, idx, shape, new_idx):
@@ -1398,21 +1428,16 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
         if e_name not in obs2.mc_names:
             continue
 
+        window = window_dict[e_name]
+
         idl_d = {}
-        r_length = []
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
-            if isinstance(idl_d[r_name], range):
-                r_length.append(len(idl_d[r_name]))
-            else:
-                r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
+        # TODO: Is a check needed if the length of an ensemble is zero?
 
-        if not r_length:
-            return 0.
-
-        w_max = max(r_length) // 2
+        w_max = window + 1
         e_gamma[e_name] = np.zeros(w_max)
 
         for r_name in obs1.e_content[e_name]:
@@ -1438,11 +1463,10 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
         e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
         e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
         # Make sure no entry of tauint is smaller than 0.5
-        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
+        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.5 + np.finfo(np.float64).eps
 
-        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
-        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
+        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window]) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
 
         dvalue += e_dvalue[e_name]
 
@@ -1453,8 +1477,9 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
         dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
 
-    if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-        dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
+    # TODO: Check if this is needed.
+    # if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
+    #    dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
 
     if correlation:
         dvalue = dvalue / obs1.dvalue / obs2.dvalue

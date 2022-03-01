@@ -251,10 +251,10 @@ def test_covariance_is_variance():
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
     test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(test_obs.dvalue ** 2 - pe.covariance([test_obs, test_obs])[0, 1]) <= 10 * np.finfo(np.float64).eps
     test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
     test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
+    assert np.abs(test_obs.dvalue ** 2 - pe.covariance([test_obs, test_obs])[0, 1]) <= 10 * np.finfo(np.float64).eps
 
 
 def test_fft():
@@ -266,21 +266,6 @@ def test_fft():
     test_obs2.gamma_method(fft=False)
     assert max(np.abs(test_obs1.e_rho['t'] - test_obs2.e_rho['t'])) <= 10 * np.finfo(np.float64).eps
     assert np.abs(test_obs1.dvalue - test_obs2.dvalue) <= 10 * max(test_obs1.dvalue, test_obs2.dvalue) * np.finfo(np.float64).eps
-
-
-def test_covariance_symmetry():
-    value1 = np.random.normal(5, 10)
-    dvalue1 = np.abs(np.random.normal(0, 1))
-    test_obs1 = pe.pseudo_Obs(value1, dvalue1, 't')
-    test_obs1.gamma_method()
-    value2 = np.random.normal(5, 10)
-    dvalue2 = np.abs(np.random.normal(0, 1))
-    test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
-    test_obs2.gamma_method()
-    cov_ab = pe.covariance(test_obs1, test_obs2)
-    cov_ba = pe.covariance(test_obs2, test_obs1)
-    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
-    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
 def test_gamma_method_uncorrelated():
@@ -629,8 +614,8 @@ def test_covariance_symmetry():
     dvalue2 = np.abs(np.random.normal(0, 1))
     test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
     test_obs2.gamma_method()
-    cov_ab = pe.covariance(test_obs1, test_obs2)
-    cov_ba = pe.covariance(test_obs2, test_obs1)
+    cov_ab = pe.covariance([test_obs1, test_obs2])[0, 1]
+    cov_ba = pe.covariance([test_obs2, test_obs1])[0, 1]
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
@@ -643,10 +628,10 @@ def test_covariance_symmetry():
     idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr], ['t'], idl=[idx])
     a.gamma_method()
-    assert np.isclose(a.dvalue**2, pe.covariance(a, a), atol=100, rtol=1e-4)
+    assert np.isclose(a.dvalue ** 2, pe.covariance([a, a])[0, 1], atol=100, rtol=1e-4)
 
-    cov_ab = pe.covariance(test_obs1, a)
-    cov_ba = pe.covariance(a, test_obs1)
+    cov_ab = pe.covariance([test_obs1, a])[0, 1]
+    cov_ba = pe.covariance([a, test_obs1])[0, 1]
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * a.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 

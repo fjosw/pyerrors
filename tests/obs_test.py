@@ -636,6 +636,43 @@ def test_covariance_symmetry():
     assert np.abs(cov_ab) < test_obs1.dvalue * a.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
 
+def test_covariance_sum():
+    length = 2
+    t_fac = 0.4
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.99 * np.ones((length, length)) + 0.01 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method(S=0) for o in tt]
+
+    t_cov = pe.covariance(tt)
+
+    my_sum = tt[0] + tt[1]
+    my_sum.gamma_method(S=0)
+    e_cov = (my_sum.dvalue ** 2 - tt[0].dvalue ** 2 - tt[1].dvalue ** 2) / 2
+
+    assert np.isclose(e_cov, t_cov[0, 1])
+
+
+def test_covariance_positive_semidefinite():
+    length = 64
+    t_fac = 1.5
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.99999 * np.ones((length, length)) + 0.00001 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method() for o in tt]
+    cov = pe.covariance(tt)
+    assert np.all(np.linalg.eigh(cov)[0] >= -1e-15)
+
+
+def test_covariance_factorizing():
+    length = 2
+    t_fac = 1.5
+
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.75 * np.ones((length, length)) + 0.8 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method() for o in tt]
+
+    mt0 = -tt[0]
+    mt0.gamma_method()
+
+    assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
+
+
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [])

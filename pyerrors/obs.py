@@ -1365,7 +1365,7 @@ def covariance(obs, correlation=False, **kwargs):
 
 
 def _covariance_element(obs1, obs2):
-    """Estimates the covariance of two Obs objects based on fixed window sizes passed to the function."""
+    """Estimates the uncorrelated covariance of two Obs objects."""
 
     def expand_deltas(deltas, idx, shape, new_idx):
         """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
@@ -1410,17 +1410,13 @@ def _covariance_element(obs1, obs2):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
     dvalue = 0
+    w_max = 1
     e_gamma = {}
-    e_dvalue = {}
-    e_n_tauint = {}
-    e_rho = {}
 
     for e_name in obs1.mc_names:
 
         if e_name not in obs2.mc_names:
             continue
-
-        window = 0
 
         idl_d = {}
         for r_name in obs1.e_content[e_name]:
@@ -1428,7 +1424,6 @@ def _covariance_element(obs1, obs2):
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
 
-        w_max = window + 1
         e_gamma[e_name] = np.zeros(w_max)
 
         for r_name in obs1.e_content[e_name]:
@@ -1451,15 +1446,8 @@ def _covariance_element(obs1, obs2):
             e_N += np.sum(np.ones_like(idl_d[r_name]))
         e_gamma[e_name] /= gamma_div[:w_max]
 
-        e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-        e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
-        # Make sure no entry of tauint is smaller than 0.5
-        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.5 + np.finfo(np.float64).eps
-
         # Bias correction hep-lat/0306017 eq. (49)
-        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window]) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
-
-        dvalue += e_dvalue[e_name]
+        dvalue += (1 + 1 / e_N) * e_gamma[e_name][0] / e_N
 
     for e_name in obs1.cov_names:
 

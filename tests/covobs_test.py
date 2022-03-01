@@ -39,8 +39,8 @@ def test_covobs():
         assert(np.isclose(oc.value, op.value, rtol=1e-14, atol=1e-14))
 
     [o.gamma_method() for o in cl]
-    assert(pe.covariance([cl[0], cl[1]])[0, 1] == cov[0][1])
-    assert(pe.covariance([cl[0], cl[1]])[0, 1] == cov[1][0])
+    assert(np.isclose(pe.covariance([cl[0], cl[1]])[0, 1], cov[0][1]))
+    assert(np.isclose(pe.covariance([cl[0], cl[1]])[0, 1], cov[1][0]))
 
     do = cl[0] * cl[1]
     assert(np.array_equal(do.covobs['rAP'].grad, np.transpose([pi[1], pi[0]]).reshape(2, 1)))
@@ -91,8 +91,8 @@ def test_covobs_covariance():
 
     covariance = pe.covariance(x)
 
-    assert covariance[0, 0] == covariance[1, 1]
-    assert covariance[0, 1] == a.dvalue ** 2 - b.dvalue ** 2
+    assert np.isclose(covariance[0, 0], covariance[1, 1])
+    assert np.isclose(covariance[0, 1], a.dvalue ** 2 - b.dvalue ** 2)
 
 
 def test_covobs_exceptions():

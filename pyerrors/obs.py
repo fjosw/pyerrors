@@ -1332,7 +1332,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, correlation=False, **kwargs):
+def covariance(obs, visualize=False, **kwargs):
     """Calculates the covariance matrix of a set of observables.
 
     covariance([obs, obs])[0,1] is equal to obs.dvalue ** 2
@@ -1342,8 +1342,8 @@ def covariance(obs, correlation=False, **kwargs):
     ----------
     obs : list or numpy.ndarray
         List or one dimensional array of Obs
-    correlation : bool
-        if true the correlation instead of the covariance is returned (default False)
+    visualize : bool
+        Plots the corresponding normalized correlation matrix.
     """
 
     length = len(obs)
@@ -1356,11 +1356,18 @@ def covariance(obs, correlation=False, **kwargs):
     corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
 
     errors = [o.dvalue for o in obs]
-    cov = np.sqrt(np.diag(errors)) @ corr @ np.sqrt(np.diag(errors))
+    cov = np.diag(errors) @ corr @ np.diag(errors)
 
     eigenvalues = np.linalg.eigh(cov)[0]
     if not np.all(eigenvalues >= 0):
         warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
+
+    if visualize:
+        plt.matshow(corr, vmin=-1, vmax=1)
+        plt.set_cmap('RdBu')
+        plt.colorbar()
+        plt.draw()
+
     return cov
 
 
@@ -1389,29 +1396,18 @@ def _covariance_element(obs1, obs2):
             ret[idx[i] - new_idx[0]] = deltas[i]
         return ret
 
-    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx, w_max):
-        gamma = np.zeros(w_max)
+    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
         deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
         deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
-        new_shape = len(deltas1)
-        max_gamma = min(new_shape, w_max)
-        # The padding for the fft has to be even
-        padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
-        rfft1 = np.fft.rfft(deltas1, padding)
-        rfft2 = np.fft.rfft(deltas2, padding)
-        gamma[:max_gamma] += (np.fft.irfft(rfft1 * np.conjugate(rfft2))[:max_gamma] + np.fft.irfft(rfft2 * np.conjugate(rfft1))[:max_gamma]) / 2.0
-
-        return gamma
+        return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
-        return 0.
+        return 0.0
 
     if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
-    dvalue = 0
-    w_max = 1
-    e_gamma = {}
+    dvalue = 0.0
 
     for e_name in obs1.mc_names:
 
@@ -1424,30 +1420,27 @@ def _covariance_element(obs1, obs2):
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
 
-        e_gamma[e_name] = np.zeros(w_max)
+        gamma = 0.0
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            e_gamma[e_name] += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
-        if np.all(e_gamma[e_name] == 0.0):
+        if gamma == 0.0:
             continue
 
-        e_shapes = []
-        for r_name in obs1.e_content[e_name]:
-            e_shapes.append(obs1.shape[r_name])
-        gamma_div = np.zeros(w_max)
+        gamma_div = 0.0
         e_N = 0
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
             e_N += np.sum(np.ones_like(idl_d[r_name]))
-        e_gamma[e_name] /= gamma_div[:w_max]
+        gamma /= gamma_div
 
         # Bias correction hep-lat/0306017 eq. (49)
-        dvalue += (1 + 1 / e_N) * e_gamma[e_name][0] / e_N
+        dvalue += (1 + 1 / e_N) * gamma / e_N
 
     for e_name in obs1.cov_names:
 

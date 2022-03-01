@@ -1332,7 +1332,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, **kwargs):
+def covariance(obs, visualize=False, correlation=False, **kwargs):
     """Calculates the covariance matrix of a set of observables.
 
     covariance([obs, obs])[0,1] is equal to obs.dvalue ** 2
@@ -1343,7 +1343,9 @@ def covariance(obs, visualize=False, **kwargs):
     obs : list or numpy.ndarray
         List or one dimensional array of Obs
     visualize : bool
-        Plots the corresponding normalized correlation matrix.
+        If True plots the corresponding normalized correlation matrix (default False).
+    correlation : bool
+        If True the correlation instead of the covariance is returned (default False).
     """
 
     length = len(obs)
@@ -1368,7 +1370,10 @@ def covariance(obs, visualize=False, **kwargs):
         plt.colorbar()
         plt.draw()
 
-    return cov
+    if correlation is True:
+        return corr
+    else:
+        return cov
 
 
 def _covariance_element(obs1, obs2):

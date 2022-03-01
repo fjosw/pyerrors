@@ -246,17 +246,6 @@ def test_gamma_method_kwargs():
     assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
 
 
-def test_covariance_is_variance():
-    value = np.random.normal(5, 10)
-    dvalue = np.abs(np.random.normal(0, 1))
-    test_obs = pe.pseudo_Obs(value, dvalue, 't')
-    test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance([test_obs, test_obs])[0, 1]) <= 10 * np.finfo(np.float64).eps
-    test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
-    test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance([test_obs, test_obs])[0, 1]) <= 10 * np.finfo(np.float64).eps
-
-
 def test_fft():
     value = np.random.normal(5, 100)
     dvalue = np.abs(np.random.normal(0, 5))
@@ -605,6 +594,18 @@ def test_gamma_method_irregular():
     ol = [a, b]
     o = (ol[0] - ol[1]) / (ol[1])
 
+
+def test_covariance_is_variance():
+    value = np.random.normal(5, 10)
+    dvalue = np.abs(np.random.normal(0, 1))
+    test_obs = pe.pseudo_Obs(value, dvalue, 't')
+    test_obs.gamma_method()
+    assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
+    test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
+    test_obs.gamma_method()
+    assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
+
+
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))
@@ -616,7 +617,7 @@ def test_covariance_symmetry():
     test_obs2.gamma_method()
     cov_ab = pe.covariance([test_obs1, test_obs2])[0, 1]
     cov_ba = pe.covariance([test_obs2, test_obs1])[0, 1]
-    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
+    assert np.isclose(cov_ab, cov_ba)
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
     N = 100
@@ -671,6 +672,11 @@ def test_covariance_factorizing():
     mt0.gamma_method()
 
     assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
+
+
+def test_covariance_correlation():
+    test_obs = pe.pseudo_Obs(-4, 0.8, 'test', samples=784)
+    assert np.allclose(pe.covariance([test_obs, test_obs, test_obs], correlation=True), np.ones((3, 3)))
 
 
 def test_empty_obs():

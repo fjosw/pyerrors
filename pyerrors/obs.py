@@ -1332,50 +1332,40 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, window=min, correlation=False, **kwargs):
+def covariance(obs, correlation=False, **kwargs):
     """Calculates the covariance matrix of a set of observables.
 
     covariance([obs, obs])[0,1] is equal to obs.dvalue ** 2
-    The gamma method has to be applied first to both observables.
+    The gamma method has to be applied first to all observables.
 
     Parameters
     ----------
     obs : list or numpy.ndarray
         List or one dimensional array of Obs
-    window: function or dict
-        Function which selects the window for each ensemble, examples 'min', 'max', 'np.mean', 'np.median'
-        Alternatively a dictionary with an entry for every ensemble can be manually specified.
     correlation : bool
         if true the correlation instead of the covariance is returned (default False)
     """
-    if isinstance(window, dict):
-        window_dict = window
-    else:
-        window_dict = {}
-        names = sorted(set([item for sublist in [o.mc_names for o in obs] for item in sublist]))
-        for name in names:
-            window_list = []
-            for ob in obs:
-                if ob.e_windowsize.get(name) is not None:
-                    window_list.append(ob.e_windowsize[name])
-            window_dict[name] = int(window(window_list))
 
     length = len(obs)
     cov = np.zeros((length, length))
-    for i, item in enumerate(obs):
-        for j, jtem in enumerate(obs[:i + 1]):
-            cov[i, j] = _covariance_element(item, jtem, window_dict)
+    for i in range(length):
+        for j in range(i, length):
+            cov[i, j] = _covariance_element(obs[i], obs[j])
     cov = cov + cov.T - np.diag(np.diag(cov))
+
+    corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
+
+    errors = [o.dvalue for o in obs]
+    cov = np.sqrt(np.diag(errors)) @ corr @ np.sqrt(np.diag(errors))
+
     eigenvalues = np.linalg.eigh(cov)[0]
     if not np.all(eigenvalues >= 0):
-        warnings.warn("Covariance matrix is not positive semi-definite", RuntimeWarning)
-        print("Eigenvalues of the covariance matrix:", eigenvalues)
+        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
     return cov
 
 
-def _covariance_element(obs1, obs2, window_dict, correlation=False, **kwargs):
-    """TODO
-    """
+def _covariance_element(obs1, obs2):
+    """Estimates the covariance of two Obs objects based on fixed window sizes passed to the function."""
 
     def expand_deltas(deltas, idx, shape, new_idx):
         """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
@@ -1407,7 +1397,9 @@ def _covariance_element(obs1, obs2, window_dict, correlation=False, **kwargs):
         max_gamma = min(new_shape, w_max)
         # The padding for the fft has to be even
         padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
-        gamma[:max_gamma] += (np.fft.irfft(np.fft.rfft(deltas1, padding) * np.conjugate(np.fft.rfft(deltas2, padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(deltas2, padding) * np.conjugate(np.fft.rfft(deltas1, padding)))[:max_gamma]) / 2.0
+        rfft1 = np.fft.rfft(deltas1, padding)
+        rfft2 = np.fft.rfft(deltas2, padding)
+        gamma[:max_gamma] += (np.fft.irfft(rfft1 * np.conjugate(rfft2))[:max_gamma] + np.fft.irfft(rfft2 * np.conjugate(rfft1))[:max_gamma]) / 2.0
 
         return gamma
 
@@ -1428,14 +1420,13 @@ def _covariance_element(obs1, obs2, window_dict, correlation=False, **kwargs):
         if e_name not in obs2.mc_names:
             continue
 
-        window = window_dict[e_name]
+        window = 0
 
         idl_d = {}
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
-        # TODO: Is a check needed if the length of an ensemble is zero?
 
         w_max = window + 1
         e_gamma[e_name] = np.zeros(w_max)
@@ -1476,13 +1467,6 @@ def _covariance_element(obs1, obs2, window_dict, correlation=False, **kwargs):
             continue
 
         dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
-
-    # TODO: Check if this is needed.
-    # if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-    #    dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        dvalue = dvalue / obs1.dvalue / obs2.dvalue
 
     return dvalue
 

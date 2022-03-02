@@ -1,4 +1,5 @@
-import autograd.numpy as np
+import numpy as np
+import autograd.numpy as anp
 import math
 import scipy.optimize
 from scipy.odr import ODR, Model, RealData
@@ -41,12 +42,12 @@ def test_least_squares():
         oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
 
     def f(x, a, b):
-        return a * np.exp(-b * x)
+        return a * anp.exp(-b * x)
 
     popt, pcov = scipy.optimize.curve_fit(f, x, y, sigma=[o.dvalue for o in oy], absolute_sigma=True)
 
     def func(a, x):
-        y = a[0] * np.exp(-a[1] * x)
+        y = a[0] * anp.exp(-a[1] * x)
         return y
 
     out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
@@ -95,7 +96,7 @@ def test_alternative_solvers():
         oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
 
     def func(a, x):
-        y = a[0] * np.exp(-a[1] * x)
+        y = a[0] * anp.exp(-a[1] * x)
         return y
 
     chisquare_values = []
@@ -145,7 +146,7 @@ def test_correlated_fit():
                 return p[1] + p[0] * x
         else:
             def fitf(p, x):
-                return p[1] * np.exp(-p[0] * x)
+                return p[1] * anp.exp(-p[0] * x)
 
         fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
 
@@ -172,10 +173,10 @@ def test_total_least_squares():
         oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
 
     def f(x, a, b):
-        return a * np.exp(-b * x)
+        return a * anp.exp(-b * x)
 
     def func(a, x):
-        y = a[0] * np.exp(-a[1] * x)
+        y = a[0] * anp.exp(-a[1] * x)
         return y
 
     data = RealData([o.value for o in ox], [o.value for o in oy], sx=[o.dvalue for o in ox], sy=[o.dvalue for o in oy])
@@ -334,6 +335,27 @@ def test_error_band():
         pe.fits.error_band(x, f, fitp.fit_parameters)
     fitp.gamma_method()
     pe.fits.error_band(x, f, fitp.fit_parameters)
+
+
+def test_fit_no_autograd():
+    dim = 10
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.08 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = 0.1 + 0.1 * np.random.rand(dim)
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
+
+    def func(a, x):
+        y = a[0] * np.exp(-a[1] * x)
+        return y
+
+    with pytest.raises(Exception):
+        pe.least_squares(x, oy, func)
+
+    with pytest.raises(Exception):
+        pe.total_least_squares(oy, oy, func)
 
 
 def test_ks_test():

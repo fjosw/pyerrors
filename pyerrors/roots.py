@@ -31,7 +31,10 @@ def find_root(d, func, guess=1.0, **kwargs):
 
     # Error propagation as detailed in arXiv:1809.01289
     dx = jacobian(func)(root[0], d.value)
-    da = jacobian(lambda u, v: func(v, u))(d.value, root[0])
+    try:
+        da = jacobian(lambda u, v: func(v, u))(d.value, root[0])
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within root functions, see the documentation for details.") from None
     deriv = - da / dx
 
     res = derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (d.value + np.finfo(np.float64).eps) * root[0], [d], man_grad=[deriv])

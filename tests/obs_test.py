@@ -674,6 +674,23 @@ def test_covariance_factorizing():
     assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
 
 
+def test_covariance_alternation():
+    length = 12
+    t_fac = 2.5
+
+    tt1 = pe.misc.gen_correlated_data(np.zeros(length), -0.00001 * np.ones((length, length)) + 0.002 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=88)
+    tt2 = pe.misc.gen_correlated_data(np.zeros(length), 0.9999 * np.ones((length, length)) + 0.0001 * np.diag(np.ones(length)), 'another_test|r0', tau=0.7 + t_fac * np.random.rand(length), samples=73)
+    tt3 = pe.misc.gen_correlated_data(np.zeros(length), 0.9999 * np.ones((length, length)) + 0.0001 * np.diag(np.ones(length)), 'another_test|r1', tau=0.7 + t_fac * np.random.rand(length), samples=91)
+
+    tt = np.array(tt1) + (np.array(tt2) + np.array(tt3))
+    tt *= np.resize([1, -1], length)
+
+    [o.gamma_method() for o in tt]
+    cov = pe.covariance(tt, True)
+
+    assert np.all(np.linalg.eigh(cov)[0] > -1e-15)
+
+
 def test_covariance_correlation():
     test_obs = pe.pseudo_Obs(-4, 0.8, 'test', samples=784)
     assert np.allclose(pe.covariance([test_obs, test_obs, test_obs], correlation=True), np.ones((3, 3)))

@@ -1644,7 +1644,7 @@
 
 
 <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the covariance matrix of a set of observables.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Calculates the covariance matrix of a set of observables.</span>
 
 <span class="sd">    The gamma method has to be applied first to all observables.</span>
 
@@ -1660,11 +1660,9 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. For observables defined on a single ensemble this is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.</span>
-<span class="sd">    $$</span>
-<span class="sd">    \tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}</span>
-<span class="sd">    $$</span>
+<span class="sd">    $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$</span>
 <span class="sd">    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
@@ -4835,7 +4833,7 @@ Second observable</li>
             <details>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span><span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the covariance matrix of a set of observables.</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Calculates the covariance matrix of a set of observables.</span>
 
 <span class="sd">    The gamma method has to be applied first to all observables.</span>
 
@@ -4851,11 +4849,9 @@ Second observable</li>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. For observables defined on a single ensemble this is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.</span>
-<span class="sd">    $$</span>
-<span class="sd">    \tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}</span>
-<span class="sd">    $$</span>
+<span class="sd">    $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$</span>
 <span class="sd">    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
@@ -4905,9 +4901,7 @@ If True the correlation instead of the covariance is returned (default False).</
 <h6 id="notes">Notes</h6>
 
 <p>The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. For observables defined on a single ensemble this is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
-$$
-    au_{\mathrm{int}, ij}=\sqrt{    au_{\mathrm{int}, i}    imes    au_{\mathrm{int}, j}}
-$$
+$$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$
 This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).</p>
 </div>
 

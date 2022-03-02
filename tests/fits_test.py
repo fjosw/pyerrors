@@ -60,7 +60,7 @@ def test_least_squares():
         beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], beta[i].dvalue ** 2, abs_tol=1e-3)
-    assert math.isclose(pe.covariance(beta[0], beta[1]), pcov[0, 1], abs_tol=1e-3)
+    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], pcov[0, 1], abs_tol=1e-3)
 
     chi2_pyerrors = np.sum(((f(x, *[o.value for o in beta]) - y) / yerr) ** 2) / (len(x) - 2)
     chi2_scipy = np.sum(((f(x, *popt) - y) / yerr) ** 2) / (len(x) - 2)
@@ -81,7 +81,7 @@ def test_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], pcov[0, 1], abs_tol=1e-3)
 
 
 def test_alternative_solvers():
@@ -195,7 +195,7 @@ def test_total_least_squares():
         beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, output.beta[i], rel_tol=1e-5)
         assert math.isclose(output.cov_beta[i, i], beta[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(beta[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
 
@@ -218,7 +218,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     outc = pe.total_least_squares(oxc, oyc, func, const_par=[betac[1]])
 
@@ -233,7 +233,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     outc = pe.total_least_squares(oxc, oy, func, const_par=[betac[1]])
 

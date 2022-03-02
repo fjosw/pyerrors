@@ -30,3 +30,15 @@ def test_root_linear_idl():
 
     difference = my_obs - my_root
     assert difference.is_zero()
+
+
+def test_root_no_autograd():
+
+    def root_function(x, d):
+        return x - np.log(np.exp(d))
+
+    value = np.random.normal(0, 100)
+    my_obs = pe.pseudo_Obs(value, 0.1, 't')
+
+    with pytest.raises(Exception):
+        my_root = pe.roots.find_root(my_obs, root_function)

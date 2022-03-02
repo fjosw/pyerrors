@@ -260,7 +260,10 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
-    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+    try:
+        hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -537,7 +540,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
                       output.chisquare_by_expected_chisquare)
 
     fitp = fit_result.x
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+    try:
+        hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):

@@ -1332,20 +1332,59 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs1, obs2, correlation=False, **kwargs):
-    """Calculates the covariance of two observables.
+def covariance(obs, visualize=False, correlation=False, **kwargs):
+    """Calculates the covariance matrix of a set of observables.
 
-    covariance(obs, obs) is equal to obs.dvalue ** 2
-    The gamma method has to be applied first to both observables.
-
-    If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value.
+    The gamma method has to be applied first to all observables.
 
     Parameters
     ----------
+    obs : list or numpy.ndarray
+        List or one dimensional array of Obs
+    visualize : bool
+        If True plots the corresponding normalized correlation matrix (default False).
     correlation : bool
-        if true the correlation instead of the covariance is returned (default False)
+        If True the correlation instead of the covariance is returned (default False).
+
+    Notes
+    -----
+    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. For observables defined on a single ensemble this is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
+    $$
+    \tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}
+    $$
+    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
     """
+
+    length = len(obs)
+    cov = np.zeros((length, length))
+    for i in range(length):
+        for j in range(i, length):
+            cov[i, j] = _covariance_element(obs[i], obs[j])
+    cov = cov + cov.T - np.diag(np.diag(cov))
+
+    corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
+
+    errors = [o.dvalue for o in obs]
+    cov = np.diag(errors) @ corr @ np.diag(errors)
+
+    eigenvalues = np.linalg.eigh(cov)[0]
+    if not np.all(eigenvalues >= 0):
+        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
+
+    if visualize:
+        plt.matshow(corr, vmin=-1, vmax=1)
+        plt.set_cmap('RdBu')
+        plt.colorbar()
+        plt.draw()
+
+    if correlation is True:
+        return corr
+    else:
+        return cov
+
+
+def _covariance_element(obs1, obs2):
+    """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def expand_deltas(deltas, idx, shape, new_idx):
         """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
@@ -1369,29 +1408,18 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             ret[idx[i] - new_idx[0]] = deltas[i]
         return ret
 
-    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx, w_max):
-        gamma = np.zeros(w_max)
+    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
         deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
         deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
-        new_shape = len(deltas1)
-        max_gamma = min(new_shape, w_max)
-        # The padding for the fft has to be even
-        padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
-        gamma[:max_gamma] += (np.fft.irfft(np.fft.rfft(deltas1, padding) * np.conjugate(np.fft.rfft(deltas2, padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(deltas2, padding) * np.conjugate(np.fft.rfft(deltas1, padding)))[:max_gamma]) / 2.0
-
-        return gamma
+        return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
-        return 0.
+        return 0.0
 
     if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
-    dvalue = 0
-    e_gamma = {}
-    e_dvalue = {}
-    e_n_tauint = {}
-    e_rho = {}
+    dvalue = 0.0
 
     for e_name in obs1.mc_names:
 
@@ -1399,52 +1427,32 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             continue
 
         idl_d = {}
-        r_length = []
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
-            if isinstance(idl_d[r_name], range):
-                r_length.append(len(idl_d[r_name]))
-            else:
-                r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
 
-        if not r_length:
-            return 0.
-
-        w_max = max(r_length) // 2
-        e_gamma[e_name] = np.zeros(w_max)
+        gamma = 0.0
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            e_gamma[e_name] += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
-        if np.all(e_gamma[e_name] == 0.0):
+        if gamma == 0.0:
             continue
 
-        e_shapes = []
-        for r_name in obs1.e_content[e_name]:
-            e_shapes.append(obs1.shape[r_name])
-        gamma_div = np.zeros(w_max)
+        gamma_div = 0.0
         e_N = 0
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
             e_N += np.sum(np.ones_like(idl_d[r_name]))
-        e_gamma[e_name] /= gamma_div[:w_max]
+        gamma /= gamma_div
 
-        e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-        e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
-        # Make sure no entry of tauint is smaller than 0.5
-        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
-
-        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
-        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
-
-        dvalue += e_dvalue[e_name]
+        dvalue += (1 + 1 / e_N) * gamma / e_N
 
     for e_name in obs1.cov_names:
 
@@ -1452,12 +1460,6 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             continue
 
         dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
-
-    if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-        dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        dvalue = dvalue / obs1.dvalue / obs2.dvalue
 
     return dvalue
 

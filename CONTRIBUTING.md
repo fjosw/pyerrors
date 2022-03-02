@@ -24,12 +24,12 @@ For all pull requests tests are executed for the most recent python releases via
 ```
 pytest --cov=pyerrors -vv
 ```
-requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run 
+requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run
 ```
 pytest --cov=pyerrors --cov-report html
 ```
 The linter `flake8` is executed with the command
 ```
-flake8 --ignore=E501 --exclude=__init__.py pyerrors
+flake8 --ignore=E501,W605 --exclude=__init__.py pyerrors
 ```
 Please make sure that all tests are passed for a new pull requests.

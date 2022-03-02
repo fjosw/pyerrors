@@ -1348,7 +1348,7 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
 
     Notes
     -----
-    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. This is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
+    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. For observables defined on a single ensemble this is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
     $$
     \tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}
     $$
@@ -1384,7 +1384,7 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
 
 
 def _covariance_element(obs1, obs2):
-    """Estimates the uncorrelated covariance of two Obs objects."""
+    """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def expand_deltas(deltas, idx, shape, new_idx):
         """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].

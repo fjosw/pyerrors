@@ -1446,7 +1446,7 @@ def _covariance_element(obs1, obs2):
             if r_name not in obs2.e_content[e_name]:
                 continue
             gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
-            e_N += np.sum(np.ones_like(idl_d[r_name]))
+            e_N += len(idl_d[r_name])
         gamma /= gamma_div
 
         # Bias correction hep-lat/0306017 eq. (49)

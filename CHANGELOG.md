@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 - The fit functions were renamed to `least_squares` and `total_least_squares`.
 - The output of the fit functions is now a dedicated results class which keeps track of all relevant information
 - The fit functions can now deal with provided covariance matrices.
+- `covariance` can now operate on a list or array of `Obs` and returns a matrix
 - The convention for the fit range in the Corr class has been changed.
 - Various method of the `Corr` class were renamed
 - `Obs.print` was renamed to `Obs.details` and the output was improved.
@@ -36,6 +37,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 - The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`
+- `fits.covariance_matrix` was removed as it is now redundant with the functionality of `covariance`
 - The kwarg `bias_correction` in `derived_observable` was removed
 - Obs no longer have an attribute `e_Q`
 - Removed `fits.fit_exp`

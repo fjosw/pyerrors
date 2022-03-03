@@ -458,15 +458,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
-        cov = covariance(y)
-        covdiag = np.diag(1. / np.sqrt(np.diag(cov)))
-        corr = np.copy(cov)
-        for i in range(len(y)):
-            for j in range(len(y)):
-                corr[i][j] = cov[i][j] / np.sqrt(cov[i][i] * cov[j][j])
+        corr = covariance(y, correlation=True)
+        covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
-        if condn > 1e4:
-            warnings.warn("Correlation matrix may be ill-conditioned! condition number: %1.2e" % (condn), RuntimeWarning)
+        if condn > 1e8:
+            warnings.warn("Correlation matrix may be ill-conditioned, condition number: %1.2e" % (condn), RuntimeWarning)
         chol = np.linalg.cholesky(corr)
         chol_inv = np.linalg.inv(chol)
         chol_inv = np.dot(chol_inv, covdiag)
@@ -487,7 +483,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
-            fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping crieterion 0.002 * tol * errordef
+            fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
             output.iterations = fit_result.nfev
         else:
             fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)

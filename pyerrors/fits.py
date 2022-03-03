@@ -249,7 +249,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
-        P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+        P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
             warnings.warn("Negative expected_chisquare.", RuntimeWarning)
@@ -528,7 +528,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             W = np.diag(1 / np.asarray(dy_f))
             cov = covariance(y)
             A = W @ jacobian(func)(fit_result.x, x)
-            P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
             if not silent:

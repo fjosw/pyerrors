@@ -1,4 +1,5 @@
 import os
+import warnings
 from collections import Counter
 import h5py
 import numpy as np
@@ -45,7 +46,8 @@ def _get_files(path, filestem, idl):
     if len(dc) == 1:
         idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
     else:
-        raise Exception('Configurations are not evenly spaced.')
+        idx = idl
+        warnings.warn("Configurations are not evenly spaced.", RuntimeWarning)
 
     return filtered_files, idx
 

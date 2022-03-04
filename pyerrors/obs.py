@@ -260,6 +260,7 @@ class Obs:
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
                 gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+            gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
@@ -1452,7 +1453,7 @@ def _covariance_element(obs1, obs2):
                 continue
             gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
             e_N += len(idl_d[r_name])
-        gamma /= gamma_div
+        gamma /= max(gamma_div, 1.0)
 
         # Bias correction hep-lat/0306017 eq. (49)
         dvalue += (1 + 1 / e_N) * gamma / e_N

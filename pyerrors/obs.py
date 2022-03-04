@@ -1356,7 +1356,7 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
     length = len(obs)
 
     max_samples = np.max([o.N for o in obs])
-    if max_samples <= length:
+    if max_samples <= length and not [item for sublist in [o.cov_names for o in obs] for item in sublist]:
         warnings.warn(f"The dimension of the covariance matrix ({length}) is larger or equal to the number of samples ({max_samples}). This will result in a rank deficient matrix.", RuntimeWarning)
 
     cov = np.zeros((length, length))

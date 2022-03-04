@@ -696,6 +696,15 @@ def test_covariance_correlation():
     assert np.allclose(pe.covariance([test_obs, test_obs, test_obs], correlation=True), np.ones((3, 3)))
 
 
+def test_covariance_rank_deficient():
+    obs = []
+    for i in range(5):
+        obs.append(pe.pseudo_Obs(1.0, 0.1, 'test', 5))
+
+    with pytest.warns(RuntimeWarning):
+        pe.covariance(obs)
+
+
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [])

@@ -1665,6 +1665,11 @@
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+    <span class="n">max_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">max_samples</span> <span class="o">&lt;=</span> <span class="n">length</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dimension of the covariance matrix (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">) is larger or equal to the number of samples (</span><span class="si">{</span><span class="n">max_samples</span><span class="si">}</span><span class="s2">). This will result in a rank deficient matrix.&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
@@ -4854,6 +4859,11 @@ Second observable</li>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+    <span class="n">max_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">max_samples</span> <span class="o">&lt;=</span> <span class="n">length</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The dimension of the covariance matrix (</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">) is larger or equal to the number of samples (</span><span class="si">{</span><span class="n">max_samples</span><span class="si">}</span><span class="s2">). This will result in a rank deficient matrix.&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>

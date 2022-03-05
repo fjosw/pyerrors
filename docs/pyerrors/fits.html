@@ -187,7 +187,7 @@
 <span class="sd">        ```</span>
 
 <span class="sd">        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation</span>
-<span class="sd">        will not work</span>
+<span class="sd">        will not work.</span>
 <span class="sd">    priors : list, optional</span>
 <span class="sd">        priors has to be a list with an entry for every parameter in the fit. The entries can either be</span>
 <span class="sd">        Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like</span>
@@ -196,24 +196,25 @@
 <span class="sd">        If true all output to the console is omitted (default False).</span>
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for</span>
-<span class="sd">                     non-linear fits with many parameters.</span>
+<span class="sd">        non-linear fits with many parameters.</span>
 <span class="sd">    method : str, optional</span>
 <span class="sd">        can be used to choose an alternative method for the minimization of chisquare.</span>
 <span class="sd">        The possible methods are the ones which can be used for scipy.optimize.minimize and</span>
 <span class="sd">        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.</span>
 <span class="sd">        Reliable alternatives are migrad, Powell and Nelder-Mead.</span>
-<span class="sd">    resplot : bool</span>
-<span class="sd">        If true, a plot which displays fit, data and residuals is generated (default False).</span>
-<span class="sd">    qqplot : bool</span>
-<span class="sd">        If true, a quantile-quantile plot of the fit result is generated (default False).</span>
-<span class="sd">    expected_chisquare : bool</span>
-<span class="sd">        If true prints the expected chisquare which is</span>
-<span class="sd">        corrected by effects caused by correlated input data.</span>
-<span class="sd">        This can take a while as the full correlation matrix</span>
-<span class="sd">        has to be calculated (default False).</span>
 <span class="sd">    correlated_fit : bool</span>
-<span class="sd">        If true, use the full correlation matrix in the definition of the chisquare</span>
-<span class="sd">        (only works for prior==None and when no method is given, at the moment).</span>
+<span class="sd">        If True, use the full inverse covariance matrix in the definition of the chisquare cost function.</span>
+<span class="sd">        For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.</span>
+<span class="sd">        In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).</span>
+<span class="sd">        This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).</span>
+<span class="sd">        At the moment this option only works for `prior==None` and when no `method` is given.</span>
+<span class="sd">    expected_chisquare : bool</span>
+<span class="sd">        If True estimates the expected chisquare which is</span>
+<span class="sd">        corrected by effects caused by correlated input data (default False).</span>
+<span class="sd">    resplot : bool</span>
+<span class="sd">        If True, a plot which displays fit, data and residuals is generated (default False).</span>
+<span class="sd">    qqplot : bool</span>
+<span class="sd">        If True, a quantile-quantile plot of the fit result is generated (default False).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -972,7 +973,7 @@ also accessible via indices.</li>
 <span class="sd">        ```</span>
 
 <span class="sd">        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation</span>
-<span class="sd">        will not work</span>
+<span class="sd">        will not work.</span>
 <span class="sd">    priors : list, optional</span>
 <span class="sd">        priors has to be a list with an entry for every parameter in the fit. The entries can either be</span>
 <span class="sd">        Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like</span>
@@ -981,24 +982,25 @@ also accessible via indices.</li>
 <span class="sd">        If true all output to the console is omitted (default False).</span>
 <span class="sd">    initial_guess : list</span>
 <span class="sd">        can provide an initial guess for the input parameters. Relevant for</span>
-<span class="sd">                     non-linear fits with many parameters.</span>
+<span class="sd">        non-linear fits with many parameters.</span>
 <span class="sd">    method : str, optional</span>
 <span class="sd">        can be used to choose an alternative method for the minimization of chisquare.</span>
 <span class="sd">        The possible methods are the ones which can be used for scipy.optimize.minimize and</span>
 <span class="sd">        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.</span>
 <span class="sd">        Reliable alternatives are migrad, Powell and Nelder-Mead.</span>
-<span class="sd">    resplot : bool</span>
-<span class="sd">        If true, a plot which displays fit, data and residuals is generated (default False).</span>
-<span class="sd">    qqplot : bool</span>
-<span class="sd">        If true, a quantile-quantile plot of the fit result is generated (default False).</span>
-<span class="sd">    expected_chisquare : bool</span>
-<span class="sd">        If true prints the expected chisquare which is</span>
-<span class="sd">        corrected by effects caused by correlated input data.</span>
-<span class="sd">        This can take a while as the full correlation matrix</span>
-<span class="sd">        has to be calculated (default False).</span>
 <span class="sd">    correlated_fit : bool</span>
-<span class="sd">        If true, use the full correlation matrix in the definition of the chisquare</span>
-<span class="sd">        (only works for prior==None and when no method is given, at the moment).</span>
+<span class="sd">        If True, use the full inverse covariance matrix in the definition of the chisquare cost function.</span>
+<span class="sd">        For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.</span>
+<span class="sd">        In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).</span>
+<span class="sd">        This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).</span>
+<span class="sd">        At the moment this option only works for `prior==None` and when no `method` is given.</span>
+<span class="sd">    expected_chisquare : bool</span>
+<span class="sd">        If True estimates the expected chisquare which is</span>
+<span class="sd">        corrected by effects caused by correlated input data (default False).</span>
+<span class="sd">    resplot : bool</span>
+<span class="sd">        If True, a plot which displays fit, data and residuals is generated (default False).</span>
+<span class="sd">    qqplot : bool</span>
+<span class="sd">        If True, a quantile-quantile plot of the fit result is generated (default False).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_prior_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1034,7 +1036,7 @@ fit function, has to be of the form</p>
 </code></pre></div>
 
 <p>It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-will not work</p></li>
+will not work.</p></li>
 <li><strong>priors</strong> (list, optional):
 priors has to be a list with an entry for every parameter in the fit. The entries can either be
 Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
@@ -1043,24 +1045,25 @@ Obs (e.g. results from a previous fit) or strings containing a value and an erro
 If true all output to the console is omitted (default False).</li>
 <li><strong>initial_guess</strong> (list):
 can provide an initial guess for the input parameters. Relevant for
-            non-linear fits with many parameters.</li>
+non-linear fits with many parameters.</li>
 <li><strong>method</strong> (str, optional):
 can be used to choose an alternative method for the minimization of chisquare.
 The possible methods are the ones which can be used for scipy.optimize.minimize and
 migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
 Reliable alternatives are migrad, Powell and Nelder-Mead.</li>
-<li><strong>resplot</strong> (bool):
-If true, a plot which displays fit, data and residuals is generated (default False).</li>
-<li><strong>qqplot</strong> (bool):
-If true, a quantile-quantile plot of the fit result is generated (default False).</li>
-<li><strong>expected_chisquare</strong> (bool):
-If true prints the expected chisquare which is
-corrected by effects caused by correlated input data.
-This can take a while as the full correlation matrix
-has to be calculated (default False).</li>
 <li><strong>correlated_fit</strong> (bool):
-If true, use the full correlation matrix in the definition of the chisquare
-(only works for prior==None and when no method is given, at the moment).</li>
+If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
+For details about how the covariance matrix is estimated see <code><a href="obs.html#covariance">pyerrors.obs.covariance</a></code>.
+In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
+This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
+At the moment this option only works for <code>prior==None</code> and when no <code>method</code> is given.</li>
+<li><strong>expected_chisquare</strong> (bool):
+If True estimates the expected chisquare which is
+corrected by effects caused by correlated input data (default False).</li>
+<li><strong>resplot</strong> (bool):
+If True, a plot which displays fit, data and residuals is generated (default False).</li>
+<li><strong>qqplot</strong> (bool):
+If True, a quantile-quantile plot of the fit result is generated (default False).</li>
 </ul>
 </div>
 

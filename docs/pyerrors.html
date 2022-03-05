@@ -451,6 +451,11 @@ where the Jacobian is computed for each derived quantity via automatic different
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x2</span>
 </code></pre></div>
 
+<p><code>pyerrors</code> also supports correlated fits which can be triggered via the parameter <code>correlated_fit=True</code>.
+Details about how the required covariance matrix is estimated can be found in <code><a href="pyerrors/obs.html#covariance">pyerrors.obs.covariance</a></code>.</p>
+
+<p>Direct visualizations of the performed fits can be triggered via <code>resplot=True</code> or <code>qqplot=True</code>. For all available options see <code><a href="pyerrors/fits.html#least_squares">pyerrors.fits.least_squares</a></code>.</p>
+
 <h2 id="total-least-squares-fits">Total least squares fits</h2>
 
 <p><code>pyerrors</code> can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in <a href="https://docs.scipy.org/doc/scipy/reference/odr.html">scipy</a>, see <code><a href="pyerrors/fits.html#least_squares">pyerrors.fits.least_squares</a></code>. The syntax is identical to the standard least squares case, the only diffrence being that <code>x</code> also has to be a <code>list</code> or <code>numpy.array</code> of <code>Obs</code>.</p>
@@ -922,6 +927,11 @@ The following entries are optional:</li>
 <span class="sd">    (x1, x2) = x</span>
 <span class="sd">    return a[0] * x1 ** 2 + a[1] * x2</span>
 <span class="sd">```</span>
+
+<span class="sd">`pyerrors` also supports correlated fits which can be triggered via the parameter `correlated_fit=True`.</span>
+<span class="sd">Details about how the required covariance matrix is estimated can be found in `pyerrors.obs.covariance`.</span>
+
+<span class="sd">Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.</span>
 
 <span class="sd">## Total least squares fits</span>
 <span class="sd">`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.</span>

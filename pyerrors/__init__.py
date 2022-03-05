@@ -353,6 +353,11 @@ def func(a, x):
     return a[0] * x1 ** 2 + a[1] * x2
 ```
 
+`pyerrors` also supports correlated fits which can be triggered via the parameter `correlated_fit=True`.
+Details about how the required covariance matrix is estimated can be found in `pyerrors.obs.covariance`.
+
+Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.
+
 ## Total least squares fits
 `pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.
 

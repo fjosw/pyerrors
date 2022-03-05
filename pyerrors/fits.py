@@ -86,7 +86,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         ```
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-        will not work
+        will not work.
     priors : list, optional
         priors has to be a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
@@ -95,24 +95,25 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If true all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
-                     non-linear fits with many parameters.
+        non-linear fits with many parameters.
     method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
-    resplot : bool
-        If true, a plot which displays fit, data and residuals is generated (default False).
-    qqplot : bool
-        If true, a quantile-quantile plot of the fit result is generated (default False).
-    expected_chisquare : bool
-        If true prints the expected chisquare which is
-        corrected by effects caused by correlated input data.
-        This can take a while as the full correlation matrix
-        has to be calculated (default False).
     correlated_fit : bool
-        If true, use the full correlation matrix in the definition of the chisquare
-        (only works for prior==None and when no method is given, at the moment).
+        If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
+        For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
+        In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
+        This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
+        At the moment this option only works for `prior==None` and when no `method` is given.
+    expected_chisquare : bool
+        If True estimates the expected chisquare which is
+        corrected by effects caused by correlated input data (default False).
+    resplot : bool
+        If True, a plot which displays fit, data and residuals is generated (default False).
+    qqplot : bool
+        If True, a quantile-quantile plot of the fit result is generated (default False).
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)

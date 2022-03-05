@@ -262,6 +262,8 @@
 <span class="sd">        This can take a while as the full correlation matrix</span>
 <span class="sd">        has to be calculated (default False).</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    Based on the orthogonal distance regression module of scipy</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -681,9 +683,13 @@
 <span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
 
-<span class="sd">    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
-<span class="sd">    x can either be a list of floats in which case no xerror is assumed, or</span>
-<span class="sd">    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : list</span>
+<span class="sd">        Can either be a list of floats in which case no xerror is assumed, or</span>
+<span class="sd">        a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
+<span class="sd">    y : list</span>
+<span class="sd">        List of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -701,8 +707,8 @@
 
 
 <span class="k">def</span> <span class="nf">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">o_y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Generates a quantile-quantile plot of the fit result which can be used to</span>
-<span class="sd">        check if the residuals of the fit are gaussian distributed.</span>
+    <span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
+<span class="sd">       check if the residuals of the fit are gaussian distributed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">residuals</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1119,6 +1125,8 @@ If True, a quantile-quantile plot of the fit result is generated (default False)
 <span class="sd">        This can take a while as the full correlation matrix</span>
 <span class="sd">        has to be calculated (default False).</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    Based on the orthogonal distance regression module of scipy</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -1294,8 +1302,11 @@ If true prints the expected chisquare which is
 corrected by effects caused by correlated input data.
 This can take a while as the full correlation matrix
 has to be calculated (default False).</li>
-<li><strong>Based on the orthogonal distance regression module of scipy</strong></li>
 </ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Based on the orthogonal distance regression module of scipy</p>
 </div>
 
 
@@ -1313,9 +1324,13 @@ has to be calculated (default False).</li>
             <div class="pdoc-code codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
 
-<span class="sd">    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
-<span class="sd">    x can either be a list of floats in which case no xerror is assumed, or</span>
-<span class="sd">    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : list</span>
+<span class="sd">        Can either be a list of floats in which case no xerror is assumed, or</span>
+<span class="sd">        a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</span>
+<span class="sd">    y : list</span>
+<span class="sd">        List of Obs, the dvalues of the Obs are used as yerror for the fit.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -1336,9 +1351,15 @@ has to be calculated (default False).</li>
 
             <div class="docstring"><p>Performs a linear fit to y = n + m * x and returns two Obs n, m.</p>
 
-<p>y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-x can either be a list of floats in which case no xerror is assumed, or
-a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</p>
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>x</strong> (list):
+Can either be a list of floats in which case no xerror is assumed, or
+a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</li>
+<li><strong>y</strong> (list):
+List of Obs, the dvalues of the Obs are used as yerror for the fit.</li>
+</ul>
 </div>
 
 
@@ -1354,8 +1375,8 @@ a list of Obs, where the dvalues of the Obs are used as xerror for the fit.</p>
             <details>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span><span class="k">def</span> <span class="nf">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">o_y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Generates a quantile-quantile plot of the fit result which can be used to</span>
-<span class="sd">        check if the residuals of the fit are gaussian distributed.</span>
+    <span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
+<span class="sd">       check if the residuals of the fit are gaussian distributed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">residuals</span> <span class="o">=</span> <span class="p">[]</span>

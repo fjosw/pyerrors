@@ -1611,6 +1611,8 @@
 <span class="sd">    obs_b : Obs</span>
 <span class="sd">        Second observable</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    Keep in mind to only correlate primary observables which have not been reweighted</span>
 <span class="sd">    yet. The reweighting has to be applied after correlating the observables.</span>
 <span class="sd">    Currently only works if ensembles are identical (this is not strictly necessary).</span>
@@ -1807,6 +1809,8 @@
 <span class="sd">    list_of_obs : list</span>
 <span class="sd">        list of the Obs object to be combined</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    It is not possible to combine obs which are based on the same replicum</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">replist</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">list_of_obs</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
@@ -4778,6 +4782,8 @@ on the configurations in obs[i].idl.</li>
 <span class="sd">    obs_b : Obs</span>
 <span class="sd">        Second observable</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    Keep in mind to only correlate primary observables which have not been reweighted</span>
 <span class="sd">    yet. The reweighting has to be applied after correlating the observables.</span>
 <span class="sd">    Currently only works if ensembles are identical (this is not strictly necessary).</span>
@@ -4821,10 +4827,13 @@ on the configurations in obs[i].idl.</li>
 First observable</li>
 <li><strong>obs_b</strong> (Obs):
 Second observable</li>
-<li><strong>Keep in mind to only correlate primary observables which have not been reweighted</strong></li>
-<li><strong>yet. The reweighting has to be applied after correlating the observables.</strong></li>
-<li><strong>Currently only works if ensembles are identical (this is not strictly necessary).</strong></li>
 </ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Keep in mind to only correlate primary observables which have not been reweighted
+yet. The reweighting has to be applied after correlating the observables.
+Currently only works if ensembles are identical (this is not strictly necessary).</p>
 </div>
 
 
@@ -4987,6 +4996,8 @@ name of the ensemble the samples are defined on.</li>
 <span class="sd">    list_of_obs : list</span>
 <span class="sd">        list of the Obs object to be combined</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    It is not possible to combine obs which are based on the same replicum</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">replist</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">list_of_obs</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
@@ -5017,8 +5028,11 @@ name of the ensemble the samples are defined on.</li>
 <ul>
 <li><strong>list_of_obs</strong> (list):
 list of the Obs object to be combined</li>
-<li><strong>It is not possible to combine obs which are based on the same replicum</strong></li>
 </ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>It is not possible to combine obs which are based on the same replicum</p>
 </div>
 
 

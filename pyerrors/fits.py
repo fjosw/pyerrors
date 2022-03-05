@@ -161,6 +161,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         This can take a while as the full correlation matrix
         has to be calculated (default False).
 
+    Notes
+    -----
     Based on the orthogonal distance regression module of scipy
     '''
 
@@ -580,9 +582,13 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 def fit_lin(x, y, **kwargs):
     """Performs a linear fit to y = n + m * x and returns two Obs n, m.
 
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-    x can either be a list of floats in which case no xerror is assumed, or
-    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
+    Parameters
+    ----------
+    x : list
+        Can either be a list of floats in which case no xerror is assumed, or
+        a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
+    y : list
+        List of Obs, the dvalues of the Obs are used as yerror for the fit.
     """
 
     def f(a, x):
@@ -600,8 +606,8 @@ def fit_lin(x, y, **kwargs):
 
 
 def qqplot(x, o_y, func, p):
-    """ Generates a quantile-quantile plot of the fit result which can be used to
-        check if the residuals of the fit are gaussian distributed.
+    """Generates a quantile-quantile plot of the fit result which can be used to
+       check if the residuals of the fit are gaussian distributed.
     """
 
     residuals = []

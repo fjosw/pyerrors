@@ -1300,6 +1300,8 @@ def correlate(obs_a, obs_b):
     obs_b : Obs
         Second observable
 
+    Notes
+    -----
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
     Currently only works if ensembles are identical (this is not strictly necessary).
@@ -1496,6 +1498,8 @@ def merge_obs(list_of_obs):
     list_of_obs : list
         list of the Obs object to be combined
 
+    Notes
+    -----
     It is not possible to combine obs which are based on the same replicum
     """
     replist = [item for obs in list_of_obs for item in obs.names]

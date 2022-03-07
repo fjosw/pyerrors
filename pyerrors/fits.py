@@ -461,7 +461,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
-        corr = covariance(y, correlation=True)
+        corr = covariance(y, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
         if condn > 1e8:

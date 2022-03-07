@@ -319,6 +319,23 @@ def test_prior_fit():
     fitp = pe.fits.least_squares([0, 1], y, f, priors=y, resplot=True, qqplot=True)
 
 
+def test_correlated_fit_covobs():
+    x1 = pe.cov_Obs(1.01, 0.01 ** 2, 'test1')
+    x2 = pe.cov_Obs(2.01, 0.01 ** 2, 'test2')
+    x3 = pe.cov_Obs(2.99, 0.01 ** 2, 'test3')
+
+    [o.gamma_method() for o in [x1, x2, x3]]
+
+    def func(a, x):
+        return a[0] * x + a[1]
+
+    fit_res = pe.fits.least_squares(np.arange(1, 4), [x1, x2, x3], func, expected_chisquare=True)
+    assert np.isclose(fit_res.chisquare_by_dof, fit_res.chisquare_by_expected_chisquare)
+
+    fit_res_corr = pe.fits.least_squares(np.arange(1, 4), [x1, x2, x3], func, correlated_fit=True)
+    assert np.isclose(fit_res.chisquare_by_dof, fit_res_corr.chisquare_by_dof)
+
+
 def test_error_band():
     def f(a, x):
         return a[0] + a[1] * x

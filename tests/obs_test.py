@@ -142,7 +142,6 @@ def test_overloading_vectorization():
 
 def test_gamma_method_standard_data():
     for data in [np.tile([1, -1], 1000),
-                 np.random.rand(100001),
                  np.zeros(1195),
                  np.sin(np.sqrt(2) * np.pi * np.arange(1812))]:
         test_obs = pe.Obs([data], ['t'])

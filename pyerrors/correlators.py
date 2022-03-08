@@ -794,7 +794,34 @@ class Corr:
             else:
                 raise Exception("'save' has to be a string.")
 
-        return
+    def spaghetti_plot(self, logscale=True):
+        """Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.
+
+        Parameters
+        ----------
+        logscale : bool
+            Determines whether the scale of the y-axis is logarithmic or standard.
+        """
+        if self.N != 1:
+            raise Exception("Correlator needs to be projected first.")
+
+        mc_names = list(set([item for sublist in [o[0].mc_names for o in self.content if o is not None] for item in sublist]))
+        x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content) if o is not None]
+
+        for name in mc_names:
+            data = np.array([o[0].deltas[name] + o[0].r_values[name] for o in self.content if o is not None]).T
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            for dat in data:
+                ax.plot(x0_vals, dat, ls='-', marker='')
+
+            if logscale is True:
+                ax.set_yscale('log')
+
+            ax.set_xlabel(r'$x_0 / a$')
+            plt.title(name)
+            plt.draw()
 
     def dump(self, filename, datatype="json.gz", **kwargs):
         """Dumps the Corr into a file of chosen type

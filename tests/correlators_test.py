@@ -325,10 +325,20 @@ def test_corr_vector_operations():
     assert np.all([o == 0 for o in ((my_corr * my_vec) / my_vec) - my_corr])
     assert np.all([o == 0 for o in ((my_corr / my_vec) * my_vec) - my_corr])
 
-def _gen_corr(val):
+
+def test_spaghetti_plot():
+    corr = _gen_corr(12, 50)
+    corr += pe.pseudo_Obs(0.0, 0.1, 'another_ensemble')
+    corr += pe.cov_Obs(0.0, 0.01 ** 2, 'covobs')
+
+    corr.spaghetti_plot(True)
+    corr.spaghetti_plot(False)
+
+
+def _gen_corr(val, samples=2000):
     corr_content = []
     for t in range(16):
-        corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
+        corr_content.append(pe.pseudo_Obs(val, 0.1, 't', samples))
 
     return pe.correlators.Corr(corr_content)
 

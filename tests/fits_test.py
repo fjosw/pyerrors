@@ -375,6 +375,12 @@ def test_fit_no_autograd():
         pe.total_least_squares(oy, oy, func)
 
 
+def test_singular_correlated_fit():
+    obs1 = pe.pseudo_Obs(1.0, 0.1, 'test')
+    with pytest.raises(Exception):
+        pe.fits.fit_lin([0, 1], [obs1, obs1], correlated_fit=True)
+
+
 def test_ks_test():
     def f(a, x):
         y = a[0] + a[1] * x

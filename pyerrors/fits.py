@@ -625,7 +625,7 @@ def qqplot(x, o_y, func, p):
     fit_stop = my_x[-1]
     samples = np.arange(fit_start, fit_stop, 0.01)
     plt.plot(samples, samples, 'k--', zorder=11, label='Standard normal distribution')
-    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)))
+    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)), marker='', ls='-')
 
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')

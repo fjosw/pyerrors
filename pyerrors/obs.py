@@ -443,7 +443,7 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, rtol=1.e-5, atol=1.e-8):
+    def is_zero(self, rtol=1e-14, atol=1e-10):
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters

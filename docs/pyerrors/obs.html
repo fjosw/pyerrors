@@ -754,7 +754,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvalue</span>
 
-    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within a given tolerance.</span>
 
 <span class="sd">        Parameters</span>
@@ -2323,7 +2323,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_zero</span><span class="p">()</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvalue</span>
 
-    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within a given tolerance.</span>
 
 <span class="sd">        Parameters</span>
@@ -3397,12 +3397,12 @@ Number of standard errors used for the check.</li>
 
         
             <span class="def">def</span>
-            <span class="name">is_zero</span><span class="signature">(self, rtol=1e-05, atol=1e-08)</span>:
+            <span class="name">is_zero</span><span class="signature">(self, rtol=1e-14, atol=1e-10)</span>:
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.e-8</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">is_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks whether the observable is zero within a given tolerance.</span>
 
 <span class="sd">        Parameters</span>

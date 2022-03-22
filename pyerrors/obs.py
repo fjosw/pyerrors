@@ -443,17 +443,15 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, rtol=1e-14, atol=1e-10):
+    def is_zero(self, atol=1e-10):
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters
         ----------
-        rtol : float
-            Relative tolerance (for details see numpy documentation).
         atol : float
             Absolute tolerance (for details see numpy documentation).
         """
-        return np.isclose(0.0, self.value, rtol, atol) and all(np.allclose(0.0, delta, rtol, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), rtol, atol) for delta in self.covobs.values())
+        return np.isclose(0.0, self.value, 1e-14, atol) and all(np.allclose(0.0, delta, 1e-14, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), 1e-14, atol) for delta in self.covobs.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble.

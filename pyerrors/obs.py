@@ -582,7 +582,7 @@ class Obs:
         ensemble to the error and returns a dictionary containing the fractions."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        if self._dvalue == 0.0:
+        if np.isclose(0.0, self._dvalue, atol=1e-15):
             raise Exception('Error is 0.0')
         labels = self.e_names
         sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
@@ -728,6 +728,9 @@ class Obs:
 
     def __rsub__(self, y):
         return -1 * (self - y)
+
+    def __pos__(self):
+        return self
 
     def __neg__(self):
         return -1 * self
@@ -911,8 +914,11 @@ class CObs:
     def __abs__(self):
         return np.sqrt(self.real**2 + self.imag**2)
 
-    def __neg__(other):
-        return -1 * other
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return -1 * self
 
     def __eq__(self, other):
         return self.real == other.real and self.imag == other.imag

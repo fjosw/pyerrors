@@ -314,6 +314,9 @@ def test_matrix_functions():
     # Check determinant
     assert pe.linalg.det(np.diag(np.diag(matrix))) == np.prod(np.diag(matrix))
 
+    with pytest.raises(Exception):
+        pe.linalg.det(5)
+
     pe.linalg.pinv(matrix[:,:3])
 
 
@@ -347,3 +350,10 @@ def test_complex_matrix_operations():
         diff = ta * tb - 1
         for (i, j), entry in np.ndenumerate(diff):
             assert entry.is_zero()
+
+
+def test_complex_matrix_real_entries():
+    my_mat = get_complex_matrix(4)
+    my_mat[0, 1] = 4
+    my_mat[2, 0] = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
+    assert np.all((my_mat @ pe.linalg.inv(my_mat) - np.identity(4)) == 0)

@@ -24,7 +24,7 @@ For all pull requests tests are executed for the most recent python releases via
 ```
 pytest --cov=pyerrors -vv
 ```
-requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run 
+requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run
 ```
 pytest --cov=pyerrors --cov-report html
 ```

@@ -1,0 +1,343 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema",
+ "$id": "https://github.com/fjosw/pyerrors/tree/develop/examples/json_schema.json",
+ "type": "object",
+ "title": "pyerrors JSON file format",
+ "description": "Schema to validate JSON files according to the pyerrors file format 1.0.",
+ "required": [
+  "obsdata"
+ ],
+ "optional": [
+  "program",
+  "version",
+  "who",
+  "date",
+  "host",
+  "description"
+ ],
+ "properties": {
+  "program": {
+   "type": "string",
+   "description": "The program that was used to write the file",
+   "examples": [
+    "pyerrors"
+   ]
+  },
+  "version": {
+   "type": "string",
+   "description": "The version of the file format.",
+   "examples": [
+    "1.0"
+   ]
+  },
+  "who": {
+   "type": "string",
+   "description": "The username of the creator of this file."
+  },
+  "date": {
+   "type": "string",
+   "description": "Date, when this file has been written.",
+   "examples": [
+    "2021-11-29 09:55:05"
+   ]
+  },
+  "host": {
+   "type": "string",
+   "description": "Hostname of the machine where the file has been written."
+  },
+  "description": {
+   "type": ["number","string","boolean","object","array","null"],
+   "description": "A description of the content of the file."
+  },
+  "obsdata": {
+   "type": "array",
+   "description": "Contains the actual data. One entry per structure. A structure is either a single Obs or a one-dimensional representation of a multi-dimensional object (list, array, Corr). Each Obs inside a structure has to be defined on the same set of configs.",
+   "items": {
+    "$ref": "#/$defs/obsdata_items"
+   }
+  }
+ },
+ "$defs": {
+  "obsdata_items": {
+   "type": "object",
+   "description": "Contains the information for one structure of Observables.",
+   "required": [
+    "type",
+    "value"
+   ],
+   "optional": [
+    "layout",
+    "tag",
+    "reweighted",
+    "data",
+    "cdata"
+   ],
+   "properties": {
+    "type": {
+     "type": "string",
+     "description": "Specifies the type of the structure, needed for the correct parsing of flattened structures.",
+     "examples": [
+      "Obs", "List", "Array", "Corr"
+     ]
+    },
+    "layout": {
+     "type": "string",
+     "description": "The layout of the structure. One entry per dimension, separated by commas",
+     "default": "1",
+     "examples": [
+      "1", "1, 2", "2, 2, 4"
+     ]
+    },
+    "value": {
+     "type": "array",
+     "description": "The mean values of all Obs inside the structure.",
+     "examples": [
+      [1.2],
+      [2.3, 2.1, 3.1]
+     ],
+     "items": [{
+      "type": "number",
+      "description": "A mean value of an Obs."
+     }]
+    },
+    "tag": {
+     "type": ["number","string","boolean","object","array","null"],
+     "description": "Optional descriptor of the structure."
+    },
+    "reweighted": {
+     "type": "boolean",
+     "description": "May be used to specify whether the Obs inside the structure have been reweighted."
+    },
+    "data": {
+     "type": "array",
+     "description": "Contains the data for each ensemble.",
+     "items": {
+      "$ref": "#/$defs/ensdata_items"
+     }
+    },
+    "cdata": {
+     "type": "array",
+     "description": "Contains the data for each covariance matrix.",
+     "items": {
+      "$ref": "#/$defs/cdata_items"
+     }
+    }
+   }
+  },
+  "ensdata_items": {
+   "type": "object",
+   "description": "The data for one single ensemble",
+   "required": [
+    "id",
+    "replica"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "description": "The id of the ensemble"
+    },
+    "replica": {
+     "type": "array",
+     "description": "Contains the data for each replica of the ensemble.",
+     "items": {
+      "$ref": "#/$defs/repdata_items"
+     }
+    }
+   }
+  },
+
+  "repdata_items": {
+   "type": "object",
+   "description": "The data for one single replica",
+   "required": [
+    "name",
+    "deltas"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "The name of the replica."
+    },
+    "deltas": {
+     "type": "array",
+     "description": "The actual data: Contains configuration numbers and the deltas, i.e., the deviations from the mean value, for each Obs inside the structure.",
+     "items": {
+      "$ref": "#/$defs/deltas_items"
+     }
+    }
+   }
+  },
+
+  "deltas_items": {
+   "type": "array",
+   "description": "First entry is the configuration number. Each further entry is the delta, i.e., the deviation from the mean value, for one Obs inside the structure.",
+   "prefixItems": [{
+    "type": "integer"
+   }],
+   "items": [{
+    "type": "number"
+   }]
+  },
+
+  "cdata_items": {
+   "type": "object",
+   "description": "Contains the data for one covariance matrix.",
+   "required": [
+    "id",
+    "layout",
+    "cov",
+    "grad"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "description": "The identifier of the covariance matrix."
+    },
+    "layout": {
+     "type": "string",
+     "description": "The layout of the NxN covariance matrix",
+     "examples": [
+      "1, 1", "2, 2"
+     ]
+    },
+    "cov": {
+     "type": "array",
+     "description": "Contains the NxN covariance matrix, stored in row-major format.",
+     "items": [{
+      "type": "number"
+     }]
+    },
+    "grad": {
+     "type": "array",
+     "description": "The gradient of all Obs inside the structure with respect to the corresponding (diagonal) elements of the covariance matrix.",
+     "items": [{
+      "type": "array",
+      "description": "The gradient of all Obs with respect to the Ith element of the covariance matrix, where I is the position of this array inside grad.",
+      "items": [{
+       "type": "number"
+      }]
+     }]
+    }
+   }
+  }
+ },
+ "examples": [
+    {
+   "program": "pyerrors 2.0.0+dev",
+   "version": "1.0",
+   "who": "s-kuberski",
+   "date": "2022-02-16 12:59:09 +0100",
+   "host": "Hostname",
+   "obsdata": [
+    {
+     "type": "Obs",
+     "layout": "1",
+     "value": [
+      1.0
+     ],
+     "data": [
+      {
+       "id": "A",
+       "replica": [
+        {
+         "name": "A|r1",
+         "deltas": [
+          [1, -4.579833517667820e-02],
+          [2, 1.272532469141094e-01],
+          [3, -7.042514710393744e-02],
+          [4, -4.800967024769492e-01],
+          [5, 2.967284377711763e-01],
+          [6, 3.156118966788146e-01],
+          [7, 1.139599354351861e-02],
+          [8, -1.546693901500542e-01]
+         ]
+        },
+        {
+         "name": "A|r2",
+         "deltas": [
+          [1, 2.003189752235817e-01],
+          [2, 1.456782186748891e-01],
+          [3, -2.417953154609670e-01],
+          [4, 1.112557347812830e-01],
+          [5, -6.889549539458262e-02],
+          [6, 2.984543471692340e-01],
+          [7, -4.874803852180309e-01],
+          [8, 4.246392022459267e-02]
+         ]
+        }
+       ]
+      },
+      {
+       "id": "B",
+       "replica": [
+        {
+         "name": "B|r1",
+         "deltas": [
+          [1, -2.726195322210824e-01],
+          [2, 3.949288132215630e-01],
+          [3, -2.832514721110847e-01],
+          [4, -8.371015800402004e-02],
+          [5, 2.643463355004773e-01],
+          [6, -2.265154600267616e-02],
+          [7, -1.954084091845127e-01],
+          [8, 1.983659688013363e-01]
+         ]
+        }
+       ]
+      }
+     ],
+     "cdata": [
+      {
+       "id": "#renorm",
+       "layout": "2, 2",
+       "cov": [1.000000000000000e-01, 5.000000000000000e-02, 5.000000000000000e-02, 2.000000000000000e-02],
+       "grad": [
+        [1.000000000000000e+00],
+        [0.000000000000000e+00]
+       ]
+      }
+     ]
+    },
+    {
+     "type": "List",
+     "layout": "2",
+     "value": [
+      1.2,
+      0.8333333333333334
+     ],
+     "data": [
+      {
+       "id": "B",
+       "replica": [
+        {
+         "name": "B|r1",
+         "deltas": [
+          [1, 2.368958758731594e-01, 1.645110249119163e-01],
+          [2, 3.164596213857241e-01, 2.197636259623084e-01],
+          [3, -2.422021289001151e-01, -1.681959228473022e-01],
+          [4, 1.365207560473117e-01, 9.480608058841092e-02],
+          [5, -1.958565486752142e-02, -1.360114921355654e-02],
+          [6, -6.335145310374894e-01, -4.399406465538122e-01],
+          [7, 1.945374561549609e-02, 1.350954556631673e-02],
+          [8, 1.859723158834354e-01, 1.291474415857190e-01]
+         ]
+        }
+       ]
+      }
+     ],
+     "cdata": [
+      {
+       "id": "renorm",
+       "layout": "2, 2",
+       "cov": [1.000000000000000e-01, 5.000000000000000e-02, 5.000000000000000e-02, 2.000000000000000e-02],
+       "grad": [
+        [1.000000000000000e+00, -6.944444444444444e-01],
+        [0.000000000000000e+00, 0.000000000000000e+00]
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

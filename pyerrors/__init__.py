@@ -26,7 +26,7 @@ print(my_new_obs)                             # Print the result to stdout
 # The `Obs` class
 
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
-An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an Observable from a Monte Carlo chain.
+An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
 
@@ -38,7 +38,7 @@ my_obs = pe.Obs([samples], ['ensemble_name'])
 
 ## Error propagation
 
-When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care using a first order Taylor expansion
+When performing mathematical operations on `Obs` objects the correct error propagation is intrinsically taken care of using a first order Taylor expansion
 $$\delta_f^i=\sum_\alpha \bar{f}_\alpha \delta_\alpha^i\,,\quad \delta_\alpha^i=a_\alpha^i-\bar{a}_\alpha\,,$$
 as introduced in [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017).
 The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision via automatic differentiation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -96,7 +96,7 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
-If the parameter $S$ is set to zero it is assumed that dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.
 
 ### Exponential tails
@@ -187,7 +187,7 @@ obs3.details()
 
 ```
 
-`Obs` objects defined on regular and irregular histories of the same ensemble can be computed with each other and the correct error propagation and estimation is automatically taken care of.
+`Obs` objects defined on regular and irregular histories of the same ensemble can be combined with each other and the correct error propagation and estimation is automatically taken care of.
 
 **Warning:** Irregular Monte Carlo chains can result in odd patterns in the autocorrelation functions.
 Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho` or `pyerrors.obs.Obs.plot_tauint`.
@@ -195,7 +195,7 @@ Make sure to check the autocorrelation time with e.g. `pyerrors.obs.Obs.plot_rho
 For the full API see `pyerrors.obs.Obs`.
 
 # Correlators
-When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs´
+When one is not interested in single observables but correlation functions, `pyerrors` offers the `Corr` class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a `Corr` objects one needs to arrange the data as a list of `Obs`
 ```python
 my_corr = pe.Corr([obs_0, obs_1, obs_2, obs_3])
 print(my_corr)
@@ -247,7 +247,7 @@ my_new_corr = 0.3 * my_corr[2] * my_corr * my_corr + 12 / my_corr
 
 For the full API see `pyerrors.correlators.Corr`.
 
-# Complex observables
+# Complex valued observables
 
 `pyerrors` can handle complex valued observables via the class `pyerrors.obs.CObs`.
 `CObs` are initialized with a real and an imaginary part which both can be `Obs` valued.
@@ -270,12 +270,101 @@ print(my_derived_cobs)
 > (1.668(23)+0.0j)
 ```
 
-# Optimization / fits / roots
-`pyerrors.fits`
-`pyerrors.roots`
+# The `Covobs` class
+In many projects, auxiliary data that is not based on Monte Carlo chains enters. Examples are experimentally determined mesons masses which are used to set the scale or renormalization constants. These numbers come with an error that has to be propagated through the analysis. The `Covobs` class allows to define such quantities in `pyerrors`. Furthermore, external input might consist of correlated quantities. An example are the parameters of an interpolation formula, which are defined via mean values and a covariance matrix between all parameters. The contribution of the interpolation formula to the error of a derived quantity therefore might depend on the complete covariance matrix.
+
+This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters `cov_Obs`, since the second argument of this function is the covariance matrix of the `Covobs`.
+
+```python
+import pyerrors.obs as pe
+
+mpi = pe.cov_Obs(134.9768, 0.0005**2, 'pi^0 mass')
+mpi.gamma_method()
+mpi.details()
+> Result	 1.34976800e+02 +/- 5.00000000e-04 +/- 0.00000000e+00 (0.000%)
+>  pi^0 mass 	 5.00000000e-04
+> 0 samples in 1 ensemble:
+>   · Covobs   'pi^0 mass'
+```
+The resulting object `mpi` is an `Obs` that contains a `Covobs`. In the following, it may be handled as any other `Obs`. The contribution of the covariance matrix to the error of an `Obs` is determined from the $M \times M$ covariance matrix $\Sigma$ and the gradient of the `Obs` with respect to the external quantities, which is the $1\times M$ Jacobian matrix $J$, via
+$$s = \sqrt{J^T \Sigma J}\,,$$
+where the Jacobian is computed for each derived quantity via automatic differentiation.
+
+Correlated auxiliary data is defined similarly to above, e.g., via
+```python
+RAP = pe.cov_Obs([16.7457, -19.0475], [[3.49591, -6.07560], [-6.07560, 10.5834]], 'R_AP, 1906.03445, (5.3a)')
+print(RAP)
+> [Obs[16.7(1.9)], Obs[-19.0(3.3)]]
+```
+where `RAP` now is a list of two `Obs` that contains the two correlated parameters.
+
+Since the gradient of a derived observable with respect to an external covariance matrix is propagated through the entire analysis, the `Covobs` class allows to quote the derivative of a result with respect to the external quantities. If these derivatives are published together with the result, small shifts in the definition of external quantities, e.g., the definition of the physical point, can be performed a posteriori based on the published information. This may help to compare results of different groups. The gradient of an `Obs` `o` with respect to a covariance matrix with the identifying string `k` may be accessed via
+```python
+o.covobs[k].grad
+```
+
+# Error propagation in iterative algorithms
+
+`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
+
+## Least squares fits
+
+Standard non-linear least square fits with errors on the dependent but not the independent variables can be performed with `pyerrors.fits.least_squares`. As default solver the Levenberg-Marquardt algorithm implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html) is used.
+
+Fit functions have to be of the following form
+```python
+import autograd.numpy as anp
+
+def func(a, x):
+    return a[1] * anp.exp(-a[0] * x)
+```
+**It is important that numerical functions refer to `autograd.numpy` instead of `numpy` for the automatic differentiation in iterative algorithms to work properly.**
+
+Fits can then be performed via
+```python
+fit_result = pe.fits.least_squares(x, y, func)
+print("\n", fit_result)
+> Fit with 2 parameters
+> Method: Levenberg-Marquardt
+> `ftol` termination condition is satisfied.
+> chisquare/d.o.f.: 0.9593035785160936
+
+>  Goodness of fit:
+> χ²/d.o.f. = 0.959304
+> p-value   = 0.5673
+> Fit parameters:
+> 0	 0.0548(28)
+> 1	 1.933(64)
+```
+where x is a `list` or `numpy.array` of `floats` and y is a `list` or `numpy.array` of `Obs`.
+
+Data stored in `Corr` objects can be fitted directly using the `Corr.fit` method.
+```python
+my_corr = pe.Corr(y)
+fit_result = my_corr.fit(func, fitrange=[12, 25])
+```
+this can simplify working with absolute fit ranges and takes care of gaps in the data automatically.
+
+For fit functions with multiple independent variables the fit function can be of the form
+
+```python
+def func(a, x):
+    (x1, x2) = x
+    return a[0] * x1 ** 2 + a[1] * x2
+```
+
+`pyerrors` also supports correlated fits which can be triggered via the parameter `correlated_fit=True`.
+Details about how the required covariance matrix is estimated can be found in `pyerrors.obs.covariance`.
+
+Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.
+
+## Total least squares fits
+`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.
+
+For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 
 # Matrix operations
-`pyerrors` provides wrappers for `Obs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
+`pyerrors` provides wrappers for `Obs`- and `CObs`-valued matrix operations based on `numpy.linalg`. The supported functions include:
 - `inv` for the matrix inverse.
 - `cholseky` for the Cholesky decomposition.
 - `det` for the matrix determinant.
@@ -287,14 +376,75 @@ print(my_derived_cobs)
 For the full API see `pyerrors.linalg`.
 
 # Export data
-The preferred exported file format within `pyerrors` is json.gz
 
-## Jackknife samples
-For comparison with other analysis workflows `pyerrors` can generate jackknife samples from an `Obs` object or import jackknife samples into an `Obs` object.
-See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
+The preferred exported file format within `pyerrors` is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:
+- What observables are stored? Possibly: How exactly are they defined.
+- How does each single ensemble or external quantity contribute to the error of the observable?
+- Who did write the file when and on which machine?
 
-# Input
-`pyerrors` includes an `input` submodule in which input routines and parsers for the output of various numerical programs are contained. For details see `pyerrors.input`.
+This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically as described in the following example
+```python
+my_obs = pe.Obs([samples], ["test_ensemble"])
+my_obs.tag = "My observable"
+
+pe.input.json.dump_to_json(my_obs, "test_output_file", description="This file contains a test observable")
+# For a single observable one can equivalently use the class method dump
+my_obs.dump("test_output_file", description="This file contains a test observable")
+
+check = pe.input.json.load_json("test_output_file")
+
+print(my_obs == check)
+> True
+```
+The format also allows to directly write out the content of `Corr` objects or lists and arrays of `Obs` objects by passing the desired data to `pyerrors.input.json.dump_to_json`.
+
+## json.gz format specification
+The first entries of the file provide optional auxiliary information:
+- `program` is a string that indicates which program was used to write the file.
+- `version` is a string that specifies the version of the format.
+- `who` is a string that specifies the user name of the creator of the file.
+- `date` is a string and contains the creation date of the file.
+- `host` is a string and contains the hostname of the machine where the file has been written.
+- `description` contains information on the content of the file. This field is not filled automatically in `pyerrors`. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.
+
+The only necessary entry of the file is the field
+-`obsdata`, an array that contains the actual data.
+
+Each entry of the array belongs to a single structure of observables. Currently, these structures can be either of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension > 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:
+- `type` is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.
+- `value` is an array that contains the mean values of the Obs inside the structure.
+The following entries are optional:
+- `layout` is a string that specifies the layout of multi-dimensional structures. Examples are "2, 2" for a 2x2 dimensional matrix or  "64, 4, 4" for a Corr with $T=64$ and 4x4 matrices on each time slices. "1" denotes a single Obs. Multi-dimensional structures are stored in row-major format (see below).
+- `tag` is any JSON type. It contains additional information concerning the structure. The `tag` of an `Obs` in `pyerrors` is written here.
+- `reweighted` is a Bool that may be used to specify, whether the `Obs` in the structure have been reweighted.
+- `data` is an array that contains the data from MC chains. We will define it below.
+- `cdata` is an array that contains the data from external quantities with an error (`Covobs` in `pyerrors`). We will define it below.
+
+The array `data` contains the data from MC chains. Each entry of the array corresponds to one ensemble and contains:
+- `id`, a string that contains the name of the ensemble
+- `replica`, an array that contains an entry per replica of the ensemble.
+
+Each entry of `replica` contains
+`name`, a string that contains the name of the replica
+`deltas`, an array that contains the actual data.
+
+Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.
+
+The array `cdata` contains information about the contribution of auxiliary observables, represented by `Covobs` in `pyerrors`, to the total error of the observables. Each entry of the array belongs to one auxiliary covariance matrix and contains:
+- `id`, a string that identifies the covariance matrix
+- `layout`, a string that defines the dimensions of the $M\times M$ covariance matrix (has to be "M, M" or "1").
+- `cov`, an array that contains the $M\times M$ many entries of the covariance matrix, stored in row-major format.
+- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.
+
+A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.
+
+Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).
+
+# Citing
+If you use `pyerrors` for research that leads to a publication please consider citing:
+- Ulli Wolff, *Monte Carlo errors with less errors*. Comput.Phys.Commun. 156 (2004) 143-153, Comput.Phys.Commun. 176 (2007) 383 (erratum).
+- Stefan Schaefer, Rainer Sommer, Francesco Virotta, *Critical slowing down and error analysis in lattice QCD simulations*. Nucl.Phys.B 845 (2011) 93-119.
+- Alberto Ramos, *Automatic differentiation for error analysis of Monte Carlo data*. Comput.Phys.Commun. 238 (2019) 19-35.
 '''
 from .obs import *
 from .correlators import *

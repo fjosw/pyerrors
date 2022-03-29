@@ -24,6 +24,7 @@ def test_function_overloading():
 
     for i, f in enumerate(fs):
         t1 = f([corr_a, corr_b])
+        t1.gamma_method()
         for o_a, o_b, con in zip(corr_content_a, corr_content_b, t1.content):
             t2 = f([o_a, o_b])
             t2.gamma_method()
@@ -98,6 +99,9 @@ def test_m_eff():
     with pytest.warns(RuntimeWarning):
         my_corr.m_eff('sinh')
 
+    with pytest.raises(Exception):
+        my_corr.m_eff('unkown_variant')
+
 
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
@@ -130,6 +134,11 @@ def test_fit_correlator():
     fit_res = my_corr.fit(f)
     assert fit_res[0] == my_corr[0]
     assert fit_res[1] == my_corr[1] - my_corr[0]
+
+    with pytest.raises(Exception):
+        my_corr.fit(f, "from 0 to 3")
+    with pytest.raises(Exception):
+        my_corr.fit(f, [0, 2, 3])
 
 
 def test_plateau():
@@ -172,13 +181,16 @@ def test_utility():
         corr_content.append(pe.pseudo_Obs(2 + 10 ** exponent, 10 ** (exponent - 1), 't'))
 
     corr = pe.correlators.Corr(corr_content)
+    corr.gamma_method()
     corr.print()
     corr.print([2, 4])
     corr.show()
+    corr.show(comp=corr)
 
     corr.dump('test_dump', datatype="pickle", path='.')
     corr.dump('test_dump', datatype="pickle")
     new_corr = pe.load_object('test_dump.p')
+    new_corr.gamma_method()
     os.remove('test_dump.p')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
@@ -188,6 +200,7 @@ def test_utility():
     corr.dump('test_dump', datatype="json.gz", path='.')
     corr.dump('test_dump', datatype="json.gz")
     new_corr = pe.input.json.load_json('test_dump')
+    new_corr.gamma_method()
     os.remove('test_dump.json.gz')
     for o_a, o_b in zip(corr.content, new_corr.content):
         assert np.isclose(o_a[0].value, o_b[0].value)
@@ -195,19 +208,27 @@ def test_utility():
         assert np.allclose(o_a[0].deltas['t'], o_b[0].deltas['t'])
 
 
+def test_prange():
+    corr_content = []
+    for t in range(8):
+        corr_content.append(pe.pseudo_Obs(2 + 10 ** (1.1 * t), 0.2, 't'))
+    corr = pe.correlators.Corr(corr_content)
+
+    corr.set_prange([2, 4])
+    with pytest.raises(Exception):
+        corr.set_prange([2])
+    with pytest.raises(Exception):
+        corr.set_prange([2, 2.3])
+    with pytest.raises(Exception):
+        corr.set_prange([4, 1])
+
+
 def test_matrix_corr():
-    def _gen_corr(val):
-        corr_content = []
-        for t in range(16):
-            corr_content.append(pe.pseudo_Obs(val, 0.1, 't', 2000))
-
-        return pe.correlators.Corr(corr_content)
-
     corr_aa = _gen_corr(1)
-    corr_ab = _gen_corr(0.5)
+    corr_ab = 0.5 * corr_aa
 
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
-    corr_mat.smearing(0, 0)
+    corr_mat.item(0, 0)
 
     vec_0 = corr_mat.GEVP(0, 0)
     vec_1 = corr_mat.GEVP(0, 0, state=1)
@@ -220,6 +241,8 @@ def test_matrix_corr():
 
     corr_mat.GEVP(0, 0, sorted_list="Eigenvalue")
     corr_mat.GEVP(0, 0, sorted_list="Eigenvector")
+
+    corr_mat.matrix_symmetric()
 
     with pytest.raises(Exception):
         corr_mat.plottable()
@@ -240,4 +263,82 @@ def test_matrix_corr():
         corr_mat.plateau([2, 4])
 
     with pytest.raises(Exception):
-        corr_o.smearing(0, 0)
+        corr_mat.hankel(3)
+
+    with pytest.raises(Exception):
+        corr_mat.fit(lambda x: x[0])
+
+    with pytest.raises(Exception):
+        corr_0.item(0, 0)
+
+    with pytest.raises(Exception):
+        corr_0.matrix_symmetric()
+
+
+def test_hankel():
+    corr_content = []
+    for t in range(8):
+        exponent = 1.2
+        corr_content.append(pe.pseudo_Obs(2 + t ** exponent, 0.2, 't'))
+
+    corr = pe.Corr(corr_content)
+    corr.Hankel(2)
+    corr.Hankel(6, periodic=True)
+
+
+def test_thin():
+    c = pe.Corr([pe.pseudo_Obs(i, .1, 'test') for i in range(10)])
+    c *= pe.cov_Obs(1., .1, '#ren')
+    thin = c.thin()
+    thin.gamma_method()
+    thin.fit(lambda a, x: a[0] * x)
+    c.thin(offset=1)
+    c.thin(3, offset=1)
+
+
+def test_corr_matrix_none_entries():
+    dim = 8
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = [0.1] * dim
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    corr = pe.Corr(oy)
+    corr = corr.deriv()
+    pe.Corr(np.array([[corr, corr], [corr, corr]]))
+
+
+def test_corr_vector_operations():
+    my_corr = _gen_corr(1.0)
+    my_vec = np.arange(1, 17)
+
+    my_corr + my_vec
+    my_corr - my_vec
+    my_corr * my_vec
+    my_corr / my_vec
+
+    assert np.all([o == 0 for o in ((my_corr + my_vec) - my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr - my_vec) + my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr * my_vec) / my_vec) - my_corr])
+    assert np.all([o == 0 for o in ((my_corr / my_vec) * my_vec) - my_corr])
+
+
+def test_spaghetti_plot():
+    corr = _gen_corr(12, 50)
+    corr += pe.pseudo_Obs(0.0, 0.1, 'another_ensemble')
+    corr += pe.cov_Obs(0.0, 0.01 ** 2, 'covobs')
+
+    corr.spaghetti_plot(True)
+    corr.spaghetti_plot(False)
+
+
+def _gen_corr(val, samples=2000):
+    corr_content = []
+    for t in range(16):
+        corr_content.append(pe.pseudo_Obs(val, 0.1, 't', samples))
+
+    return pe.correlators.Corr(corr_content)
+

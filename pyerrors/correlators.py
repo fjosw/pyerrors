@@ -1,4 +1,5 @@
 import warnings
+from itertools import permutations
 import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
@@ -6,7 +7,6 @@ import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
-from .linalg import eigh, inv, cholesky
 from .roots import find_root
 
 
@@ -16,10 +16,10 @@ class Corr:
     Everything, this class does, can be achieved using lists or arrays of Obs.
     But it is simply more convenient to have a dedicated object for correlators.
     One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
-    to iterate over all timeslices for every operation. This is especially true, when dealing with smearing matrices.
+    to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-    smearing matrix at every timeslice. Other dependency (eg. spatial) are not supported.
+    matrix at every timeslice. Other dependency (eg. spatial) are not supported.
 
     """
 
@@ -39,7 +39,7 @@ class Corr:
             region indentified for this correlator.
         """
 
-        if isinstance(data_input, np.ndarray):  # Input is an array of Corrs
+        if isinstance(data_input, np.ndarray):
 
             # This only works, if the array fulfills the conditions below
             if not len(data_input.shape) == 2 and data_input.shape[0] == data_input.shape[1]:
@@ -55,8 +55,8 @@ class Corr:
             N = data_input.shape[0]
             input_as_list = []
             for t in range(T):
-                if any([(item.content[t][0] is None) for item in data_input.flatten()]):
-                    if not all([(item.content[t][0] is None) for item in data_input.flatten()]):
+                if any([(item.content[t] is None) for item in data_input.flatten()]):
+                    if not all([(item.content[t] is None) for item in data_input.flatten()]):
                         warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss!", RuntimeWarning)
                     input_as_list.append(None)
                 else:
@@ -69,10 +69,10 @@ class Corr:
 
         if isinstance(data_input, list):
 
-            if all([(isinstance(item, Obs) or isinstance(item, CObs)) for item in data_input]):
+            if all([isinstance(item, (Obs, CObs)) for item in data_input]):
                 _assert_equal_properties(data_input)
                 self.content = [np.asarray([item]) for item in data_input]
-            if all([(isinstance(item, Obs) or isinstance(item, CObs)) or item is None for item in data_input]):
+            if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None])
                 self.content = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
@@ -95,10 +95,7 @@ class Corr:
         # An undefined timeslice is represented by the None object
         self.content = [None] * padding[0] + self.content + [None] * padding[1]
         self.T = len(self.content)
-
         self.prange = prange
-
-        self.gamma_method()
 
     def __getitem__(self, idx):
         """Return the content of timeslice idx"""
@@ -140,8 +137,6 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to project a Corr, that already has N=1.")
 
-        self.gamma_method()
-
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
         elif(vector_r is None):
@@ -160,9 +155,6 @@ class Corr:
                 raise Exception("Vectors are of wrong shape!")
             if normalize:
                 vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
-            # if (not (0.95 < vector_r @ vector_r < 1.05)) or (not (0.95 < vector_l @ vector_l < 1.05)):
-                # print("Vectors are normalized before projection!")
-
             newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
 
         else:
@@ -174,10 +166,7 @@ class Corr:
             newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
-    def sum(self):
-        return np.sqrt(self.N) * self.projected(np.ones(self.N))
-
-    def smearing(self, i, j):
+    def item(self, i, j):
         """Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.
 
         Parameters
@@ -188,7 +177,7 @@ class Corr:
             Second index to be picked.
         """
         if self.N == 1:
-            raise Exception("Trying to pick smearing from projected Corr")
+            raise Exception("Trying to pick item from projected Corr")
         newcontent = [None if(item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
@@ -199,7 +188,7 @@ class Corr:
         timeslice and the error on each timeslice.
         """
         if self.N != 1:
-            raise Exception("Can only make Corr[N=1] plottable")  # We could also autoproject to the groundstate or expect vectors, but this is supposed to be a super simple function.
+            raise Exception("Can only make Corr[N=1] plottable")
         x_list = [x for x in range(self.T) if not self.content[x] is None]
         y_list = [y[0].value for y in self.content if y is not None]
         y_err_list = [y[0].dvalue for y in self.content if y is not None]
@@ -229,7 +218,9 @@ class Corr:
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
-        if not all([o.is_zero_within_error(3) for o in self.content[0]]):
+        test = 1 * self
+        test.gamma_method()
+        if not all([o.is_zero_within_error(3) for o in test.content[0]]):
             warnings.warn("Correlator does not seem to be anti-symmetric around x0=0.", RuntimeWarning)
 
         newcontent = [self.content[0]]
@@ -242,13 +233,13 @@ class Corr:
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
-    def smearing_symmetric(self):
-        """Symmetrizes the matrices and therefore make them positive definite."""
+    def matrix_symmetric(self):
+        """Symmetrizes the correlator matrices on every timeslice."""
         if self.N > 1:
             transposed = [None if (G is None) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
         if self.N == 1:
-            raise Exception("Trying to symmetrize a smearing matrix, that already has N=1.")
+            raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
 
     def GEVP(self, t0, ts=None, state=0, sorted_list=None):
         """Solve the general eigenvalue problem on the current correlator
@@ -264,9 +255,9 @@ class Corr:
             The state one is interested in ordered by energy. The lowest state is zero.
         sorted_list : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
-             "Eigenvalue"  -  The eigenvector is chosen according to which einvenvalue it belongs individually on every timeslice.
+             "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
-                                 The referense state is identified by its eigenvalue at t=ts
+                              The reference state is identified by its eigenvalue at t=ts
         """
         if sorted_list is None:
             if (ts is None):
@@ -274,10 +265,11 @@ class Corr:
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
+            symmetric_corr = self.matrix_symmetric()
             for i in range(self.N):
                 for j in range(self.N):
-                    G0[i, j] = self.content[t0][i, j].value
-                    Gt[i, j] = self.content[ts][i, j].value
+                    G0[i, j] = symmetric_corr.content[t0][i, j].value
+                    Gt[i, j] = symmetric_corr[ts][i, j].value
 
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]
@@ -309,24 +301,26 @@ class Corr:
 
         return all_vecs
 
-    def Eigenvalue(self, t0, state=1):
-        G = self.smearing_symmetric()
-        G0 = G.content[t0]
-        L = cholesky(G0)
-        Li = inv(L)
-        LT = L.T
-        LTi = inv(LT)
-        newcontent = []
-        for t in range(self.T):
-            if self.content[t] is None:
-                newcontent.append(None)
-            else:
-                Gt = G.content[t]
-                M = Li @ Gt @ LTi
-                eigenvalues = eigh(M)[0]
-                eigenvalue = eigenvalues[-state]
-                newcontent.append(eigenvalue)
-        return Corr(newcontent)
+    def Eigenvalue(self, t0, ts=None, state=0, sorted_list=None):
+        """Determines the eigenvalue of the GEVP by solving and projecting the correlator
+
+        Parameters
+        ----------
+        t0 : int
+            The time t0 for G(t)v= lambda G(t_0)v
+        ts : int
+            fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
+            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
+        state : int
+            The state one is interested in ordered by energy. The lowest state is zero.
+        sorted_list : string
+            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
+             "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
+             "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
+                              The reference state is identified by its eigenvalue at t=ts
+        """
+        vec = self.GEVP(t0, ts=ts, state=state, sorted_list=sorted_list)
+        return self.projected(vec)
 
     def Hankel(self, N, periodic=False):
         """Constructs an NxN Hankel matrix
@@ -353,8 +347,8 @@ class Corr:
             new_content.append(array.copy())
 
         def wrap(i):
-            if i >= self.T:
-                return i - self.T
+            while i >= self.T:
+                i -= self.T
             return i
 
         for t in range(self.T):
@@ -382,6 +376,24 @@ class Corr:
     def reverse(self):
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[:: -1])
+
+    def thin(self, spacing=2, offset=0):
+        """Thin out a correlator to suppress correlations
+
+        Parameters
+        ----------
+        spacing : int
+            Keep only every 'spacing'th entry of the correlator
+        offset : int
+            Offset the equal spacing
+        """
+        new_content = []
+        for t in range(self.T):
+            if (offset + t) % spacing != 0:
+                new_content.append(None)
+            else:
+                new_content.append(self.content[t])
+        return Corr(new_content)
 
     def correlate(self, partner):
         """Correlate the correlator with another correlator or Obs
@@ -448,7 +460,9 @@ class Corr:
         T_partner = parity * partner.reverse()
 
         t_slices = []
-        for x0, t_slice in enumerate((self - T_partner).content):
+        test = (self - T_partner)
+        test.gamma_method()
+        for x0, t_slice in enumerate(test.content):
             if t_slice is not None:
                 if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)
@@ -614,7 +628,7 @@ class Corr:
         function : obj
             function to fit to the data. See fits.least_squares for details.
         fitrange : list
-            Range in which the function is to be fitted to the data.
+            Two element list containing the timeslices on which the fit is supposed to start and stop.
             If not specified, self.prange or all timeslices are used.
         silent : bool
             Decides whether output is printed to the standard output.
@@ -627,14 +641,18 @@ class Corr:
                 fitrange = self.prange
             else:
                 fitrange = [0, self.T - 1]
+        else:
+            if not isinstance(fitrange, list):
+                raise Exception("fitrange has to be a list with two elements")
+            if len(fitrange) != 2:
+                raise Exception("fitrange has to have exactly two elements [fit_start, fit_stop]")
 
         xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
-        result.gamma_method()
         return result
 
-    def plateau(self, plateau_range=None, method="fit"):
+    def plateau(self, plateau_range=None, method="fit", auto_gamma=False):
         """ Extract a plateau value from a Corr object
 
         Parameters
@@ -646,6 +664,8 @@ class Corr:
             method to extract the plateau.
                 'fit' fits a constant to the plateau region
                 'avg', 'average' or 'mean' just average over the given timeslices.
+        auto_gamma : bool
+            apply gamma_method with default parameters to the Corr. Defaults to None
         """
         if not plateau_range:
             if self.prange:
@@ -656,13 +676,14 @@ class Corr:
             raise Exception("Correlator must be projected before getting a plateau.")
         if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
             raise Exception("plateau is undefined at all timeslices in plateaurange.")
+        if auto_gamma:
+            self.gamma_method()
         if method == "fit":
             def const_func(a, t):
                 return a[0]
             return self.fit(const_func, plateau_range)[0]
         elif method in ["avg", "average", "mean"]:
             returnvalue = np.mean([item[0] for item in self.content[plateau_range[0]:plateau_range[1] + 1] if item is not None])
-            returnvalue.gamma_method()
             return returnvalue
 
         else:
@@ -680,8 +701,8 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None):
-        """Plots the correlator, uses tag as label if available.
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False):
+        """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
         ----------
@@ -689,19 +710,26 @@ class Corr:
             list of two values, determining the range of the x-axis e.g. [4, 8]
         comp : Corr or list of Corr
             Correlator or list of correlators which are plotted for comparison.
+            The tags of these correlators are used as labels if available.
         logscale : bool
             Sets y-axis to logscale
         plateau : Obs
-            plateau to be visualized in the figure
+            Plateau value to be visualized in the figure
         fit_res : Fit_result
             Fit_result object to be visualized
         ylabel : str
             Label for the y-axis
         save : str
             path to file in which the figure should be saved
+        auto_gamma : bool
+            Apply the gamma method with standard parameters to all correlators and plateau values before plotting.
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
+
+        if auto_gamma:
+            self.gamma_method()
+
         if x_range is None:
             x_range = [0, self.T - 1]
 
@@ -713,7 +741,6 @@ class Corr:
         if logscale:
             ax1.set_yscale('log')
         else:
-            # we generate ylim instead of using autoscaling.
             if y_range is None:
                 try:
                     y_min = min([(x[0].value - x[0].dvalue) for x in self.content[x_range[0]: x_range[1] + 1] if (x is not None) and x[0].dvalue < 2 * np.abs(x[0].value)])
@@ -724,19 +751,23 @@ class Corr:
             else:
                 ax1.set_ylim(y_range)
         if comp:
-            if isinstance(comp, Corr) or isinstance(comp, list):
+            if isinstance(comp, (Corr, list)):
                 for corr in comp if isinstance(comp, list) else [comp]:
+                    if auto_gamma:
+                        corr.gamma_method()
                     x, y, y_err = corr.plottable()
                     plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
-                raise Exception('comp must be a correlator or a list of correlators.')
+                raise Exception("'comp' must be a correlator or a list of correlators.")
 
         if plateau:
             if isinstance(plateau, Obs):
+                if auto_gamma:
+                    plateau.gamma_method()
                 ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=str(plateau))
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
-                raise Exception('plateau must be an Obs')
+                raise Exception("'plateau' must be an Obs")
         if self.prange:
             ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
             ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')
@@ -761,9 +792,36 @@ class Corr:
             if isinstance(save, str):
                 fig.savefig(save)
             else:
-                raise Exception("Safe has to be a string.")
+                raise Exception("'save' has to be a string.")
 
-        return
+    def spaghetti_plot(self, logscale=True):
+        """Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.
+
+        Parameters
+        ----------
+        logscale : bool
+            Determines whether the scale of the y-axis is logarithmic or standard.
+        """
+        if self.N != 1:
+            raise Exception("Correlator needs to be projected first.")
+
+        mc_names = list(set([item for sublist in [o[0].mc_names for o in self.content if o is not None] for item in sublist]))
+        x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content) if o is not None]
+
+        for name in mc_names:
+            data = np.array([o[0].deltas[name] + o[0].r_values[name] for o in self.content if o is not None]).T
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            for dat in data:
+                ax.plot(x0_vals, dat, ls='-', marker='')
+
+            if logscale is True:
+                ax.set_yscale('log')
+
+            ax.set_xlabel(r'$x_0 / a$')
+            plt.title(name)
+            plt.draw()
 
     def dump(self, filename, datatype="json.gz", **kwargs):
         """Dumps the Corr into a file of chosen type
@@ -801,8 +859,6 @@ class Corr:
             content_string += "Description: " + self.tag + "\n"
         if self.N != 1:
             return content_string
-        # This avoids a crash for N>1. I do not know, what else to do here. I like the list representation for N==1. We could print only one "smearing" or one matrix. Printing everything will just
-        # be a wall of numbers.
 
         if range[1]:
             range[1] += 1
@@ -837,7 +893,7 @@ class Corr:
                     newcontent.append(self.content[t] + y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -845,6 +901,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] + y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T + y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError("Corr + wrong type")
 
@@ -860,7 +921,7 @@ class Corr:
                     newcontent.append(self.content[t] * y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None):
@@ -868,6 +929,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] * y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T * y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError("Corr * wrong type")
 
@@ -881,8 +947,6 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / y.content[t])
-            # Here we set the entire timeslice to undefined, if one of the smearings has encountered an division by zero.
-            # While this might throw away perfectly good values in other smearings, we will never have to check, if all values in our matrix are defined
             for t in range(self.T):
                 if newcontent[t] is None:
                     continue
@@ -893,7 +957,7 @@ class Corr:
                 raise Exception("Division returns completely undefined correlator")
             return Corr(newcontent)
 
-        elif isinstance(y, Obs) or isinstance(y, CObs):
+        elif isinstance(y, (Obs, CObs)):
             if isinstance(y, Obs):
                 if y.value == 0:
                     raise Exception('Division by zero will return undefined correlator')
@@ -909,7 +973,7 @@ class Corr:
                     newcontent.append(self.content[t] / y)
             return Corr(newcontent, prange=self.prange)
 
-        elif isinstance(y, int) or isinstance(y, float):
+        elif isinstance(y, (int, float)):
             if y == 0:
                 raise Exception('Division by zero will return undefined correlator')
             newcontent = []
@@ -919,6 +983,11 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] / y)
             return Corr(newcontent, prange=self.prange)
+        elif isinstance(y, np.ndarray):
+            if y.shape == (self.T,):
+                return Corr(list((np.array(self.content).T / y).T))
+            else:
+                raise ValueError("operands could not be broadcast together")
         else:
             raise TypeError('Corr / wrong type')
 
@@ -930,7 +999,7 @@ class Corr:
         return self + (-y)
 
     def __pow__(self, y):
-        if isinstance(y, Obs) or isinstance(y, int) or isinstance(y, float) or isinstance(y, CObs):
+        if isinstance(y, (Obs, int, float, CObs)):
             newcontent = [None if (item is None) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
         else:
@@ -1042,7 +1111,7 @@ def _sort_vectors(vec_set, ts):
         if vec_set[t] is None:
             sorted_vec_set.append(None)
         elif not t == ts:
-            perms = permutation([i for i in range(N)])
+            perms = [list(o) for o in permutations([i for i in range(N)], N)]
             best_score = 0
             for perm in perms:
                 current_score = 1
@@ -1060,21 +1129,8 @@ def _sort_vectors(vec_set, ts):
     return sorted_vec_set
 
 
-def permutation(lst):  # Shamelessly copied
-    if len(lst) == 1:
-        return [lst]
-    ll = []
-    for i in range(len(lst)):
-        m = lst[i]
-        remLst = lst[:i] + lst[i + 1:]
-        # Generating all permutations where m is first
-        for p in permutation(remLst):
-            ll.append([m] + p)
-    return ll
-
-
 def _GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
-    sp_val, sp_vecs = scipy.linalg.eig(Gt, G0)
+    sp_val, sp_vecs = scipy.linalg.eigh(Gt, G0)
     sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
     sp_vecs = [v / np.sqrt((v.T @ G0 @ v)) for v in sp_vecs]
     return sp_vecs

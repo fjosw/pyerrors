@@ -1,0 +1,3273 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) palma/2019a
+
+Currently Loaded Modules:
+  1) palma/2019a                       (S)
+  2) GCCcore/8.2.0
+  3) zlib/1.2.11
+  4) binutils/2.31.1
+  5) icc/2019.1.144-GCC-8.2.0-2.31.1
+  6) ifort/2019.1.144-GCC-8.2.0-2.31.1
+  7) impi/2018.4.274
+  8) imkl/2019.1.144
+  9) intel/2019a
+
+  Where:
+   S:  Module is Sticky, requires --force to unload or purge
+
+ 
+
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=0 f=0 b=0 c=1 dname='./output_10519905/data_c' p=0 pname='./output_10519905/parameters_c')
+... creating data file './output_10519905/data_c' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  1.06e-03  1.06e-03     0.1 %
+   reading input                     1  1.82e+00  1.82e+00    85.9 %
+   IO config                         1  9.28e-04  9.28e-04     0.0 %
+   IO data                           2  3.03e-03  6.06e-03     0.3 %
+   mem alloc                         2  1.30e-03  2.60e-03     0.1 %
+   solver (sfcf only)               60  4.51e-03  2.70e-01    12.8 %
+   rr correlators                    1  1.59e-02  1.59e-02     0.8 %
+   rs correlators                    1  1.19e-06  1.19e-06     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=0 f=0 b=0 c=0 dname='./output_10519905/data_o' p=0 pname='./output_10519905/parameters_o')
+... creating data file './output_10519905/data_of_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+... creating data file './output_10519905/data_of_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+... creating data file './output_10519905/data_oF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  8.18e-04  8.18e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    86.0 %
+   IO config                         1  7.10e-04  7.10e-04     0.0 %
+   IO data                           2  2.91e-03  5.82e-03     0.3 %
+   mem alloc                         2  1.34e-03  2.68e-03     0.1 %
+   solver (sfcf only)               60  4.50e-03  2.70e-01    12.8 %
+   rr correlators                    1  1.52e-02  1.52e-02     0.7 %
+   rs correlators                    1  9.54e-07  9.54e-07     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=0 f=0 b=0 c=0 dname='./output_10519905/data_a' p=0 pname='./output_10519905/parameters_a')
+... creating data file './output_10519905/data_af_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+... creating data file './output_10519905/data_af_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+... creating data file './output_10519905/data_aF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7, param_md5 = d881e90d41188a33b8b0f1bd0bc53ea5)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.10e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  7.49e-04  7.49e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    85.9 %
+   IO config                         1  6.98e-04  6.98e-04     0.0 %
+   IO data                           2  3.40e-03  6.79e-03     0.3 %
+   mem alloc                         2  1.30e-03  2.60e-03     0.1 %
+   solver (sfcf only)               60  4.52e-03  2.71e-01    12.9 %
+   rr correlators                    1  1.51e-02  1.51e-02     0.7 %
+   rs correlators                    1  0.00e+00  0.00e+00     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=1 f=0 b=0 c=0 dname='./output_10519905/data_a' p=0 pname='./output_10519905/parameters_a')
+... checking data file './output_10519905/data_af_A' [dataio.c]
+... skipped 1 run records [dataio.c]
+... skipped 6 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_af_1' [dataio.c]
+... skipped 1 run records [dataio.c]
+... skipped 18 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_aF_V0' [dataio.c]
+... skipped 1 run records [dataio.c]
+... skipped 18 correlator records [dataio.c]
+... appending to data file './output_10519905/data_aF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  7.90e-04  7.90e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    85.8 %
+   IO config                         1  6.84e-04  6.84e-04     0.0 %
+   IO data                           2  2.45e-03  4.91e-03     0.2 %
+   mem alloc                         2  1.34e-03  2.68e-03     0.1 %
+   solver (sfcf only)               60  4.58e-03  2.75e-01    13.0 %
+   rr correlators                    1  1.53e-02  1.53e-02     0.7 %
+   rs correlators                    1  1.19e-06  1.19e-06     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=1 f=0 b=0 c=0 dname='./output_10519905/data_a' p=0 pname='./output_10519905/parameters_a')
+... checking data file './output_10519905/data_af_A' [dataio.c]
+... skipped 2 run records [dataio.c]
+... skipped 12 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_af_1' [dataio.c]
+... skipped 2 run records [dataio.c]
+... skipped 36 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_aF_V0' [dataio.c]
+... skipped 2 run records [dataio.c]
+... skipped 36 correlator records [dataio.c]
+... appending to data file './output_10519905/data_aF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  8.06e-04  8.06e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    85.8 %
+   IO config                         1  7.46e-04  7.46e-04     0.0 %
+   IO data                           2  2.60e-03  5.20e-03     0.2 %
+   mem alloc                         2  1.33e-03  2.66e-03     0.1 %
+   solver (sfcf only)               60  4.57e-03  2.74e-01    13.0 %
+   rr correlators                    1  1.60e-02  1.60e-02     0.8 %
+   rs correlators                    1  0.00e+00  0.00e+00     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=1 f=0 b=0 c=0 dname='./output_10519905/data_a' p=0 pname='./output_10519905/parameters_a')
+... checking data file './output_10519905/data_af_A' [dataio.c]
+... skipped 3 run records [dataio.c]
+... skipped 18 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_af_1' [dataio.c]
+... skipped 3 run records [dataio.c]
+... skipped 54 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_aF_V0' [dataio.c]
+... skipped 3 run records [dataio.c]
+... skipped 54 correlator records [dataio.c]
+... appending to data file './output_10519905/data_aF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  8.31e-04  8.31e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    85.9 %
+   IO config                         1  9.42e-04  9.42e-04     0.0 %
+   IO data                           2  1.73e-03  3.45e-03     0.2 %
+   mem alloc                         2  1.62e-03  3.24e-03     0.2 %
+   solver (sfcf only)               60  4.54e-03  2.72e-01    12.9 %
+   rr correlators                    1  1.52e-02  1.52e-02     0.7 %
+   rs correlators                    1  0.00e+00  0.00e+00     0.0 %
+
+End.
+Build info
+----------
+Global lattice: 4 x 4 x 4 x 4
+Local lattice:  4 x 4 x 4 x 4 (u: 320+0 s: 192+0)
+Using single MPI process
+SFCF version: 2.1
+Using geometry 2 (boundary spinors mapped to dummy, u_ipt != s_ipt)
+Using solvers from openQCD
+Using dfl_update in DFL_SAP_GCR solver from openQCD
+Using oqcd_utils2.c from SFCF
+Using profiler functions also in openQCD interface
+Using SSE3
+Using prefetch PM
+Using prefetch P4
+
+Initialization
+--------------
+... initializing geometry
+... allocating gauge field
+... using unit gauge field
+Gauge field checked (184320 B, unused links: 64 zero, 1216 unity, BF0)
+Gauge checksum (MD5): 1ea28326e4090996111a320b8372811d
+... reading input file ('sfcf_unity_test.in')
+... finished reading input file (without hash) [input.c]
+
+Basic parameters:
+   Nf     = 3
+   beta   = 3.552200000000
+   ct     = 1.055185744046  (input)
+   cttilde= 0.974579134058  (input)
+   csw    = 1.822845956831  (input)
+   isw    = 0
+
+WARNING: The improvement coefficients have been calculated according to old
+         formulae, which were used in past simulations. If you do not need
+         compatibility to old simulations, you can use the newest formulae by
+         defining the preprocessor flag USE_LATEST_IMPROVEMENT.
+
+
+Solver parameters:
+   errsq = 1.000000e-18
+   nmax  = 4096
+
+   oqcd_solver_select = -1
+   oqcd_solver_param = 0xf04
+
+   [Solver 0]
+      solver = DFL_SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 1]
+      solver = CGNE
+      nmx    = 4096
+      res    = 1.000000e-10
+   [Solver 2]
+      solver = SAP_GCR
+      nkv    = 24
+      isolv  = 1
+      nmr    = 4
+      ncy    = 5
+      nmx    = 2048
+      res    = 1.000000e-10
+   [Solver 3]
+      solver = CGNE_NO_EO
+      nkv    = 0
+      isolv  = 0
+      nmr    = 0
+      ncy    = 0
+      nmx    = 4096
+      res    = 1.000000e-10
+   [SAP]
+      bs     = 4 4 4 4
+   [[Deflation subspace]
+      bs     = 4 4 4 4
+      Ns     = 20
+   [[Deflation subspace generation]
+      kappa  = 1.371379e-01
+      mu     = 0.000000e+00
+      ninv   = 10
+      nmr    = 4
+      ncy    = 5
+   [[Deflation projection]
+      nkv     = 18
+      nmx     = 2048
+      res     = 1.000000e-02
+
+Source offsets: 2
+   offsets[0] = (0.0000000000000000e+00,0.0000000000000000e+00,0.0000000000000000e+00) = (0,0,0) sites
+WARNING in safe_ftoi [utils.c]: Fractional part exceeds tolerance (|0.5|>1e-06).   offsets[1] = (0.0000000000000000e+00,0.0000000000000000e+00,5.0000000000000000e-01) = (0,0,0) sites
+
+Wave-function parameters:
+   sigma type = delta
+   Wave-function basis:
+     element #0:  n_H = 0.000000000000  r_H = 2.666666666667
+     element #1:  n_H = 1.000000000000  r_H = 2.666666666667
+     element #2:  n_H = 0.000000000000  r_H = 5.333333333333
+   Wave-function coefficients:
+     element #0:  coeff = { 1.000000000000, 0.000000000000, 0.000000000000,}
+     element #1:  coeff = { 0.000000000000, 1.000000000000, 0.000000000000,}
+     element #2:  coeff = { 0.000000000000, 0.000000000000, 1.000000000000,}
+
+Relativistic quarks:
+   rel. quark #0: name = 'lquark' kappa = 0.137137900000   theta  = 0.500000000000  0.500000000000   0.500000000000  persistent
+
+Measurements for rr: 1
+   mrr[0] = (0, 0)
+
+Correlators for rr: 3
+   crr[0] = 'f_A'
+   crr[1] = 'f_1'
+   crr[2] = 'F_V0'
+
+Static actions (`smearings'):
+
+Static quarks:
+
+Measurements for rs: 0
+
+Correlators for rs: 0
+
+... allocating rprop (32 blocks)
+... initializing dataio (a=1 f=0 b=0 c=0 dname='./output_10519905/data_a' p=0 pname='./output_10519905/parameters_a')
+... checking data file './output_10519905/data_af_A' [dataio.c]
+... skipped 4 run records [dataio.c]
+... skipped 24 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_A' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_af_1' [dataio.c]
+... skipped 4 run records [dataio.c]
+... skipped 72 correlator records [dataio.c]
+... appending to data file './output_10519905/data_af_1' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+... checking data file './output_10519905/data_aF_V0' [dataio.c]
+... skipped 4 run records [dataio.c]
+... skipped 72 correlator records [dataio.c]
+... appending to data file './output_10519905/data_aF_V0' [dataio.c]
+... wrote run record (param_hash = 686af5e712ee2902180f5428af94c6e7)
+
+Plaquette:
+
+  sum:          4.09557397714092622e+03
+  sum (time):   2.36757397714092622e+03
+  sum (space):  1.72800000000000000e+03
+  sum (avg.):   1.01576735544169794e+00
+  dS/deta:      0.00000000000000000e+00
+  vbar:         0.00000000000000000e+00
+
+
+
+RR Correlation Functions
+------------------------
+
+  offset[0] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +0.0000000000000000e+00}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.335827e-10
+          True residue:     |r_n|/|v| = 8.335828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.534512e-10
+          True residue:     |r_n|/|v| = 8.534511e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802722e-10
+          True residue:     |r_n|/|v| = 8.802722e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.802562e-10
+          True residue:     |r_n|/|v| = 8.802562e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.801999e-10
+          True residue:     |r_n|/|v| = 8.801999e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796995e-10
+          True residue:     |r_n|/|v| = 8.796995e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.684873e-10
+          True residue:     |r_n|/|v| = 6.684873e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.682003e-10
+          True residue:     |r_n|/|v| = 6.682002e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021740e-10
+          True residue:     |r_n|/|v| = 6.021742e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021726e-10
+          True residue:     |r_n|/|v| = 6.021726e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+  offset[1] == {+0.0000000000000000e+00, +0.0000000000000000e+00, +5.0000000000000000e-01}
+    computing correlations between rel. quark 0 and rel. quark 0...
+      wave function: 0
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 9.352828e-10
+          True residue:     |r_n|/|v| = 9.352828e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 42 iterations
+          Iterated residue: |r_n|/|v| = 8.277678e-10
+          True residue:     |r_n|/|v| = 8.277678e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.800192e-10
+          True residue:     |r_n|/|v| = 8.800192e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.804954e-10
+          True residue:     |r_n|/|v| = 8.804953e-10
+        computing f_1 ...
+        computing F_V0 ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.806137e-10
+          True residue:     |r_n|/|v| = 8.806137e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 48 iterations
+          Iterated residue: |r_n|/|v| = 8.796464e-10
+          True residue:     |r_n|/|v| = 8.796464e-10
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 1
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.689213e-10
+          True residue:     |r_n|/|v| = 6.689212e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 41 iterations
+          Iterated residue: |r_n|/|v| = 6.695514e-10
+          True residue:     |r_n|/|v| = 6.695515e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+      wave function: 2
+        computing f_A ...
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021731e-10
+          True residue:     |r_n|/|v| = 6.021731e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+... start SFCF solver CG: iv=-1 ix=196 [solver.c]
+          CG converged after 39 iterations
+          Iterated residue: |r_n|/|v| = 6.021729e-10
+          True residue:     |r_n|/|v| = 6.021727e-10
+        computing f_1 ...
+        computing F_V0 ...
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+        INFO from crr_bib [crr_contractions.c]: This routine is only exact for flat wave functions.
+
+
+RS Correlation Functions
+------------------------
+
+... finalizing dataio
+
+
+OK: All 197 PSDdummy are zero
+
+Maximum memory usage (rank 0): 8.61 MB (8.61 by SFCF, 0.00 by openQCD)
+Current memory usage (rank 0): 8.58 MB (8.58 by SFCF, 0.00 by openQCD)
+
+Total execution time with solver -1 (CG):  2.11e+00 sec
+
+   section                       count  avg sec   tot sec   rel cost
+   -----------------------------------------------------------------
+   main                              1  7.94e-04  7.94e-04     0.0 %
+   reading input                     1  1.81e+00  1.81e+00    86.0 %
+   IO config                         1  7.78e-04  7.78e-04     0.0 %
+   IO data                           2  2.04e-03  4.08e-03     0.2 %
+   mem alloc                         2  1.56e-03  3.13e-03     0.1 %
+   solver (sfcf only)               60  4.50e-03  2.70e-01    12.8 %
+   rr correlators                    1  1.54e-02  1.54e-02     0.7 %
+   rs correlators                    1  0.00e+00  0.00e+00     0.0 %
+
+End.

@@ -39,7 +39,6 @@ class Fit_result(Sequence):
         [o.gamma_method() for o in self.fit_parameters]
 
     def __str__(self):
-        self.gamma_method()
         my_str = 'Goodness of fit:\n'
         if hasattr(self, 'chisquare_by_dof'):
             my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'
@@ -72,9 +71,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         fit function, has to be of the form
 
         ```python
+        import autograd.numpy as anp
+
         def func(a, x):
-            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-            return y
+            return a[0] + a[1] * x + a[2] * anp.sinh(x)
         ```
 
         For multiple x values func can be of the form
@@ -86,7 +86,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         ```
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
-        will not work
+        will not work.
     priors : list, optional
         priors has to be a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
@@ -95,24 +95,25 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If true all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
-                     non-linear fits with many parameters.
-    method : str
+        non-linear fits with many parameters.
+    method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
-    resplot : bool
-        If true, a plot which displays fit, data and residuals is generated (default False).
-    qqplot : bool
-        If true, a quantile-quantile plot of the fit result is generated (default False).
-    expected_chisquare : bool
-        If true prints the expected chisquare which is
-        corrected by effects caused by correlated input data.
-        This can take a while as the full correlation matrix
-        has to be calculated (default False).
     correlated_fit : bool
-        If true, use the full correlation matrix in the definition of the chisquare
-        (only works for prior==None and when no method is given, at the moment).
+        If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
+        For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
+        In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
+        This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
+        At the moment this option only works for `prior==None` and when no `method` is given.
+    expected_chisquare : bool
+        If True estimates the expected chisquare which is
+        corrected by effects caused by correlated input data (default False).
+    resplot : bool
+        If True, a plot which displays fit, data and residuals is generated (default False).
+    qqplot : bool
+        If True, a quantile-quantile plot of the fit result is generated (default False).
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -133,9 +134,10 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         func has to be of the form
 
         ```python
+        import autograd.numpy as anp
+
         def func(a, x):
-            y = a[0] + a[1] * x + a[2] * anp.sinh(x)
-            return y
+            return a[0] + a[1] * x + a[2] * anp.sinh(x)
         ```
 
         For multiple x values func can be of the form
@@ -159,6 +161,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         This can take a while as the full correlation matrix
         has to be calculated (default False).
 
+    Notes
+    -----
     Based on the orthogonal distance regression module of scipy
     '''
 
@@ -238,7 +242,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         if kwargs.get('covariance') is not None:
             cov = kwargs.get('covariance')
         else:
-            cov = covariance_matrix(np.concatenate((y, x.ravel())))
+            cov = covariance(np.concatenate((y, x.ravel())))
 
         number_of_x_parameters = int(m / x_f.shape[-1])
 
@@ -248,7 +252,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
-        P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+        P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
             warnings.warn("Negative expected_chisquare.", RuntimeWarning)
@@ -259,7 +263,10 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
-    hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+    try:
+        hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -290,11 +297,6 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
-
-
-def prior_fit(x, y, func, priors, silent=False, **kwargs):
-    warnings.warn("prior_fit renamed to least_squares", DeprecationWarning)
-    return least_squares(x, y, func, priors=priors, silent=silent, **kwargs)
 
 
 def _prior_fit(x, y, func, priors, silent=False, **kwargs):
@@ -415,11 +417,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     return output
 
 
-def standard_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("standard_fit renamed to least_squares", DeprecationWarning)
-    return least_squares(x, y, func, silent=silent, **kwargs)
-
-
 def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output = Fit_result()
@@ -464,15 +461,13 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
-        cov = covariance_matrix(y)
-        covdiag = np.diag(1. / np.sqrt(np.diag(cov)))
-        corr = np.copy(cov)
-        for i in range(len(y)):
-            for j in range(len(y)):
-                corr[i][j] = cov[i][j] / np.sqrt(cov[i][i] * cov[j][j])
+        corr = covariance(y, correlation=True)
+        covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
-        if condn > 1e4:
-            warnings.warn("Correlation matrix may be ill-conditioned! condition number: %1.2e" % (condn), RuntimeWarning)
+        if condn > 0.1 / np.finfo(float).eps:
+            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+        if condn > 1 / np.sqrt(np.finfo(float).eps):
+            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
         chol = np.linalg.cholesky(corr)
         chol_inv = np.linalg.inv(chol)
         chol_inv = np.dot(chol_inv, covdiag)
@@ -487,25 +482,21 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             chisq = anp.sum(((y_f - model) / dy_f) ** 2)
             return chisq
 
-    if 'method' in kwargs:
-        output.method = kwargs.get('method')
-        if not silent:
-            print('Method:', kwargs.get('method'))
-        if kwargs.get('method') == 'migrad':
-            fit_result = iminuit.minimize(chisqfunc, x0)
-            fit_result = iminuit.minimize(chisqfunc, fit_result.x)
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
+
+    if output.method != 'Levenberg-Marquardt':
+        if output.method == 'migrad':
+            fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
+            output.iterations = fit_result.nfev
         else:
-            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'))
-            fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=1e-12)
+            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)
+            output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
-        output.iterations = fit_result.nit
     else:
-        output.method = 'Levenberg-Marquardt'
-        if not silent:
-            print('Method: Levenberg-Marquardt')
-
         if kwargs.get('correlated_fit') is True:
             def chisqfunc_residuals(p):
                 model = func(p, x)
@@ -540,9 +531,9 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if kwargs.get('expected_chisquare') is True:
         if kwargs.get('correlated_fit') is not True:
             W = np.diag(1 / np.asarray(dy_f))
-            cov = covariance_matrix(y)
+            cov = covariance(y)
             A = W @ jacobian(func)(fit_result.x, x)
-            P_phi = A @ np.linalg.inv(A.T @ A) @ A.T
+            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
             if not silent:
@@ -550,7 +541,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
                       output.chisquare_by_expected_chisquare)
 
     fitp = fit_result.x
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+    try:
+        hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):
@@ -587,17 +581,16 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     return output
 
 
-def odr_fit(x, y, func, silent=False, **kwargs):
-    warnings.warn("odr_fit renamed to total_least_squares", DeprecationWarning)
-    return total_least_squares(x, y, func, silent=silent, **kwargs)
-
-
 def fit_lin(x, y, **kwargs):
     """Performs a linear fit to y = n + m * x and returns two Obs n, m.
 
-    y has to be a list of Obs, the dvalues of the Obs are used as yerror for the fit.
-    x can either be a list of floats in which case no xerror is assumed, or
-    a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
+    Parameters
+    ----------
+    x : list
+        Can either be a list of floats in which case no xerror is assumed, or
+        a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
+    y : list
+        List of Obs, the dvalues of the Obs are used as yerror for the fit.
     """
 
     def f(a, x):
@@ -615,8 +608,8 @@ def fit_lin(x, y, **kwargs):
 
 
 def qqplot(x, o_y, func, p):
-    """ Generates a quantile-quantile plot of the fit result which can be used to
-        check if the residuals of the fit are gaussian distributed.
+    """Generates a quantile-quantile plot of the fit result which can be used to
+       check if the residuals of the fit are gaussian distributed.
     """
 
     residuals = []
@@ -632,7 +625,7 @@ def qqplot(x, o_y, func, p):
     fit_stop = my_x[-1]
     samples = np.arange(fit_start, fit_stop, 0.01)
     plt.plot(samples, samples, 'k--', zorder=11, label='Standard normal distribution')
-    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)))
+    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)), marker='', ls='-')
 
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')
@@ -669,22 +662,9 @@ def residual_plot(x, y, func, fit_res):
     plt.draw()
 
 
-def covariance_matrix(y):
-    """Returns the covariance matrix of y."""
-    length = len(y)
-    cov = np.zeros((length, length))
-    for i, item in enumerate(y):
-        for j, jtem in enumerate(y[:i + 1]):
-            if i == j:
-                cov[i, j] = item.dvalue ** 2
-            else:
-                cov[i, j] = covariance(item, jtem)
-    return cov + cov.T - np.diag(np.diag(cov))
-
-
 def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
-    cov = covariance_matrix(beta)
+    cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 

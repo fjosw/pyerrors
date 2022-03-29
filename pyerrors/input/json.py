@@ -1,11 +1,13 @@
 import json
 import gzip
-import numpy as np
 import getpass
 import socket
 import datetime
 import platform
 import warnings
+import re
+import gc
+import numpy as np
 from ..obs import Obs
 from ..covobs import Covobs
 from ..correlators import Corr
@@ -20,7 +22,7 @@ def create_json_string(ol, description='', indent=1):
     Parameters
     ----------
     ol : list
-        List of objects that will be exported. At the moments, these objects can be
+        List of objects that will be exported. At the moment, these objects can be
         either of: Obs, list, numpy.ndarray, Corr.
         All Obs inside a structure have to be defined on the same set of configurations.
     description : str
@@ -37,6 +39,8 @@ def create_json_string(ol, description='', indent=1):
     my_encoder.default = _default
 
     class Deltalist:
+        __slots__ = ['cnfg', 'deltas']
+
         def __init__(self, li):
             self.cnfg = li[0]
             self.deltas = li[1:]
@@ -52,6 +56,8 @@ def create_json_string(ol, description='', indent=1):
             return self.__repr__()
 
     class Floatlist:
+        __slots__ = ['li']
+
         def __init__(self, li):
             self.li = list(li)
 
@@ -170,6 +176,9 @@ def create_json_string(ol, description='', indent=1):
             names.append(key)
             idl.append(value)
         my_obs = Obs(samples, names, idl)
+        my_obs._covobs = obs._covobs
+        for name in obs._covobs:
+            my_obs.names.append(name)
         my_obs.reweighted = obs.reweighted
         my_obs.is_merged = obs.is_merged
         return my_obs
@@ -198,7 +207,7 @@ def create_json_string(ol, description='', indent=1):
 
     d = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
-    d['version'] = '0.2'
+    d['version'] = '1.0'
     d['who'] = getpass.getuser()
     d['date'] = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %z')
     d['host'] = socket.gethostname() + ', ' + platform.platform()
@@ -218,14 +227,18 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
-    jsonstring = json.dumps(d, indent=indent, cls=my_encoder, ensure_ascii=False)
+    jsonstring = ''
+    for chunk in my_encoder(indent=indent, ensure_ascii=False).iterencode(d):
+        jsonstring += chunk
 
-    def remove_quotationmarks(s):
+    del d
+    gc.collect()
+
+    def remove_quotationmarks_split(split):
         """Workaround for un-quoting of delta lists, adds 5% of work
            but is save, compared to a simple replace that could destroy the structure
         """
         deltas = False
-        split = s.split('\n')
         for i in range(len(split)):
             if '"deltas":' in split[i] or '"cov":' in split[i] or '"grad":' in split[i]:
                 deltas = True
@@ -235,7 +248,8 @@ def create_json_string(ol, description='', indent=1):
                     deltas = False
         return '\n'.join(split)
 
-    jsonstring = remove_quotationmarks(jsonstring)
+    jsonstring = jsonstring.split('\n')
+    jsonstring = remove_quotationmarks_split(jsonstring)
     jsonstring = jsonstring.replace('nan', 'NaN')
     return jsonstring
 
@@ -246,7 +260,7 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     Parameters
     ----------
     ol : list
-        List of objects that will be exported. At the moments, these objects can be
+        List of objects that will be exported. At the moment, these objects can be
         either of: Obs, list, numpy.ndarray, Corr.
         All Obs inside a structure have to be defined on the same set of configurations.
     fname : str
@@ -277,8 +291,9 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
     fp.close()
 
 
-def import_json_string(json_string, verbose=True, full_output=False):
-    """Reconstruct a list of Obs or structures containing Obs from a json string.
+def _parse_json_dict(json_dict, verbose=True, full_output=False):
+    """Reconstruct a list of Obs or structures containing Obs from a dict that
+    was built out of a json string.
 
     The following structures are supported: Obs, list, numpy.ndarray, Corr
     If the list contains only one element, it is unpacked from the list.
@@ -303,10 +318,16 @@ def import_json_string(json_string, verbose=True, full_output=False):
             retd['is_merged'] = {}
             for ens in d:
                 for rep in ens['replica']:
-                    retd['names'].append(rep['name'])
+                    rep_name = rep['name']
+                    if len(rep_name) > len(ens["id"]):
+                        if rep_name[len(ens["id"])] != "|":
+                            tmp_list = list(rep_name)
+                            tmp_list = tmp_list[:len(ens["id"])] + ["|"] + tmp_list[len(ens["id"]):]
+                            rep_name = ''.join(tmp_list)
+                    retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])
                     retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))
-                    retd['is_merged'][rep['name']] = rep.get('is_merged', False)
+                    retd['is_merged'][rep_name] = rep.get('is_merged', False)
         return retd
 
     def _gen_covobsd_from_cdatad(d):
@@ -426,8 +447,6 @@ def import_json_string(json_string, verbose=True, full_output=False):
         my_corr.prange = temp_prange
         return my_corr
 
-    json_dict = json.loads(json_string)
-
     prog = json_dict.get('program', '')
     version = json_dict.get('version', '')
     who = json_dict.get('who', '')
@@ -475,8 +494,28 @@ def import_json_string(json_string, verbose=True, full_output=False):
         return ol
 
 
+def import_json_string(json_string, verbose=True, full_output=False):
+    """Reconstruct a list of Obs or structures containing Obs from a json string.
+
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
+    If the list contains only one element, it is unpacked from the list.
+
+    Parameters
+    ----------
+    json_string : str
+        json string containing the data.
+    verbose : bool
+        Print additional information that was written to the file.
+    full_output : bool
+        If True, a dict containing auxiliary information and the data is returned.
+        If False, only the data is returned.
+    """
+
+    return _parse_json_dict(json.loads(json_string), verbose, full_output)
+
+
 def load_json(fname, verbose=True, gz=True, full_output=False):
-    """Import a list of Obs or structures containing Obs from a .json.gz file.
+    """Import a list of Obs or structures containing Obs from a .json(.gz) file.
 
     The following structures are supported: Obs, list, numpy.ndarray, Corr
     If the list contains only one element, it is unpacked from the list.
@@ -499,11 +538,223 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname, 'r') as fin:
-            d = fin.read().decode('utf-8')
+            d = json.load(fin)
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         with open(fname, 'r', encoding='utf-8') as fin:
-            d = fin.read()
+            d = json.loads(fin.read())
 
-    return import_json_string(d, verbose, full_output)
+    return _parse_json_dict(d, verbose, full_output)
+
+
+def _ol_from_dict(ind, reps='DICTOBS'):
+    """Convert a dictionary of Obs objects to a list and a dictionary that contains
+    placeholders instead of the Obs objects.
+
+    Parameters
+    ----------
+    ind : dict
+        Dict of JSON valid structures and objects that will be exported.
+        At the moment, these object can be either of: Obs, list, numpy.ndarray, Corr.
+        All Obs inside a structure have to be defined on the same set of configurations.
+    reps : str
+        Specify the structure of the placeholder in exported dict to be reps[0-9]+.
+    """
+
+    obstypes = (Obs, Corr, np.ndarray)
+
+    if not reps.isalnum():
+        raise Exception('Placeholder string has to be alphanumeric!')
+    ol = []
+    counter = 0
+
+    def dict_replace_obs(d):
+        nonlocal ol
+        nonlocal counter
+        x = {}
+        for k, v in d.items():
+            if isinstance(v, dict):
+                v = dict_replace_obs(v)
+            elif isinstance(v, list) and all([isinstance(o, Obs) for o in v]):
+                v = obslist_replace_obs(v)
+            elif isinstance(v, list):
+                v = list_replace_obs(v)
+            elif isinstance(v, obstypes):
+                ol.append(v)
+                v = reps + '%d' % (counter)
+                counter += 1
+            elif isinstance(v, str):
+                if bool(re.match(r'%s[0-9]+' % (reps), v)):
+                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be savely exported.' % (v, reps))
+            x[k] = v
+        return x
+
+    def list_replace_obs(li):
+        nonlocal ol
+        nonlocal counter
+        x = []
+        for e in li:
+            if isinstance(e, list):
+                e = list_replace_obs(e)
+            elif isinstance(e, list) and all([isinstance(o, Obs) for o in e]):
+                e = obslist_replace_obs(e)
+            elif isinstance(e, dict):
+                e = dict_replace_obs(e)
+            elif isinstance(e, obstypes):
+                ol.append(e)
+                e = reps + '%d' % (counter)
+                counter += 1
+            elif isinstance(e, str):
+                if bool(re.match(r'%s[0-9]+' % (reps), e)):
+                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be savely exported.' % (e, reps))
+            x.append(e)
+        return x
+
+    def obslist_replace_obs(li):
+        nonlocal ol
+        nonlocal counter
+        il = []
+        for e in li:
+            il.append(e)
+
+        ol.append(il)
+        x = reps + '%d' % (counter)
+        counter += 1
+        return x
+
+    nd = dict_replace_obs(ind)
+
+    return ol, nd
+
+
+def dump_dict_to_json(od, fname, description='', indent=1, reps='DICTOBS', gz=True):
+    """Export a dict of Obs or structures containing Obs to a .json(.gz) file
+
+    Parameters
+    ----------
+    od : dict
+        Dict of JSON valid structures and objects that will be exported.
+        At the moment, these objects can be either of: Obs, list, numpy.ndarray, Corr.
+        All Obs inside a structure have to be defined on the same set of configurations.
+    fname : str
+        Filename of the output file.
+    description : str
+        Optional string that describes the contents of the json file.
+    indent : int
+        Specify the indentation level of the json file. None or 0 is permissible and
+        saves disk space.
+    reps : str
+        Specify the structure of the placeholder in exported dict to be reps[0-9]+.
+    gz : bool
+        If True, the output is a gzipped json. If False, the output is a json file.
+    """
+
+    if not isinstance(od, dict):
+        raise Exception('od has to be a dictionary. Did you want to use dump_to_json?')
+
+    infostring = ('This JSON file contains a python dictionary that has been parsed to a list of structures. '
+                  'OBSDICT contains the dictionary, where Obs or other structures have been replaced by '
+                  '' + reps + '[0-9]+. The field description contains the additional description of this JSON file. '
+                  'This file may be parsed to a dict with the pyerrors routine load_json_dict.')
+
+    desc_dict = {'INFO': infostring, 'OBSDICT': {}, 'description': description}
+    ol, desc_dict['OBSDICT'] = _ol_from_dict(od, reps=reps)
+
+    dump_to_json(ol, fname, description=desc_dict, indent=indent, gz=gz)
+
+
+def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
+    """Parse a list of Obs or structures containing Obs and an accompanying
+    dict, where the structures have been replaced by placeholders to a
+    dict that contains the structures.
+
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
+
+    Parameters
+    ----------
+    ol : list
+        List of objects -
+        At the moment, these objects can be either of: Obs, list, numpy.ndarray, Corr.
+        All Obs inside a structure have to be defined on the same set of configurations.
+    ind : dict
+        Dict that defines the structure of the resulting dict and contains placeholders
+    reps : str
+        Specify the structure of the placeholder in imported dict to be reps[0-9]+.
+    """
+    if not reps.isalnum():
+        raise Exception('Placeholder string has to be alphanumeric!')
+
+    counter = 0
+
+    def dict_replace_string(d):
+        nonlocal counter
+        nonlocal ol
+        x = {}
+        for k, v in d.items():
+            if isinstance(v, dict):
+                v = dict_replace_string(v)
+            elif isinstance(v, list):
+                v = list_replace_string(v)
+            elif isinstance(v, str) and bool(re.match(r'%s[0-9]+' % (reps), v)):
+                index = int(v[len(reps):])
+                v = ol[index]
+                counter += 1
+            x[k] = v
+        return x
+
+    def list_replace_string(li):
+        nonlocal counter
+        nonlocal ol
+        x = []
+        for e in li:
+            if isinstance(e, list):
+                e = list_replace_string(e)
+            elif isinstance(e, dict):
+                e = dict_replace_string(e)
+            elif isinstance(e, str) and bool(re.match(r'%s[0-9]+' % (reps), e)):
+                index = int(e[len(reps):])
+                e = ol[index]
+                counter += 1
+            x.append(e)
+        return x
+
+    nd = dict_replace_string(ind)
+
+    if counter == 0:
+        raise Exception('No placeholder has been replaced! Check if reps is set correctly.')
+
+    return nd
+
+
+def load_json_dict(fname, verbose=True, gz=True, full_output=False, reps='DICTOBS'):
+    """Import a dict of Obs or structures containing Obs from a .json(.gz) file.
+
+    The following structures are supported: Obs, list, numpy.ndarray, Corr
+
+    Parameters
+    ----------
+    fname : str
+        Filename of the input file.
+    verbose : bool
+        Print additional information that was written to the file.
+    gz : bool
+        If True, assumes that data is gzipped. If False, assumes JSON file.
+    full_output : bool
+        If True, a dict containing auxiliary information and the data is returned.
+        If False, only the data is returned.
+    reps : str
+        Specify the structure of the placeholder in imported dict to be reps[0-9]+.
+    """
+    indata = load_json(fname, verbose=verbose, gz=gz, full_output=True)
+    description = indata['description']['description']
+    indict = indata['description']['OBSDICT']
+    ol = indata['obsdata']
+    od = _od_from_list_and_dict(ol, indict, reps=reps)
+
+    if full_output:
+        indata['description'] = description
+        indata['obsdata'] = od
+        return indata
+    else:
+        return od

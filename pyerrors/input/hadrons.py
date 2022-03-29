@@ -1,9 +1,11 @@
 import os
+import warnings
+from collections import Counter
 import h5py
 import numpy as np
-from collections import Counter
 from ..obs import Obs, CObs
 from ..correlators import Corr
+from ..dirac import epsilon_tensor_rank4
 
 
 def _get_files(path, filestem, idl):
@@ -43,13 +45,16 @@ def _get_files(path, filestem, idl):
         raise Exception("Unsorted files")
     if len(dc) == 1:
         idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
+    elif idl:
+        idx = idl
+        warnings.warn("Configurations are not evenly spaced.", RuntimeWarning)
     else:
-        raise Exception('Configurations are not evenly spaced.')
+        raise Exception("Configurations are not evenly spaced.")
 
     return filtered_files, idx
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=None):
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
     """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
@@ -73,14 +78,16 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', tree='meson', idl=No
     corr_data = []
     infos = []
     for hd5_file in files:
-        file = h5py.File(path + '/' + hd5_file, "r")
-        raw_data = list(file[tree + '/' + meson + '/corr'])
+        h5file = h5py.File(path + '/' + hd5_file, "r")
+        if not tree + '/' + meson in h5file:
+            raise Exception("Entry '" + meson + "' not contained in the files.")
+        raw_data = list(h5file[tree + '/' + meson + '/corr'])
         real_data = [o[0] for o in raw_data]
         corr_data.append(real_data)
         if not infos:
-            for k, i in file[tree + '/' + meson].attrs.items():
+            for k, i in h5file[tree + '/' + meson].attrs.items():
                 infos.append(k + ': ' + i[0].decode())
-        file.close()
+        h5file.close()
     corr_data = np.array(corr_data)
 
     l_obs = []
@@ -278,10 +285,17 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
     for vertex in vertices:
         lorentz_names = _get_lorentz_names(vertex)
         for v_name in lorentz_names:
-            if vertex not in intermediate_dict:
-                intermediate_dict[vertex] = np.array(corr_data[v_name])
+            if v_name in [('SigmaXY', 'SigmaZT'),
+                          ('SigmaXT', 'SigmaYZ'),
+                          ('SigmaYZ', 'SigmaXT'),
+                          ('SigmaZT', 'SigmaXY')]:
+                sign = -1
             else:
-                intermediate_dict[vertex] += np.array(corr_data[v_name])
+                sign = 1
+            if vertex not in intermediate_dict:
+                intermediate_dict[vertex] = sign * np.array(corr_data[v_name])
+            else:
+                intermediate_dict[vertex] += sign * np.array(corr_data[v_name])
 
     result_dict = {}
 
@@ -301,12 +315,27 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
 
 
 def _get_lorentz_names(name):
-    assert len(name) == 2
+    lorentz_index = ['X', 'Y', 'Z', 'T']
 
     res = []
 
-    if not set(name) <= set(['S', 'P', 'V', 'A', 'T']):
-        raise Exception("Name can only contain 'S', 'P', 'V', 'A' or 'T'")
+    if name == "TT":
+        for i in range(4):
+            for j in range(i + 1, 4):
+                res.append(("Sigma" + lorentz_index[i] + lorentz_index[j], "Sigma" + lorentz_index[i] + lorentz_index[j]))
+        return res
+
+    if name == "TTtilde":
+        for i in range(4):
+            for j in range(i + 1, 4):
+                for k in range(4):
+                    for o in range(k + 1, 4):
+                        fac = epsilon_tensor_rank4(i, j, k, o)
+                        if not np.isclose(fac, 0.0):
+                            res.append(("Sigma" + lorentz_index[i] + lorentz_index[j], "Sigma" + lorentz_index[k] + lorentz_index[o]))
+        return res
+
+    assert len(name) == 2
 
     if 'S' in name or 'P' in name:
         if not set(name) <= set(['S', 'P']):
@@ -317,14 +346,9 @@ def _get_lorentz_names(name):
 
         res.append((g_names[name[0]], g_names[name[1]]))
 
-    elif 'T' in name:
-        if not set(name) <= set(['T']):
-            raise Exception("'" + name + "' is not a Lorentz scalar")
-        raise Exception("Tensor operators not yet implemented.")
     else:
         if not set(name) <= set(['V', 'A']):
             raise Exception("'" + name + "' is not a Lorentz scalar")
-        lorentz_index = ['X', 'Y', 'Z', 'T']
 
         for ind in lorentz_index:
             res.append(('Gamma' + ind + (name[0] == 'A') * 'Gamma5',

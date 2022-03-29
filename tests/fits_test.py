@@ -1,4 +1,5 @@
-import autograd.numpy as np
+import numpy as np
+import autograd.numpy as anp
 import math
 import scipy.optimize
 from scipy.odr import ODR, Model, RealData
@@ -41,12 +42,12 @@ def test_least_squares():
         oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
 
     def f(x, a, b):
-        return a * np.exp(-b * x)
+        return a * anp.exp(-b * x)
 
     popt, pcov = scipy.optimize.curve_fit(f, x, y, sigma=[o.dvalue for o in oy], absolute_sigma=True)
 
     def func(a, x):
-        y = a[0] * np.exp(-a[1] * x)
+        y = a[0] * anp.exp(-a[1] * x)
         return y
 
     out = pe.least_squares(x, oy, func, expected_chisquare=True, resplot=True, qqplot=True)
@@ -60,7 +61,7 @@ def test_least_squares():
         beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], beta[i].dvalue ** 2, abs_tol=1e-3)
-    assert math.isclose(pe.covariance(beta[0], beta[1]), pcov[0, 1], abs_tol=1e-3)
+    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], pcov[0, 1], abs_tol=1e-3)
 
     chi2_pyerrors = np.sum(((f(x, *[o.value for o in beta]) - y) / yerr) ** 2) / (len(x) - 2)
     chi2_scipy = np.sum(((f(x, *popt) - y) / yerr) ** 2) / (len(x) - 2)
@@ -81,7 +82,34 @@ def test_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, popt[i], abs_tol=1e-5)
         assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), pcov[0, 1], abs_tol=1e-3)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], pcov[0, 1], abs_tol=1e-3)
+
+
+def test_alternative_solvers():
+    dim = 192
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = 0.1 + 0.1 * np.random.rand(dim)
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    def func(a, x):
+        y = a[0] * anp.exp(-a[1] * x)
+        return y
+
+    chisquare_values = []
+    out = pe.least_squares(x, oy, func, method='migrad')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Powell')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Nelder-Mead')
+    chisquare_values.append(out.chisquare)
+    out = pe.least_squares(x, oy, func, method='Levenberg-Marquardt')
+    chisquare_values.append(out.chisquare)
+    chisquare_values = np.array(chisquare_values)
+    assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
 
 
 def test_correlated_fit():
@@ -118,7 +146,7 @@ def test_correlated_fit():
                 return p[1] + p[0] * x
         else:
             def fitf(p, x):
-                return p[1] * np.exp(-p[0] * x)
+                return p[1] * anp.exp(-p[0] * x)
 
         fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
 
@@ -145,10 +173,10 @@ def test_total_least_squares():
         oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
 
     def f(x, a, b):
-        return a * np.exp(-b * x)
+        return a * anp.exp(-b * x)
 
     def func(a, x):
-        y = a[0] * np.exp(-a[1] * x)
+        y = a[0] * anp.exp(-a[1] * x)
         return y
 
     data = RealData([o.value for o in ox], [o.value for o in oy], sx=[o.dvalue for o in ox], sy=[o.dvalue for o in oy])
@@ -168,7 +196,7 @@ def test_total_least_squares():
         beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, output.beta[i], rel_tol=1e-5)
         assert math.isclose(output.cov_beta[i, i], beta[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(beta[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(beta[0], beta[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
 
@@ -191,7 +219,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     outc = pe.total_least_squares(oxc, oyc, func, const_par=[betac[1]])
 
@@ -206,7 +234,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance(betac[0], betac[1]), output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
 
     outc = pe.total_least_squares(oxc, oy, func, const_par=[betac[1]])
 
@@ -291,6 +319,23 @@ def test_prior_fit():
     fitp = pe.fits.least_squares([0, 1], y, f, priors=y, resplot=True, qqplot=True)
 
 
+def test_correlated_fit_covobs():
+    x1 = pe.cov_Obs(1.01, 0.01 ** 2, 'test1')
+    x2 = pe.cov_Obs(2.01, 0.01 ** 2, 'test2')
+    x3 = pe.cov_Obs(2.99, 0.01 ** 2, 'test3')
+
+    [o.gamma_method() for o in [x1, x2, x3]]
+
+    def func(a, x):
+        return a[0] * x + a[1]
+
+    fit_res = pe.fits.least_squares(np.arange(1, 4), [x1, x2, x3], func, expected_chisquare=True)
+    assert np.isclose(fit_res.chisquare_by_dof, fit_res.chisquare_by_expected_chisquare)
+
+    fit_res_corr = pe.fits.least_squares(np.arange(1, 4), [x1, x2, x3], func, correlated_fit=True)
+    assert np.isclose(fit_res.chisquare_by_dof, fit_res_corr.chisquare_by_dof)
+
+
 def test_error_band():
     def f(a, x):
         return a[0] + a[1] * x
@@ -307,6 +352,33 @@ def test_error_band():
         pe.fits.error_band(x, f, fitp.fit_parameters)
     fitp.gamma_method()
     pe.fits.error_band(x, f, fitp.fit_parameters)
+
+
+def test_fit_no_autograd():
+    dim = 10
+    x = np.arange(dim)
+    y = 2 * np.exp(-0.08 * x) + np.random.normal(0.0, 0.15, dim)
+    yerr = 0.1 + 0.1 * np.random.rand(dim)
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], str(i)))
+
+    def func(a, x):
+        y = a[0] * np.exp(-a[1] * x)
+        return y
+
+    with pytest.raises(Exception):
+        pe.least_squares(x, oy, func)
+
+    with pytest.raises(Exception):
+        pe.total_least_squares(oy, oy, func)
+
+
+def test_singular_correlated_fit():
+    obs1 = pe.pseudo_Obs(1.0, 0.1, 'test')
+    with pytest.raises(Exception):
+        pe.fits.fit_lin([0, 1], [obs1, obs1], correlated_fit=True)
 
 
 def test_ks_test():

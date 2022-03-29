@@ -53,7 +53,7 @@ class Obs:
     N_sigma_dict = {}
     filter_eps = 1e-10
 
-    def __init__(self, samples, names, idl=None, means=None, **kwargs):
+    def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -64,12 +64,9 @@ class Obs:
             list of strings labeling the individual samples
         idl : list, optional
             list of ranges or lists on which the samples are defined
-        means : list, optional
-            list of mean values for the case that the mean values were
-            already subtracted from the samples
         """
 
-        if means is None and len(samples):
+        if kwargs.get("means") is None and len(samples):
             if len(samples) != len(names):
                 raise Exception('Length of samples and names incompatible.')
             if idl is not None:
@@ -115,8 +112,8 @@ class Obs:
 
             self._value = 0
             self.N = 0
-            if means is not None:
-                for name, sample, mean in sorted(zip(names, samples, means)):
+            if kwargs.get("means") is not None:
+                for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
                     self.shape[name] = len(self.idl[name])
                     self.N += self.shape[name]
                     self.r_values[name] = mean
@@ -263,6 +260,7 @@ class Obs:
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
                 gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+            gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
@@ -288,8 +286,6 @@ class Obs:
             _compute_drho(1)
             if self.tau_exp[e_name] > 0:
                 texp = self.tau_exp[e_name]
-                # if type(self.idl[e_name]) is range: # scale tau_exp according to step size
-                #    texp /= self.idl[e_name].step
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")
@@ -447,17 +443,15 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, rtol=1.e-5, atol=1.e-8):
+    def is_zero(self, atol=1e-10):
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters
         ----------
-        rtol : float
-            Relative tolerance (for details see numpy documentation).
         atol : float
             Absolute tolerance (for details see numpy documentation).
         """
-        return np.isclose(0.0, self.value, rtol, atol) and all(np.allclose(0.0, delta, rtol, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), rtol, atol) for delta in self.covobs.values())
+        return np.isclose(0.0, self.value, 1e-14, atol) and all(np.allclose(0.0, delta, 1e-14, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), 1e-14, atol) for delta in self.covobs.values())
 
     def plot_tauint(self, save=None):
         """Plot integrated autocorrelation time for each ensemble.
@@ -588,7 +582,7 @@ class Obs:
         ensemble to the error and returns a dictionary containing the fractions."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        if self._dvalue == 0.0:
+        if np.isclose(0.0, self._dvalue, atol=1e-15):
             raise Exception('Error is 0.0')
         labels = self.e_names
         sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
@@ -599,7 +593,7 @@ class Obs:
 
         return dict(zip(self.e_names, sizes))
 
-    def dump(self, filename, datatype="json.gz", **kwargs):
+    def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
@@ -609,6 +603,8 @@ class Obs:
         datatype : str
             Format of the exported file. Supported formats include
             "json.gz" and "pickle"
+        description : str
+            Description for output file, only relevant for json.gz format.
         path : str
             specifies a custom path for the file (default '.')
         """
@@ -619,7 +615,7 @@ class Obs:
 
         if datatype == "json.gz":
             from .input.json import dump_to_json
-            dump_to_json([self], file_name)
+            dump_to_json([self], file_name, description=description)
         elif datatype == "pickle":
             with open(file_name + '.p', 'wb') as fb:
                 pickle.dump(self, fb)
@@ -695,7 +691,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self + o for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
@@ -711,7 +707,7 @@ class Obs:
                 return np.array([self * o for o in y])
             elif isinstance(y, complex):
                 return CObs(self * y.real, self * y.imag)
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
@@ -725,15 +721,16 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self - o for o in y])
-
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
-
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
     def __rsub__(self, y):
         return -1 * (self - y)
+
+    def __pos__(self):
+        return self
 
     def __neg__(self):
         return -1 * self
@@ -744,7 +741,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self / o for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
@@ -755,7 +752,7 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([o / self for o in y])
-            elif y.__class__.__name__ == 'Corr':
+            elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
@@ -917,8 +914,11 @@ class CObs:
     def __abs__(self):
         return np.sqrt(self.real**2 + self.imag**2)
 
-    def __neg__(other):
-        return -1 * other
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return -1 * self
 
     def __eq__(self, other):
         return self.real == other.real and self.imag == other.imag
@@ -939,7 +939,7 @@ def _expand_deltas(deltas, idx, shape):
     deltas : list
         List of fluctuations
     idx : list
-        List or range of configs on which the deltas are defined.
+        List or range of configs on which the deltas are defined, has to be sorted in ascending order.
     shape : int
         Number of configs in idx.
     """
@@ -953,7 +953,7 @@ def _expand_deltas(deltas, idx, shape):
 
 
 def _merge_idx(idl):
-    """Returns the union of all lists in idl
+    """Returns the union of all lists in idl as sorted list
 
     Parameters
     ----------
@@ -976,7 +976,7 @@ def _merge_idx(idl):
             idstep = min([idx.step for idx in idl])
             return range(idstart, idstop, idstep)
 
-    return list(set().union(*idl))
+    return sorted(set().union(*idl))
 
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
@@ -990,11 +990,11 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
         List of fluctuations
     idx : list
         List or range of configs on which the deltas are defined.
-        Has to be a subset of new_idx.
+        Has to be a subset of new_idx and has to be sorted in ascending order.
     shape : list
         Number of configs in idx.
     new_idx : list
-        List of configs that defines the new range.
+        List of configs that defines the new range, has to be sorted in ascending order.
     """
 
     if type(idx) is range and type(new_idx) is range:
@@ -1125,14 +1125,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             raise Exception('Multi mode currently not supported for numerical derivative')
         options = {
             'base_step': 0.1,
-            'step_ratio': 2.5,
-            'num_steps': None,
-            'step_nom': None,
-            'offset': None,
-            'num_extrap': None,
-            'use_exact_steps': None,
-            'check_num_steps': None,
-            'scale': None}
+            'step_ratio': 2.5}
         for key in options.keys():
             kwarg = kwargs.get(key)
             if kwarg is not None:
@@ -1225,6 +1218,9 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 def _reduce_deltas(deltas, idx_old, idx_new):
     """Extract deltas defined on idx_old on all configs of idx_new.
 
+    Assumes, that idx_old and idx_new are correctly defined idl, i.e., they
+    are ordered in an ascending order.
+
     Parameters
     ----------
     deltas : list
@@ -1244,8 +1240,6 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     ret = np.zeros(shape)
     oldpos = 0
     for i in range(shape):
-        if oldpos == idx_old[i]:
-            raise Exception('idx_old and idx_new do not match!')
         pos = -1
         for j in range(oldpos, len(idx_old)):
             if idx_old[j] == idx_new[i]:
@@ -1253,7 +1247,8 @@ def _reduce_deltas(deltas, idx_old, idx_new):
                 break
         if pos < 0:
             raise Exception('Error in _reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
-        ret[i] = deltas[j]
+        ret[i] = deltas[pos]
+        oldpos = pos
     return np.array(ret)
 
 
@@ -1310,9 +1305,11 @@ def correlate(obs_a, obs_b):
     obs_b : Obs
         Second observable
 
+    Notes
+    -----
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
-    Currently only works if ensembles are identical. This is not really necessary.
+    Currently only works if ensembles are identical (this is not strictly necessary).
     """
 
     if sorted(obs_a.names) != sorted(obs_b.names):
@@ -1342,20 +1339,64 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs1, obs2, correlation=False, **kwargs):
-    """Calculates the covariance of two observables.
+def covariance(obs, visualize=False, correlation=False, **kwargs):
+    r'''Calculates the covariance matrix of a set of observables.
 
-    covariance(obs, obs) is equal to obs.dvalue ** 2
-    The gamma method has to be applied first to both observables.
+    The gamma method has to be applied first to all observables.
 
-    If abs(covariance(obs1, obs2)) > obs1.dvalue * obs2.dvalue, the covariance
-    is constrained to the maximum value.
+    Parameters
+    ----------
+    obs : list or numpy.ndarray
+        List or one dimensional array of Obs
+    visualize : bool
+        If True plots the corresponding normalized correlation matrix (default False).
+    correlation : bool
+        If True the correlation instead of the covariance is returned (default False).
 
-    Keyword arguments
-    -----------------
-    correlation -- if true the correlation instead of the covariance is
-                   returned (default False)
-    """
+    Notes
+    -----
+    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. The covariance at windowsize 0 is guaranteed to be positive semi-definite
+    $$v_i\Gamma_{ij}(0)v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i,j}v_i\delta_i^s\delta_j^s v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i}|v_i\delta_i^s|^2\geq 0\,,$$ for every $v\in\mathbb{R}^M$, while such an identity does not hold for larger windows/lags.
+    For observables defined on a single ensemble our approximation is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
+    $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$
+    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
+    '''
+
+    length = len(obs)
+
+    max_samples = np.max([o.N for o in obs])
+    if max_samples <= length and not [item for sublist in [o.cov_names for o in obs] for item in sublist]:
+        warnings.warn(f"The dimension of the covariance matrix ({length}) is larger or equal to the number of samples ({max_samples}). This will result in a rank deficient matrix.", RuntimeWarning)
+
+    cov = np.zeros((length, length))
+    for i in range(length):
+        for j in range(i, length):
+            cov[i, j] = _covariance_element(obs[i], obs[j])
+    cov = cov + cov.T - np.diag(np.diag(cov))
+
+    corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
+
+    errors = [o.dvalue for o in obs]
+    cov = np.diag(errors) @ corr @ np.diag(errors)
+
+    eigenvalues = np.linalg.eigh(cov)[0]
+    if not np.all(eigenvalues >= 0):
+        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
+
+    if visualize:
+        plt.matshow(corr, vmin=-1, vmax=1)
+        plt.set_cmap('RdBu')
+        plt.colorbar()
+        plt.draw()
+
+    if correlation is True:
+        return corr
+    else:
+        return cov
+
+
+def _covariance_element(obs1, obs2):
+    """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def expand_deltas(deltas, idx, shape, new_idx):
         """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
@@ -1379,29 +1420,18 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             ret[idx[i] - new_idx[0]] = deltas[i]
         return ret
 
-    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx, w_max):
-        gamma = np.zeros(w_max)
+    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
         deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
         deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
-        new_shape = len(deltas1)
-        max_gamma = min(new_shape, w_max)
-        # The padding for the fft has to be even
-        padding = new_shape + max_gamma + (new_shape + max_gamma) % 2
-        gamma[:max_gamma] += (np.fft.irfft(np.fft.rfft(deltas1, padding) * np.conjugate(np.fft.rfft(deltas2, padding)))[:max_gamma] + np.fft.irfft(np.fft.rfft(deltas2, padding) * np.conjugate(np.fft.rfft(deltas1, padding)))[:max_gamma]) / 2.0
-
-        return gamma
+        return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
-        return 0.
+        return 0.0
 
     if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
-    dvalue = 0
-    e_gamma = {}
-    e_dvalue = {}
-    e_n_tauint = {}
-    e_rho = {}
+    dvalue = 0.0
 
     for e_name in obs1.mc_names:
 
@@ -1409,52 +1439,32 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
             continue
 
         idl_d = {}
-        r_length = []
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
             idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
-            if isinstance(idl_d[r_name], range):
-                r_length.append(len(idl_d[r_name]))
-            else:
-                r_length.append((idl_d[r_name][-1] - idl_d[r_name][0] + 1))
 
-        if not r_length:
-            return 0.
-
-        w_max = max(r_length) // 2
-        e_gamma[e_name] = np.zeros(w_max)
+        gamma = 0.0
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            e_gamma[e_name] += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
+            gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
-        if np.all(e_gamma[e_name] == 0.0):
+        if gamma == 0.0:
             continue
 
-        e_shapes = []
-        for r_name in obs1.e_content[e_name]:
-            e_shapes.append(obs1.shape[r_name])
-        gamma_div = np.zeros(w_max)
+        gamma_div = 0.0
         e_N = 0
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name], w_max)
-            e_N += np.sum(np.ones_like(idl_d[r_name]))
-        e_gamma[e_name] /= gamma_div[:w_max]
+            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
+            e_N += len(idl_d[r_name])
+        gamma /= max(gamma_div, 1.0)
 
-        e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-        e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], e_rho[e_name][1:])))
-        # Make sure no entry of tauint is smaller than 0.5
-        e_n_tauint[e_name][e_n_tauint[e_name] < 0.5] = 0.500000000001
-
-        window = min(obs1.e_windowsize[e_name], obs2.e_windowsize[e_name])
         # Bias correction hep-lat/0306017 eq. (49)
-        e_dvalue[e_name] = 2 * (e_n_tauint[e_name][window] + obs1.tau_exp[e_name] * np.abs(e_rho[e_name][window + 1])) * (1 + (2 * window + 1) / e_N) * e_gamma[e_name][0] / e_N
-
-        dvalue += e_dvalue[e_name]
+        dvalue += (1 + 1 / e_N) * gamma / e_N
 
     for e_name in obs1.cov_names:
 
@@ -1463,45 +1473,7 @@ def covariance(obs1, obs2, correlation=False, **kwargs):
 
         dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
 
-    if np.abs(dvalue / obs1.dvalue / obs2.dvalue) > 1.0:
-        dvalue = np.sign(dvalue) * obs1.dvalue * obs2.dvalue
-
-    if correlation:
-        dvalue = dvalue / obs1.dvalue / obs2.dvalue
-
     return dvalue
-
-
-def pseudo_Obs(value, dvalue, name, samples=1000):
-    """Generate a pseudo Obs with given value, dvalue and name
-
-    Parameters
-    ----------
-    value : float
-        central value of the Obs to be generated.
-    dvalue : float
-        error of the Obs to be generated.
-    name : str
-        name of the ensemble for which the Obs is to be generated.
-    samples: int
-        number of samples for the Obs (default 1000).
-    """
-    if dvalue <= 0.0:
-        return Obs([np.zeros(samples) + value], [name])
-    else:
-        for _ in range(100):
-            deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
-            deltas -= np.mean(deltas)
-            deltas *= dvalue / np.sqrt((np.var(deltas) / samples)) / np.sqrt(1 + 3 / samples)
-            deltas += value
-            res = Obs(deltas, [name])
-            res.gamma_method(S=2, tau_exp=0)
-            if abs(res.dvalue - dvalue) < 1e-10 * dvalue:
-                break
-
-        res._value = float(value)
-
-        return res
 
 
 def import_jackknife(jacks, name, idl=None):
@@ -1531,6 +1503,8 @@ def merge_obs(list_of_obs):
     list_of_obs : list
         list of the Obs object to be combined
 
+    Notes
+    -----
     It is not possible to combine obs which are based on the same replicum
     """
     replist = [item for obs in list_of_obs for item in obs.names]

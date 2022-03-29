@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import ctypes
 import hashlib
 import autograd.numpy as np  # Thinly-wrapped numpy

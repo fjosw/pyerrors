@@ -1,7 +1,5 @@
 import autograd.numpy as np
 import os
-import random
-import string
 import copy
 import pyerrors as pe
 import pytest
@@ -53,6 +51,12 @@ def test_Obs_exceptions():
     my_obs.gamma_method()
     my_obs.details()
 
+    obs = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
+    one = obs / obs
+    one.gamma_method()
+    with pytest.raises(Exception):
+        one.plot_piechart()
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -88,6 +92,8 @@ def test_comparison():
     assert test_obs2 != value2
     assert test_obs1 != test_obs2
     assert test_obs2 != test_obs1
+    assert +test_obs1 == test_obs1
+    assert -test_obs1 == 0 - test_obs1
 
 
 def test_function_overloading():
@@ -117,6 +123,10 @@ def test_function_overloading():
     np.arctanh(1 / b)
     np.sinc(1 / b)
 
+    b ** b
+    0.5 ** b
+    b ** 0.5
+
 
 def test_overloading_vectorization():
     a = np.random.randint(1, 100, 10)
@@ -138,9 +148,8 @@ def test_overloading_vectorization():
     assert [o.value for o in b / a] == [o.value for o in [b / p for p in a]]
 
 
-def test_gamma_method():
+def test_gamma_method_standard_data():
     for data in [np.tile([1, -1], 1000),
-                 np.random.rand(100001),
                  np.zeros(1195),
                  np.sin(np.sqrt(2) * np.pi * np.arange(1812))]:
         test_obs = pe.Obs([data], ['t'])
@@ -244,17 +253,6 @@ def test_gamma_method_kwargs():
     assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
 
 
-def test_covariance_is_variance():
-    value = np.random.normal(5, 10)
-    dvalue = np.abs(np.random.normal(0, 1))
-    test_obs = pe.pseudo_Obs(value, dvalue, 't')
-    test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
-    test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
-    test_obs.gamma_method()
-    assert np.abs(test_obs.dvalue ** 2 - pe.covariance(test_obs, test_obs)) <= 10 * np.finfo(np.float64).eps
-
-
 def test_fft():
     value = np.random.normal(5, 100)
     dvalue = np.abs(np.random.normal(0, 5))
@@ -266,22 +264,7 @@ def test_fft():
     assert np.abs(test_obs1.dvalue - test_obs2.dvalue) <= 10 * max(test_obs1.dvalue, test_obs2.dvalue) * np.finfo(np.float64).eps
 
 
-def test_covariance_symmetry():
-    value1 = np.random.normal(5, 10)
-    dvalue1 = np.abs(np.random.normal(0, 1))
-    test_obs1 = pe.pseudo_Obs(value1, dvalue1, 't')
-    test_obs1.gamma_method()
-    value2 = np.random.normal(5, 10)
-    dvalue2 = np.abs(np.random.normal(0, 1))
-    test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
-    test_obs2.gamma_method()
-    cov_ab = pe.covariance(test_obs1, test_obs2)
-    cov_ba = pe.covariance(test_obs2, test_obs1)
-    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
-    assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
-
-
-def test_gamma_method():
+def test_gamma_method_uncorrelated():
     # Construct pseudo Obs with random shape
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -304,14 +287,14 @@ def test_derived_observables():
     d_Obs_fd = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * np.sin(x[0] * x[1]), [test_obs, test_obs], num_grad=True)
     d_Obs_fd.gamma_method()
 
-    assert d_Obs_ad.value == d_Obs_fd.value
+    assert d_Obs_ad == d_Obs_fd
     assert np.abs(4.0 * np.sin(4.0) - d_Obs_ad.value) < 1000 * np.finfo(np.float64).eps * np.abs(d_Obs_ad.value)
     assert np.abs(d_Obs_ad.dvalue-d_Obs_fd.dvalue) < 1000 * np.finfo(np.float64).eps * d_Obs_ad.dvalue
 
     i_am_one = pe.derived_observable(lambda x, **kwargs: x[0] / x[1], [d_Obs_ad, d_Obs_ad])
     i_am_one.gamma_method()
 
-    assert i_am_one.value == 1.0
+    assert i_am_one == 1.0
     assert i_am_one.dvalue < 2 * np.finfo(np.float64).eps
     assert i_am_one.e_dvalue['t'] <= 2 * np.finfo(np.float64).eps
     assert i_am_one.e_ddvalue['t'] <= 2 * np.finfo(np.float64).eps
@@ -392,6 +375,11 @@ def test_cobs():
     obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
 
     my_cobs = pe.CObs(obs1, obs2)
+    assert +my_cobs == my_cobs
+    assert -my_cobs == 0 - my_cobs
+    my_cobs == my_cobs
+    str(my_cobs)
+    repr(my_cobs)
     assert not (my_cobs + my_cobs.conjugate()).real.is_zero()
     assert (my_cobs + my_cobs.conjugate()).imag.is_zero()
     assert (my_cobs - my_cobs.conjugate()).real.is_zero()
@@ -422,6 +410,23 @@ def test_cobs():
 
         assert (my_cobs / other * other - my_cobs).is_zero()
         assert (other / my_cobs * my_cobs - other).is_zero()
+
+
+def test_cobs_overloading():
+    obs = pe.pseudo_Obs(1.1, 0.1, 't')
+    cobs = pe.CObs(obs, obs)
+
+    cobs + obs
+    obs + cobs
+
+    cobs - obs
+    obs - cobs
+
+    cobs * obs
+    obs * cobs
+
+    cobs / obs
+    obs / cobs
 
 
 def test_reweighting():
@@ -591,6 +596,24 @@ def test_gamma_method_irregular():
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
 
+    a = pe.pseudo_Obs(1, .1, 'a', samples=10)
+    a.idl['a'] = range(4, 15)
+    b = pe.pseudo_Obs(1, .1, 'a', samples=151)
+    b.idl['a'] = range(4, 608, 4)
+    ol = [a, b]
+    o = (ol[0] - ol[1]) / (ol[1])
+
+
+def test_covariance_is_variance():
+    value = np.random.normal(5, 10)
+    dvalue = np.abs(np.random.normal(0, 1))
+    test_obs = pe.pseudo_Obs(value, dvalue, 't')
+    test_obs.gamma_method()
+    assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
+    test_obs = test_obs + pe.pseudo_Obs(value, dvalue, 'q', 200)
+    test_obs.gamma_method()
+    assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
+
 
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
@@ -601,9 +624,9 @@ def test_covariance_symmetry():
     dvalue2 = np.abs(np.random.normal(0, 1))
     test_obs2 = pe.pseudo_Obs(value2, dvalue2, 't')
     test_obs2.gamma_method()
-    cov_ab = pe.covariance(test_obs1, test_obs2)
-    cov_ba = pe.covariance(test_obs2, test_obs1)
-    assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
+    cov_ab = pe.covariance([test_obs1, test_obs2])[0, 1]
+    cov_ba = pe.covariance([test_obs2, test_obs1])[0, 1]
+    assert np.isclose(cov_ab, cov_ba)
     assert np.abs(cov_ab) < test_obs1.dvalue * test_obs2.dvalue * (1 + 10 * np.finfo(np.float64).eps)
 
     N = 100
@@ -615,12 +638,80 @@ def test_covariance_symmetry():
     idx = [i + 1 for i in range(len(configs)) if configs[i] == 1]
     a = pe.Obs([zero_arr], ['t'], idl=[idx])
     a.gamma_method()
-    assert np.isclose(a.dvalue**2, pe.covariance(a, a), atol=100, rtol=1e-4)
+    assert np.isclose(a.dvalue ** 2, pe.covariance([a, a])[0, 1], atol=100, rtol=1e-4)
 
-    cov_ab = pe.covariance(test_obs1, a)
-    cov_ba = pe.covariance(a, test_obs1)
+    cov_ab = pe.covariance([test_obs1, a])[0, 1]
+    cov_ba = pe.covariance([a, test_obs1])[0, 1]
     assert np.abs(cov_ab - cov_ba) <= 10 * np.finfo(np.float64).eps
     assert np.abs(cov_ab) < test_obs1.dvalue * a.dvalue * (1 + 10 * np.finfo(np.float64).eps)
+
+
+def test_covariance_sum():
+    length = 2
+    t_fac = 0.4
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.99 * np.ones((length, length)) + 0.01 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method(S=0) for o in tt]
+
+    t_cov = pe.covariance(tt)
+
+    my_sum = tt[0] + tt[1]
+    my_sum.gamma_method(S=0)
+    e_cov = (my_sum.dvalue ** 2 - tt[0].dvalue ** 2 - tt[1].dvalue ** 2) / 2
+
+    assert np.isclose(e_cov, t_cov[0, 1])
+
+
+def test_covariance_positive_semidefinite():
+    length = 64
+    t_fac = 1.5
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.99999 * np.ones((length, length)) + 0.00001 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method() for o in tt]
+    cov = pe.covariance(tt)
+    assert np.all(np.linalg.eigh(cov)[0] >= -1e-15)
+
+
+def test_covariance_factorizing():
+    length = 2
+    t_fac = 1.5
+
+    tt = pe.misc.gen_correlated_data(np.zeros(length), 0.75 * np.ones((length, length)) + 0.8 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=1000)
+    [o.gamma_method() for o in tt]
+
+    mt0 = -tt[0]
+    mt0.gamma_method()
+
+    assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
+
+
+def test_covariance_alternation():
+    length = 12
+    t_fac = 2.5
+
+    tt1 = pe.misc.gen_correlated_data(np.zeros(length), -0.00001 * np.ones((length, length)) + 0.002 * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=88)
+    tt2 = pe.misc.gen_correlated_data(np.zeros(length), 0.9999 * np.ones((length, length)) + 0.0001 * np.diag(np.ones(length)), 'another_test|r0', tau=0.7 + t_fac * np.random.rand(length), samples=73)
+    tt3 = pe.misc.gen_correlated_data(np.zeros(length), 0.9999 * np.ones((length, length)) + 0.0001 * np.diag(np.ones(length)), 'another_test|r1', tau=0.7 + t_fac * np.random.rand(length), samples=91)
+
+    tt = np.array(tt1) + (np.array(tt2) + np.array(tt3))
+    tt *= np.resize([1, -1], length)
+
+    [o.gamma_method() for o in tt]
+    cov = pe.covariance(tt, True)
+
+    assert np.all(np.linalg.eigh(cov)[0] > -1e-15)
+
+
+def test_covariance_correlation():
+    test_obs = pe.pseudo_Obs(-4, 0.8, 'test', samples=784)
+    assert np.allclose(pe.covariance([test_obs, test_obs, test_obs], correlation=True), np.ones((3, 3)))
+
+
+def test_covariance_rank_deficient():
+    obs = []
+    for i in range(5):
+        obs.append(pe.pseudo_Obs(1.0, 0.1, 'test', 5))
+
+    with pytest.warns(RuntimeWarning):
+        pe.covariance(obs)
 
 
 def test_empty_obs():
@@ -653,3 +744,39 @@ def test_import_jackknife():
     my_jacks = my_obs.export_jackknife()
     reconstructed_obs = pe.import_jackknife(my_jacks, 'test')
     assert my_obs == reconstructed_obs
+
+
+def test_reduce_deltas():
+    idx_old = range(1, 101)
+    deltas = [float(i) for i in idx_old]
+    idl = [
+        range(2, 26, 2),
+        range(1, 101),
+        np.arange(1, 101),
+        [1, 2, 3, 5, 6, 7, 9, 12],
+        [7],
+    ]
+    for idx_new in idl:
+        new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
+        print(new)
+        assert(np.alltrue([float(i) for i in idx_new] == new))
+
+
+def test_merge_idx():
+    idl = [list(np.arange(1, 14)) + list(range(16, 100, 4)), range(4, 604, 4), [2, 4, 5, 6, 8, 9, 12, 24], range(1, 20, 1), range(50, 789, 7)]
+    new_idx = pe.obs._merge_idx(idl)
+    assert(new_idx[-1] > new_idx[0])
+    for i in range(1, len(new_idx)):
+        assert(new_idx[i - 1] < new_idx[i])
+
+def test_cobs_array():
+    cobs = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t']) * (1 + 2j)
+    np.identity(4) + cobs
+    cobs + np.identity(4)
+    np.identity(4) - cobs
+    cobs - np.identity(4)
+    np.identity(4) * cobs
+    cobs * np.identity(4)
+    np.identity(4) / cobs
+    cobs / np.ones((4, 4))
+

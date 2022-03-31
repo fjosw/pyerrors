@@ -2,53 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2022-??-??
+## [2.0.0] - 2022-03-31
 ### Added
 - The possibility to work with Monte Carlo histories which are evenly or unevenly spaced was added.
 - `cov_Obs` added as a possibility to propagate the error of non Monte Carlo data together with Monte Carlo data.
 - `CObs` class added which can handle complex valued Markov chain Monte Carlo data and the corresponding error propagation.
 - Matrix to matrix operations like the matrix inverse now also work for complex matrices and matrices containing entries that are not `Obs` but `float` or `int`.
-- Support for a new `json.gz` file format was added
+- Support for a new `json.gz` file format was added.
 - The Corr class now has additional methods like `reverse`, `T_symmetry`, `correlate` and `reweight`.
-- `Corr.m_eff` can now cope with periodic and anti-periodic correlation functions
-- Forward, backward and improved variants of the first and second derivative were added to the `Corr` class
-- The `linalg` module now has explicit functions `inv` and `cholesky`.
+- `Corr.m_eff` can now cope with periodic and anti-periodic correlation functions.
+- Forward, backward and improved variants of the first and second derivative were added to the `Corr` class.
+- `GEVP` functionality of the `Corr` class was reworked and improved.
+- The `linalg` module now has explicit functions `inv`, `cholesky` and `det`.
 - `Obs` objects now have methods `is_zero` and `is_zero_within_error` as well as overloaded comparison operations.
-- Functions to convert Obs data to or from jackknife was added.
-- Alternative matrix multiplication routine `jack_matmul` was added to `linalg` module which makes use of the jackknife approximation and is much faster for large matrices.
+- Functions to convert `Obs` data to or from jackknife was added.
+- Alternative matrix multiplication routines `einsum` and `jack_matmul` were added to `linalg` module which make use of the jackknife approximation and are much faster for large matrices.
 - Additional input routines for npr data added to `input.hadrons`.
 - The `sfcf` and `openQCD` input modules can now handle all recent file type versions.
-- `extract_t0` can now visualize the extraction on the fly
+- `extract_t0` can now visualize the extraction on the fly.
 - Module added which provides the Dirac gamma matrices in the Grid convention.
 - Version number added.
 
 ### Changed
 - The internal bookkeeping system for ensembles/replica was changed. The separator for replica is now `|`.
 - The fit functions were renamed to `least_squares` and `total_least_squares`.
-- The output of the fit functions is now a dedicated results class which keeps track of all relevant information
+- The output of the fit functions is now a dedicated results class which keeps track of all relevant information.
 - The fit functions can now deal with provided covariance matrices.
-- `covariance` can now operate on a list or array of `Obs` and returns a matrix
+- `covariance` can now operate on a list or array of `Obs` and returns a matrix. The covariance estimate by pyerrors is now always positive semi-definite (within machine precision. Various warnings and exceptions were added for cases in which estimated covariances are close to singular.
 - The convention for the fit range in the Corr class has been changed.
-- Various method of the `Corr` class were renamed
+- Various method of the `Corr` class were renamed.
 - `Obs.print` was renamed to `Obs.details` and the output was improved.
 - The default value for `Corr.prange` is now `None`.
 - The `input` module was restructured to contain one submodule per data source.
 - Performance of Obs.__init__ improved.
 
 ### Removed
-- The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`
-- `fits.covariance_matrix` was removed as it is now redundant with the functionality of `covariance`
-- The kwarg `bias_correction` in `derived_observable` was removed
-- Obs no longer have an attribute `e_Q`
-- Removed `fits.fit_exp`
-- Removed jackknife module
+- The function `plot_corrs` was deprecated as all its functionality is now contained within `Corr.show`.
+- `fits.covariance_matrix` was removed as it is now redundant with the functionality of `covariance`.
+- The kwarg `bias_correction` in `derived_observable` was removed.
+- Obs no longer have an attribute `e_Q`.
+- Removed `fits.fit_exp`.
+- Removed jackknife module.
 
 ## [1.1.0] - 2021-10-11
 ### Added
 - `Corr` class added
 - `roots` module added which can find the roots of a function that depends on Monte Carlo data via pyerrors `Obs`
 - `input/hadrons` module added which can read hdf5 files written by [Hadrons](https://github.com/aportelli/Hadrons)
-- `read_rwms` can now read reweighting factors in the format used by openQCD-2.0 
+- `read_rwms` can now read reweighting factors in the format used by openQCD-2.0.
 
 ## [1.0.1] - 2020-11-03
 ### Fixed

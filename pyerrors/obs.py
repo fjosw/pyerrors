@@ -90,51 +90,44 @@ class Obs:
         self.deltas = {}
         self._covobs = {}
 
+        self._value = 0
+        self.N = 0
+        self.is_merged = {}
         self.idl = {}
-        if len(samples):
-            if idl is not None:
-                for name, idx in sorted(zip(names, idl)):
-                    if isinstance(idx, range):
-                        self.idl[name] = idx
-                    elif isinstance(idx, (list, np.ndarray)):
-                        dc = np.unique(np.diff(idx))
-                        if np.any(dc < 0):
-                            raise Exception("Unsorted idx for idl[%s]" % (name))
-                        if len(dc) == 1:
-                            self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
-                        else:
-                            self.idl[name] = list(idx)
+        if idl is not None:
+            for name, idx in sorted(zip(names, idl)):
+                if isinstance(idx, range):
+                    self.idl[name] = idx
+                elif isinstance(idx, (list, np.ndarray)):
+                    dc = np.unique(np.diff(idx))
+                    if np.any(dc < 0):
+                        raise Exception("Unsorted idx for idl[%s]" % (name))
+                    if len(dc) == 1:
+                        self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
-                        raise Exception('incompatible type for idl[%s].' % (name))
-            else:
-                for name, sample in sorted(zip(names, samples)):
-                    self.idl[name] = range(1, len(sample) + 1)
-
-            self._value = 0
-            self.N = 0
-            if kwargs.get("means") is not None:
-                for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
-                    self.shape[name] = len(self.idl[name])
-                    self.N += self.shape[name]
-                    self.r_values[name] = mean
-                    self.deltas[name] = sample
-            else:
-                for name, sample in sorted(zip(names, samples)):
-                    self.shape[name] = len(self.idl[name])
-                    self.N += self.shape[name]
-                    if len(sample) != self.shape[name]:
-                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                    self.r_values[name] = np.mean(sample)
-                    self.deltas[name] = sample - self.r_values[name]
-                    self._value += self.shape[name] * self.r_values[name]
-                self._value /= self.N
-
-            self.is_merged = {}
-
+                        self.idl[name] = list(idx)
+                else:
+                    raise Exception('incompatible type for idl[%s].' % (name))
         else:
-            self._value = 0
-            self.is_merged = {}
-            self.N = 0
+            for name, sample in sorted(zip(names, samples)):
+                self.idl[name] = range(1, len(sample) + 1)
+
+        if kwargs.get("means") is not None:
+            for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
+                self.shape[name] = len(self.idl[name])
+                self.N += self.shape[name]
+                self.r_values[name] = mean
+                self.deltas[name] = sample
+        else:
+            for name, sample in sorted(zip(names, samples)):
+                self.shape[name] = len(self.idl[name])
+                self.N += self.shape[name]
+                if len(sample) != self.shape[name]:
+                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                self.r_values[name] = np.mean(sample)
+                self.deltas[name] = sample - self.r_values[name]
+                self._value += self.shape[name] * self.r_values[name]
+            self._value /= self.N
 
         self._dvalue = 0.0
         self.ddvalue = 0.0
@@ -1490,7 +1483,8 @@ def import_jackknife(jacks, name, idl=None):
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
     samples = jacks[1:] @ prj
-    new_obs = Obs([samples], [name], idl=idl)
+    mean = np.mean(samples)
+    new_obs = Obs([samples - mean], [name], idl=idl, means=[mean])
     new_obs._value = jacks[0]
     return new_obs
 
@@ -1549,7 +1543,7 @@ def cov_Obs(means, cov, name, grad=None):
         co : Covobs
             Covobs to be embedded into the Obs
         """
-        o = Obs([], [])
+        o = Obs([], [], means=[])
         o._value = co.value
         o.names.append(co.name)
         o._covobs[co.name] = co

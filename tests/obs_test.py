@@ -716,7 +716,7 @@ def test_covariance_rank_deficient():
 
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
-    q = o + pe.Obs([], [])
+    q = o + pe.Obs([], [], means=[])
     assert q == o
 
 
@@ -769,6 +769,7 @@ def test_merge_idx():
     for i in range(1, len(new_idx)):
         assert(new_idx[i - 1] < new_idx[i])
 
+
 def test_cobs_array():
     cobs = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t']) * (1 + 2j)
     np.identity(4) + cobs
@@ -779,4 +780,3 @@ def test_cobs_array():
     cobs * np.identity(4)
     np.identity(4) / cobs
     cobs / np.ones((4, 4))
-

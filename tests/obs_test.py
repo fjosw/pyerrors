@@ -51,6 +51,12 @@ def test_Obs_exceptions():
     my_obs.gamma_method()
     my_obs.details()
 
+    obs = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
+    one = obs / obs
+    one.gamma_method()
+    with pytest.raises(Exception):
+        one.plot_piechart()
+
 def test_dump():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
@@ -86,6 +92,8 @@ def test_comparison():
     assert test_obs2 != value2
     assert test_obs1 != test_obs2
     assert test_obs2 != test_obs1
+    assert +test_obs1 == test_obs1
+    assert -test_obs1 == 0 - test_obs1
 
 
 def test_function_overloading():
@@ -142,7 +150,6 @@ def test_overloading_vectorization():
 
 def test_gamma_method_standard_data():
     for data in [np.tile([1, -1], 1000),
-                 np.random.rand(100001),
                  np.zeros(1195),
                  np.sin(np.sqrt(2) * np.pi * np.arange(1812))]:
         test_obs = pe.Obs([data], ['t'])
@@ -368,6 +375,8 @@ def test_cobs():
     obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
 
     my_cobs = pe.CObs(obs1, obs2)
+    assert +my_cobs == my_cobs
+    assert -my_cobs == 0 - my_cobs
     my_cobs == my_cobs
     str(my_cobs)
     repr(my_cobs)
@@ -707,7 +716,7 @@ def test_covariance_rank_deficient():
 
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
-    q = o + pe.Obs([], [])
+    q = o + pe.Obs([], [], means=[])
     assert q == o
 
 
@@ -759,3 +768,15 @@ def test_merge_idx():
     assert(new_idx[-1] > new_idx[0])
     for i in range(1, len(new_idx)):
         assert(new_idx[i - 1] < new_idx[i])
+
+
+def test_cobs_array():
+    cobs = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t']) * (1 + 2j)
+    np.identity(4) + cobs
+    cobs + np.identity(4)
+    np.identity(4) - cobs
+    cobs - np.identity(4)
+    np.identity(4) * cobs
+    cobs * np.identity(4)
+    np.identity(4) / cobs
+    cobs / np.ones((4, 4))

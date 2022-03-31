@@ -464,8 +464,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         corr = covariance(y, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
-        if condn > 1e8:
-            warnings.warn("Correlation matrix may be ill-conditioned, condition number: %1.2e" % (condn), RuntimeWarning)
+        if condn > 0.1 / np.finfo(float).eps:
+            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+        if condn > 1 / np.sqrt(np.finfo(float).eps):
+            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
         chol = np.linalg.cholesky(corr)
         chol_inv = np.linalg.inv(chol)
         chol_inv = np.dot(chol_inv, covdiag)
@@ -623,7 +625,7 @@ def qqplot(x, o_y, func, p):
     fit_stop = my_x[-1]
     samples = np.arange(fit_start, fit_stop, 0.01)
     plt.plot(samples, samples, 'k--', zorder=11, label='Standard normal distribution')
-    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)))
+    plt.plot(samples, probplot[1][0] * samples + probplot[1][1], zorder=10, label='Least squares fit, r=' + str(np.around(probplot[1][2], 3)), marker='', ls='-')
 
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')

@@ -1332,7 +1332,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, correlation=False, **kwargs):
+def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     r'''Calculates the covariance matrix of a set of observables.
 
     The gamma method has to be applied first to all observables.
@@ -1345,6 +1345,11 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
         If True plots the corresponding normalized correlation matrix (default False).
     correlation : bool
         If True the correlation instead of the covariance is returned (default False).
+    smooth : None or int
+        If smooth is an integer 'E' between 2 and the dimension of the matrix minus 1 the eigenvalue
+        smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the
+        largest E eigenvalues essentially unchanged and smoothes the smaller eigenvalues to avoid extremely
+        small ones.
 
     Notes
     -----
@@ -1369,6 +1374,9 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
 
     corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
 
+    if isinstance(smooth, int):
+        corr = _smooth_eigenvalues(corr, smooth)
+
     errors = [o.dvalue for o in obs]
     cov = np.diag(errors) @ corr @ np.diag(errors)
 
@@ -1386,6 +1394,23 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
         return corr
     else:
         return cov
+
+
+def _smooth_eigenvalues(corr, E):
+    """Eigenvalue smoothing as described in hep-lat/9412087
+
+    corr : np.ndarray
+        correlation matrix
+    E : integer
+        Number of eigenvalues to be left substantially unchanged
+    """
+    if not (2 < E < corr.shape[0] - 1):
+        raise Exception(f"'E' has to be between 2 and the dimension of the correlation matrix minus 1 ({corr.shape[0] - 1}).")
+    vals, vec = np.linalg.eigh(corr)
+    lambda_min = np.mean(vals[:-E])
+    vals[vals < lambda_min] = lambda_min
+    vals /= np.mean(vals)
+    return vec @ np.diag(vals) @ vec.T
 
 
 def _covariance_element(obs1, obs2):

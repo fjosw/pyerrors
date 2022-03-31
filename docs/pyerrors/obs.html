@@ -1643,7 +1643,7 @@
     <span class="k">return</span> <span class="n">o</span>
 
 
-<span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Calculates the covariance matrix of a set of observables.</span>
 
 <span class="sd">    The gamma method has to be applied first to all observables.</span>
@@ -1656,6 +1656,11 @@
 <span class="sd">        If True plots the corresponding normalized correlation matrix (default False).</span>
 <span class="sd">    correlation : bool</span>
 <span class="sd">        If True the correlation instead of the covariance is returned (default False).</span>
+<span class="sd">    smooth : None or int</span>
+<span class="sd">        If smooth is an integer &#39;E&#39; between 2 and the dimension of the matrix minus 1 the eigenvalue</span>
+<span class="sd">        smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the</span>
+<span class="sd">        largest E eigenvalues essentially unchanged and smoothes the smaller eigenvalues to avoid extremely</span>
+<span class="sd">        small ones.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1680,6 +1685,9 @@
 
     <span class="n">corr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">)))</span> <span class="o">@</span> <span class="n">cov</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">)))</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smooth</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">_smooth_eigenvalues</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">smooth</span><span class="p">)</span>
+
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">]</span>
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">@</span> <span class="n">corr</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
@@ -1697,6 +1705,23 @@
         <span class="k">return</span> <span class="n">corr</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">cov</span>
+
+
+<span class="k">def</span> <span class="nf">_smooth_eigenvalues</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">E</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Eigenvalue smoothing as described in hep-lat/9412087</span>
+
+<span class="sd">    corr : np.ndarray</span>
+<span class="sd">        correlation matrix</span>
+<span class="sd">    E : integer</span>
+<span class="sd">        Number of eigenvalues to be left substantially unchanged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="n">E</span> <span class="o">&lt;</span> <span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;E&#39; has to be between 2 and the dimension of the correlation matrix minus 1 (</span><span class="si">{</span><span class="n">corr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+    <span class="n">vals</span><span class="p">,</span> <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">corr</span><span class="p">)</span>
+    <span class="n">lambda_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">vals</span><span class="p">[:</span><span class="o">-</span><span class="n">E</span><span class="p">])</span>
+    <span class="n">vals</span><span class="p">[</span><span class="n">vals</span> <span class="o">&lt;</span> <span class="n">lambda_min</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambda_min</span>
+    <span class="n">vals</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vec</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">@</span> <span class="n">vec</span><span class="o">.</span><span class="n">T</span>
 
 
 <span class="k">def</span> <span class="nf">_covariance_element</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">):</span>
@@ -4830,12 +4855,12 @@ Currently only works if ensembles are identical (this is not strictly necessary)
 
         
             <span class="def">def</span>
-            <span class="name">covariance</span><span class="signature">(obs, visualize=False, correlation=False, **kwargs)</span>:
+            <span class="name">covariance</span><span class="signature">(obs, visualize=False, correlation=False, smooth=None, **kwargs)</span>:
     </div>
 
             <details>
             <summary>View Source</summary>
-            <div class="pdoc-code codehilite"><pre><span></span><span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">visualize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Calculates the covariance matrix of a set of observables.</span>
 
 <span class="sd">    The gamma method has to be applied first to all observables.</span>
@@ -4848,6 +4873,11 @@ Currently only works if ensembles are identical (this is not strictly necessary)
 <span class="sd">        If True plots the corresponding normalized correlation matrix (default False).</span>
 <span class="sd">    correlation : bool</span>
 <span class="sd">        If True the correlation instead of the covariance is returned (default False).</span>
+<span class="sd">    smooth : None or int</span>
+<span class="sd">        If smooth is an integer &#39;E&#39; between 2 and the dimension of the matrix minus 1 the eigenvalue</span>
+<span class="sd">        smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the</span>
+<span class="sd">        largest E eigenvalues essentially unchanged and smoothes the smaller eigenvalues to avoid extremely</span>
+<span class="sd">        small ones.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -4871,6 +4901,9 @@ Currently only works if ensembles are identical (this is not strictly necessary)
     <span class="n">cov</span> <span class="o">=</span> <span class="n">cov</span> <span class="o">+</span> <span class="n">cov</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
 
     <span class="n">corr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">)))</span> <span class="o">@</span> <span class="n">cov</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smooth</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">corr</span> <span class="o">=</span> <span class="n">_smooth_eigenvalues</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">smooth</span><span class="p">)</span>
 
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">dvalue</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">]</span>
     <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">@</span> <span class="n">corr</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
@@ -4906,6 +4939,11 @@ List or one dimensional array of Obs</li>
 If True plots the corresponding normalized correlation matrix (default False).</li>
 <li><strong>correlation</strong> (bool):
 If True the correlation instead of the covariance is returned (default False).</li>
+<li><strong>smooth</strong> (None or int):
+If smooth is an integer 'E' between 2 and the dimension of the matrix minus 1 the eigenvalue
+smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the
+largest E eigenvalues essentially unchanged and smoothes the smaller eigenvalues to avoid extremely
+small ones.</li>
 </ul>
 
 <h6 id="notes">Notes</h6>

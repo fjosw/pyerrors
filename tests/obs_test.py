@@ -713,6 +713,17 @@ def test_covariance_rank_deficient():
     with pytest.warns(RuntimeWarning):
         pe.covariance(obs)
 
+def test_covariance_idl():
+    range1 = range(10, 1010, 10)
+    range2 = range(10, 1010, 50)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2 = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs1.gamma_method()
+    obs2.gamma_method()
+
+    pe.covariance([obs1, obs2])
+
 
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])

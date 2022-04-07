@@ -510,6 +510,10 @@ def test_correlate():
         pe.correlate(r_obs, r_obs)
 
 
+def test_merge_idx():
+    assert pe.obs._merge_idx([range(10, 1010, 10), range(10, 1010, 50)]) == range(10, 1010, 10)
+    assert pe.obs._merge_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6250, 50)
+
 
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),

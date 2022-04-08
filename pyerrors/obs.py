@@ -1472,8 +1472,8 @@ def _covariance_element(obs1, obs2):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = _expand_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
-        deltas2 = _expand_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
+        deltas1 = _collapse_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
+        deltas2 = _collapse_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
         return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
@@ -1493,12 +1493,14 @@ def _covariance_element(obs1, obs2):
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
+            idl_d[r_name] = _intersection_idx([obs1.idl[r_name], obs2.idl[r_name]])
 
         gamma = 0.0
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
+                continue
+            if len(idl_d[r_name]) == 0:
                 continue
             gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
@@ -1506,16 +1508,15 @@ def _covariance_element(obs1, obs2):
             continue
 
         gamma_div = 0.0
-        e_N = 0
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
-            e_N += len(idl_d[r_name])
-        gamma /= max(gamma_div, 1.0)
+            if len(idl_d[r_name]) == 0:
+                continue
+            gamma_div += np.sqrt(calc_gamma(obs1.deltas[r_name], obs1.deltas[r_name], obs1.idl[r_name], obs1.idl[r_name], idl_d[r_name]) * calc_gamma(obs2.deltas[r_name], obs2.deltas[r_name], obs2.idl[r_name], obs2.idl[r_name], idl_d[r_name]))
+        gamma /= gamma_div
 
-        # Bias correction hep-lat/0306017 eq. (49)
-        dvalue += (1 + 1 / e_N) * gamma / e_N
+        dvalue += gamma
 
     for e_name in obs1.cov_names:
 

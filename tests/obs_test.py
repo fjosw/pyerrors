@@ -749,6 +749,32 @@ def test_covariance_idl():
     pe.covariance([obs1, obs2])
 
 
+def test_correlation_intersection_of_idls():
+    range1 = range(1, 2000, 2)
+    range2 = range(2, 2001, 2)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_a = 0.4 * pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1]) + 0.6 * obs1
+    obs1.gamma_method()
+    obs2_a.gamma_method()
+
+    cov1 = pe.covariance([obs1, obs2_a])
+    corr1 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    obs2_b = obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_b.gamma_method()
+
+    cov2 = pe.covariance([obs1, obs2_b])
+    corr2 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+    assert cov1[0, 1] > cov2[0, 1]
+
+    obs2_c = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_c.gamma_method()
+    assert np.isclose(0, pe.covariance([obs1, obs2_c])[0, 1], atol=1e-14)
+
+
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [], means=[])

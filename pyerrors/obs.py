@@ -972,6 +972,33 @@ def _merge_idx(idl):
     return sorted(set().union(*idl))
 
 
+def _intersection_idx(idl):
+    """Returns the intersection of all lists in idl as sorted list
+
+    Parameters
+    ----------
+    idl : list
+        List of lists or ranges.
+    """
+
+    # Use groupby to efficiently check whether all elements of idl are identical
+    try:
+        g = groupby(idl)
+        if next(g, True) and not next(g, False):
+            return idl[0]
+    except Exception:
+        pass
+
+    if np.all([type(idx) is range for idx in idl]):
+        if len(set([idx[0] for idx in idl])) == 1:
+            idstart = max([idx.start for idx in idl])
+            idstop = min([idx.stop for idx in idl])
+            idstep = max([idx.step for idx in idl])
+            return range(idstart, idstop, idstep)
+
+    return sorted(set().intersection(*idl))
+
+
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
@@ -996,6 +1023,34 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
     for i in range(shape):
         ret[idx[i] - new_idx[0]] = deltas[i]
+    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
+
+
+def _collapse_deltas_for_merge(deltas, idx, shape, new_idx):
+    """Collapse deltas defined on idx to the list of configs that is defined by new_idx.
+       If idx and new_idx are of type range, the smallest
+       common divisor of the step sizes is used as new step size.
+
+    Parameters
+    ----------
+    deltas : list
+        List of fluctuations
+    idx : list
+        List or range of configs on which the deltas are defined.
+        Has to be a subset of new_idx and has to be sorted in ascending order.
+    shape : list
+        Number of configs in idx.
+    new_idx : list
+        List of configs that defines the new range, has to be sorted in ascending order.
+    """
+
+    if type(idx) is range and type(new_idx) is range:
+        if idx == new_idx:
+            return deltas
+    ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
+    for i in range(shape):
+        if idx[i] in new_idx:
+            ret[idx[i] - new_idx[0]] = deltas[i]
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 

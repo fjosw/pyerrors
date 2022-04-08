@@ -515,6 +515,26 @@ def test_merge_idx():
     assert pe.obs._merge_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6250, 50)
 
 
+def test_intersection_idx():
+    assert pe.obs._intersection_idx([range(1, 100), range(1, 100), range(1, 100)]) == range(1, 100)
+    assert pe.obs._intersection_idx([range(1, 100, 10), range(1, 100, 2)]) == range(1, 100, 10)
+    assert pe.obs._intersection_idx([range(10, 1010, 10), range(10, 1010, 50)]) == range(10, 1010, 50)
+    assert pe.obs._intersection_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6050, 250)
+
+
+def test_intersection_collapse():
+    range1 = range(1, 2000, 2)
+    range2 = range(2, 2001, 8)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs_merge = obs1 + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+
+    intersection = pe.obs._intersection_idx([o.idl["ens"] for o in [obs1, obs_merge]])
+    coll = pe.obs._collapse_deltas_for_merge(obs_merge.deltas["ens"], obs_merge.idl["ens"], len(obs_merge.idl["ens"]), range1)
+
+    assert np.all(coll == obs1.deltas["ens"])
+
+
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),

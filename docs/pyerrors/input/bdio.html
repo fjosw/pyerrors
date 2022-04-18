@@ -382,11 +382,24 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path -- path to the bdio file</span>
-<span class="sd">    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
-<span class="sd">    stop -- stops reading at given configuration number (default None)</span>
-<span class="sd">    alternative_ensemble_name -- Manually overwrite ensemble name</span>
+<span class="sd">    file_path : str</span>
+<span class="sd">        path to the bdio file</span>
+<span class="sd">    bdio_path : str</span>
+<span class="sd">        path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
+<span class="sd">    start : int</span>
+<span class="sd">        The first configuration to be read (default 1)</span>
+<span class="sd">    stop : int</span>
+<span class="sd">        The last configuration to be read (default None)</span>
+<span class="sd">    step : int</span>
+<span class="sd">        Fixed step size between two measurements (default 1)</span>
+<span class="sd">    alternative_ensemble_name : str</span>
+<span class="sd">        Manually overwrite ensemble name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
     <span class="n">bdio</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">bdio_path</span><span class="p">)</span>
 
     <span class="n">bdio_open</span> <span class="o">=</span> <span class="n">bdio</span><span class="o">.</span><span class="n">bdio_open</span>
@@ -433,9 +446,9 @@
     <span class="n">prop_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator kappas (Component of corr_kappa)</span>
     <span class="n">prop_source</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator source positions</span>
     <span class="c1"># Check noise type for multiple replica?</span>
-    <span class="n">cnfg_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">corr_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">fbdio</span> <span class="o">=</span> <span class="n">bdio_open</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_read</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_form</span><span class="p">))</span>
 
@@ -498,18 +511,20 @@
                 <span class="n">prop_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;KAPPA=&#39;</span><span class="p">))</span>
                 <span class="n">prop_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;x0=&#39;</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">cnfg_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;CNFG_ID=&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">):</span>
                         <span class="k">break</span>
-                <span class="n">cnfg_no</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg_no</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="si">%s</span><span class="s1"> </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;Reading configuration&#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">no_corrs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">)</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
                         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
 
                 <span class="n">corr_no</span> <span class="o">=</span> <span class="mi">0</span>
+
     <span class="n">bdio_close</span><span class="p">(</span><span class="n">fbdio</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Ensemble: &#39;</span><span class="p">,</span> <span class="n">ensemble_name</span><span class="p">)</span>
@@ -521,7 +536,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of time values: &#39;</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of random sources: &#39;</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of corrs: &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of configurations: &#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of configurations: &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">))</span>
 
     <span class="n">corr_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains kappa values for both propagators of given correlation function</span>
     <span class="n">corr_source</span> <span class="o">=</span> <span class="p">[]</span>
@@ -532,11 +547,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">corr_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">prop_source</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])]))</span>
 
+    <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">idl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">idl_target</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idl</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idl_target</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Configurations in file do no match target list!&#39;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
         <span class="n">tmp_corr</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d0</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="n">tmp_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[:,</span> <span class="n">t</span><span class="p">]],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">]))</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[:,</span> <span class="n">t</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">tmp_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="n">deltas</span><span class="p">],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idl_target</span><span class="p">]))</span>
         <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">corr_source</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">tmp_corr</span>
 
     <span class="c1"># Check that all data entries have the same number of configurations</span>
@@ -560,10 +584,24 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path -- path to the bdio file</span>
-<span class="sd">    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
-<span class="sd">    stop -- stops reading at given configuration number (default None)</span>
+<span class="sd">    file_path : str</span>
+<span class="sd">        path to the bdio file</span>
+<span class="sd">    bdio_path : str</span>
+<span class="sd">        path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
+<span class="sd">    start : int</span>
+<span class="sd">        The first configuration to be read (default 1)</span>
+<span class="sd">    stop : int</span>
+<span class="sd">        The last configuration to be read (default None)</span>
+<span class="sd">    step : int</span>
+<span class="sd">        Fixed step size between two measurements (default 1)</span>
+<span class="sd">    alternative_ensemble_name : str</span>
+<span class="sd">        Manually overwrite ensemble name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
     <span class="n">bdio</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">bdio_path</span><span class="p">)</span>
 
     <span class="n">bdio_open</span> <span class="o">=</span> <span class="n">bdio</span><span class="o">.</span><span class="n">bdio_open</span>
@@ -609,9 +647,9 @@
     <span class="c1"># d1 = 0  # nnoise</span>
     <span class="n">prop_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator kappas (Component of corr_kappa)</span>
     <span class="c1"># Check noise type for multiple replica?</span>
-    <span class="n">cnfg_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">corr_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">fbdio</span> <span class="o">=</span> <span class="n">bdio_open</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_read</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_form</span><span class="p">))</span>
 
@@ -666,12 +704,13 @@
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">prop_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;KAPPA=&#39;</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">cnfg_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;CNFG_ID=&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">):</span>
                         <span class="k">break</span>
-                <span class="n">cnfg_no</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg_no</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="si">%s</span><span class="s1"> </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;Reading configuration&#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">no_corrs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">)</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
@@ -692,9 +731,18 @@
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">corr_props</span><span class="p">:</span>
         <span class="n">corr_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">prop_kappa</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">)]))</span>
 
+    <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">idl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">idl_target</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idl</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idl_target</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Configurations in file do no match target list!&#39;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
-        <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">])</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">deltas</span><span class="p">],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idl_target</span><span class="p">])</span>
 
     <span class="c1"># Check that all data entries have the same number of configurations</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">())]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -1068,11 +1116,24 @@ adding the flag -fPIC to CC and changing the all target to</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path -- path to the bdio file</span>
-<span class="sd">    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
-<span class="sd">    stop -- stops reading at given configuration number (default None)</span>
-<span class="sd">    alternative_ensemble_name -- Manually overwrite ensemble name</span>
+<span class="sd">    file_path : str</span>
+<span class="sd">        path to the bdio file</span>
+<span class="sd">    bdio_path : str</span>
+<span class="sd">        path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
+<span class="sd">    start : int</span>
+<span class="sd">        The first configuration to be read (default 1)</span>
+<span class="sd">    stop : int</span>
+<span class="sd">        The last configuration to be read (default None)</span>
+<span class="sd">    step : int</span>
+<span class="sd">        Fixed step size between two measurements (default 1)</span>
+<span class="sd">    alternative_ensemble_name : str</span>
+<span class="sd">        Manually overwrite ensemble name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
     <span class="n">bdio</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">bdio_path</span><span class="p">)</span>
 
     <span class="n">bdio_open</span> <span class="o">=</span> <span class="n">bdio</span><span class="o">.</span><span class="n">bdio_open</span>
@@ -1119,9 +1180,9 @@ adding the flag -fPIC to CC and changing the all target to</p>
     <span class="n">prop_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator kappas (Component of corr_kappa)</span>
     <span class="n">prop_source</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator source positions</span>
     <span class="c1"># Check noise type for multiple replica?</span>
-    <span class="n">cnfg_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">corr_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">fbdio</span> <span class="o">=</span> <span class="n">bdio_open</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_read</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_form</span><span class="p">))</span>
 
@@ -1184,18 +1245,20 @@ adding the flag -fPIC to CC and changing the all target to</p>
                 <span class="n">prop_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;KAPPA=&#39;</span><span class="p">))</span>
                 <span class="n">prop_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;x0=&#39;</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">cnfg_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;CNFG_ID=&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">):</span>
                         <span class="k">break</span>
-                <span class="n">cnfg_no</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg_no</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="si">%s</span><span class="s1"> </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;Reading configuration&#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">no_corrs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">)</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
                         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
 
                 <span class="n">corr_no</span> <span class="o">=</span> <span class="mi">0</span>
+
     <span class="n">bdio_close</span><span class="p">(</span><span class="n">fbdio</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Ensemble: &#39;</span><span class="p">,</span> <span class="n">ensemble_name</span><span class="p">)</span>
@@ -1207,7 +1270,7 @@ adding the flag -fPIC to CC and changing the all target to</p>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of time values: &#39;</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of random sources: &#39;</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of corrs: &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of configurations: &#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of configurations: &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">))</span>
 
     <span class="n">corr_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains kappa values for both propagators of given correlation function</span>
     <span class="n">corr_source</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1218,11 +1281,20 @@ adding the flag -fPIC to CC and changing the all target to</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">corr_source</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">prop_source</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])]))</span>
 
+    <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">idl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">idl_target</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idl</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idl_target</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Configurations in file do no match target list!&#39;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
         <span class="n">tmp_corr</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d0</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="n">tmp_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[:,</span> <span class="n">t</span><span class="p">]],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">]))</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[:,</span> <span class="n">t</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">tmp_corr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Obs</span><span class="p">([</span><span class="n">deltas</span><span class="p">],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idl_target</span><span class="p">]))</span>
         <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">corr_source</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">tmp_corr</span>
 
     <span class="c1"># Check that all data entries have the same number of configurations</span>
@@ -1248,10 +1320,18 @@ adding the flag -fPIC to CC and changing the all target to</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>file_path -- path to the bdio file</strong></li>
-<li><strong>bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</strong></li>
-<li><strong>stop -- stops reading at given configuration number (default None)</strong></li>
-<li><strong>alternative_ensemble_name -- Manually overwrite ensemble name</strong></li>
+<li><strong>file_path</strong> (str):
+path to the bdio file</li>
+<li><strong>bdio_path</strong> (str):
+path to the shared bdio library libbdio.so (default ./libbdio.so)</li>
+<li><strong>start</strong> (int):
+The first configuration to be read (default 1)</li>
+<li><strong>stop</strong> (int):
+The last configuration to be read (default None)</li>
+<li><strong>step</strong> (int):
+Fixed step size between two measurements (default 1)</li>
+<li><strong>alternative_ensemble_name</strong> (str):
+Manually overwrite ensemble name</li>
 </ul>
 </div>
 
@@ -1281,10 +1361,24 @@ adding the flag -fPIC to CC and changing the all target to</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path -- path to the bdio file</span>
-<span class="sd">    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
-<span class="sd">    stop -- stops reading at given configuration number (default None)</span>
+<span class="sd">    file_path : str</span>
+<span class="sd">        path to the bdio file</span>
+<span class="sd">    bdio_path : str</span>
+<span class="sd">        path to the shared bdio library libbdio.so (default ./libbdio.so)</span>
+<span class="sd">    start : int</span>
+<span class="sd">        The first configuration to be read (default 1)</span>
+<span class="sd">    stop : int</span>
+<span class="sd">        The last configuration to be read (default None)</span>
+<span class="sd">    step : int</span>
+<span class="sd">        Fixed step size between two measurements (default 1)</span>
+<span class="sd">    alternative_ensemble_name : str</span>
+<span class="sd">        Manually overwrite ensemble name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
     <span class="n">bdio</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">bdio_path</span><span class="p">)</span>
 
     <span class="n">bdio_open</span> <span class="o">=</span> <span class="n">bdio</span><span class="o">.</span><span class="n">bdio_open</span>
@@ -1330,9 +1424,9 @@ adding the flag -fPIC to CC and changing the all target to</p>
     <span class="c1"># d1 = 0  # nnoise</span>
     <span class="n">prop_kappa</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Contains propagator kappas (Component of corr_kappa)</span>
     <span class="c1"># Check noise type for multiple replica?</span>
-    <span class="n">cnfg_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">corr_no</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">idl</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">fbdio</span> <span class="o">=</span> <span class="n">bdio_open</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_path</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_read</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">(</span><span class="n">b_form</span><span class="p">))</span>
 
@@ -1387,12 +1481,13 @@ adding the flag -fPIC to CC and changing the all target to</p>
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">prop_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;KAPPA=&#39;</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ruinfo</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;stop&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">cnfg_no</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_get_kwd</span><span class="p">(</span><span class="n">tmp_string</span><span class="p">,</span> <span class="s1">&#39;CNFG_ID=&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">&gt;</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stop&#39;</span><span class="p">):</span>
                         <span class="k">break</span>
-                <span class="n">cnfg_no</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">idl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cnfg_no</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="si">%s</span><span class="s1"> </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;Reading configuration&#39;</span><span class="p">,</span> <span class="n">cnfg_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cnfg_no</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idl</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">no_corrs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corr_name</span><span class="p">)</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
@@ -1413,9 +1508,18 @@ adding the flag -fPIC to CC and changing the all target to</p>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">corr_props</span><span class="p">:</span>
         <span class="n">corr_kappa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">prop_kappa</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">)]))</span>
 
+    <span class="k">if</span> <span class="n">stop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">idl</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">idl_target</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idl</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idl_target</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Configurations in file do no match target list!&#39;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">no_corrs</span><span class="p">):</span>
-        <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">])</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[(</span><span class="n">corr_name</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">corr_kappa</span><span class="p">[</span><span class="n">c</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">Obs</span><span class="p">([</span><span class="n">deltas</span><span class="p">],</span> <span class="p">[</span><span class="n">ensemble_name</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="n">idl_target</span><span class="p">])</span>
 
     <span class="c1"># Check that all data entries have the same number of configurations</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">())]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -1440,9 +1544,18 @@ adding the flag -fPIC to CC and changing the all target to</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>file_path -- path to the bdio file</strong></li>
-<li><strong>bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)</strong></li>
-<li><strong>stop -- stops reading at given configuration number (default None)</strong></li>
+<li><strong>file_path</strong> (str):
+path to the bdio file</li>
+<li><strong>bdio_path</strong> (str):
+path to the shared bdio library libbdio.so (default ./libbdio.so)</li>
+<li><strong>start</strong> (int):
+The first configuration to be read (default 1)</li>
+<li><strong>stop</strong> (int):
+The last configuration to be read (default None)</li>
+<li><strong>step</strong> (int):
+Fixed step size between two measurements (default 1)</li>
+<li><strong>alternative_ensemble_name</strong> (str):
+Manually overwrite ensemble name</li>
 </ul>
 </div>
 

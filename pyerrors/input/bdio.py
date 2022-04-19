@@ -302,11 +302,24 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
 
     Parameters
     ----------
-    file_path -- path to the bdio file
-    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
-    stop -- stops reading at given configuration number (default None)
-    alternative_ensemble_name -- Manually overwrite ensemble name
+    file_path : str
+        path to the bdio file
+    bdio_path : str
+        path to the shared bdio library libbdio.so (default ./libbdio.so)
+    start : int
+        The first configuration to be read (default 1)
+    stop : int
+        The last configuration to be read (default None)
+    step : int
+        Fixed step size between two measurements (default 1)
+    alternative_ensemble_name : str
+        Manually overwrite ensemble name
     """
+
+    start = kwargs.get('start', 1)
+    stop = kwargs.get('stop', None)
+    step = kwargs.get('step', 1)
+
     bdio = ctypes.cdll.LoadLibrary(bdio_path)
 
     bdio_open = bdio.bdio_open
@@ -353,9 +366,9 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     prop_kappa = []  # Contains propagator kappas (Component of corr_kappa)
     prop_source = []  # Contains propagator source positions
     # Check noise type for multiple replica?
-    cnfg_no = -1
     corr_no = -1
     data = []
+    idl = []
 
     fbdio = bdio_open(ctypes.c_char_p(b_path), ctypes.c_char_p(b_read), ctypes.c_char_p(b_form))
 
@@ -418,18 +431,20 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
                 prop_kappa.append(_get_kwd(tmp_string, 'KAPPA='))
                 prop_source.append(_get_kwd(tmp_string, 'x0='))
             if ruinfo == 4:
-                if 'stop' in kwargs:
-                    if cnfg_no >= kwargs.get('stop') - 1:
+                cnfg_no = int(_get_kwd(tmp_string, 'CNFG_ID='))
+                if stop:
+                    if cnfg_no > kwargs.get('stop'):
                         break
-                cnfg_no += 1
-                print('\r%s %i' % ('Reading configuration', cnfg_no + 1), end='\r')
-                if cnfg_no == 0:
+                idl.append(cnfg_no)
+                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
+                if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []
                     for c in range(no_corrs):
                         data.append([])
 
                 corr_no = 0
+
     bdio_close(fbdio)
 
     print('\nEnsemble: ', ensemble_name)
@@ -441,7 +456,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     print('Number of time values: ', d0)
     print('Number of random sources: ', d1)
     print('Number of corrs: ', len(corr_name))
-    print('Number of configurations: ', cnfg_no + 1)
+    print('Number of configurations: ', len(idl))
 
     corr_kappa = []  # Contains kappa values for both propagators of given correlation function
     corr_source = []
@@ -452,12 +467,29 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
         else:
             corr_source.append(int(prop_source[int(item[0])]))
 
+    if stop is None:
+        stop = idl[-1]
+    idl_target = range(start, stop + 1, step)
+
+    if set(idl) != set(idl_target):
+        try:
+            indices = [idl.index(i) for i in idl_target]
+        except ValueError as err:
+            raise Exception('Configurations in file do no match target list!', err)
+    else:
+        indices = None
+
     result = {}
     for c in range(no_corrs):
         tmp_corr = []
+        tmp_data = np.asarray(data[c])
         for t in range(d0 - 2):
-            tmp_corr.append(Obs([np.asarray(data[c])[:, t]], [ensemble_name]))
-        result[(corr_name[c], corr_source[c]) + tuple(sorted(corr_kappa[c]))] = tmp_corr
+            if indices:
+                deltas = [tmp_data[:, t][index] for index in indices]
+            else:
+                deltas = tmp_data[:, t]
+            tmp_corr.append(Obs([deltas], [ensemble_name], idl=[idl_target]))
+        result[(corr_name[c], corr_source[c]) + tuple(corr_kappa[c])] = tmp_corr
 
     # Check that all data entries have the same number of configurations
     if len(set([o[0].N for o in list(result.values())])) != 1:
@@ -480,10 +512,24 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
 
     Parameters
     ----------
-    file_path -- path to the bdio file
-    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
-    stop -- stops reading at given configuration number (default None)
+    file_path : str
+        path to the bdio file
+    bdio_path : str
+        path to the shared bdio library libbdio.so (default ./libbdio.so)
+    start : int
+        The first configuration to be read (default 1)
+    stop : int
+        The last configuration to be read (default None)
+    step : int
+        Fixed step size between two measurements (default 1)
+    alternative_ensemble_name : str
+        Manually overwrite ensemble name
     """
+
+    start = kwargs.get('start', 1)
+    stop = kwargs.get('stop', None)
+    step = kwargs.get('step', 1)
+
     bdio = ctypes.cdll.LoadLibrary(bdio_path)
 
     bdio_open = bdio.bdio_open
@@ -529,9 +575,9 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     # d1 = 0  # nnoise
     prop_kappa = []  # Contains propagator kappas (Component of corr_kappa)
     # Check noise type for multiple replica?
-    cnfg_no = -1
     corr_no = -1
     data = []
+    idl = []
 
     fbdio = bdio_open(ctypes.c_char_p(b_path), ctypes.c_char_p(b_read), ctypes.c_char_p(b_form))
 
@@ -586,12 +632,13 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
             if ruinfo == 2:
                 prop_kappa.append(_get_kwd(tmp_string, 'KAPPA='))
             if ruinfo == 4:
-                if 'stop' in kwargs:
-                    if cnfg_no >= kwargs.get('stop') - 1:
+                cnfg_no = int(_get_kwd(tmp_string, 'CNFG_ID='))
+                if stop:
+                    if cnfg_no > kwargs.get('stop'):
                         break
-                cnfg_no += 1
-                print('\r%s %i' % ('Reading configuration', cnfg_no + 1), end='\r')
-                if cnfg_no == 0:
+                idl.append(cnfg_no)
+                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
+                if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []
                     for c in range(no_corrs):
@@ -612,9 +659,18 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     for item in corr_props:
         corr_kappa.append(float(prop_kappa[int(item)]))
 
+    if stop is None:
+        stop = idl[-1]
+    idl_target = range(start, stop + 1, step)
+    try:
+        indices = [idl.index(i) for i in idl_target]
+    except ValueError as err:
+        raise Exception('Configurations in file do no match target list!', err)
+
     result = {}
     for c in range(no_corrs):
-        result[(corr_name[c], str(corr_kappa[c]))] = Obs([np.asarray(data[c])], [ensemble_name])
+        deltas = [np.asarray(data[c])[index] for index in indices]
+        result[(corr_name[c], str(corr_kappa[c]))] = Obs([deltas], [ensemble_name], idl=[idl_target])
 
     # Check that all data entries have the same number of configurations
     if len(set([o.N for o in list(result.values())])) != 1:

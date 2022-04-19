@@ -436,7 +436,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
                     if cnfg_no > kwargs.get('stop'):
                         break
                 idl.append(cnfg_no)
-                print('\r%s %i' % ('Reading configuration', cnfg_no + 1), end='\r')
+                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
                 if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []
@@ -470,18 +470,26 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     if stop is None:
         stop = idl[-1]
     idl_target = range(start, stop + 1, step)
-    try:
-        indices = [idl.index(i) for i in idl_target]
-    except ValueError as err:
-        raise Exception('Configurations in file do no match target list!', err)
+
+    if set(idl) != set(idl_target):
+        try:
+            indices = [idl.index(i) for i in idl_target]
+        except ValueError as err:
+            raise Exception('Configurations in file do no match target list!', err)
+    else:
+        indices = None
 
     result = {}
     for c in range(no_corrs):
         tmp_corr = []
+        tmp_data = np.asarray(data[c])
         for t in range(d0 - 2):
-            deltas = [np.asarray(data[c])[:, t][index] for index in indices]
+            if indices:
+                deltas = [tmp_data[:, t][index] for index in indices]
+            else:
+                deltas = tmp_data[:, t]
             tmp_corr.append(Obs([deltas], [ensemble_name], idl=[idl_target]))
-        result[(corr_name[c], corr_source[c]) + tuple(sorted(corr_kappa[c]))] = tmp_corr
+        result[(corr_name[c], corr_source[c]) + tuple(corr_kappa[c])] = tmp_corr
 
     # Check that all data entries have the same number of configurations
     if len(set([o[0].N for o in list(result.values())])) != 1:
@@ -629,7 +637,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
                     if cnfg_no > kwargs.get('stop'):
                         break
                 idl.append(cnfg_no)
-                print('\r%s %i' % ('Reading configuration', cnfg_no + 1), end='\r')
+                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
                 if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []

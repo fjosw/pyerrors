@@ -830,7 +830,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -838,10 +838,12 @@
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
 <span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
+<span class="sd">            Caution: This range is inclusive as opposed to standard python indexing.</span>
+<span class="sd">            `fitrange=[4, 6]` corresponds to the three entries 4, 5 and 6.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
@@ -1970,7 +1972,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1978,10 +1980,12 @@
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
 <span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
+<span class="sd">            Caution: This range is inclusive as opposed to standard python indexing.</span>
+<span class="sd">            `fitrange=[4, 6]` corresponds to the three entries 4, 5 and 6.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
@@ -3576,7 +3580,7 @@ guess for the root finder, only relevant for the root variant</li>
             <details>
             <summary>View Source</summary>
             <div class="pdoc-code codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fits function to the data</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3584,10 +3588,12 @@ guess for the root finder, only relevant for the root variant</li>
 <span class="sd">            function to fit to the data. See fits.least_squares for details.</span>
 <span class="sd">        fitrange : list</span>
 <span class="sd">            Two element list containing the timeslices on which the fit is supposed to start and stop.</span>
+<span class="sd">            Caution: This range is inclusive as opposed to standard python indexing.</span>
+<span class="sd">            `fitrange=[4, 6]` corresponds to the three entries 4, 5 and 6.</span>
 <span class="sd">            If not specified, self.prange or all timeslices are used.</span>
 <span class="sd">        silent : bool</span>
 <span class="sd">            Decides whether output is printed to the standard output.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Correlator must be projected before fitting&quot;</span><span class="p">)</span>
 
@@ -3619,6 +3625,8 @@ guess for the root finder, only relevant for the root variant</li>
 function to fit to the data. See fits.least_squares for details.</li>
 <li><strong>fitrange</strong> (list):
 Two element list containing the timeslices on which the fit is supposed to start and stop.
+Caution: This range is inclusive as opposed to standard python indexing.
+<code>fitrange=[4, 6]</code> corresponds to the three entries 4, 5 and 6.
 If not specified, self.prange or all timeslices are used.</li>
 <li><strong>silent</strong> (bool):
 Decides whether output is printed to the standard output.</li>

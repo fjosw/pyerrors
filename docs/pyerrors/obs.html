@@ -1285,7 +1285,7 @@
 
 <span class="k">def</span> <span class="nf">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to the list of configs that is defined by new_idx.</span>
-<span class="sd">       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest</span>
+<span class="sd">       New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest</span>
 <span class="sd">       common divisor of the step sizes is used as new step size.</span>
 
 <span class="sd">    Parameters</span>
@@ -1727,31 +1727,9 @@
 <span class="k">def</span> <span class="nf">_covariance_element</span><span class="p">(</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Estimates the covariance of two Obs objects, neglecting autocorrelations.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">expand_deltas</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].</span>
-<span class="sd">           New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest</span>
-<span class="sd">           common divisor of the step sizes is used as new step size.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        deltas  -- List of fluctuations</span>
-<span class="sd">        idx     -- List or range of configs on which the deltas are defined.</span>
-<span class="sd">                   Has to be a subset of new_idx.</span>
-<span class="sd">        shape   -- Number of configs in idx.</span>
-<span class="sd">        new_idx -- List of configs that defines the new range.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">new_idx</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">range</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">new_idx</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">deltas</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">new_idx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-            <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span>
-
     <span class="k">def</span> <span class="nf">calc_gamma</span><span class="p">(</span><span class="n">deltas1</span><span class="p">,</span> <span class="n">deltas2</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">new_idx</span><span class="p">):</span>
-        <span class="n">deltas1</span> <span class="o">=</span> <span class="n">expand_deltas</span><span class="p">(</span><span class="n">deltas1</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx1</span><span class="p">),</span> <span class="n">new_idx</span><span class="p">)</span>
-        <span class="n">deltas2</span> <span class="o">=</span> <span class="n">expand_deltas</span><span class="p">(</span><span class="n">deltas2</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx2</span><span class="p">),</span> <span class="n">new_idx</span><span class="p">)</span>
+        <span class="n">deltas1</span> <span class="o">=</span> <span class="n">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas1</span><span class="p">,</span> <span class="n">idx1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx1</span><span class="p">),</span> <span class="n">new_idx</span><span class="p">)</span>
+        <span class="n">deltas2</span> <span class="o">=</span> <span class="n">_expand_deltas_for_merge</span><span class="p">(</span><span class="n">deltas2</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx2</span><span class="p">),</span> <span class="n">new_idx</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">deltas1</span> <span class="o">*</span> <span class="n">deltas2</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs1</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs2</span><span class="o">.</span><span class="n">names</span><span class="p">)):</span>

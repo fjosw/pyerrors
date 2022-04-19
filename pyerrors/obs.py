@@ -974,7 +974,7 @@ def _merge_idx(idl):
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
-       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
+       New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
 
     Parameters
@@ -1416,31 +1416,9 @@ def _smooth_eigenvalues(corr, E):
 def _covariance_element(obs1, obs2):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
-    def expand_deltas(deltas, idx, shape, new_idx):
-        """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
-           New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
-           common divisor of the step sizes is used as new step size.
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-                   Has to be a subset of new_idx.
-        shape   -- Number of configs in idx.
-        new_idx -- List of configs that defines the new range.
-        """
-
-        if type(idx) is range and type(new_idx) is range:
-            if idx == new_idx:
-                return deltas
-        ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
-        for i in range(shape):
-            ret[idx[i] - new_idx[0]] = deltas[i]
-        return ret
-
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
-        deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
+        deltas1 = _expand_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
+        deltas2 = _expand_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
         return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):

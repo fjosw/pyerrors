@@ -510,6 +510,10 @@ def test_correlate():
         pe.correlate(r_obs, r_obs)
 
 
+def test_merge_idx():
+    assert pe.obs._merge_idx([range(10, 1010, 10), range(10, 1010, 50)]) == range(10, 1010, 10)
+    assert pe.obs._merge_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6250, 50)
+
 
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
@@ -712,6 +716,17 @@ def test_covariance_rank_deficient():
 
     with pytest.warns(RuntimeWarning):
         pe.covariance(obs)
+
+def test_covariance_idl():
+    range1 = range(10, 1010, 10)
+    range2 = range(10, 1010, 50)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2 = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs1.gamma_method()
+    obs2.gamma_method()
+
+    pe.covariance([obs1, obs2])
 
 
 def test_empty_obs():

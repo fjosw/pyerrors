@@ -462,6 +462,17 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     if kwargs.get('correlated_fit') is True:
         corr = covariance(y, correlation=True, **kwargs)
+        
+        
+        if kwargs['cutoff']:
+            cutoff=kwargs.get('cutoff')
+            eigvals=np.linalg.eig(corr)[0]
+            eigvecs=np.array(np.linalg.eig(corr)[1:])[0]
+            max_eigval=np.max(np.abs(eigvals))
+            eigvals[np.abs(eigvals)< max_eigval*cutoff]=0
+            corr=np.linalg.inv(eigvecs.T)@np.diag(eigvals)@eigvecs.T    
+
+
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
         if condn > 0.1 / np.finfo(float).eps:
@@ -498,6 +509,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     else:
         if kwargs.get('correlated_fit') is True:
+           
             def chisqfunc_residuals(p):
                 model = func(p, x)
                 chisq = anp.dot(chol_inv, (y_f - model))

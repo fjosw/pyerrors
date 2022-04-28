@@ -1423,6 +1423,11 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
     '''
 
+    mc_names = set([item for subnames in [o.mc_names for o in obs] for item in subnames])
+    idl_d = {}
+    for name in mc_names:
+        idl_d[name] = _intersection_idx([o.idl.get(name) for o in obs if o.idl.get(name) is not None])
+
     length = len(obs)
 
     max_samples = np.max([o.N for o in obs])
@@ -1432,7 +1437,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     cov = np.zeros((length, length))
     for i in range(length):
         for j in range(i, length):
-            cov[i, j] = _covariance_element(obs[i], obs[j])
+            cov[i, j] = _covariance_element(obs[i], obs[j], idl_d=idl_d)
     cov = cov + cov.T - np.diag(np.diag(cov))
 
     corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
@@ -1476,7 +1481,7 @@ def _smooth_eigenvalues(corr, E):
     return vec @ np.diag(vals) @ vec.T
 
 
-def _covariance_element(obs1, obs2):
+def _covariance_element(obs1, obs2, idl_d):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
@@ -1496,12 +1501,6 @@ def _covariance_element(obs1, obs2):
 
         if e_name not in obs2.mc_names:
             continue
-
-        idl_d = {}
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-            idl_d[r_name] = _intersection_idx([obs1.idl[r_name], obs2.idl[r_name]])
 
         gamma = 0.0
 

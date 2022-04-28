@@ -996,7 +996,7 @@ def _intersection_idx(idl):
             idstep = max([idx.step for idx in idl])
             return range(idstart, idstop, idstep)
 
-    return sorted(set().intersection(*idl))
+    return sorted(set.intersection(*[set(o) for o in tt]))
 
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):

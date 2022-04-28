@@ -1423,9 +1423,9 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
     '''
 
-    mc_names = set([item for subnames in [o.mc_names for o in obs] for item in subnames])
+    names = set([item for subnames in [set(o.names) - set(o.cov_names) for o in obs] for item in subnames])
     idl_d = {}
-    for name in mc_names:
+    for name in names:
         idl_d[name] = _intersection_idx([o.idl.get(name) for o in obs if o.idl.get(name) is not None])
 
     length = len(obs)
@@ -1495,35 +1495,38 @@ def _covariance_element(obs1, obs2, idl_d):
     if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
         raise Exception('The gamma method has to be applied to both Obs first.')
 
-    dvalue = 0.0
+    if obs1 is obs2:
+        dvalue = len(obs1.mc_names)
+    else:
+        dvalue = 0.0
 
-    for e_name in obs1.mc_names:
+        for e_name in obs1.mc_names:
 
-        if e_name not in obs2.mc_names:
-            continue
-
-        gamma = 0.0
-
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
+            if e_name not in obs2.mc_names:
                 continue
-            if len(idl_d[r_name]) == 0:
-                continue
-            gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
-        if gamma == 0.0:
-            continue
+            gamma = 0.0
 
-        gamma_div = 0.0
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-            if len(idl_d[r_name]) == 0:
-                continue
-            gamma_div += np.sqrt(calc_gamma(obs1.deltas[r_name], obs1.deltas[r_name], obs1.idl[r_name], obs1.idl[r_name], idl_d[r_name]) * calc_gamma(obs2.deltas[r_name], obs2.deltas[r_name], obs2.idl[r_name], obs2.idl[r_name], idl_d[r_name]))
-        gamma /= gamma_div
+            for r_name in obs1.e_content[e_name]:
+                if r_name not in obs2.e_content[e_name]:
+                    continue
+                if len(idl_d[r_name]) == 0:
+                    continue
+                gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
-        dvalue += gamma
+            if gamma == 0.0:
+                continue
+
+            gamma_div = 0.0
+            for r_name in obs1.e_content[e_name]:
+                if r_name not in obs2.e_content[e_name]:
+                    continue
+                if len(idl_d[r_name]) == 0:
+                    continue
+                gamma_div += np.sqrt(calc_gamma(obs1.deltas[r_name], obs1.deltas[r_name], obs1.idl[r_name], obs1.idl[r_name], idl_d[r_name]) * calc_gamma(obs2.deltas[r_name], obs2.deltas[r_name], obs2.idl[r_name], obs2.idl[r_name], idl_d[r_name]))
+            gamma /= gamma_div
+
+            dvalue += gamma
 
     for e_name in obs1.cov_names:
 

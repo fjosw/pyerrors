@@ -1103,6 +1103,67 @@ class Corr:
 
         return self._apply_func_to_corr(return_imag)
 
+    def prune(self, Ntrunc, tproj=3, t0proj=2, basematrix=None):
+        r''' Project large correlation matrix to lowest states
+
+        This method can be used to reduce the size of an (N x N) correlation matrix
+        to (Ntrunc x Ntrunc) by solving a GEVP at very early times where the noise
+        is still small.
+
+        Parameters
+        ----------
+        Ntrunc: int
+            Rank of the target matrix.
+        tproj: int
+            Time where the eigenvectors are evaluated, corresponds to ts in the GEVP method.
+            The default value is 3.
+        t0proj: int
+            Time where the correlation matrix is inverted. Choosing t0proj=1 is strongly
+            discouraged for O(a) improved theories, since the correctness of the procedure
+            cannot be granted in this case. The default value is 2.
+        basematrix : Corr
+            Correlation matrix that is used to determine the eigenvectors of the
+            lowest states based on a GEVP. basematrix is taken to be the Corr itself if
+            is is not specified.
+
+        Notes
+        -----
+        We have the basematrix $C(t)$ and the target matrix $G(t)$. We start by solving
+        the GEVP $$C(t) v_n(t, t_0) = \lambda_n(t, t_0) C(t_0) v_n(t, t_0)$$ where $t \equiv t_\mathrm{proj}$
+        and $t_0 \equiv t_{0, \mathrm{proj}}$. The target matrix is projected onto the subspace of the
+        resulting eigenvectors $v_n, n=1,\dots,N_\mathrm{trunc}$ via
+        $$G^\prime_{i, j}(t) = (v_i, G(t) v_j)$$. This allows to reduce the size of a large
+        correlation matrix and to remove some noise that is added by irrelevant operators.
+        This may allow to use the GEVP on $G(t)$ at late times such that the theoretically motivated
+        bound $t_0 \leq t/2$ holds, since the condition number of $G(t)$ is decreased, compared to $C(t)$.
+        '''
+
+        if self.N == 1:
+            raise Exception('Method cannot be applied to one-dimensional correlators.')
+        if basematrix is None:
+            basematrix = self
+        elif basematrix.N == 1:
+            raise Exception('basematrix has to be a correlation matrix but is a one dimensional correlator.')
+        if Ntrunc >= basematrix.N:
+            raise Exception('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
+        if basematrix.N != self.N:
+            raise Exception('basematrix and targetmatrix have to be of the same size.')
+
+        evecs = []
+        for i in range(Ntrunc):
+            evecs.append(basematrix.GEVP(t0proj, tproj, state=i))
+
+        tmpmat = np.empty((Ntrunc, Ntrunc), dtype=object)
+        rmat = []
+        for t in range(basematrix.T):
+            for i in range(Ntrunc):
+                for j in range(Ntrunc):
+                    tmpmat[i][j] = evecs[i].T @ self[t] @ evecs[j]
+            rmat.append(np.copy(tmpmat))
+
+        newcontent = [None if (self.content[t] is None) else rmat[t] for t in range(self.T)]
+        return Corr(newcontent)
+
 
 def _sort_vectors(vec_set, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""

@@ -342,3 +342,21 @@ def _gen_corr(val, samples=2000):
 
     return pe.correlators.Corr(corr_content)
 
+
+def test_prune():
+
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+    corr_ac = 0.25 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab, corr_ac], [corr_ab, corr_aa, corr_ab], [corr_ac, corr_ab, corr_aa]]))
+
+    p = corr_mat.prune(2)
+    assert(all([o.is_zero() for o in p.item(0, 1)]))
+    a = [(o - 1) for o in p.item(1, 1)]
+    [o.gamma_method() for o in a]
+    assert(all([o.is_zero_within_error() for o in a]))
+
+    with pytest.raises(Exception):
+        corr_mat.prune(3)
+        corr_mat.prune(4)

@@ -778,6 +778,60 @@ def test_correlation_intersection_of_idls():
     assert np.isclose(0, pe.covariance([obs1, obs2_c])[0, 1], atol=1e-14)
 
 
+def test_covariance_non_identical_objects():
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 732)], ["ens|r1", "ens|r2", "ens2"])
+    obs1.gamma_method()
+    obs2 = obs1 + 1e-18
+    obs2.gamma_method()
+    assert obs1 == obs2
+    assert obs1 is not obs2
+    assert np.allclose(np.ones((2, 2)), pe.covariance([obs1, obs2], correlation=True), atol=1e-14)
+
+
+def test_covariance_additional_non_overlapping_data():
+    range1 = range(1, 20, 2)
+
+    data2 = np.random.normal(0.0, 0.1, len(range1))
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_a = pe.Obs([data2], ["ens"], idl=[range1])
+    obs1.gamma_method()
+    obs2_a.gamma_method()
+
+    corr1 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    added_data = np.random.normal(0.0, 0.1, len(range1))
+    added_data -= np.mean(added_data) - np.mean(data2)
+    data2_extended = np.ravel([data2, added_data], 'F')
+
+    obs2_b = pe.Obs([data2_extended], ["ens"])
+    obs2_b.gamma_method()
+
+    corr2 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+
+
+def test_coavariance_reorder_non_overlapping_data():
+    range1 = range(1, 20, 2)
+    range2 = range(1, 41, 2)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_b = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs1.gamma_method()
+    obs2_b.gamma_method()
+
+    corr1 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    deltas = list(obs2_b.deltas['ens'][:len(range1)]) + sorted(obs2_b.deltas['ens'][len(range1):])
+    obs2_a = pe.Obs([obs2_b.value + np.array(deltas)], ["ens"], idl=[range2])
+    obs2_a.gamma_method()
+
+    corr2 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+
+
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [], means=[])

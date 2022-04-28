@@ -1,5 +1,7 @@
 import warnings
 import pickle
+from math import gcd
+from functools import reduce
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
@@ -981,6 +983,12 @@ def _intersection_idx(idl):
         List of lists or ranges.
     """
 
+    def _lcm(*args):
+        """Returns the lowest common multiple of args.
+
+        From python 3.9 onwards the math library contains an lcm function."""
+        return reduce(lambda a, b: a * b // gcd(a, b), args)
+
     # Use groupby to efficiently check whether all elements of idl are identical
     try:
         g = groupby(idl)
@@ -993,10 +1001,10 @@ def _intersection_idx(idl):
         if len(set([idx[0] for idx in idl])) == 1:
             idstart = max([idx.start for idx in idl])
             idstop = min([idx.stop for idx in idl])
-            idstep = max([idx.step for idx in idl])
+            idstep = _lcm(*[idx.step for idx in idl])
             return range(idstart, idstop, idstep)
 
-    return sorted(set.intersection(*[set(o) for o in tt]))
+    return sorted(set.intersection(*[set(o) for o in idl]))
 
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):

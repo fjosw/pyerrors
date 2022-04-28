@@ -621,7 +621,7 @@ class Corr:
             raise Exception('Unknown variant.')
 
     def fit(self, function, fitrange=None, silent=False, **kwargs):
-        """Fits function to the data
+        r'''Fits function to the data
 
         Parameters
         ----------
@@ -629,10 +629,12 @@ class Corr:
             function to fit to the data. See fits.least_squares for details.
         fitrange : list
             Two element list containing the timeslices on which the fit is supposed to start and stop.
+            Caution: This range is inclusive as opposed to standard python indexing.
+            `fitrange=[4, 6]` corresponds to the three entries 4, 5 and 6.
             If not specified, self.prange or all timeslices are used.
         silent : bool
             Decides whether output is printed to the standard output.
-        """
+        '''
         if self.N != 1:
             raise Exception("Correlator must be projected before fitting")
 

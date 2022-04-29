@@ -1142,8 +1142,6 @@ class Corr:
             raise Exception('Method cannot be applied to one-dimensional correlators.')
         if basematrix is None:
             basematrix = self
-        elif basematrix.N == 1:
-            raise Exception('basematrix has to be a correlation matrix but is a one dimensional correlator.')
         if Ntrunc >= basematrix.N:
             raise Exception('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
         if basematrix.N != self.N:

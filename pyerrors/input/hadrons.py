@@ -2,6 +2,7 @@ import os
 import warnings
 from collections import Counter
 import h5py
+from pathlib import Path
 import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
@@ -97,6 +98,91 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
     return corr
+
+
+def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):
+    """Read hadrons DistillationContraction hdf5 files in given directory structure
+
+    Parameters
+    -----------------
+    path : str
+        path to the directories to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    diagrams : list
+        List of strings of the diagrams to extract, e.g. ["direct", "box", "cross"].
+    idl : range
+        If specified only configurations in the given range are read in.
+    """
+
+    res_dict = {}
+
+    directories, idx = _get_files(path, "data", idl)
+
+    explore_path = Path(path + "/" + directories[0])
+
+    for explore_file in explore_path.iterdir():
+        if explore_file.is_file():
+            stem = explore_file.with_suffix("").with_suffix("").as_posix().split("/")[-1]
+
+        file_list = []
+        for dir in directories:
+            tmp_path = Path(path + "/" + dir)
+            file_list.append((tmp_path / stem).as_posix() + tmp_path.suffix + ".h5")
+
+        corr_data = {}
+
+        for diagram in diagrams:
+            corr_data[diagram] = []
+
+        for n_file, (hd5_file, n_traj) in enumerate(zip(file_list, list(idx))):
+            h5file = h5py.File(hd5_file)
+
+            if n_file == 0:
+                if h5file["DistillationContraction/Metadata"].attrs.get("TimeSources")[0].decode() != "0...":
+                    raise Exception("Routine is only implemented for files containing inversions on all timeslices.")
+
+                Nt = h5file["DistillationContraction/Metadata"].attrs.get("Nt")[0]
+
+                identifier = []
+                for in_file in range(4):
+                    encoded_info = h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.get("DmfInputFiles_" + str(in_file))
+                    full_info = encoded_info[0].decode().split("/")[-1].replace(".h5", "").split("_")
+                    my_tuple = (full_info[0], full_info[1][1:], full_info[2], full_info[3])
+                    identifier.append(my_tuple)
+                identifier = tuple(identifier)
+                # "DistillationContraction/Metadata/DmfSuffix" contains info about different quarks, irrelevant in the SU(3) case.
+
+            check_traj = h5file["DistillationContraction/Metadata"].attrs.get("Traj")[0]
+
+            assert check_traj == n_traj
+
+            for diagram in diagrams:
+                real_data = np.zeros(Nt)
+                for x0 in range(Nt):
+                    raw_data = h5file["DistillationContraction/Correlators/direct/" + str(x0)]
+                    real_data += np.roll(raw_data[:]["re"].astype(np.double), -x0)
+                real_data /= Nt
+
+                corr_data[diagram].append(real_data)
+            h5file.close()
+
+        res_dict[str(identifier)] = {}
+
+        for diagram in diagrams:
+
+            tmp_data = np.array(corr_data[diagram])
+
+            l_obs = []
+            for c in tmp_data.T:
+                l_obs.append(Obs([c], [ens_id], idl=[idx]))
+
+            corr = Corr(l_obs)
+            corr.tag = str(identifier)
+
+            res_dict[str(identifier)][diagram] = corr
+
+    return res_dict
 
 
 class Npr_matrix(np.ndarray):

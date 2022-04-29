@@ -18,7 +18,7 @@ def _get_files(path, filestem, idl):
         raise Exception('No files starting with', filestem, 'in folder', path)
 
     def get_cnfg_number(n):
-        return int(n[len(filestem) + 1:-3])
+        return int(n.replace(".h5", "")[len(filestem) + 1:])  # From python 3.9 onward the safer 'removesuffix' method can be used.
 
     # Sort according to configuration number
     files.sort(key=get_cnfg_number)

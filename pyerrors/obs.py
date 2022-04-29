@@ -476,7 +476,7 @@ class Obs:
                 label = e_name + ', S=' + str(np.around(self.S[e_name], decimals=2))
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
 
-            plt.errorbar(np.arange(length)[:int(xmax)], self.e_n_tauint[e_name][:int(xmax)], yerr=self.e_n_dtauint[e_name][:int(xmax)], linewidth=1, capsize=2, label=label)
+            plt.errorbar(np.arange(length)[:int(xmax) + 1], self.e_n_tauint[e_name][:int(xmax) + 1], yerr=self.e_n_dtauint[e_name][:int(xmax) + 1], linewidth=1, capsize=2, label=label)
             plt.axvline(x=self.e_windowsize[e_name], color='C' + str(e), alpha=0.5, marker=',', ls='--')
             plt.legend()
             plt.xlim(-0.5, xmax)

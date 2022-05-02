@@ -703,7 +703,7 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
@@ -725,6 +725,8 @@ class Corr:
             path to file in which the figure should be saved
         auto_gamma : bool
             Apply the gamma method with standard parameters to all correlators and plateau values before plotting.
+        hide_sigma : float
+            Hides data points from the first value on which is consistent with zero within 'hide_sigma' standard errors.
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
@@ -739,7 +741,11 @@ class Corr:
         ax1 = fig.add_subplot(111)
 
         x, y, y_err = self.plottable()
-        ax1.errorbar(x, y, y_err, label=self.tag)
+        if hide_sigma:
+            hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+        else:
+            hide_from = None
+        ax1.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=self.tag)
         if logscale:
             ax1.set_yscale('log')
         else:
@@ -758,7 +764,11 @@ class Corr:
                     if auto_gamma:
                         corr.gamma_method()
                     x, y, y_err = corr.plottable()
-                    plt.errorbar(x, y, y_err, label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
+                    if hide_sigma:
+                        hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+                    else:
+                        hide_from = None
+                    plt.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
                 raise Exception("'comp' must be a correlator or a list of correlators.")
 

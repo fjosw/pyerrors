@@ -358,7 +358,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
             ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
             ret.is_merged = od['is_merged']
         else:
-            ret = Obs([], [])
+            ret = Obs([], [], means=[])
             ret._value = values[0]
         for name in cd:
             co = cd[name][0]
@@ -383,7 +383,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
                 ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
                 ret[-1].is_merged = od['is_merged']
             else:
-                ret.append(Obs([], []))
+                ret.append(Obs([], [], means=[]))
                 ret[-1]._value = values[i]
                 print('Created Obs with means= ', values[i])
             for name in cd:
@@ -410,7 +410,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
                 ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
                 ret[-1].is_merged = od['is_merged']
             else:
-                ret.append(Obs([], []))
+                ret.append(Obs([], [], means=[]))
                 ret[-1]._value = values[i]
             for name in cd:
                 co = cd[name][i]

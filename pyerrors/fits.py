@@ -461,7 +461,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
-        corr = covariance(y, correlation=True)
+        corr = covariance(y, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
         if condn > 0.1 / np.finfo(float).eps:
@@ -635,9 +635,10 @@ def qqplot(x, o_y, func, p):
 
 def residual_plot(x, y, func, fit_res):
     """ Generates a plot which compares the fit to the data and displays the corresponding residuals"""
-    xstart = x[0] - 0.5
-    xstop = x[-1] + 0.5
-    x_samples = np.arange(xstart, xstop, 0.01)
+    sorted_x = sorted(x)
+    xstart = sorted_x[0] - 0.5 * (sorted_x[1] - sorted_x[0])
+    xstop = sorted_x[-1] + 0.5 * (sorted_x[-1] - sorted_x[-2])
+    x_samples = np.arange(xstart, xstop + 0.01, 0.01)
 
     plt.figure(figsize=(8, 8 / 1.618))
     gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)

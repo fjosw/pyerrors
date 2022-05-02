@@ -90,51 +90,44 @@ class Obs:
         self.deltas = {}
         self._covobs = {}
 
+        self._value = 0
+        self.N = 0
+        self.is_merged = {}
         self.idl = {}
-        if len(samples):
-            if idl is not None:
-                for name, idx in sorted(zip(names, idl)):
-                    if isinstance(idx, range):
-                        self.idl[name] = idx
-                    elif isinstance(idx, (list, np.ndarray)):
-                        dc = np.unique(np.diff(idx))
-                        if np.any(dc < 0):
-                            raise Exception("Unsorted idx for idl[%s]" % (name))
-                        if len(dc) == 1:
-                            self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
-                        else:
-                            self.idl[name] = list(idx)
+        if idl is not None:
+            for name, idx in sorted(zip(names, idl)):
+                if isinstance(idx, range):
+                    self.idl[name] = idx
+                elif isinstance(idx, (list, np.ndarray)):
+                    dc = np.unique(np.diff(idx))
+                    if np.any(dc < 0):
+                        raise Exception("Unsorted idx for idl[%s]" % (name))
+                    if len(dc) == 1:
+                        self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
-                        raise Exception('incompatible type for idl[%s].' % (name))
-            else:
-                for name, sample in sorted(zip(names, samples)):
-                    self.idl[name] = range(1, len(sample) + 1)
-
-            self._value = 0
-            self.N = 0
-            if kwargs.get("means") is not None:
-                for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
-                    self.shape[name] = len(self.idl[name])
-                    self.N += self.shape[name]
-                    self.r_values[name] = mean
-                    self.deltas[name] = sample
-            else:
-                for name, sample in sorted(zip(names, samples)):
-                    self.shape[name] = len(self.idl[name])
-                    self.N += self.shape[name]
-                    if len(sample) != self.shape[name]:
-                        raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
-                    self.r_values[name] = np.mean(sample)
-                    self.deltas[name] = sample - self.r_values[name]
-                    self._value += self.shape[name] * self.r_values[name]
-                self._value /= self.N
-
-            self.is_merged = {}
-
+                        self.idl[name] = list(idx)
+                else:
+                    raise Exception('incompatible type for idl[%s].' % (name))
         else:
-            self._value = 0
-            self.is_merged = {}
-            self.N = 0
+            for name, sample in sorted(zip(names, samples)):
+                self.idl[name] = range(1, len(sample) + 1)
+
+        if kwargs.get("means") is not None:
+            for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
+                self.shape[name] = len(self.idl[name])
+                self.N += self.shape[name]
+                self.r_values[name] = mean
+                self.deltas[name] = sample
+        else:
+            for name, sample in sorted(zip(names, samples)):
+                self.shape[name] = len(self.idl[name])
+                self.N += self.shape[name]
+                if len(sample) != self.shape[name]:
+                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                self.r_values[name] = np.mean(sample)
+                self.deltas[name] = sample - self.r_values[name]
+                self._value += self.shape[name] * self.r_values[name]
+            self._value /= self.N
 
         self._dvalue = 0.0
         self.ddvalue = 0.0
@@ -981,7 +974,7 @@ def _merge_idx(idl):
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
-       New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
+       New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
 
     Parameters
@@ -1339,7 +1332,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, correlation=False, **kwargs):
+def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     r'''Calculates the covariance matrix of a set of observables.
 
     The gamma method has to be applied first to all observables.
@@ -1352,6 +1345,11 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
         If True plots the corresponding normalized correlation matrix (default False).
     correlation : bool
         If True the correlation instead of the covariance is returned (default False).
+    smooth : None or int
+        If smooth is an integer 'E' between 2 and the dimension of the matrix minus 1 the eigenvalue
+        smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the
+        largest E eigenvalues essentially unchanged and smoothes the smaller eigenvalues to avoid extremely
+        small ones.
 
     Notes
     -----
@@ -1376,6 +1374,9 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
 
     corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
 
+    if isinstance(smooth, int):
+        corr = _smooth_eigenvalues(corr, smooth)
+
     errors = [o.dvalue for o in obs]
     cov = np.diag(errors) @ corr @ np.diag(errors)
 
@@ -1395,34 +1396,29 @@ def covariance(obs, visualize=False, correlation=False, **kwargs):
         return cov
 
 
+def _smooth_eigenvalues(corr, E):
+    """Eigenvalue smoothing as described in hep-lat/9412087
+
+    corr : np.ndarray
+        correlation matrix
+    E : integer
+        Number of eigenvalues to be left substantially unchanged
+    """
+    if not (2 < E < corr.shape[0] - 1):
+        raise Exception(f"'E' has to be between 2 and the dimension of the correlation matrix minus 1 ({corr.shape[0] - 1}).")
+    vals, vec = np.linalg.eigh(corr)
+    lambda_min = np.mean(vals[:-E])
+    vals[vals < lambda_min] = lambda_min
+    vals /= np.mean(vals)
+    return vec @ np.diag(vals) @ vec.T
+
+
 def _covariance_element(obs1, obs2):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
-    def expand_deltas(deltas, idx, shape, new_idx):
-        """Expand deltas defined on idx to a contiguous range [new_idx[0], new_idx[-1]].
-           New, empy entries are filled by 0. If idx and new_idx are of type range, the smallest
-           common divisor of the step sizes is used as new step size.
-
-        Parameters
-        ----------
-        deltas  -- List of fluctuations
-        idx     -- List or range of configs on which the deltas are defined.
-                   Has to be a subset of new_idx.
-        shape   -- Number of configs in idx.
-        new_idx -- List of configs that defines the new range.
-        """
-
-        if type(idx) is range and type(new_idx) is range:
-            if idx == new_idx:
-                return deltas
-        ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
-        for i in range(shape):
-            ret[idx[i] - new_idx[0]] = deltas[i]
-        return ret
-
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = expand_deltas(deltas1, idx1, len(idx1), new_idx)
-        deltas2 = expand_deltas(deltas2, idx2, len(idx2), new_idx)
+        deltas1 = _expand_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
+        deltas2 = _expand_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
         return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
@@ -1490,7 +1486,8 @@ def import_jackknife(jacks, name, idl=None):
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
     samples = jacks[1:] @ prj
-    new_obs = Obs([samples], [name], idl=idl)
+    mean = np.mean(samples)
+    new_obs = Obs([samples - mean], [name], idl=idl, means=[mean])
     new_obs._value = jacks[0]
     return new_obs
 
@@ -1549,7 +1546,7 @@ def cov_Obs(means, cov, name, grad=None):
         co : Covobs
             Covobs to be embedded into the Obs
         """
-        o = Obs([], [])
+        o = Obs([], [], means=[])
         o._value = co.value
         o.names.append(co.name)
         o._covobs[co.name] = co

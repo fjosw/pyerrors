@@ -274,8 +274,7 @@ class Corr:
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = sp_vecs[state]
             return sp_vec
-        else:
-
+        elif sorted_list in ["Eigenvalue", "Eigenvector"]:
             all_vecs = []
             for t in range(self.T):
                 try:
@@ -298,6 +297,8 @@ class Corr:
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
                 all_vecs = [a[state] for a in all_vecs]
+        else:
+            raise Exception("Unkown value for 'sorted_list'.")
 
         return all_vecs
 

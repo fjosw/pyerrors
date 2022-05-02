@@ -255,16 +255,16 @@ def test_renorm_deriv_of_corr(tmp_path):
 
 
 def test_dobsio():
-    o = pe.pseudo_Obs(1.0, .2, 'one')
-    o1 = pe.pseudo_Obs(1.5, .2, 'one')
+    o = pe.pseudo_Obs(1.0, .2, 'one|r1')
+    o1 = pe.pseudo_Obs(1.5, .2, 'one|r1')
 
     ol = [o, o1]
     fname = 'test_rw'
     dobsio.write_pobs(ol, fname, 'Testobs')
     rl = dobsio.read_pobs(fname)
 
-    for o, r in zip(ol, rl):
-        assert np.all(o == r)
+    for i in range(len(ol)):
+        assert (ol[i] - rl[i].is_zero())
 
     od = {
         'obsdata': ol,
@@ -276,8 +276,9 @@ def test_dobsio():
     dobsio.write_pobs(ol, fname, od['name'], od['spec'], od['origin'], od['symbol'])
     rd = dobsio.read_pobs(fname, full_output=True)
 
-    for o, r in zip(od['obsdata'], rd['obsdata']):
-        assert np.all(o == r)
+    for i in range(len(od['obsdata'])):
+        assert (od['obsdata'][i] - rd['obsdata'][i].is_zero())
+
     assert(od['spec'] == rd['description']['spec'])
     assert(od['origin'] == rd['description']['origin'])
     assert(od['name'] == rd['description']['name'])
@@ -286,14 +287,16 @@ def test_dobsio():
     dobsio.write_dobs(ol, fname, 'Testobs')
     rl = dobsio.read_dobs(fname)
 
-    for o, r in zip(ol, rl):
-        assert np.all(o == r)
+    for i in range(len(ol)):
+        assert (ol[i] - rl[i].is_zero())
 
     dobsio.write_dobs(ol, fname, od['name'], od['spec'], od['origin'], od['symbol'])
     rd = dobsio.read_dobs(fname, full_output=True)
+    os.remove(fname + '.xml.gz')
 
-    for o, r in zip(od['obsdata'], rd['obsdata']):
-        assert np.all(o == r)
+    for i in range(len(od['obsdata'])):
+        assert (od['obsdata'][i] - rd['obsdata'][i].is_zero())
+
     assert(od['spec'] == rd['description']['spec'])
     assert(od['origin'] == rd['description']['origin'])
     assert(od['name'] == rd['description']['name'])
@@ -312,12 +315,11 @@ def test_dobsio():
     o5 = pe.pseudo_Obs(0.8, .1, 'two|r2')
     co2 = pe.cov_Obs([1, 2], [[.12, .004], [.004, .02]], 'cov2')
     o5 /= co2[0]
-    #o3 /= co2[1]
     o5.tag = 2 * otag
 
     tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
     tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
-    tt3 = pe.Obs([np.random.rand(102)], ['qe'])
+    tt3 = pe.Obs([np.random.rand(102)], ['qe|r1'])
 
     tt = tt1 + tt2 + tt3
 
@@ -330,12 +332,11 @@ def test_dobsio():
     dobsio.write_dobs(ol, fname, 'TEST')
 
     rl = dobsio.read_dobs(fname, noempty=True)
+    os.remove(fname + '.xml.gz')
     [o.gamma_method() for o in rl]
 
-    #os.remove(fname + '.xml.gz')
-
-    for o, r in zip(ol, rl):
-        assert np.all(o == r)
+    for i in range(len(ol)):
+        assert (ol[i] - rl[i].is_zero())
 
     for i in range(len(ol)):
         if isinstance(ol[i], pe.Obs):

@@ -89,7 +89,7 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
     """Export a list of Obs or structures containing Obs to an xml string
     according to the Zeuthen pobs format.
 
-    Tags are not written or recovered automatically.
+    Tags are not written or recovered automatically. The separator | is removed from the replica names.
 
     Parameters
     ----------
@@ -175,7 +175,7 @@ def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen pobs format.
 
-    Tags are not written or recovered automatically.
+    Tags are not written or recovered automatically. The separator | is removed from the replica names.
 
     Parameters
     ----------
@@ -195,7 +195,7 @@ def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz
     enstag : str
         Enstag that is written to pobs. If None, the ensemble name is used.
     gz : bool
-        If True, the output is a gzipped json. If False, the output is a json file.
+        If True, the output is a gzipped xml. If False, the output is an xml file.
     """
     pobsstring = create_pobs_string(obsl, name, spec, origin, symbol, enstag)
 
@@ -303,7 +303,8 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
     separatior_insertion: str or int
         str: replace all occurences of "separator_insertion" within the replica names
         by "|%s" % (separator_insertion) when constructing the names of the replica.
-        int: Insert the separator "|" at position separator_insertion
+        int: Insert the separator "|" at the position given by separator_insertion.
+        None (default): Replica names remain unchanged.
     """
 
     if not fname.endswith('.xml') and not fname.endswith('.gz'):
@@ -383,7 +384,7 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
 # But maybe this is just a problem with Ben's implementation
 
 # this is based on Mattia Bruno's implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py
-def import_dobs_string(content, noempty=False, full_output=False, separator_insertion=None):
+def import_dobs_string(content, noempty=False, full_output=False, separator_insertion=True):
     """Import a list of Obs from a string in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -394,14 +395,17 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
         XML string containing the data
     noemtpy : bool
         If True, ensembles with no contribution to the Obs are not included.
-        If False, ensembles are included as written in the file.
+        If False, ensembles are included as written in the file, possibly with vanishing entries.
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned as list.
-    separatior_insertion: str or int
+    separatior_insertion: str, int or bool
         str: replace all occurences of "separator_insertion" within the replica names
         by "|%s" % (separator_insertion) when constructing the names of the replica.
-        int: Insert the separator "|" at position separator_insertion
+        int: Insert the separator "|" at the position given by separator_insertion.
+        True (default): separator "|" is inserted after len(ensname), assuming that the
+        ensemble name is a prefix to the replica name.
+        None or False: No separator is inserted.
     """
 
     root = et.fromstring(content)
@@ -450,7 +454,9 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
             R = int(dobs[k][1].text.strip())
             for i in range(2, 2 + R):
                 deltas, rname, idx = _import_rdata(dobs[k][i])
-                if separator_insertion is None:
+                if separator_insertion is None or False:
+                    pass
+                elif separator_insertion is True:
                     if rname.startswith(ename):
                         rname = rname[:len(ename)] + '|' + rname[len(ename):]
                 elif isinstance(separator_insertion, int):
@@ -541,7 +547,7 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
         return res
 
 
-def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insertion=None):
+def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insertion=True):
     """Import a list of Obs from an xml.gz file in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -558,10 +564,13 @@ def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insert
         If False, only the data is returned as list.
     gz : bool
         If True, assumes that data is gzipped. If False, assumes XML file.
-    separatior_insertion: str or int
+    separatior_insertion: str, int or bool
         str: replace all occurences of "separator_insertion" within the replica names
         by "|%s" % (separator_insertion) when constructing the names of the replica.
-        int: Insert the separator "|" at position separator_insertion
+        int: Insert the separator "|" at the position given by separator_insertion.
+        True (default): separator "|" is inserted after len(ensname), assuming that the
+        ensemble name is a prefix to the replica name.
+        None or False: No separator is inserted.
     """
 
     if not fname.endswith('.xml') and not fname.endswith('.gz'):
@@ -647,7 +656,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .xml.gz file according to the Zeuthen dobs format.
 
-    Tags are not written or recovered automatically.
+    Tags are not written or recovered automatically. The separator |is removed from the replica names.
 
     Parameters
     ----------
@@ -820,7 +829,7 @@ def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=No
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 
-    Tags are not written or recovered automatically.
+    Tags are not written or recovered automatically. The separator | is removed from the replica names.
 
     Parameters
     ----------

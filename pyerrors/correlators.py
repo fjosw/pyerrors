@@ -703,7 +703,7 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
@@ -727,6 +727,8 @@ class Corr:
             Apply the gamma method with standard parameters to all correlators and plateau values before plotting.
         hide_sigma : float
             Hides data points from the first value on which is consistent with zero within 'hide_sigma' standard errors.
+        references : list
+            List of floating point values that are displayed as horizontal lines for reference.
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
@@ -780,6 +782,14 @@ class Corr:
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
                 raise Exception("'plateau' must be an Obs")
+
+        if references:
+            if isinstance(references, list):
+                for ref in references:
+                    ax1.axhline(y=ref, linewidth=1, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--')
+            else:
+                raise Exception("'references' must be a list of floating pint values.")
+
         if self.prange:
             ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
             ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')

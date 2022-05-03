@@ -259,6 +259,10 @@ class Corr:
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
                               The reference state is identified by its eigenvalue at t=ts
         """
+
+        if self.N == 1:
+            raise Exception("GEVP methods only works on correlator matrices and not single correlators.")
+
         symmetric_corr = self.matrix_symmetric()
         if sorted_list is None:
             if (ts is None):

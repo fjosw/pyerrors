@@ -241,7 +241,7 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
 
-    def GEVP(self, t0, ts=None, state=0, sorted_list=None):
+    def GEVP(self, t0, ts=None, state=0, sorted_list="Eigenvalue"):
         """Solve the general eigenvalue problem on the current correlator
 
         Parameters
@@ -252,7 +252,7 @@ class Corr:
             fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
             If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
         state : int
-            The state one is interested in ordered by energy. The lowest state is zero.
+            The state one is interested in, ordered by energy. The lowest state is zero.
         sorted_list : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
              "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
@@ -1170,7 +1170,7 @@ class Corr:
 
         evecs = []
         for i in range(Ntrunc):
-            evecs.append(basematrix.GEVP(t0proj, tproj, state=i))
+            evecs.append(basematrix.GEVP(t0proj, tproj, state=i, sorted_list=None))
 
         tmpmat = np.empty((Ntrunc, Ntrunc), dtype=object)
         rmat = []

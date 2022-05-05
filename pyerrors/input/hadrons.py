@@ -160,7 +160,7 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
             for diagram in diagrams:
                 real_data = np.zeros(Nt)
                 for x0 in range(Nt):
-                    raw_data = h5file["DistillationContraction/Correlators/direct/" + str(x0)]
+                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)]
                     real_data += np.roll(raw_data[:]["re"].astype(np.double), -x0)
                 real_data /= Nt
 

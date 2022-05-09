@@ -279,6 +279,8 @@ class Corr:
             sp_vec = sp_vecs[state]
             return sp_vec
         elif sorted_list in ["Eigenvalue", "Eigenvector"]:
+            if sorted_list == "Eigenvalue" and ts is not None:
+                warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
             all_vecs = []
             for t in range(self.T):
                 try:

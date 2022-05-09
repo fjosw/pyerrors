@@ -1,4 +1,4 @@
-import json
+import rapidjson as json
 import gzip
 import getpass
 import socket
@@ -6,7 +6,6 @@ import datetime
 import platform
 import warnings
 import re
-import gc
 import numpy as np
 from ..obs import Obs
 from ..covobs import Covobs
@@ -32,47 +31,6 @@ def create_json_string(ol, description='', indent=1):
         saves disk space.
     """
 
-    def _default(self, obj):
-        return str(obj)
-    my_encoder = json.JSONEncoder
-    _default.default = json.JSONEncoder().default
-    my_encoder.default = _default
-
-    class Deltalist:
-        __slots__ = ['cnfg', 'deltas']
-
-        def __init__(self, li):
-            self.cnfg = li[0]
-            self.deltas = li[1:]
-
-        def __repr__(self):
-            s = '[%d' % (self.cnfg)
-            for d in self.deltas:
-                s += ', %1.15e' % (d)
-            s += ']'
-            return s
-
-        def __str__(self):
-            return self.__repr__()
-
-    class Floatlist:
-        __slots__ = ['li']
-
-        def __init__(self, li):
-            self.li = list(li)
-
-        def __repr__(self):
-            s = '['
-            for i in range(len(self.li)):
-                if i > 0:
-                    s += ', '
-                s += '%1.15e' % (self.li[i])
-            s += ']'
-            return s
-
-        def __str__(self):
-            return self.__repr__()
-
     def _gen_data_d_from_list(ol):
         dl = []
         for name in ol[0].mc_names:
@@ -89,7 +47,6 @@ def create_json_string(ol, description='', indent=1):
                     rd['deltas'].append([ol[0].idl[r_name][i]])
                     for o in ol:
                         rd['deltas'][-1].append(o.deltas[r_name][i])
-                    rd['deltas'][-1] = Deltalist(rd['deltas'][-1])
                 ed['replica'].append(rd)
             dl.append(ed)
         return dl
@@ -100,14 +57,13 @@ def create_json_string(ol, description='', indent=1):
             ed = {}
             ed['id'] = name
             ed['layout'] = str(ol[0].covobs[name].cov.shape).lstrip('(').rstrip(')').rstrip(',')
-            ed['cov'] = Floatlist(np.ravel(ol[0].covobs[name].cov))
+            ed['cov'] = list(np.ravel(ol[0].covobs[name].cov))
             ncov = ol[0].covobs[name].cov.shape[0]
             ed['grad'] = []
             for i in range(ncov):
                 ed['grad'].append([])
                 for o in ol:
                     ed['grad'][-1].append(o.covobs[name].grad[i][0])
-                ed['grad'][-1] = Floatlist(ed['grad'][-1])
             dl.append(ed)
         return dl
 
@@ -214,6 +170,7 @@ def create_json_string(ol, description='', indent=1):
 
     if description:
         d['description'] = description
+
     d['obsdata'] = []
     for io in ol:
         if isinstance(io, Obs):
@@ -227,31 +184,10 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
-    jsonstring = ''
-    for chunk in my_encoder(indent=indent, ensure_ascii=False).iterencode(d):
-        jsonstring += chunk
-
-    del d
-    gc.collect()
-
-    def remove_quotationmarks_split(split):
-        """Workaround for un-quoting of delta lists, adds 5% of work
-           but is save, compared to a simple replace that could destroy the structure
-        """
-        deltas = False
-        for i in range(len(split)):
-            if '"deltas":' in split[i] or '"cov":' in split[i] or '"grad":' in split[i]:
-                deltas = True
-            if deltas:
-                split[i] = split[i].replace('"[', '[').replace(']"', ']')
-                if split[i][-1] == ']':
-                    deltas = False
-        return '\n'.join(split)
-
-    jsonstring = jsonstring.split('\n')
-    jsonstring = remove_quotationmarks_split(jsonstring)
-    jsonstring = jsonstring.replace('nan', 'NaN')
-    return jsonstring
+    if indent:
+        return json.dumps(d, indent=indent, ensure_ascii=False, write_mode=json.WM_SINGLE_LINE_ARRAY)
+    else:
+        return json.dumps(d, indent=indent, ensure_ascii=False, write_mode=json.WM_COMPACT)
 
 
 def dump_to_json(ol, fname, description='', indent=1, gz=True):

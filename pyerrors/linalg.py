@@ -233,7 +233,7 @@ def _scalar_mat_op(op, obs, **kwargs):
 def _mat_mat_op(op, obs, **kwargs):
     """Computes the matrix to matrix operation op to a given matrix of Obs."""
     # Use real representation to calculate matrix operations for complex matrices
-    if any(isinstance(o, CObs)  for o in obs.ravel()):
+    if any(isinstance(o, CObs) for o in obs.ravel()):
         A = np.empty_like(obs)
         B = np.empty_like(obs)
         for (n, m), entry in np.ndenumerate(obs):

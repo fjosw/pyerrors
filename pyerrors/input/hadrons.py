@@ -12,7 +12,7 @@ def _get_files(path, filestem, idl):
     ls = os.listdir(path)
 
     # Clean up file list
-    files = list(filter(lambda x: x.startswith(filestem), ls))
+    files = list(filter(lambda x: x.startswith(filestem + "."), ls))
 
     if not files:
         raise Exception('No files starting with', filestem, 'in folder', path)

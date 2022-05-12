@@ -200,7 +200,9 @@ def inv(x):
 
 
 def cholesky(x):
-    """Cholesky decomposition of Obs or CObs valued matrices."""
+    """Cholesky decomposition of Obs valued matrices."""
+    if any(isinstance(o, CObs) for o in x.ravel()):
+        raise Exception("Cholesky decomposition is not implemented for CObs.")
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 

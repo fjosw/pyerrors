@@ -571,9 +571,15 @@ class Obs:
             plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
-    def plot_piechart(self):
+    def plot_piechart(self, save=None):
         """Plot piechart which shows the fractional contribution of each
-        ensemble to the error and returns a dictionary containing the fractions."""
+        ensemble to the error and returns a dictionary containing the fractions.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         if np.isclose(0.0, self._dvalue, atol=1e-15):
@@ -584,6 +590,8 @@ class Obs:
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
         plt.draw()
+        if save:
+            fig1.savefig(save)
 
         return dict(zip(self.e_names, sizes))
 

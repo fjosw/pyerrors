@@ -278,6 +278,18 @@ def test_matrix_corr():
         corr_0.matrix_symmetric()
 
 
+def test_matrix_symmetric():
+    corr_aa = _gen_corr(1)
+    corr_ab = _gen_corr(0.3)
+    corr_ba = _gen_corr(0.2)
+    corr_bb = _gen_corr(0.8)
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ba, corr_bb]]))
+
+    sym_corr_mat = corr_mat.matrix_symmetric()
+
+    assert np.all([np.all(o == o.T) for o in sym_corr_mat])
+
+
 def test_hankel():
     corr_content = []
     for t in range(8):

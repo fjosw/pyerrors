@@ -241,7 +241,7 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
 
-    def GEVP(self, t0, ts=None, sorted_list="Eigenvalue"):
+    def GEVP(self, t0, ts=None, sort="Eigenvalue"):
         """Solve the generalized eigenvalue problem on the current correlator and returns the corresponding eigenvectors.
 
         Parameters
@@ -251,7 +251,7 @@ class Corr:
         ts : int
             fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
             If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
-        sorted_list : string
+        sort : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
              "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
@@ -262,9 +262,9 @@ class Corr:
             raise Exception("GEVP methods only works on correlator matrices and not single correlators.")
 
         symmetric_corr = self.matrix_symmetric()
-        if sorted_list is None:
+        if sort is None:
             if (ts is None):
-                raise Exception("ts is required if sorted_list=None.")
+                raise Exception("ts is required if sort=None.")
             if (ts <= t0):
                 raise Exception("ts has to be larger than t0.")
             if (self.content[t0] is None) or (self.content[ts] is None):
@@ -278,8 +278,8 @@ class Corr:
             sp_vecs = _GEVP_solver(Gt, G0)
             sp_vec = [sp_vecs[s] for s in range(self.N)]
             return sp_vec
-        elif sorted_list in ["Eigenvalue", "Eigenvector"]:
-            if sorted_list == "Eigenvalue" and ts is not None:
+        elif sort in ["Eigenvalue", "Eigenvector"]:
+            if sort == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
             all_vecs = [None] * (t0 + 1)
             for t in range(t0 + 1, self.T):
@@ -291,24 +291,24 @@ class Corr:
                             Gt[i, j] = symmetric_corr[t][i, j].value
 
                     sp_vecs = _GEVP_solver(Gt, G0)
-                    if sorted_list == "Eigenvalue":
+                    if sort == "Eigenvalue":
                         sp_vec = [sp_vecs[s] for s in range(self.N)]
                         all_vecs.append(sp_vec)
                     else:
                         all_vecs.append(sp_vecs)
                 except Exception:
                     all_vecs.append(None)
-            if sorted_list == "Eigenvector":
+            if sort == "Eigenvector":
                 if (ts is None):
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
                 all_vecs = [[a[s] if a is not None else None for a in all_vecs] for s in range(self.N)]
         else:
-            raise Exception("Unkown value for 'sorted_list'.")
+            raise Exception("Unkown value for 'sort'.")
 
         return all_vecs
 
-    def Eigenvalue(self, t0, ts=None, state=0, sorted_list=None):
+    def Eigenvalue(self, t0, ts=None, state=0, sort=None):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator
 
         Parameters
@@ -320,13 +320,13 @@ class Corr:
             If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
         state : int
             The state one is interested in ordered by energy. The lowest state is zero.
-        sorted_list : string
+        sort : string
             if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
              "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
              "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
                               The reference state is identified by its eigenvalue at t=ts
         """
-        vec = self.GEVP(t0, ts=ts, sorted_list=sorted_list)[state]
+        vec = self.GEVP(t0, ts=ts, sort=sort)[state]
         return self.projected(vec)
 
     def Hankel(self, N, periodic=False):
@@ -1174,7 +1174,7 @@ class Corr:
         if basematrix.N != self.N:
             raise Exception('basematrix and targetmatrix have to be of the same size.')
 
-        evecs = basematrix.GEVP(t0proj, tproj, sorted_list=None)[:Ntrunc]
+        evecs = basematrix.GEVP(t0proj, tproj, sort=None)[:Ntrunc]
 
         tmpmat = np.empty((Ntrunc, Ntrunc), dtype=object)
         rmat = []

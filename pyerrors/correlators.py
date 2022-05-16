@@ -1219,8 +1219,6 @@ def _sort_vectors(vec_set, ts):
     return sorted_vec_set
 
 
-def _GEVP_solver(Gt, G0):  # Just so normalization an sorting does not need to be repeated. Here we could later put in some checks
-    sp_val, sp_vecs = scipy.linalg.eigh(Gt, G0)
-    sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
-    sp_vecs = [v / np.sqrt((v.T @ G0 @ v)) for v in sp_vecs]
-    return sp_vecs
+def _GEVP_solver(Gt, G0):
+    """Helper function for solving the GEVP and sorting the eigenvectors."""
+    return scipy.linalg.eigh(Gt, G0)[1].T[::-1]

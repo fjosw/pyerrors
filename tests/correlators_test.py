@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import scipy
 import pyerrors as pe
 import pytest
 
@@ -288,6 +289,20 @@ def test_matrix_symmetric():
     sym_corr_mat = corr_mat.matrix_symmetric()
 
     assert np.all([np.all(o == o.T) for o in sym_corr_mat])
+
+
+def test_GEVP_solver():
+
+    mat1 = np.random.rand(15, 15)
+    mat2 = np.random.rand(15, 15)
+    mat1 = mat1 @ mat1.T
+    mat2 = mat2 @ mat2.T
+
+    sp_val, sp_vecs = scipy.linalg.eigh(mat1, mat2)
+    sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
+    sp_vecs = [v / np.sqrt((v.T @ mat2 @ v)) for v in sp_vecs]
+
+    assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2), atol=1e-14)
 
 
 def test_hankel():

@@ -231,7 +231,7 @@ def test_matrix_corr():
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
     corr_mat.item(0, 0)
 
-    vecs = corr_mat.GEVP(0, 1, sorted_list=None)
+    vecs = corr_mat.GEVP(0, 1, sort=None)
 
     corr_0 = corr_mat.projected(vecs[0])
     corr_1 = corr_mat.projected(vecs[0])
@@ -239,13 +239,13 @@ def test_matrix_corr():
     assert np.all([o == 0 for o in corr_0 - corr_aa])
     assert np.all([o == 0 for o in corr_1 - corr_aa])
 
-    corr_mat.GEVP(0, sorted_list="Eigenvalue")
-    corr_mat.GEVP(0, 1, sorted_list="Eigenvector")
+    corr_mat.GEVP(0, sort="Eigenvalue")
+    corr_mat.GEVP(0, 1, sort="Eigenvector")
 
     corr_mat.matrix_symmetric()
 
     with pytest.warns(RuntimeWarning):
-        corr_mat.GEVP(0, 1, sorted_list="Eigenvalue")
+        corr_mat.GEVP(0, 1, sort="Eigenvalue")
 
     with pytest.raises(Exception):
         corr_mat.plottable()

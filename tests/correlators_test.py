@@ -231,21 +231,22 @@ def test_matrix_corr():
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
     corr_mat.item(0, 0)
 
-    vecs = corr_mat.GEVP(0, 1, sort=None)
+    for (ts, sort) in zip([None, 1, 1], ["Eigenvalue", "Eigenvector", None]):
+        vecs = corr_mat.GEVP(0, ts=ts, sort=sort)
 
-    corr_0 = corr_mat.projected(vecs[0])
-    corr_1 = corr_mat.projected(vecs[0])
+        corr_0 = corr_mat.projected(vecs[0])
+        corr_1 = corr_mat.projected(vecs[1])
 
     assert np.all([o == 0 for o in corr_0 - corr_aa])
     assert np.all([o == 0 for o in corr_1 - corr_aa])
-
-    corr_mat.GEVP(0, sort="Eigenvalue")
-    corr_mat.GEVP(0, 1, sort="Eigenvector")
 
     corr_mat.matrix_symmetric()
 
     with pytest.warns(RuntimeWarning):
         corr_mat.GEVP(0, 1, sort="Eigenvalue")
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, 1, sort="This sorting method does not exist.")
 
     with pytest.raises(Exception):
         corr_mat.plottable()

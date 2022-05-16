@@ -22,9 +22,10 @@ Please add docstrings to any new function, class or method you implement. The do
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
 For all pull requests tests are executed for the most recent python releases via
 ```
-pytest --cov=pyerrors -vv
+pytest -vv --cov=pyerrors
+pytest -vv --nbmake examples/*.ipynb
 ```
-requiring `pytest`, `pytest-cov` and `pytest-benchmark`. To get a coverage report in html run
+requiring `pytest`, `pytest-cov`, `pytest-benchmark` and `nbmake`. To get a coverage report in html run
 ```
 pytest --cov=pyerrors --cov-report html
 ```

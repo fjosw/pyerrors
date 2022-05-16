@@ -571,9 +571,15 @@ class Obs:
             plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
-    def plot_piechart(self):
+    def plot_piechart(self, save=None):
         """Plot piechart which shows the fractional contribution of each
-        ensemble to the error and returns a dictionary containing the fractions."""
+        ensemble to the error and returns a dictionary containing the fractions.
+
+        Parameters
+        ----------
+        save : str
+            saves the figure to a file named 'save' if.
+        """
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         if np.isclose(0.0, self._dvalue, atol=1e-15):
@@ -584,6 +590,8 @@ class Obs:
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
         plt.draw()
+        if save:
+            fig1.savefig(save)
 
         return dict(zip(self.e_names, sizes))
 
@@ -1334,7 +1342,7 @@ def correlate(obs_a, obs_b):
 
 
 def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
-    r'''Calculates the covariance matrix of a set of observables.
+    r'''Calculates the error covariance matrix of a set of observables.
 
     The gamma method has to be applied first to all observables.
 
@@ -1345,7 +1353,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     visualize : bool
         If True plots the corresponding normalized correlation matrix (default False).
     correlation : bool
-        If True the correlation instead of the covariance is returned (default False).
+        If True the correlation matrix instead of the error covariance matrix is returned (default False).
     smooth : None or int
         If smooth is an integer 'E' between 2 and the dimension of the matrix minus 1 the eigenvalue
         smoothing procedure of hep-lat/9412087 is applied to the correlation matrix which leaves the
@@ -1354,8 +1362,11 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
 
     Notes
     -----
-    The covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. The covariance at windowsize 0 is guaranteed to be positive semi-definite
-    $$v_i\Gamma_{ij}(0)v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i,j}v_i\delta_i^s\delta_j^s v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i}|v_i\delta_i^s|^2\geq 0\,,$$ for every $v\in\mathbb{R}^M$, while such an identity does not hold for larger windows/lags.
+    The error covariance is defined such that it agrees with the squared standard error for two identical observables
+    $$\operatorname{cov}(a,a)=\sum_{s=1}^N\delta_a^s\delta_a^s/N^2=\Gamma_{aa}(0)/N=\operatorname{var}(a)/N=\sigma_a^2$$
+    in the absence of autocorrelation.
+    The error covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. The covariance at windowsize 0 is guaranteed to be positive semi-definite
+    $$\sum_{i,j}v_i\Gamma_{ij}(0)v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i,j}v_i\delta_i^s\delta_j^s v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i}|v_i\delta_i^s|^2\geq 0\,,$$ for every $v\in\mathbb{R}^M$, while such an identity does not hold for larger windows/lags.
     For observables defined on a single ensemble our approximation is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
     $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$
     This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).

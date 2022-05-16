@@ -314,23 +314,15 @@ class Corr:
         else:
             return reordered_vecs
 
-    def Eigenvalue(self, t0, ts=None, state=0, sort=None):
+    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue"):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator
 
         Parameters
         ----------
-        t0 : int
-            The time t0 for G(t)v= lambda G(t_0)v
-        ts : int
-            fixed time G(t_s)v= lambda G(t_0)v  if return_list=False
-            If return_list=True and sorting=Eigenvector it gives a reference point for the sorting method.
         state : int
             The state one is interested in ordered by energy. The lowest state is zero.
-        sort : string
-            if this argument is set, a list of vectors (len=self.T) is returned. If it is left as None, only one vector is returned.
-             "Eigenvalue"  -  The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
-             "Eigenvector" -  Use the method described in arXiv:2004.10472 [hep-lat] to find the set of v(t) belonging to the state.
-                              The reference state is identified by its eigenvalue at t=ts
+
+        All other parameters are identical to the ones of Corr.GEVP.
         """
         vec = self.GEVP(t0, ts=ts, sort=sort)[state]
         return self.projected(vec)

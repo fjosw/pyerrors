@@ -276,8 +276,8 @@ class Corr:
                     Gt[i, j] = symmetric_corr[ts][i, j].value
 
             sp_vecs = _GEVP_solver(Gt, G0)
-            sp_vec = [sp_vecs[s] for s in range(self.N)]
-            return sp_vec
+            return sp_vecs
+
         elif sort in ["Eigenvalue", "Eigenvector"]:
             if sort == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
@@ -290,23 +290,17 @@ class Corr:
                             G0[i, j] = symmetric_corr[t0][i, j].value
                             Gt[i, j] = symmetric_corr[t][i, j].value
 
-                    sp_vecs = _GEVP_solver(Gt, G0)
-                    if sort == "Eigenvalue":
-                        sp_vec = [sp_vecs[s] for s in range(self.N)]
-                        all_vecs.append(sp_vec)
-                    else:
-                        all_vecs.append(sp_vecs)
+                    all_vecs.append(_GEVP_solver(Gt, G0))
                 except Exception:
                     all_vecs.append(None)
             if sort == "Eigenvector":
                 if (ts is None):
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
-                all_vecs = [[a[s] if a is not None else None for a in all_vecs] for s in range(self.N)]
         else:
             raise Exception("Unkown value for 'sort'.")
 
-        return all_vecs
+        return [[v[s] if v is not None else None for v in all_vecs] for s in range(self.N)]
 
     def Eigenvalue(self, t0, ts=None, state=0, sort=None):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator

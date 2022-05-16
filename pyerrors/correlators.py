@@ -241,7 +241,7 @@ class Corr:
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
 
-    def GEVP(self, t0, ts=None, sort="Eigenvalue"):
+    def GEVP(self, t0, ts=None, sort="Eigenvalue", **kwargs):
         """Solve the generalized eigenvalue problem on the current correlator and returns the corresponding eigenvectors.
 
         Parameters
@@ -260,6 +260,10 @@ class Corr:
 
         if self.N == 1:
             raise Exception("GEVP methods only works on correlator matrices and not single correlators.")
+
+        if "sorted_list" in kwargs:
+            sort = kwargs.get("sorted_list")
+            warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
 
         symmetric_corr = self.matrix_symmetric()
         if sort is None:

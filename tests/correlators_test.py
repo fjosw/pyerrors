@@ -245,6 +245,9 @@ def test_matrix_corr():
     with pytest.warns(RuntimeWarning):
         corr_mat.GEVP(0, 1, sort="Eigenvalue")
 
+    with pytest.warns(DeprecationWarning):
+        corr_mat.GEVP(0, sorted_list="Eigenvalue")
+
     with pytest.raises(Exception):
         corr_mat.GEVP(0, 1, sort="This sorting method does not exist.")
 

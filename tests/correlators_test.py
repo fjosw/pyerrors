@@ -229,6 +229,7 @@ def test_matrix_corr():
     corr_ab = 0.5 * corr_aa
 
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.gamma_method()
     corr_mat.item(0, 0)
 
     for (ts, sort) in zip([None, 1, 1], ["Eigenvalue", "Eigenvector", None]):
@@ -241,6 +242,8 @@ def test_matrix_corr():
     assert np.all([o == 0 for o in corr_1 - corr_aa])
 
     corr_mat.matrix_symmetric()
+    corr_mat.GEVP(0, state=0)
+    corr_mat.Eigenvalue(2, state=0)
 
 
 def test_GEVP_warnings():
@@ -264,7 +267,19 @@ def test_GEVP_exceptions():
     corr_mat.item(0, 0)
 
     with pytest.raises(Exception):
+        corr_mat.item(0, 0).projected()
+
+    with pytest.raises(Exception):
+        corr_mat.item(0, 0).GEVP(2)
+
+    with pytest.raises(Exception):
+        corr_mat.item(0, 0).matrix_symmetric()
+
+    with pytest.raises(Exception):
         corr_mat.GEVP(0, 0, sort=None)
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, sort=None)
 
     with pytest.raises(Exception):
         corr_mat.GEVP(1, 0, sort="Eigenvector")
@@ -276,13 +291,16 @@ def test_GEVP_exceptions():
         corr_mat.plottable()
 
     with pytest.raises(Exception):
+        corr_mat.spaghetti_plot()
+
+    with pytest.raises(Exception):
         corr_mat.show()
 
     with pytest.raises(Exception):
         corr_mat.m_eff()
 
     with pytest.raises(Exception):
-        corr_mat.Hankel()
+        corr_mat.Hankel(2)
 
     with pytest.raises(Exception):
         corr_mat.plateau()

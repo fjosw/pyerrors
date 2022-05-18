@@ -242,11 +242,35 @@ def test_matrix_corr():
 
     corr_mat.matrix_symmetric()
 
+
+def test_GEVP_warnings():
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.item(0, 0)
+
     with pytest.warns(RuntimeWarning):
         corr_mat.GEVP(0, 1, sort="Eigenvalue")
 
     with pytest.warns(DeprecationWarning):
         corr_mat.GEVP(0, sorted_list="Eigenvalue")
+
+    with pytest.warns(DeprecationWarning):
+        corr_mat.GEVP(0, state=0)
+
+def test_GEVP_exceptions():
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.item(0, 0)
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, 0, sort=None)
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(1, 0, sort="Eigenvector")
 
     with pytest.raises(Exception):
         corr_mat.GEVP(0, 1, sort="This sorting method does not exist.")

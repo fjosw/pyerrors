@@ -263,6 +263,9 @@ class Corr:
 
         if self.N == 1:
             raise Exception("GEVP methods only works on correlator matrices and not single correlators.")
+        if ts is not None:
+            if (ts <= t0):
+                raise Exception("ts has to be larger than t0.")
 
         if "sorted_list" in kwargs:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
@@ -272,8 +275,6 @@ class Corr:
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")
-            if (ts <= t0):
-                raise Exception("ts has to be larger than t0.")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts.")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")

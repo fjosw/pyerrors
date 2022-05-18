@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import scipy
 import pyerrors as pe
 import pytest
 
@@ -228,27 +229,69 @@ def test_matrix_corr():
     corr_ab = 0.5 * corr_aa
 
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.gamma_method()
     corr_mat.item(0, 0)
 
-    vec_0 = corr_mat.GEVP(0, 1, sorted_list=None)
-    vec_1 = corr_mat.GEVP(0, 1, state=1, sorted_list=None)
+    for (ts, sort) in zip([None, 1, 1], ["Eigenvalue", "Eigenvector", None]):
+        vecs = corr_mat.GEVP(0, ts=ts, sort=sort)
 
-    corr_0 = corr_mat.projected(vec_0)
-    corr_1 = corr_mat.projected(vec_1)
+        corr_0 = corr_mat.projected(vecs[0])
+        corr_1 = corr_mat.projected(vecs[1])
 
     assert np.all([o == 0 for o in corr_0 - corr_aa])
     assert np.all([o == 0 for o in corr_1 - corr_aa])
 
-    corr_mat.GEVP(0, sorted_list="Eigenvalue")
-    corr_mat.GEVP(0, 1, sorted_list="Eigenvector")
-
     corr_mat.matrix_symmetric()
+    corr_mat.GEVP(0, state=0)
+    corr_mat.Eigenvalue(2, state=0)
+
+
+def test_GEVP_warnings():
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.item(0, 0)
 
     with pytest.warns(RuntimeWarning):
-        corr_mat.GEVP(0, 1, sorted_list="Eigenvalue")
+        corr_mat.GEVP(0, 1, sort="Eigenvalue")
+
+    with pytest.warns(DeprecationWarning):
+        corr_mat.GEVP(0, sorted_list="Eigenvalue")
+
+def test_GEVP_exceptions():
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.item(0, 0)
+
+    with pytest.raises(Exception):
+        corr_mat.item(0, 0).projected()
+
+    with pytest.raises(Exception):
+        corr_mat.item(0, 0).GEVP(2)
+
+    with pytest.raises(Exception):
+        corr_mat.item(0, 0).matrix_symmetric()
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, 0, sort=None)
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, sort=None)
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(1, 0, sort="Eigenvector")
+
+    with pytest.raises(Exception):
+        corr_mat.GEVP(0, 1, sort="This sorting method does not exist.")
 
     with pytest.raises(Exception):
         corr_mat.plottable()
+
+    with pytest.raises(Exception):
+        corr_mat.spaghetti_plot()
 
     with pytest.raises(Exception):
         corr_mat.show()
@@ -257,7 +300,7 @@ def test_matrix_corr():
         corr_mat.m_eff()
 
     with pytest.raises(Exception):
-        corr_mat.Hankel()
+        corr_mat.Hankel(2)
 
     with pytest.raises(Exception):
         corr_mat.plateau()
@@ -288,6 +331,20 @@ def test_matrix_symmetric():
     sym_corr_mat = corr_mat.matrix_symmetric()
 
     assert np.all([np.all(o == o.T) for o in sym_corr_mat])
+
+
+def test_GEVP_solver():
+
+    mat1 = np.random.rand(15, 15)
+    mat2 = np.random.rand(15, 15)
+    mat1 = mat1 @ mat1.T
+    mat2 = mat2 @ mat2.T
+
+    sp_val, sp_vecs = scipy.linalg.eigh(mat1, mat2)
+    sp_vecs = [sp_vecs[:, np.argsort(sp_val)[-i]] for i in range(1, sp_vecs.shape[0] + 1)]
+    sp_vecs = [v / np.sqrt((v.T @ mat2 @ v)) for v in sp_vecs]
+
+    assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2), atol=1e-14)
 
 
 def test_hankel():

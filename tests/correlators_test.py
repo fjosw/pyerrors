@@ -256,9 +256,6 @@ def test_GEVP_warnings():
     with pytest.warns(DeprecationWarning):
         corr_mat.GEVP(0, sorted_list="Eigenvalue")
 
-    with pytest.warns(DeprecationWarning):
-        corr_mat.GEVP(0, state=0)
-
 def test_GEVP_exceptions():
     corr_aa = _gen_corr(1)
     corr_ab = 0.5 * corr_aa

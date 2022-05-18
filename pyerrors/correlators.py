@@ -245,7 +245,11 @@ class Corr:
         r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
 
         The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the
-        largest eigenvalue(s).
+        largest eigenvalue(s). The eigenvector(s) for the individual states can be accessed via slicing
+        ```python
+        C.GEVP(t0=2)[0]  # Ground state vector(s)
+        C.GEVP(t0=2)[:3]  # Vectors for the lowest three states
+        ```
 
         Parameters
         ----------
@@ -259,6 +263,11 @@ class Corr:
             - "Eigenvalue": The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
             - "Eigenvector": Use the method described in arXiv:2004.10472 to find the set of v(t) belonging to the state.
               The reference state is identified by its eigenvalue at $t=t_s$.
+
+        Other Parameters
+        ----------------
+        state : int
+           Returns only the vector(s) for a specified state. The lowest state is zero.
         '''
 
         if self.N == 1:
@@ -310,7 +319,6 @@ class Corr:
             raise Exception("Unkown value for 'sort'.")
 
         if "state" in kwargs:
-            warnings.warn("Argument 'state' is deprecated, use slicing instead.", DeprecationWarning)
             return reordered_vecs[kwargs.get("state")]
         else:
             return reordered_vecs

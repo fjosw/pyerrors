@@ -266,9 +266,11 @@ class Corr:
         symmetric_corr = self.matrix_symmetric()
         if sorted_list is None:
             if (ts is None):
-                raise Exception("ts is required if sorted_list=None")
+                raise Exception("ts is required if sorted_list=None.")
+            if (ts <= t0):
+                raise Exception("ts has to be larger than t0.")
             if (self.content[t0] is None) or (self.content[ts] is None):
-                raise Exception("Corr not defined at t0/ts")
+                raise Exception("Corr not defined at t0/ts.")
             G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
             for i in range(self.N):
                 for j in range(self.N):
@@ -281,8 +283,8 @@ class Corr:
         elif sorted_list in ["Eigenvalue", "Eigenvector"]:
             if sorted_list == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
-            all_vecs = []
-            for t in range(self.T):
+            all_vecs = [None] * (t0 + 1)
+            for t in range(t0 + 1, self.T):
                 try:
                     G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
                     for i in range(self.N):
@@ -302,7 +304,7 @@ class Corr:
                 if (ts is None):
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
-                all_vecs = [a[state] for a in all_vecs]
+                all_vecs = [a[state] if a is not None else None for a in all_vecs]
         else:
             raise Exception("Unkown value for 'sorted_list'.")
 

@@ -648,6 +648,26 @@ def test_covariance_is_variance():
     assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
 
 
+def test_covariance_vs_numpy():
+    N = 1078
+    data1 = np.random.normal(2.5, 0.2, N)
+    data2 = np.random.normal(0.5, 0.08, N)
+    data3 = np.random.normal(-178, 5, N)
+    uncorr = np.row_stack([data1, data2, data3])
+    corr = np.random.multivariate_normal([0.0, 17, -0.0487], [[1.0, 0.6, -0.22], [0.6, 0.8, 0.01], [-0.22, 0.01, 1.9]], N).T
+
+    for X in [uncorr, corr]:
+        obs1 = pe.Obs([X[0]], ["ens1"])
+        obs2 = pe.Obs([X[1]], ["ens1"])
+        obs3 = pe.Obs([X[2]], ["ens1"])
+        obs1.gamma_method(S=0.0)
+        obs2.gamma_method(S=0.0)
+        obs3.gamma_method(S=0.0)
+        pe_cov = pe.covariance([obs1, obs2, obs3])
+        np_cov = np.cov(X) / N
+        assert np.allclose(pe_cov, np_cov, atol=1e-14)
+
+
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))

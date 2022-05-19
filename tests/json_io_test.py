@@ -33,11 +33,10 @@ def test_jsonio():
     mat[1][0].tag = '{testt}'
     mat[1][1].tag = '[tag]'
 
-    tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
-    tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
+    tt1 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(2, 202, 2), range(22, 222, 2)])
     tt3 = pe.Obs([np.random.rand(102)], ['qe'])
 
-    tt = tt1 + tt2 + tt3
+    tt = tt1 + tt3
 
     tt.tag = 'Test Obs: Ä'
 
@@ -63,6 +62,13 @@ def test_jsonio():
         for j in range(len(or1)):
             o = or1[j] - or2[j]
             assert(o.is_zero())
+        if isinstance(ol[i], pe.Obs):
+            for name in ol[i].r_values:
+                assert(np.isclose(ol[i].r_values[name], rl[i].r_values[name]))
+        elif isinstance(ol[i], list):
+            for j in range(len(ol[i])):
+                for name in ol[i][j].r_values:
+                    assert(np.isclose(ol[i][j].r_values[name], rl[i][j].r_values[name]))
 
     description = {'I': {'Am': {'a': 'nested dictionary!'}}}
     jsonio.dump_to_json(ol, fname, indent=0, gz=False, description=description)

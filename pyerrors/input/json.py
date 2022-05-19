@@ -165,7 +165,7 @@ def create_json_string(ol, description='', indent=1):
 
     d = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
-    d['version'] = '1.0'
+    d['version'] = '1.1'
     d['who'] = getpass.getuser()
     d['date'] = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %z')
     d['host'] = socket.gethostname() + ', ' + platform.platform()

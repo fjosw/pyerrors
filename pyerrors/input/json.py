@@ -33,6 +33,7 @@ def create_json_string(ol, description='', indent=1):
 
     def _gen_data_d_from_list(ol):
         dl = []
+        No = len(ol)
         for name in ol[0].mc_names:
             ed = {}
             ed['id'] = name
@@ -43,10 +44,11 @@ def create_json_string(ol, description='', indent=1):
                 if ol[0].is_merged.get(r_name, False):
                     rd['is_merged'] = True
                 rd['deltas'] = []
+                offsets = [o.r_values[r_name] - o.value for o in ol]
+                deltas = np.column_stack([ol[oi].deltas[r_name] + offsets[oi] for oi in range(No)])
                 for i in range(len(ol[0].idl[r_name])):
                     rd['deltas'].append([ol[0].idl[r_name][i]])
-                    for o in ol:
-                        rd['deltas'][-1].append(o.deltas[r_name][i])
+                    rd['deltas'][-1] += deltas[i].tolist()
                 ed['replica'].append(rd)
             dl.append(ed)
         return dl

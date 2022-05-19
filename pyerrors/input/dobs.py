@@ -379,10 +379,6 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
         return res
 
 
-# Reading (and writing) dobs is not yet working properly:
-# we have to loop over root[2:] because each entry is a dobs
-# But maybe this is just a problem with Ben's implementation
-
 # this is based on Mattia Bruno's implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py
 def import_dobs_string(content, noempty=False, full_output=False, separator_insertion=True):
     """Import a list of Obs from a string in the Zeuthen dobs format.
@@ -501,7 +497,7 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
             obs_names.append(name)
             idl.append(idld[name])
         res.append(Obs(deltas, obs_names, idl=idl))
-    print(mean, 'vs', res)
+        res[-1]._value = mean[i]
     _check(len(e_names) == ne)
 
     cnames = list(covd.keys())
@@ -743,16 +739,22 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             ad['layout'] = layout
             data = ''
             counters = [0 for o in obsl]
+            offsets = [o.r_values[repname] - o.value if repname in o.r_values else 0 for o in obsl]
+            print(repname, offsets)
             for ci in idx:
                 data += '%d ' % ci
                 for oi in range(len(obsl)):
                     o = obsl[oi]
                     if repname in o.idl:
                         if counters[oi] < 0:
-                            data += '0 '
+                            num = offsets[oi]
+                            if num == 0:
+                                data += '0 '
+                            else:
+                                data += '%1.16e ' % (num)
                             continue
                         if o.idl[repname][counters[oi]] == ci:
-                            num = o.deltas[repname][counters[oi]]
+                            num = o.deltas[repname][counters[oi]] + offsets[oi]
                             if num == 0:
                                 data += '0 '
                             else:
@@ -761,7 +763,11 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                             if counters[oi] >= len(o.idl[repname]):
                                 counters[oi] = -1
                         else:
-                            data += '0 '
+                            num = offsets[oi]
+                            if num == 0:
+                                data += '0 '
+                            else:
+                                data += '%1.16e ' % (num)
                     else:
                         data += '0 '
                 data += '\n'

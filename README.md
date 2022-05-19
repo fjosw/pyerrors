@@ -8,11 +8,12 @@
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
-To install the current `develop` version run
+To install the most recent release run
+```bash
+pip install pyerrors     # Fresh install
+pip install -U pyerrors  # Upgrade
+```
+to install the current `develop` version run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@develop
-```
-to install the most recent release run
-```bash
-pip install git+https://github.com/fjosw/pyerrors.git@master
 ```

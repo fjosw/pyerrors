@@ -524,6 +524,12 @@ def test_intersection_idx():
     for ids in [[list(range(1, 80, 3)), list(range(1, 100, 2))], [range(1, 80, 3), range(1, 100, 2), range(1, 100, 7)]]:
         assert list(pe.obs._intersection_idx(ids)) == pe.obs._intersection_idx([list(o) for o in ids])
 
+def test_merge_intersection():
+    for idl_list in [[range(1, 100), range(1, 100), range(1, 100)],
+                     [range(4, 80, 6), range(4, 80, 6)],
+                     [[0, 2, 8, 19, 205], [0, 2, 8, 19, 205]]]:
+        assert pe.obs._merge_idx(idl_list) == pe.obs._intersection_idx(idl_list)
+
 
 def test_intersection_collapse():
     range1 = range(1, 2000, 2)

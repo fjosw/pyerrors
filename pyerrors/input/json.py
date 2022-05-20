@@ -294,6 +294,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
 
         if od:
             ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
+            ret._value = values[0]
             ret.is_merged = od['is_merged']
         else:
             ret = Obs([], [], means=[])
@@ -319,6 +320,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         for i in range(layout):
             if od:
                 ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
+                ret[-1]._value = values[i]
                 ret[-1].is_merged = od['is_merged']
             else:
                 ret.append(Obs([], [], means=[]))
@@ -346,6 +348,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         for i in range(N):
             if od:
                 ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
+                ret[-1]._value = values[i]
                 ret[-1].is_merged = od['is_merged']
             else:
                 ret.append(Obs([], [], means=[]))

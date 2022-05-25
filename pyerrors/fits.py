@@ -263,10 +263,18 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
+    hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
+    condn = np.linalg.cond(hess)
+    if condn > 1e8:
+        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
     try:
-        hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+        hess_inv = np.linalg.inv(hess)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
+    except Exception:
+        raise Exception("Unkown error in connection with Hessian inverse.")
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -541,10 +549,18 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
                       output.chisquare_by_expected_chisquare)
 
     fitp = fit_result.x
+    hess = jacobian(jacobian(chisqfunc))(fitp)
+    condn = np.linalg.cond(hess)
+    if condn > 1e8:
+        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
     try:
-        hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+        hess_inv = np.linalg.inv(hess)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
+    except Exception:
+        raise Exception("Unkown error in connection with Hessian inverse.")
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):

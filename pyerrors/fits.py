@@ -263,14 +263,15 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
-    hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
+    try:
+        hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     condn = np.linalg.cond(hess)
     if condn > 1e8:
         warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
     try:
         hess_inv = np.linalg.inv(hess)
-    except TypeError:
-        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     except np.linalg.LinAlgError:
         raise Exception("Cannot invert hessian matrix.")
     except Exception:
@@ -549,14 +550,15 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
                       output.chisquare_by_expected_chisquare)
 
     fitp = fit_result.x
-    hess = jacobian(jacobian(chisqfunc))(fitp)
+    try:
+        hess = jacobian(jacobian(chisqfunc))(fitp)
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     condn = np.linalg.cond(hess)
     if condn > 1e8:
         warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
     try:
         hess_inv = np.linalg.inv(hess)
-    except TypeError:
-        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     except np.linalg.LinAlgError:
         raise Exception("Cannot invert hessian matrix.")
     except Exception:

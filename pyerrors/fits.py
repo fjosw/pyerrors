@@ -269,7 +269,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     condn = np.linalg.cond(hess)
     if condn > 1e8:
-        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
+        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.\n \
+                       Maybe try rescaling the problem such that all parameters are of O(1).".format(condn), RuntimeWarning)
     try:
         hess_inv = np.linalg.inv(hess)
     except np.linalg.LinAlgError:
@@ -556,7 +557,8 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
     condn = np.linalg.cond(hess)
     if condn > 1e8:
-        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.".format(condn), RuntimeWarning)
+        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.\n \
+                       Maybe try rescaling the problem such that all parameters are of O(1).".format(condn), RuntimeWarning)
     try:
         hess_inv = np.linalg.inv(hess)
     except np.linalg.LinAlgError:

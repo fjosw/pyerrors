@@ -482,15 +482,15 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         chol_inv = np.linalg.inv(chol)
         chol_inv = np.dot(chol_inv, covdiag)
 
-        def chisqfunc(p):
+        def chisqfunc_corr(p):
             model = func(p, x)
             chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
             return chisq
-    else:
-        def chisqfunc(p):
-            model = func(p, x)
-            chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-            return chisq
+
+    def chisqfunc(p):
+        model = func(p, x)
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+        return chisq
 
     output.method = kwargs.get('method', 'Levenberg-Marquardt')
     if not silent:
@@ -499,27 +499,32 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
             fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
+            if kwargs.get('correlated_fit') is True:
+                fit_result = iminuit.minimize(chisqfunc_corr, fit_result.x, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
             output.iterations = fit_result.nfev
         else:
             fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)
+            if kwargs.get('correlated_fit') is True:
+                fit_result = scipy.optimize.minimize(chisqfunc_corr, fit_result.x, method=kwargs.get('method'), tol=1e-12)
             output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
     else:
         if kwargs.get('correlated_fit') is True:
-            def chisqfunc_residuals(p):
+            def chisqfunc_residuals_corr(p):
                 model = func(p, x)
                 chisq = anp.dot(chol_inv, (y_f - model))
                 return chisq
 
-        else:
-            def chisqfunc_residuals(p):
-                model = func(p, x)
-                chisq = ((y_f - model) / dy_f)
-                return chisq
+        def chisqfunc_residuals(p):
+            model = func(p, x)
+            chisq = ((y_f - model) / dy_f)
+            return chisq
 
         fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+        if kwargs.get('correlated_fit') is True:
+            fit_result = scipy.optimize.least_squares(chisqfunc_residuals_corr, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 
         chisquare = np.sum(fit_result.fun ** 2)
 

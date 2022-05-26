@@ -267,16 +267,6 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
-    condn = np.linalg.cond(hess)
-    if condn > 1e8:
-        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.\n \
-                       Maybe try rescaling the problem such that all parameters are of O(1).".format(condn), RuntimeWarning)
-    try:
-        hess_inv = np.linalg.inv(hess)
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
-    except Exception:
-        raise Exception("Unkown error in connection with Hessian inverse.")
 
     def odr_chisquare_compact_x(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -285,7 +275,11 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
 
-    deriv_x = -hess_inv @ jac_jac_x[:n_parms + m, n_parms + m:]
+    # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_x = -scipy.linalg.solve(hess, jac_jac_x[:n_parms + m, n_parms + m:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     def odr_chisquare_compact_y(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -294,7 +288,11 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((fitp, out.xplus.ravel(), y_f)))
 
-    deriv_y = -hess_inv @ jac_jac_y[:n_parms + m, n_parms + m:]
+    # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms + m, n_parms + m:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     result = []
     for i in range(n_parms):
@@ -560,16 +558,6 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         hess = jacobian(jacobian(chisqfunc))(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
-    condn = np.linalg.cond(hess)
-    if condn > 1e8:
-        warnings.warn("Hessian matrix might be ill-conditioned ({0:1.2e}), error propagation might be unreliable.\n \
-                       Maybe try rescaling the problem such that all parameters are of O(1).".format(condn), RuntimeWarning)
-    try:
-        hess_inv = np.linalg.inv(hess)
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
-    except Exception:
-        raise Exception("Unkown error in connection with Hessian inverse.")
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):
@@ -585,7 +573,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
 
-    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
+    # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
+    try:
+        deriv = -scipy.linalg.solve(hess, jac_jac[:n_parms, n_parms:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     result = []
     for i in range(n_parms):

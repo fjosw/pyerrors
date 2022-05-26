@@ -149,8 +149,10 @@ def test_correlated_fit():
                 return p[1] * anp.exp(-p[0] * x)
 
         fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
+        assert np.isclose(fitp.chisquare / fitp.dof, fitp.chisquare_by_dof, atol=1e-14)
 
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
+        assert np.isclose(fitpc.chisquare / fitpc.dof, fitpc.chisquare_by_dof, atol=1e-14)
         for i in range(2):
             diff = fitp[i] - fitpc[i]
             diff.gamma_method()
@@ -176,6 +178,8 @@ def test_fit_corr_independent():
         out_corr = pe.least_squares(x, oy, func, correlated_fit=True, method=method)
 
         assert np.isclose(out.chisquare, out_corr.chisquare)
+        assert np.isclose(out.dof, out_corr.dof)
+        assert np.isclose(out.chisquare_by_dof, out_corr.chisquare_by_dof)
         assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
         assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
 

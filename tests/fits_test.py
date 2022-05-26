@@ -171,12 +171,13 @@ def test_fit_corr_independent():
         y = a[0] * anp.exp(-a[1] * x)
         return y
 
-    out = pe.least_squares(x, oy, func)
-    out_corr = pe.least_squares(x, oy, func, correlated_fit=True)
+    for method in ["Levenberg-Marquardt", "migrad", "Nelder-Mead"]:
+        out = pe.least_squares(x, oy, func, method=method)
+        out_corr = pe.least_squares(x, oy, func, correlated_fit=True, method=method)
 
-    assert np.isclose(out.chisquare, out_corr.chisquare)
-    assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
-    assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
+        assert np.isclose(out.chisquare, out_corr.chisquare)
+        assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
+        assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
 
 
 def test_total_least_squares():

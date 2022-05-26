@@ -3,6 +3,8 @@ from itertools import permutations
 import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
@@ -1193,6 +1195,57 @@ class Corr:
 
         newcontent = [None if (self.content[t] is None) else rmat[t] for t in range(self.T)]
         return Corr(newcontent)
+
+    def scan_fitrange(self, func, fitrange=None, dt_min=None, p_filter=0.05, **kwargs):
+        for i in range(25):
+            try:
+                func(np.arange(i), np.array([1]))
+            except Exception:
+                pass
+            else:
+                break
+        n_parms = i
+        if dt_min < n_parms:
+            raise Exception("dt_min cannot be smaller than the number of fit parameters.")
+        if dt_min > fitrange[1] - fitrange[0]:
+            raise Exception("dt_min has to fit into the fitrange.")
+
+        results = {}
+        for tstart in range(fitrange[0], fitrange[1] - dt_min + 1):
+            if tstart not in results:
+                results[tstart] = {}
+            for tstop in range(tstart + dt_min, fitrange[1] + 1):
+                try:
+                    results[tstart][tstop] = self.fit(func, [tstart, tstop], silent=True, **kwargs)
+                except Exception:
+                    pass
+
+        colormap = cm.coolwarm
+
+        for parm in range(n_parms):
+            for key, subdict in results.items():
+                entries = len(subdict)
+                e_count = 0.5
+                d_length = 0.5
+                for skey, fresult in subdict.items():
+                    if fresult.p_value > p_filter:
+                        fresult.gamma_method()
+                        plt.errorbar(key - d_length / 2 + e_count / entries * d_length,
+                                     fresult[parm].value, fresult[parm].dvalue,
+                                     color=colormap((skey - fitrange[0] - dt_min) / (fitrange[1] - fitrange[0] - dt_min)),
+                                     ms=3)
+                        e_count += 1
+            plt.xlabel(r"$x_{0,\mathrm{start}}/a$")
+            values = np.arange(fitrange[0] + dt_min, fitrange[1] + 1)
+            normalize = mcolors.Normalize(vmin=values.min(), vmax=values.max())
+            scalarmappaple = cm.ScalarMappable(norm=normalize, cmap=colormap)
+            scalarmappaple.set_array(values)
+            cbar = plt.colorbar(scalarmappaple)
+            cbar.ax.get_yaxis().labelpad = 25
+            cbar.ax.invert_yaxis()
+            cbar.set_label(r"$x_{0,\mathrm{stop}}/a$", rotation=270)
+            plt.title("Parameter " + str(parm))
+            plt.show()
 
 
 def _sort_vectors(vec_set, ts):

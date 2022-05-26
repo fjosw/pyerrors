@@ -525,6 +525,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             fit_result = scipy.optimize.least_squares(chisqfunc_residuals_corr, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 
         chisquare = np.sum(fit_result.fun ** 2)
+        if kwargs.get('correlated_fit') is True:
+            assert np.isclose(chisquare, chisqfunc_corr(fit_result.x), atol=1e-14)
+        else:
+            assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
 
         output.iterations = fit_result.nfev
 
@@ -585,7 +589,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output.fit_parameters = result
 
-    output.chisquare = chisqfunc(fit_result.x)
+    output.chisquare = chisquare
     output.dof = x.shape[-1] - n_parms
     output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
 

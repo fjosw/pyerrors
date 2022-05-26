@@ -1,5 +1,7 @@
 import warnings
 import pickle
+from math import gcd
+from functools import reduce
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian
@@ -981,6 +983,39 @@ def _merge_idx(idl):
     return sorted(set().union(*idl))
 
 
+def _intersection_idx(idl):
+    """Returns the intersection of all lists in idl as sorted list
+
+    Parameters
+    ----------
+    idl : list
+        List of lists or ranges.
+    """
+
+    def _lcm(*args):
+        """Returns the lowest common multiple of args.
+
+        From python 3.9 onwards the math library contains an lcm function."""
+        return reduce(lambda a, b: a * b // gcd(a, b), args)
+
+    # Use groupby to efficiently check whether all elements of idl are identical
+    try:
+        g = groupby(idl)
+        if next(g, True) and not next(g, False):
+            return idl[0]
+    except Exception:
+        pass
+
+    if np.all([type(idx) is range for idx in idl]):
+        if len(set([idx[0] for idx in idl])) == 1:
+            idstart = max([idx.start for idx in idl])
+            idstop = min([idx.stop for idx in idl])
+            idstep = _lcm(*[idx.step for idx in idl])
+            return range(idstart, idstop, idstep)
+
+    return sorted(set.intersection(*[set(o) for o in idl]))
+
+
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
@@ -1005,6 +1040,34 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
     for i in range(shape):
         ret[idx[i] - new_idx[0]] = deltas[i]
+    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
+
+
+def _collapse_deltas_for_merge(deltas, idx, shape, new_idx):
+    """Collapse deltas defined on idx to the list of configs that is defined by new_idx.
+       If idx and new_idx are of type range, the smallest
+       common divisor of the step sizes is used as new step size.
+
+    Parameters
+    ----------
+    deltas : list
+        List of fluctuations
+    idx : list
+        List or range of configs on which the deltas are defined.
+        Has to be a subset of new_idx and has to be sorted in ascending order.
+    shape : list
+        Number of configs in idx.
+    new_idx : list
+        List of configs that defines the new range, has to be sorted in ascending order.
+    """
+
+    if type(idx) is range and type(new_idx) is range:
+        if idx == new_idx:
+            return deltas
+    ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
+    for i in range(shape):
+        if idx[i] in new_idx:
+            ret[idx[i] - new_idx[0]] = deltas[i]
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 
@@ -1429,8 +1492,8 @@ def _covariance_element(obs1, obs2):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = _expand_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
-        deltas2 = _expand_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
+        deltas1 = _collapse_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
+        deltas2 = _collapse_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
         return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):
@@ -1450,12 +1513,14 @@ def _covariance_element(obs1, obs2):
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            idl_d[r_name] = _merge_idx([obs1.idl[r_name], obs2.idl[r_name]])
+            idl_d[r_name] = _intersection_idx([obs1.idl[r_name], obs2.idl[r_name]])
 
         gamma = 0.0
 
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
+                continue
+            if len(idl_d[r_name]) == 0:
                 continue
             gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
 
@@ -1463,16 +1528,15 @@ def _covariance_element(obs1, obs2):
             continue
 
         gamma_div = 0.0
-        e_N = 0
         for r_name in obs1.e_content[e_name]:
             if r_name not in obs2.e_content[e_name]:
                 continue
-            gamma_div += calc_gamma(np.ones(obs1.shape[r_name]), np.ones(obs2.shape[r_name]), obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
-            e_N += len(idl_d[r_name])
-        gamma /= max(gamma_div, 1.0)
+            if len(idl_d[r_name]) == 0:
+                continue
+            gamma_div += np.sqrt(calc_gamma(obs1.deltas[r_name], obs1.deltas[r_name], obs1.idl[r_name], obs1.idl[r_name], idl_d[r_name]) * calc_gamma(obs2.deltas[r_name], obs2.deltas[r_name], obs2.idl[r_name], obs2.idl[r_name], idl_d[r_name]))
+        gamma /= gamma_div
 
-        # Bias correction hep-lat/0306017 eq. (49)
-        dvalue += (1 + 1 / e_N) * gamma / e_N
+        dvalue += gamma
 
     for e_name in obs1.cov_names:
 

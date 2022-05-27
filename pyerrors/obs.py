@@ -1452,13 +1452,6 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     if isinstance(smooth, int):
         corr = _smooth_eigenvalues(corr, smooth)
 
-    errors = [o.dvalue for o in obs]
-    cov = np.diag(errors) @ corr @ np.diag(errors)
-
-    eigenvalues = np.linalg.eigh(cov)[0]
-    if not np.all(eigenvalues >= 0):
-        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
-
     if visualize:
         plt.matshow(corr, vmin=-1, vmax=1)
         plt.set_cmap('RdBu')
@@ -1467,8 +1460,15 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
 
     if correlation is True:
         return corr
-    else:
-        return cov
+
+    errors = [o.dvalue for o in obs]
+    cov = np.diag(errors) @ corr @ np.diag(errors)
+
+    eigenvalues = np.linalg.eigh(cov)[0]
+    if not np.all(eigenvalues >= 0):
+        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
+
+    return cov
 
 
 def _smooth_eigenvalues(corr, E):

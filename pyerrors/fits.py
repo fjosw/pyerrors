@@ -477,8 +477,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         if condn > 1 / np.sqrt(np.finfo(float).eps):
             warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
         chol = np.linalg.cholesky(corr)
-        chol_inv = np.linalg.inv(chol)
-        chol_inv = np.dot(chol_inv, covdiag)
+        chol_inv = scipy.linalg.solve(chol, covdiag)
 
         def chisqfunc_corr(p):
             model = func(p, x)

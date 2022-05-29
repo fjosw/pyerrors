@@ -55,8 +55,8 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
-    """Read hadrons meson hdf5 file and extract the meson labeled 'meson'
+def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=None):
+    r'''Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
     -----------------
@@ -69,13 +69,31 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None):
     meson : str
         label of the meson to be extracted, standard value meson_0 which
         corresponds to the pseudoscalar pseudoscalar two-point function.
+    gammas : tuple of strings
+        Instrad of a meson label one can also provide a tuple of two strings
+        indicating the gamma matrices at source and sink.
+        ("Gamma5", "Gamma5") corresponds to the pseudoscalar pseudoscalar
+        two-point function. The gammas argument dominateds over meson.
     idl : range
         If specified only configurations in the given range are read in.
-    """
+    '''
 
     files, idx = _get_files(path, filestem, idl)
 
     tree = meson.rsplit('_')[0]
+    if gammas is not None:
+        h5file = h5py.File(path + '/' + files[0], "r")
+        found_meson = None
+        for key in h5file[tree].keys():
+            if gammas[0] == h5file[tree][key].attrs["gamma_snk"][0].decode() and h5file[tree][key].attrs["gamma_src"][0].decode() == gammas[1]:
+                found_meson = key
+                break
+        h5file.close()
+        if found_meson:
+            meson = found_meson
+        else:
+            raise Exception("Source Sink combination " + str(gammas) + " not found.")
+
     corr_data = []
     infos = []
     for hd5_file in files:

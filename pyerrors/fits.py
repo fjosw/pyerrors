@@ -95,7 +95,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If true all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
-        non-linear fits with many parameters.
+        non-linear fits with many parameters. In case of correlated fits the guess is used to perform
+        an uncorrelated fit which then serves as guess for the correlated fit.
     method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and

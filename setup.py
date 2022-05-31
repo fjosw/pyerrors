@@ -9,6 +9,10 @@ setup(name='pyerrors',
       long_description=long_description,
       long_description_content_type='text/markdown',
       url="https://github.com/fjosw/pyerrors",
+      project_urls= {
+        'Documentation': 'https://fjosw.github.io/pyerrors/pyerrors.html',
+        'Bug Tracker':   'https://github.com/fjosw/pyerrors/issues'
+      },
       author='Fabian Joswig',
       author_email='fabian.joswig@ed.ac.uk',
       license="MIT",

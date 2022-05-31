@@ -758,7 +758,7 @@ class Corr:
 
         x, y, y_err = self.plottable()
         if hide_sigma:
-            hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+            hide_from = np.argmax((hide_sigma * np.array(y_err[1:])) > np.abs(y[1:])) - 1
         else:
             hide_from = None
         ax1.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=self.tag)
@@ -781,7 +781,7 @@ class Corr:
                         corr.gamma_method()
                     x, y, y_err = corr.plottable()
                     if hide_sigma:
-                        hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+                        hide_from = np.argmax((hide_sigma * np.array(y_err[1:])) > np.abs(y[1:])) - 1
                     else:
                         hide_from = None
                     plt.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])

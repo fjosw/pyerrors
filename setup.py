@@ -18,7 +18,7 @@ setup(name='pyerrors',
       license="MIT",
       packages=find_packages(),
       python_requires='>=3.6.0',
-      install_requires=['numpy>=1.16', 'autograd>=1.4', 'numdifftools', 'matplotlib>=3.3', 'scipy', 'iminuit>=2', 'h5py', 'lxml', 'python-rapidjson'],
+      install_requires=['numpy>=1.16', 'autograd>=1.4', 'numdifftools', 'matplotlib>=3.3', 'scipy>=1', 'iminuit>=2', 'h5py', 'lxml', 'python-rapidjson'],
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Science/Research',

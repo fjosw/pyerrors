@@ -381,6 +381,40 @@ def test_error_band():
     pe.fits.error_band(x, f, fitp.fit_parameters)
 
 
+def test_fit_vs_jackknife():
+    od = 0.9999999999
+    cov1 = np.array([[1, od, od], [od, 1.0, od], [od, od, 1.0]])
+    cov1 *= 0.05
+    nod = -0.4
+    cov2 = np.array([[1, nod, nod], [nod, 1.0, nod], [nod, nod, 1.0]])
+    cov2 *= 0.05
+    cov3 = np.identity(3)
+    cov3 *= 0.05
+    samples = 500
+
+    for i, cov in enumerate([cov1, cov2, cov3]):
+        dat = pe.misc.gen_correlated_data(np.arange(1, 4), cov, 'test', 0.5, samples=samples)
+        [o.gamma_method(S=0) for o in dat];
+        func = lambda a, x: a[0] + a[1] * x
+        fr = pe.least_squares(np.arange(1, 4), dat, func)
+        fr.gamma_method(S=0)
+
+        jd = np.array([o.export_jackknife() for o in dat]).T
+        jfr = []
+        for jacks in jd:
+
+            def chisqfunc_residuals(p):
+                model = func(p, np.arange(1, 4))
+                chisq = ((jacks - model) / [o.dvalue for o in dat])
+                return chisq
+
+            tf = scipy.optimize.least_squares(chisqfunc_residuals, [0.0, 0.0], method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+            jfr.append(tf.x)
+        ajfr = np.array(jfr).T
+        err = np.array([np.sqrt(np.var(ajfr[j][1:], ddof=0) * (samples - 1)) for j in range(2)])
+        assert np.allclose(err, [o.dvalue for o in fr], atol=1e-8)
+
+
 def test_fit_no_autograd():
     dim = 10
     x = np.arange(dim)

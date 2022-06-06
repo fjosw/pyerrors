@@ -34,9 +34,9 @@ class Fit_result(Sequence):
     def __len__(self):
         return len(self.fit_parameters)
 
-    def gamma_method(self):
+    def gamma_method(self, **kwargs):
         """Apply the gamma method to all fit parameters"""
-        [o.gamma_method() for o in self.fit_parameters]
+        [o.gamma_method(**kwargs) for o in self.fit_parameters]
 
     def __str__(self):
         my_str = 'Goodness of fit:\n'

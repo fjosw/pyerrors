@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2022-06-06
+### Fixed
+- Bug in error propagation of correlated least square fits fixed.
+- Fit_result.gamma_method can now be called with kwargs
+
 ## [2.1.0] - 2022-05-31
 ### Added
 - `obs.covariance` now has the option to smooth small eigenvalues of the matrix with the method described in hep-lat/9412087.

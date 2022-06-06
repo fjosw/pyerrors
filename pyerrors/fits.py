@@ -559,7 +559,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     fitp = fit_result.x
     try:
-        hess = jacobian(jacobian(chisqfunc))(fitp)
+        if kwargs.get('correlated_fit') is True:
+            hess = jacobian(jacobian(chisqfunc_corr))(fitp)
+        else:
+            hess = jacobian(jacobian(chisqfunc))(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 

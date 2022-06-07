@@ -414,6 +414,46 @@ def test_fit_vs_jackknife():
         err = np.array([np.sqrt(np.var(ajfr[j][1:], ddof=0) * (samples - 1)) for j in range(2)])
         assert np.allclose(err, [o.dvalue for o in fr], atol=1e-8)
 
+def test_correlated_fit_vs_jackknife():
+    od = 0.999999
+    cov1 = np.array([[1, od, od], [od, 1.0, od], [od, od, 1.0]])
+    cov1 *= 0.1
+    nod = -0.44
+    cov2 = np.array([[1, nod, nod], [nod, 1.0, nod], [nod, nod, 1.0]])
+    cov2 *= 0.1
+    cov3 = np.identity(3)
+    cov3 *= 0.01
+
+    samples = 250
+    x_val = np.arange(1, 6, 2)
+    for i, cov in enumerate([cov1, cov2, cov3]):
+        dat = pe.misc.gen_correlated_data(x_val + x_val ** 2 + np.random.normal(0.0, 0.1, 3), cov, 'test', 0.5, samples=samples)
+        [o.gamma_method(S=0) for o in dat];
+        dat
+        func = lambda a, x: a[0] * x + a[1] * x ** 2
+        fr = pe.least_squares(x_val, dat, func, correlated_fit=True, silent=True)
+        [o.gamma_method(S=0) for o in fr]
+
+        cov = pe.covariance(dat)
+        chol = np.linalg.cholesky(cov)
+        chol_inv = np.linalg.inv(chol)
+
+        jd = np.array([o.export_jackknife() for o in dat]).T
+        jfr = []
+        for jacks in jd:
+
+            def chisqfunc_residuals(p):
+                model = func(p, x_val)
+                chisq = np.dot(chol_inv, (jacks - model))
+                return chisq
+
+            tf = scipy.optimize.least_squares(chisqfunc_residuals, [0.0, 0.0], method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+            jfr.append(tf.x)
+        ajfr = np.array(jfr).T
+        err = np.array([np.sqrt(np.var(ajfr[j][1:], ddof=0) * (samples - 1)) for j in range(2)])
+        assert np.allclose(err, [o.dvalue for o in fr], atol=1e-7)
+        assert np.allclose(ajfr.T[0], [o.value for o in fr], atol=1e-8)
+
 
 def test_fit_no_autograd():
     dim = 10

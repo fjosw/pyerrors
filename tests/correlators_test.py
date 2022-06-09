@@ -332,6 +332,15 @@ def test_matrix_symmetric():
 
     assert np.all([np.all(o == o.T) for o in sym_corr_mat])
 
+    t_obs = pe.pseudo_Obs(1.0, 0.1, 'test')
+    o_mat = np.array([[t_obs, t_obs], [t_obs, t_obs]])
+    corr1 = pe.Corr([o_mat, None, o_mat])
+    corr2 = pe.Corr([o_mat, np.array([[None, None], [None, None]]), o_mat])
+    corr3 = pe.Corr([o_mat, np.array([[t_obs, None], [None, t_obs]], dtype=object), o_mat])
+    corr1.matrix_symmetric()
+    corr2.matrix_symmetric()
+    corr3.matrix_symmetric()
+
 
 def test_GEVP_solver():
 
@@ -345,6 +354,17 @@ def test_GEVP_solver():
     sp_vecs = [v / np.sqrt((v.T @ mat2 @ v)) for v in sp_vecs]
 
     assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2), atol=1e-14)
+
+
+def test_GEVP_none_entries():
+    t_obs = pe.pseudo_Obs(1.0, 0.1, 'test')
+    t_obs2 = pe.pseudo_Obs(0.1, 0.1, 'test')
+
+    o_mat = np.array([[t_obs, t_obs2], [t_obs2, t_obs2]])
+    n_arr = np.array([[None, None], [None, None]])
+
+    corr = pe.Corr([o_mat, o_mat, o_mat, o_mat, o_mat, o_mat, None, o_mat, n_arr, None, o_mat])
+    corr.GEVP(t0=2)
 
 
 def test_hankel():

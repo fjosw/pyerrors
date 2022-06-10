@@ -236,7 +236,7 @@ class Corr:
     def matrix_symmetric(self):
         """Symmetrizes the correlator matrices on every timeslice."""
         if self.N > 1:
-            transposed = [None if (G is None) else G.T for G in self.content]
+            transposed = [None if len(list(filter(None, np.asarray(G).flatten()))) < self.N ** 2 else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")

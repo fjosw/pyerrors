@@ -736,6 +736,23 @@ def test_covariance_factorizing():
     assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
 
 
+def test_covariance_smooth_eigenvalues():
+    for c_coeff in range(0, 14, 2):
+        length = 14
+        sm = 5
+        t_fac = 1.5
+        tt = pe.misc.gen_correlated_data(np.zeros(length), 1 - 0.1 ** c_coeff * np.ones((length, length)) + 0.1 ** c_coeff * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=200)
+        [o.gamma_method() for o in tt]
+        full_corr = pe.covariance(tt, correlation=True)
+        cov = pe.covariance(tt, smooth=sm, correlation=True)
+
+        full_evals = np.linalg.eigh(full_corr)[0]
+        sm_length = np.where(full_evals < np.mean(full_evals[:-sm]))[0][-1]
+
+        evals = np.linalg.eigh(cov)[0]
+        assert np.all(np.isclose(evals[:sm_length], evals[0], atol=1e-8))
+
+
 def test_covariance_alternation():
     length = 12
     t_fac = 2.5

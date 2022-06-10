@@ -2,10 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2022-06-10
+### Fixed
+- Bug in `Corr.matrix_symmetric` fixed which appeared when a time slice contained an array with `None` entries.
+
 ## [2.1.1] - 2022-06-06
 ### Fixed
 - Bug in error propagation of correlated least square fits fixed.
-- Fit_result.gamma_method can now be called with kwargs
+- `Fit_result.gamma_method` can now be called with kwargs
 
 ## [2.1.0] - 2022-05-31
 ### Added

@@ -423,13 +423,15 @@ class Corr:
             Can either be an Obs which is correlated with all entries of the
             correlator or a Corr of same length.
         """
+        if self.N != 1:
+            raise Exception("Only one-dimensional correlators can be safely correlated.")
         new_content = []
         for x0, t_slice in enumerate(self.content):
-            if t_slice is None:
+            if _check_for_none(self, t_slice):
                 new_content.append(None)
             else:
                 if isinstance(partner, Corr):
-                    if partner.content[x0] is None:
+                    if _check_for_none(partner, partner.content[x0]):
                         new_content.append(None)
                     else:
                         new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
@@ -453,9 +455,11 @@ class Corr:
             the reweighting factor on all configurations in weight.idl and not
             on the configurations in obs[i].idl.
         """
+        if self.N != 1:
+            raise Exception("Reweighting only implemented for one-dimensional correlators.")
         new_content = []
         for t_slice in self.content:
-            if t_slice is None:
+            if _check_for_none(self, t_slice):
                 new_content.append(None)
             else:
                 new_content.append(np.array(reweight(weight, t_slice, **kwargs)))
@@ -471,6 +475,8 @@ class Corr:
         partity : int
             Parity quantum number of the correlator, can be +1 or -1
         """
+        if self.N != 1:
+            raise Exception("T_symmetry only implemented for one-dimensional correlators.")
         if not isinstance(partner, Corr):
             raise Exception("T partner has to be a Corr object.")
         if parity not in [+1, -1]:
@@ -498,6 +504,8 @@ class Corr:
             decides which definition of the finite differences derivative is used.
             Available choice: symmetric, forward, backward, improved, default: symmetric
         """
+        if self.N != 1:
+            raise Exception("deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -550,6 +558,8 @@ class Corr:
             decides which definition of the finite differences derivative is used.
             Available choice: symmetric, improved, default: symmetric
         """
+        if self.N != 1:
+            raise Exception("second_deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -1224,6 +1234,7 @@ def _sort_vectors(vec_set, ts):
             sorted_vec_set.append(vec_set[t])
 
     return sorted_vec_set
+
 
 def _check_for_none(corr, entry):
     """Checks if entry for correlator corr is None"""

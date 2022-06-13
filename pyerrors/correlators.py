@@ -197,6 +197,8 @@ class Corr:
 
     def symmetric(self):
         """ Symmetrize the correlator around x0=0."""
+        if self.N != 1:
+            raise Exception('symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
@@ -215,6 +217,8 @@ class Corr:
 
     def anti_symmetric(self):
         """Anti-symmetrize the correlator around x0=0."""
+        if self.N != 1:
+            raise Exception('anti_symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 

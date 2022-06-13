@@ -155,7 +155,7 @@ class Corr:
                 raise Exception("Vectors are of wrong shape!")
             if normalize:
                 vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
-            newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
+            newcontent = [None if len(list(filter(None, np.asarray(item).flatten()))) < self.N ** 2 else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
 
         else:
             # There are no checks here yet. There are so many possible scenarios, where this can go wrong.
@@ -163,7 +163,7 @@ class Corr:
                 for t in range(self.T):
                     vector_l[t], vector_r[t] = vector_l[t] / np.sqrt((vector_l[t] @ vector_l[t])), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
 
-            newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
+            newcontent = [None if (len(list(filter(None, np.asarray(self.content[t]).flatten()))) < self.N ** 2 or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
     def item(self, i, j):

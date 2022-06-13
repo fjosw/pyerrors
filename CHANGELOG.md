@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.3] - 2022-06-13
+### Fixed
+- Further bugs in connection with correlator objects which have arrays with None entries as content fixed.
+
 ## [2.1.2] - 2022-06-10
 ### Fixed
 - Bug in `Corr.matrix_symmetric` fixed which appeared when a time slice contained an array with `None` entries.

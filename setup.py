@@ -4,7 +4,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(name='pyerrors',
-      version='2.2.0+dev',
+      version='2.1.3',
       description='Error analysis for lattice QCD',
       long_description=long_description,
       long_description_content_type='text/markdown',

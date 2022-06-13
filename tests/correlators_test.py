@@ -246,6 +246,21 @@ def test_matrix_corr():
     corr_mat.Eigenvalue(2, state=0)
 
 
+def test_corr_none_entries():
+    a = pe.pseudo_Obs(1.0, 0.1, 'a')
+    l = np.asarray([[a, a], [a, a]])
+    n = np.asarray([[None, None], [None, None]])
+    x = [l, n]
+    matr = pe.Corr(x)
+    matr.projected(np.asarray([1.0, 0.0]))
+
+    matr * 2 - 2 * matr
+    matr * matr + matr ** 2 / matr
+
+    for func in [np.sqrt, np.log, np.exp, np.sin, np.cos, np.tan, np.sinh, np.cosh, np.tanh]:
+        func(matr)
+
+
 def test_GEVP_warnings():
     corr_aa = _gen_corr(1)
     corr_ab = 0.5 * corr_aa

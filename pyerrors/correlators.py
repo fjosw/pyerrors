@@ -637,7 +637,7 @@ class Corr:
         elif variant == 'arccosh':
             newcontent = []
             for t in range(1, self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None) or (self.content[t + 1][0].value == 0) or (self.content[t - 1][0].value == 0):
+                if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None) or (self.content[t][0].value == 0):
                     newcontent.append(None)
                 else:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))

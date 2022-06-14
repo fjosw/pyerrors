@@ -12,3 +12,4 @@ core.*
 htmlcov
 build
 pyerrors.egg-info
+dist

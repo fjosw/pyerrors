@@ -1,6 +1,7 @@
 import autograd.numpy as np
 import os
 import copy
+import matplotlib.pyplot as plt
 import pyerrors as pe
 import pytest
 
@@ -56,6 +57,7 @@ def test_Obs_exceptions():
     one.gamma_method()
     with pytest.raises(Exception):
         one.plot_piechart()
+    plt.close('all')
 
 def test_dump():
     value = np.random.normal(5, 10)
@@ -368,6 +370,7 @@ def test_utils():
         assert my_obs < (my_obs + 1)
         float(my_obs)
         str(my_obs)
+        plt.close('all')
 
 
 def test_cobs():

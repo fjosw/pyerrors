@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import scipy
+import matplotlib.pyplot as plt
 import pyerrors as pe
 import pytest
 
@@ -440,6 +441,7 @@ def test_spaghetti_plot():
 
     corr.spaghetti_plot(True)
     corr.spaghetti_plot(False)
+    plt.close('all')
 
 
 def _gen_corr(val, samples=2000):

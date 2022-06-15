@@ -897,10 +897,10 @@ class Corr:
         else:
             raise Exception("Unknown datatype " + str(datatype))
 
-    def print(self, range=[0, None]):
-        print(self.__repr__(range))
+    def print(self, print_range=[0, None]):
+        print(self.__repr__(print_range))
 
-    def __repr__(self, range=[0, None]):
+    def __repr__(self, print_range=[0, None]):
         content_string = ""
 
         content_string += "Corr T=" + str(self.T) + " N=" + str(self.N) + "\n"  # +" filled with"+ str(type(self.content[0][0])) there should be a good solution here
@@ -910,14 +910,14 @@ class Corr:
         if self.N != 1:
             return content_string
 
-        if range[1]:
-            range[1] += 1
+        if print_range[1]:
+            print_range[1] += 1
         content_string += 'x0/a\tCorr(x0/a)\n------------------\n'
-        for i, sub_corr in enumerate(self.content[range[0]:range[1]]):
+        for i, sub_corr in enumerate(self.content[print_range[0]:print_range[1]]):
             if sub_corr is None:
-                content_string += str(i + range[0]) + '\n'
+                content_string += str(i + print_range[0]) + '\n'
             else:
-                content_string += str(i + range[0])
+                content_string += str(i + print_range[0])
                 for element in sub_corr:
                     content_string += '\t' + ' ' * int(element >= 0) + str(element)
                 content_string += '\n'

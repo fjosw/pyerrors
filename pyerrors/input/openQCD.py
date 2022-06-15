@@ -150,7 +150,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                     print('something is wrong!')
 
             configlist.append([])
-            while 0 < 1:
+            while True:
                 t = fp.read(4)
                 if len(t) < 4:
                     break
@@ -362,7 +362,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
             Ysl = []
 
             configlist.append([])
-            while 0 < 1:
+            while True:
                 t = fp.read(4)
                 if(len(t) < 4):
                     break
@@ -657,7 +657,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
                     nfl = 1
                 iobs = 8 * nfl  # number of flow observables calculated
 
-                while 0 < 1:
+                while True:
                     t = fp.read(4)
                     if(len(t) < 4):
                         break
@@ -682,7 +682,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
                 t = fp.read(8)
                 eps = struct.unpack('d', t)[0]
 
-                while 0 < 1:
+                while True:
                     t = fp.read(4)
                     if(len(t) < 4):
                         break

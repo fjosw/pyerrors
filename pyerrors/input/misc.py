@@ -93,7 +93,7 @@ def read_pbp(path, prefix, **kwargs):
                 nsrc.append(struct.unpack('i', t)[0])
 
             # body
-            while 0 < 1:
+            while True:
                 t = fp.read(4)
                 if len(t) < 4:
                     break

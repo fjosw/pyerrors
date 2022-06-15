@@ -897,12 +897,14 @@ class Corr:
         else:
             raise Exception("Unknown datatype " + str(datatype))
 
-    def print(self, print_range=[0, None]):
+    def print(self, print_range=None):
         print(self.__repr__(print_range))
 
-    def __repr__(self, print_range=[0, None]):
-        content_string = ""
+    def __repr__(self, print_range=None):
+        if print_range is None:
+            print_range = [0, None]
 
+        content_string = ""
         content_string += "Corr T=" + str(self.T) + " N=" + str(self.N) + "\n"  # +" filled with"+ str(type(self.content[0][0])) there should be a good solution here
 
         if self.tag is not None:

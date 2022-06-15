@@ -17,8 +17,6 @@ def read_pbp(path, prefix, **kwargs):
         list which contains the last config to be read for each replicum
     """
 
-    extract_nfct = 1
-
     ls = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         ls.extend(filenames)
@@ -78,14 +76,10 @@ def read_pbp(path, prefix, **kwargs):
 
             # This block is necessary for openQCD1.6 ms1 files
             nfct = []
-            if extract_nfct == 1:
-                for i in range(nrw):
-                    t = fp.read(4)
-                    nfct.append(struct.unpack('i', t)[0])
-                print('nfct: ', nfct)  # Hasenbusch factor, 1 for rat reweighting
-            else:
-                for i in range(nrw):
-                    nfct.append(1)
+            for i in range(nrw):
+                t = fp.read(4)
+                nfct.append(struct.unpack('i', t)[0])
+            print('nfct: ', nfct)  # Hasenbusch factor, 1 for rat reweighting
 
             nsrc = []
             for i in range(nrw):

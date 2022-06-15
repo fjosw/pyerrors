@@ -8,7 +8,6 @@ import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
-from scipy.stats import chi2
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
@@ -303,7 +302,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
-    output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
+    output.p_value = 1 - scipy.stats.chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
 
@@ -594,7 +593,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output.chisquare = chisquare
     output.dof = x.shape[-1] - n_parms
-    output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
+    output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)

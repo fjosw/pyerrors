@@ -171,10 +171,6 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
                 identifier = tuple(identifier)
                 # "DistillationContraction/Metadata/DmfSuffix" contains info about different quarks, irrelevant in the SU(3) case.
 
-            check_traj = h5file["DistillationContraction/Metadata"].attrs.get("Traj")[0]
-
-            assert check_traj == n_traj
-
             for diagram in diagrams:
                 real_data = np.zeros(Nt)
                 for x0 in range(Nt):

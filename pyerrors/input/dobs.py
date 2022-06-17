@@ -827,7 +827,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     return rs
 
 
-def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags={}, gz=True):
+def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 
@@ -857,6 +857,8 @@ def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=No
     gz : bool
         If True, the output is a gzipped XML. If False, the output is a XML file.
     """
+    if enstags is None:
+        enstags = {}
 
     dobsstring = create_dobs_string(obsl, name, spec, origin, symbol, who, enstags=enstags)
 

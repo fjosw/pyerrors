@@ -8,7 +8,6 @@ import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
-from scipy.stats import chi2
 import iminuit
 from autograd import jacobian
 from autograd import elementwise_grad as egrad
@@ -34,9 +33,9 @@ class Fit_result(Sequence):
     def __len__(self):
         return len(self.fit_parameters)
 
-    def gamma_method(self):
+    def gamma_method(self, **kwargs):
         """Apply the gamma method to all fit parameters"""
-        [o.gamma_method() for o in self.fit_parameters]
+        [o.gamma_method(**kwargs) for o in self.fit_parameters]
 
     def __str__(self):
         my_str = 'Goodness of fit:\n'
@@ -95,7 +94,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If true all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
-        non-linear fits with many parameters.
+        non-linear fits with many parameters. In case of correlated fits the guess is used to perform
+        an uncorrelated fit which then serves as guess for the correlated fit.
     method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
@@ -264,7 +264,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     fitp = out.beta
     try:
-        hess_inv = np.linalg.pinv(jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel()))))
+        hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
@@ -275,7 +275,11 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
 
-    deriv_x = -hess_inv @ jac_jac_x[:n_parms + m, n_parms + m:]
+    # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_x = -scipy.linalg.solve(hess, jac_jac_x[:n_parms + m, n_parms + m:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     def odr_chisquare_compact_y(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -284,7 +288,11 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((fitp, out.xplus.ravel(), y_f)))
 
-    deriv_y = -hess_inv @ jac_jac_y[:n_parms + m, n_parms + m:]
+    # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms + m, n_parms + m:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     result = []
     for i in range(n_parms):
@@ -294,7 +302,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
-    output.p_value = 1 - chi2.cdf(output.odr_chisquare, output.dof)
+    output.p_value = 1 - scipy.stats.chi2.cdf(output.odr_chisquare, output.dof)
 
     return output
 
@@ -469,18 +477,17 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
         if condn > 1 / np.sqrt(np.finfo(float).eps):
             warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
         chol = np.linalg.cholesky(corr)
-        chol_inv = np.linalg.inv(chol)
-        chol_inv = np.dot(chol_inv, covdiag)
+        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
-        def chisqfunc(p):
+        def chisqfunc_corr(p):
             model = func(p, x)
             chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
             return chisq
-    else:
-        def chisqfunc(p):
-            model = func(p, x)
-            chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-            return chisq
+
+    def chisqfunc(p):
+        model = func(p, x)
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+        return chisq
 
     output.method = kwargs.get('method', 'Levenberg-Marquardt')
     if not silent:
@@ -489,29 +496,38 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
             fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
+            if kwargs.get('correlated_fit') is True:
+                fit_result = iminuit.minimize(chisqfunc_corr, fit_result.x, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
             output.iterations = fit_result.nfev
         else:
             fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)
+            if kwargs.get('correlated_fit') is True:
+                fit_result = scipy.optimize.minimize(chisqfunc_corr, fit_result.x, method=kwargs.get('method'), tol=1e-12)
             output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
     else:
         if kwargs.get('correlated_fit') is True:
-            def chisqfunc_residuals(p):
+            def chisqfunc_residuals_corr(p):
                 model = func(p, x)
                 chisq = anp.dot(chol_inv, (y_f - model))
                 return chisq
 
-        else:
-            def chisqfunc_residuals(p):
-                model = func(p, x)
-                chisq = ((y_f - model) / dy_f)
-                return chisq
+        def chisqfunc_residuals(p):
+            model = func(p, x)
+            chisq = ((y_f - model) / dy_f)
+            return chisq
 
         fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+        if kwargs.get('correlated_fit') is True:
+            fit_result = scipy.optimize.least_squares(chisqfunc_residuals_corr, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 
         chisquare = np.sum(fit_result.fun ** 2)
+        if kwargs.get('correlated_fit') is True:
+            assert np.isclose(chisquare, chisqfunc_corr(fit_result.x), atol=1e-14)
+        else:
+            assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
 
         output.iterations = fit_result.nfev
 
@@ -542,7 +558,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     fitp = fit_result.x
     try:
-        hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(fitp))
+        if kwargs.get('correlated_fit') is True:
+            hess = jacobian(jacobian(chisqfunc_corr))(fitp)
+        else:
+            hess = jacobian(jacobian(chisqfunc))(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
@@ -560,7 +579,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
 
-    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
+    # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
+    try:
+        deriv = -scipy.linalg.solve(hess, jac_jac[:n_parms, n_parms:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
 
     result = []
     for i in range(n_parms):
@@ -568,9 +591,9 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     output.fit_parameters = result
 
-    output.chisquare = chisqfunc(fit_result.x)
+    output.chisquare = chisquare
     output.dof = x.shape[-1] - n_parms
-    output.p_value = 1 - chi2.cdf(output.chisquare, output.dof)
+    output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)

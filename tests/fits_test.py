@@ -149,8 +149,10 @@ def test_correlated_fit():
                 return p[1] * anp.exp(-p[0] * x)
 
         fitp = pe.least_squares(x, data, fitf, expected_chisquare=True)
+        assert np.isclose(fitp.chisquare / fitp.dof, fitp.chisquare_by_dof, atol=1e-14)
 
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
+        assert np.isclose(fitpc.chisquare / fitpc.dof, fitpc.chisquare_by_dof, atol=1e-14)
         for i in range(2):
             diff = fitp[i] - fitpc[i]
             diff.gamma_method()
@@ -171,12 +173,35 @@ def test_fit_corr_independent():
         y = a[0] * anp.exp(-a[1] * x)
         return y
 
-    out = pe.least_squares(x, oy, func)
-    out_corr = pe.least_squares(x, oy, func, correlated_fit=True)
+    for method in ["Levenberg-Marquardt", "migrad", "Nelder-Mead"]:
+        out = pe.least_squares(x, oy, func, method=method)
+        out_corr = pe.least_squares(x, oy, func, correlated_fit=True, method=method)
 
-    assert np.isclose(out.chisquare, out_corr.chisquare)
-    assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
-    assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
+        assert np.isclose(out.chisquare, out_corr.chisquare)
+        assert np.isclose(out.dof, out_corr.dof)
+        assert np.isclose(out.chisquare_by_dof, out_corr.chisquare_by_dof)
+        assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
+        assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
+
+
+def test_linear_fit_guesses():
+    for err in [10, 0.1, 0.001]:
+        xvals = []
+        yvals = []
+        for x in range(1, 8, 2):
+            xvals.append(x)
+            yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+        lin_func = lambda a, x: a[0] + a[1] * x
+        with pytest.raises(Exception):
+            pe.least_squares(xvals, yvals, lin_func)
+        [o.gamma_method() for o in yvals];
+        with pytest.raises(Exception):
+            pe.least_squares(xvals, yvals, lin_func, initial_guess=[5])
+
+        bad_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[999, 999])
+        good_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[0, 1])
+        assert np.isclose(bad_guess.chisquare, good_guess.chisquare, atol=1e-8)
+        assert np.all([(go - ba).is_zero(atol=1e-6) for (go, ba) in zip(good_guess, bad_guess)])
 
 
 def test_total_least_squares():
@@ -218,7 +243,7 @@ def test_total_least_squares():
         beta[i].gamma_method(S=1.0)
         assert math.isclose(beta[i].value, output.beta[i], rel_tol=1e-5)
         assert math.isclose(output.cov_beta[i, i], beta[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(beta[i].dvalue ** 2)
-    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([beta[0], beta[1]])[0, 1], output.cov_beta[0, 1], rel_tol=3.5e-1)
 
     out = pe.total_least_squares(ox, oy, func, const_par=[beta[1]])
 
@@ -241,7 +266,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=3.5e-1)
 
     outc = pe.total_least_squares(oxc, oyc, func, const_par=[betac[1]])
 
@@ -256,7 +281,7 @@ def test_total_least_squares():
         betac[i].gamma_method(S=1.0)
         assert math.isclose(betac[i].value, output.beta[i], rel_tol=1e-3)
         assert math.isclose(output.cov_beta[i, i], betac[i].dvalue ** 2, rel_tol=2.5e-1), str(output.cov_beta[i, i]) + ' ' + str(betac[i].dvalue ** 2)
-    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=2.5e-1)
+    assert math.isclose(pe.covariance([betac[0], betac[1]])[0, 1], output.cov_beta[0, 1], rel_tol=3.5e-1)
 
     outc = pe.total_least_squares(oxc, oy, func, const_par=[betac[1]])
 
@@ -374,6 +399,80 @@ def test_error_band():
         pe.fits.error_band(x, f, fitp.fit_parameters)
     fitp.gamma_method()
     pe.fits.error_band(x, f, fitp.fit_parameters)
+
+
+def test_fit_vs_jackknife():
+    od = 0.9999999999
+    cov1 = np.array([[1, od, od], [od, 1.0, od], [od, od, 1.0]])
+    cov1 *= 0.05
+    nod = -0.4
+    cov2 = np.array([[1, nod, nod], [nod, 1.0, nod], [nod, nod, 1.0]])
+    cov2 *= 0.05
+    cov3 = np.identity(3)
+    cov3 *= 0.05
+    samples = 500
+
+    for i, cov in enumerate([cov1, cov2, cov3]):
+        dat = pe.misc.gen_correlated_data(np.arange(1, 4), cov, 'test', 0.5, samples=samples)
+        [o.gamma_method(S=0) for o in dat];
+        func = lambda a, x: a[0] + a[1] * x
+        fr = pe.least_squares(np.arange(1, 4), dat, func)
+        fr.gamma_method(S=0)
+
+        jd = np.array([o.export_jackknife() for o in dat]).T
+        jfr = []
+        for jacks in jd:
+
+            def chisqfunc_residuals(p):
+                model = func(p, np.arange(1, 4))
+                chisq = ((jacks - model) / [o.dvalue for o in dat])
+                return chisq
+
+            tf = scipy.optimize.least_squares(chisqfunc_residuals, [0.0, 0.0], method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+            jfr.append(tf.x)
+        ajfr = np.array(jfr).T
+        err = np.array([np.sqrt(np.var(ajfr[j][1:], ddof=0) * (samples - 1)) for j in range(2)])
+        assert np.allclose(err, [o.dvalue for o in fr], atol=1e-8)
+
+def test_correlated_fit_vs_jackknife():
+    od = 0.999999
+    cov1 = np.array([[1, od, od], [od, 1.0, od], [od, od, 1.0]])
+    cov1 *= 0.1
+    nod = -0.44
+    cov2 = np.array([[1, nod, nod], [nod, 1.0, nod], [nod, nod, 1.0]])
+    cov2 *= 0.1
+    cov3 = np.identity(3)
+    cov3 *= 0.01
+
+    samples = 250
+    x_val = np.arange(1, 6, 2)
+    for i, cov in enumerate([cov1, cov2, cov3]):
+        dat = pe.misc.gen_correlated_data(x_val + x_val ** 2 + np.random.normal(0.0, 0.1, 3), cov, 'test', 0.5, samples=samples)
+        [o.gamma_method(S=0) for o in dat];
+        dat
+        func = lambda a, x: a[0] * x + a[1] * x ** 2
+        fr = pe.least_squares(x_val, dat, func, correlated_fit=True, silent=True)
+        [o.gamma_method(S=0) for o in fr]
+
+        cov = pe.covariance(dat)
+        chol = np.linalg.cholesky(cov)
+        chol_inv = np.linalg.inv(chol)
+
+        jd = np.array([o.export_jackknife() for o in dat]).T
+        jfr = []
+        for jacks in jd:
+
+            def chisqfunc_residuals(p):
+                model = func(p, x_val)
+                chisq = np.dot(chol_inv, (jacks - model))
+                return chisq
+
+            tf = scipy.optimize.least_squares(chisqfunc_residuals, [0.0, 0.0], method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+            jfr.append(tf.x)
+        ajfr = np.array(jfr).T
+        err = np.array([np.sqrt(np.var(ajfr[j][1:], ddof=0) * (samples - 1)) for j in range(2)])
+        assert np.allclose(err, [o.dvalue for o in fr], atol=1e-7)
+        assert np.allclose(ajfr.T[0], [o.value for o in fr], atol=1e-8)
 
 
 def test_fit_no_autograd():

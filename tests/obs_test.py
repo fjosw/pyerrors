@@ -1,6 +1,7 @@
 import autograd.numpy as np
 import os
 import copy
+import matplotlib.pyplot as plt
 import pyerrors as pe
 import pytest
 
@@ -56,6 +57,7 @@ def test_Obs_exceptions():
     one.gamma_method()
     with pytest.raises(Exception):
         one.plot_piechart()
+    plt.close('all')
 
 def test_dump():
     value = np.random.normal(5, 10)
@@ -368,6 +370,7 @@ def test_utils():
         assert my_obs < (my_obs + 1)
         float(my_obs)
         str(my_obs)
+        plt.close('all')
 
 
 def test_cobs():
@@ -515,6 +518,35 @@ def test_merge_idx():
     assert pe.obs._merge_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6250, 50)
 
 
+def test_intersection_idx():
+    assert pe.obs._intersection_idx([range(1, 100), range(1, 100), range(1, 100)]) == range(1, 100)
+    assert pe.obs._intersection_idx([range(1, 100, 10), range(1, 100, 2)]) == range(1, 100, 10)
+    assert pe.obs._intersection_idx([range(10, 1010, 10), range(10, 1010, 50)]) == range(10, 1010, 50)
+    assert pe.obs._intersection_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6050, 250)
+
+    for ids in [[list(range(1, 80, 3)), list(range(1, 100, 2))], [range(1, 80, 3), range(1, 100, 2), range(1, 100, 7)]]:
+        assert list(pe.obs._intersection_idx(ids)) == pe.obs._intersection_idx([list(o) for o in ids])
+
+def test_merge_intersection():
+    for idl_list in [[range(1, 100), range(1, 100), range(1, 100)],
+                     [range(4, 80, 6), range(4, 80, 6)],
+                     [[0, 2, 8, 19, 205], [0, 2, 8, 19, 205]]]:
+        assert pe.obs._merge_idx(idl_list) == pe.obs._intersection_idx(idl_list)
+
+
+def test_intersection_collapse():
+    range1 = range(1, 2000, 2)
+    range2 = range(2, 2001, 8)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs_merge = obs1 + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+
+    intersection = pe.obs._intersection_idx([o.idl["ens"] for o in [obs1, obs_merge]])
+    coll = pe.obs._collapse_deltas_for_merge(obs_merge.deltas["ens"], obs_merge.idl["ens"], len(obs_merge.idl["ens"]), range1)
+
+    assert np.all(coll == obs1.deltas["ens"])
+
+
 def test_irregular_error_propagation():
     obs_list = [pe.Obs([np.random.rand(100)], ['t']),
                 pe.Obs([np.random.rand(50)], ['t'], idl=[range(1, 100, 2)]),
@@ -619,6 +651,26 @@ def test_covariance_is_variance():
     assert np.isclose(test_obs.dvalue ** 2, pe.covariance([test_obs, test_obs])[0, 1])
 
 
+def test_covariance_vs_numpy():
+    N = 1078
+    data1 = np.random.normal(2.5, 0.2, N)
+    data2 = np.random.normal(0.5, 0.08, N)
+    data3 = np.random.normal(-178, 5, N)
+    uncorr = np.row_stack([data1, data2, data3])
+    corr = np.random.multivariate_normal([0.0, 17, -0.0487], [[1.0, 0.6, -0.22], [0.6, 0.8, 0.01], [-0.22, 0.01, 1.9]], N).T
+
+    for X in [uncorr, corr]:
+        obs1 = pe.Obs([X[0]], ["ens1"])
+        obs2 = pe.Obs([X[1]], ["ens1"])
+        obs3 = pe.Obs([X[2]], ["ens1"])
+        obs1.gamma_method(S=0.0)
+        obs2.gamma_method(S=0.0)
+        obs3.gamma_method(S=0.0)
+        pe_cov = pe.covariance([obs1, obs2, obs3])
+        np_cov = np.cov(X) / N
+        assert np.allclose(pe_cov, np_cov, atol=1e-14)
+
+
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))
@@ -687,6 +739,23 @@ def test_covariance_factorizing():
     assert np.isclose(pe.covariance([mt0, tt[1]])[0, 1], -pe.covariance(tt)[0, 1])
 
 
+def test_covariance_smooth_eigenvalues():
+    for c_coeff in range(0, 14, 2):
+        length = 14
+        sm = 5
+        t_fac = 1.5
+        tt = pe.misc.gen_correlated_data(np.zeros(length), 1 - 0.1 ** c_coeff * np.ones((length, length)) + 0.1 ** c_coeff * np.diag(np.ones(length)), 'test', tau=0.5 + t_fac * np.random.rand(length), samples=200)
+        [o.gamma_method() for o in tt]
+        full_corr = pe.covariance(tt, correlation=True)
+        cov = pe.covariance(tt, smooth=sm, correlation=True)
+
+        full_evals = np.linalg.eigh(full_corr)[0]
+        sm_length = np.where(full_evals < np.mean(full_evals[:-sm]))[0][-1]
+
+        evals = np.linalg.eigh(cov)[0]
+        assert np.all(np.isclose(evals[:sm_length], evals[0], atol=1e-8))
+
+
 def test_covariance_alternation():
     length = 12
     t_fac = 2.5
@@ -727,6 +796,86 @@ def test_covariance_idl():
     obs2.gamma_method()
 
     pe.covariance([obs1, obs2])
+
+
+def test_correlation_intersection_of_idls():
+    range1 = range(1, 2000, 2)
+    range2 = range(2, 2001, 2)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_a = 0.4 * pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1]) + 0.6 * obs1
+    obs1.gamma_method()
+    obs2_a.gamma_method()
+
+    cov1 = pe.covariance([obs1, obs2_a])
+    corr1 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    obs2_b = obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_b.gamma_method()
+
+    cov2 = pe.covariance([obs1, obs2_b])
+    corr2 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+    assert cov1[0, 1] > cov2[0, 1]
+
+    obs2_c = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_c.gamma_method()
+    assert np.isclose(0, pe.covariance([obs1, obs2_c])[0, 1], atol=1e-14)
+
+
+def test_covariance_non_identical_objects():
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 732)], ["ens|r1", "ens|r2", "ens2"])
+    obs1.gamma_method()
+    obs2 = obs1 + 1e-18
+    obs2.gamma_method()
+    assert obs1 == obs2
+    assert obs1 is not obs2
+    assert np.allclose(np.ones((2, 2)), pe.covariance([obs1, obs2], correlation=True), atol=1e-14)
+
+
+def test_covariance_additional_non_overlapping_data():
+    range1 = range(1, 20, 2)
+
+    data2 = np.random.normal(0.0, 0.1, len(range1))
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_a = pe.Obs([data2], ["ens"], idl=[range1])
+    obs1.gamma_method()
+    obs2_a.gamma_method()
+
+    corr1 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    added_data = np.random.normal(0.0, 0.1, len(range1))
+    added_data -= np.mean(added_data) - np.mean(data2)
+    data2_extended = np.ravel([data2, added_data], 'F')
+
+    obs2_b = pe.Obs([data2_extended], ["ens"])
+    obs2_b.gamma_method()
+
+    corr2 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+
+
+def test_coavariance_reorder_non_overlapping_data():
+    range1 = range(1, 20, 2)
+    range2 = range(1, 41, 2)
+
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
+    obs2_b = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs1.gamma_method()
+    obs2_b.gamma_method()
+
+    corr1 = pe.covariance([obs1, obs2_b], correlation=True)
+
+    deltas = list(obs2_b.deltas['ens'][:len(range1)]) + sorted(obs2_b.deltas['ens'][len(range1):])
+    obs2_a = pe.Obs([obs2_b.value + np.array(deltas)], ["ens"], idl=[range2])
+    obs2_a.gamma_method()
+
+    corr2 = pe.covariance([obs1, obs2_a], correlation=True)
+
+    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
 
 
 def test_empty_obs():

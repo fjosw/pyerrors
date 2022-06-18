@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.3] - 2022-06-13
+### Fixed
+- Further bugs in connection with correlator objects which have arrays with None entries as content fixed.
+
+## [2.1.2] - 2022-06-10
+### Fixed
+- Bug in `Corr.matrix_symmetric` fixed which appeared when a time slice contained an array with `None` entries.
+
+## [2.1.1] - 2022-06-06
+### Fixed
+- Bug in error propagation of correlated least square fits fixed.
+- `Fit_result.gamma_method` can now be called with kwargs
+
+## [2.1.0] - 2022-05-31
+### Added
+- `obs.covariance` now has the option to smooth small eigenvalues of the matrix with the method described in hep-lat/9412087.
+- `Corr.prune` was added which can reduce the size of a correlator matrix before solving the GEVP.
+- `Corr.show` has two additional optional arguments. `hide_sigma` to hide data points with large errors and `references` to display reference values as horizontal lines.
+- I/O routines for ALPHA dobs format added.
+- `input.hadrons` functionality extended.
+
+### Changed
+- The standard behavior of the `Corr.GEVP` method has changed. It now returns all eigenvectors of the system instead of only the specified ones as default. The standard way of sorting the eigenvectors was changed to `Eigenvalue`. The argument `sorted_list` was deprecated in favor of `sort`.
+- Before performing a correlated fit the routine first runs an uncorrelated one to obtain a better guess for the initial parameters.
+
+### Fixed
+- `obs.covariance` now also gives correct estimators if data defined on non-identical configurations is passed to the function.
+- Rounding errors in estimating derivatives of fit parameters with respect to input data from the inverse hessian reduced. This should only make a difference when the magnitude of the errors of different fit parameters vary vastly.
+- Bug in json.gz format fixed which did not properly store the replica mean values. Format version bumped to 1.1.
+- The GEVP matrix is now symmetrized before solving the system for all sorting options not only the one with fixed `ts`.
+- Automatic range estimation improved in `fits.residual_plot`.
+- Bugs in `input.bdio` fixed.
+
 ## [2.0.0] - 2022-03-31
 ### Added
 - The possibility to work with Monte Carlo histories which are evenly or unevenly spaced was added.

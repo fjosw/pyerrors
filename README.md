@@ -1,4 +1,4 @@
-[![flake8](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml) [![pytest](https://github.com/fjosw/pyerrors/actions/workflows/pytest.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/pytest.yml) [![examples](https://github.com/fjosw/pyerrors/actions/workflows/examples.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/examples.yml) [![docs](https://github.com/fjosw/pyerrors/actions/workflows/docs.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/docs.yml) [![](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![flake8](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/flake8.yml) [![pytest](https://github.com/fjosw/pyerrors/actions/workflows/pytest.yml/badge.svg)](https://github.com/fjosw/pyerrors/actions/workflows/pytest.yml) [![](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fjosw/pyerrors/HEAD?labpath=examples)
 # pyerrors
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
 
@@ -8,11 +8,12 @@
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
-To install the current `develop` version run
+To install the most recent release run
+```bash
+pip install pyerrors     # Fresh install
+pip install -U pyerrors  # Upgrade
+```
+to install the current `develop` version run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@develop
-```
-to install the most recent release run
-```bash
-pip install git+https://github.com/fjosw/pyerrors.git@master
 ```

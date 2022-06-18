@@ -648,7 +648,7 @@ def _dobsdict_to_xmlstring_spaces(d, space='  '):
     return o
 
 
-def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags={}):
+def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None):
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .xml.gz file according to the Zeuthen dobs format.
 
@@ -674,6 +674,8 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
         Provide alternative enstag for ensembles in the form enstags = {ename: enstag}
         Otherwise, the ensemble name is used.
     """
+    if enstags is None:
+        enstags = {}
     od = {}
     r_names = []
     for o in obsl:
@@ -831,7 +833,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     return rs
 
 
-def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags={}, gz=True):
+def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 
@@ -861,6 +863,8 @@ def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=No
     gz : bool
         If True, the output is a gzipped XML. If False, the output is a XML file.
     """
+    if enstags is None:
+        enstags = {}
 
     dobsstring = create_dobs_string(obsl, name, spec, origin, symbol, who, enstags=enstags)
 

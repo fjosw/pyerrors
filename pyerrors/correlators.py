@@ -155,7 +155,7 @@ class Corr:
                 raise Exception("Vectors are of wrong shape!")
             if normalize:
                 vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
-            newcontent = [None if (item is None) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
+            newcontent = [None if _check_for_none(self, item) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
 
         else:
             # There are no checks here yet. There are so many possible scenarios, where this can go wrong.
@@ -163,7 +163,7 @@ class Corr:
                 for t in range(self.T):
                     vector_l[t], vector_r[t] = vector_l[t] / np.sqrt((vector_l[t] @ vector_l[t])), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
 
-            newcontent = [None if (self.content[t] is None or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
+            newcontent = [None if (_check_for_none(self, self.content[t]) or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
     def item(self, i, j):
@@ -197,6 +197,8 @@ class Corr:
 
     def symmetric(self):
         """ Symmetrize the correlator around x0=0."""
+        if self.N != 1:
+            raise Exception('symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
@@ -215,6 +217,8 @@ class Corr:
 
     def anti_symmetric(self):
         """Anti-symmetrize the correlator around x0=0."""
+        if self.N != 1:
+            raise Exception('anti_symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
             raise Exception("Can not symmetrize odd T")
 
@@ -236,7 +240,7 @@ class Corr:
     def matrix_symmetric(self):
         """Symmetrizes the correlator matrices on every timeslice."""
         if self.N > 1:
-            transposed = [None if (G is None) else G.T for G in self.content]
+            transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
@@ -419,13 +423,15 @@ class Corr:
             Can either be an Obs which is correlated with all entries of the
             correlator or a Corr of same length.
         """
+        if self.N != 1:
+            raise Exception("Only one-dimensional correlators can be safely correlated.")
         new_content = []
         for x0, t_slice in enumerate(self.content):
-            if t_slice is None:
+            if _check_for_none(self, t_slice):
                 new_content.append(None)
             else:
                 if isinstance(partner, Corr):
-                    if partner.content[x0] is None:
+                    if _check_for_none(partner, partner.content[x0]):
                         new_content.append(None)
                     else:
                         new_content.append(np.array([correlate(o, partner.content[x0][0]) for o in t_slice]))
@@ -449,9 +455,11 @@ class Corr:
             the reweighting factor on all configurations in weight.idl and not
             on the configurations in obs[i].idl.
         """
+        if self.N != 1:
+            raise Exception("Reweighting only implemented for one-dimensional correlators.")
         new_content = []
         for t_slice in self.content:
-            if t_slice is None:
+            if _check_for_none(self, t_slice):
                 new_content.append(None)
             else:
                 new_content.append(np.array(reweight(weight, t_slice, **kwargs)))
@@ -467,6 +475,8 @@ class Corr:
         partity : int
             Parity quantum number of the correlator, can be +1 or -1
         """
+        if self.N != 1:
+            raise Exception("T_symmetry only implemented for one-dimensional correlators.")
         if not isinstance(partner, Corr):
             raise Exception("T partner has to be a Corr object.")
         if parity not in [+1, -1]:
@@ -494,6 +504,8 @@ class Corr:
             decides which definition of the finite differences derivative is used.
             Available choice: symmetric, forward, backward, improved, default: symmetric
         """
+        if self.N != 1:
+            raise Exception("deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -546,6 +558,8 @@ class Corr:
             decides which definition of the finite differences derivative is used.
             Available choice: symmetric, improved, default: symmetric
         """
+        if self.N != 1:
+            raise Exception("second_deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -588,7 +602,7 @@ class Corr:
         if variant == 'log':
             newcontent = []
             for t in range(self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None):
+                if ((self.content[t] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / self.content[t + 1])
@@ -608,7 +622,7 @@ class Corr:
 
             newcontent = []
             for t in range(self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None):
+                if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
                 # Fill the two timeslices in the middle of the lattice with their predecessors
                 elif variant == 'sinh' and t in [self.T / 2, self.T / 2 - 1]:
@@ -623,7 +637,7 @@ class Corr:
         elif variant == 'arccosh':
             newcontent = []
             for t in range(1, self.T - 1):
-                if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None):
+                if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None) or (self.content[t][0].value == 0):
                     newcontent.append(None)
                 else:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
@@ -758,7 +772,7 @@ class Corr:
 
         x, y, y_err = self.plottable()
         if hide_sigma:
-            hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+            hide_from = np.argmax((hide_sigma * np.array(y_err[1:])) > np.abs(y[1:])) - 1
         else:
             hide_from = None
         ax1.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=self.tag)
@@ -781,7 +795,7 @@ class Corr:
                         corr.gamma_method()
                     x, y, y_err = corr.plottable()
                     if hide_sigma:
-                        hide_from = np.argmax((hide_sigma * np.array(y_err)) > np.abs(y)) - 1
+                        hide_from = np.argmax((hide_sigma * np.array(y_err[1:])) > np.abs(y[1:])) - 1
                     else:
                         hide_from = None
                     plt.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
@@ -883,12 +897,14 @@ class Corr:
         else:
             raise Exception("Unknown datatype " + str(datatype))
 
-    def print(self, range=[0, None]):
-        print(self.__repr__(range))
+    def print(self, print_range=None):
+        print(self.__repr__(print_range))
 
-    def __repr__(self, range=[0, None]):
+    def __repr__(self, print_range=None):
+        if print_range is None:
+            print_range = [0, None]
+
         content_string = ""
-
         content_string += "Corr T=" + str(self.T) + " N=" + str(self.N) + "\n"  # +" filled with"+ str(type(self.content[0][0])) there should be a good solution here
 
         if self.tag is not None:
@@ -896,14 +912,14 @@ class Corr:
         if self.N != 1:
             return content_string
 
-        if range[1]:
-            range[1] += 1
+        if print_range[1]:
+            print_range[1] += 1
         content_string += 'x0/a\tCorr(x0/a)\n------------------\n'
-        for i, sub_corr in enumerate(self.content[range[0]:range[1]]):
+        for i, sub_corr in enumerate(self.content[print_range[0]:print_range[1]]):
             if sub_corr is None:
-                content_string += str(i + range[0]) + '\n'
+                content_string += str(i + print_range[0]) + '\n'
             else:
-                content_string += str(i + range[0])
+                content_string += str(i + print_range[0])
                 for element in sub_corr:
                     content_string += '\t' + ' ' * int(element >= 0) + str(element)
                 content_string += '\n'
@@ -923,7 +939,7 @@ class Corr:
                 raise Exception("Addition of Corrs with different shape")
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None) or (y.content[t] is None):
+                if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] + y.content[t])
@@ -932,7 +948,7 @@ class Corr:
         elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None):
+                if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] + y)
@@ -951,7 +967,7 @@ class Corr:
                 raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None) or (y.content[t] is None):
+                if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] * y.content[t])
@@ -960,7 +976,7 @@ class Corr:
         elif isinstance(y, (Obs, int, float, CObs)):
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None):
+                if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] * y)
@@ -979,12 +995,12 @@ class Corr:
                 raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None) or (y.content[t] is None):
+                if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / y.content[t])
             for t in range(self.T):
-                if newcontent[t] is None:
+                if _check_for_none(self, newcontent[t]):
                     continue
                 if np.isnan(np.sum(newcontent[t]).value):
                     newcontent[t] = None
@@ -1003,7 +1019,7 @@ class Corr:
 
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None):
+                if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / y)
@@ -1014,7 +1030,7 @@ class Corr:
                 raise Exception('Division by zero will return undefined correlator')
             newcontent = []
             for t in range(self.T):
-                if (self.content[t] is None):
+                if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / y)
@@ -1028,7 +1044,7 @@ class Corr:
             raise TypeError('Corr / wrong type')
 
     def __neg__(self):
-        newcontent = [None if (item is None) else -1. * item for item in self.content]
+        newcontent = [None if _check_for_none(self, item) else -1. * item for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
     def __sub__(self, y):
@@ -1036,31 +1052,31 @@ class Corr:
 
     def __pow__(self, y):
         if isinstance(y, (Obs, int, float, CObs)):
-            newcontent = [None if (item is None) else item**y for item in self.content]
+            newcontent = [None if _check_for_none(self, item) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
         else:
             raise TypeError('Type of exponent not supported')
 
     def __abs__(self):
-        newcontent = [None if (item is None) else np.abs(item) for item in self.content]
+        newcontent = [None if _check_for_none(self, item) else np.abs(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
     # The numpy functions:
     def sqrt(self):
-        return self**0.5
+        return self ** 0.5
 
     def log(self):
-        newcontent = [None if (item is None) else np.log(item) for item in self.content]
+        newcontent = [None if _check_for_none(self, item) else np.log(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
     def exp(self):
-        newcontent = [None if (item is None) else np.exp(item) for item in self.content]
+        newcontent = [None if _check_for_none(self, item) else np.exp(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
     def _apply_func_to_corr(self, func):
-        newcontent = [None if (item is None) else func(item) for item in self.content]
+        newcontent = [None if _check_for_none(self, item) else func(item) for item in self.content]
         for t in range(self.T):
-            if newcontent[t] is None:
+            if _check_for_none(self, newcontent[t]):
                 continue
             if np.isnan(np.sum(newcontent[t]).value):
                 newcontent[t] = None
@@ -1220,6 +1236,11 @@ def _sort_vectors(vec_set, ts):
             sorted_vec_set.append(vec_set[t])
 
     return sorted_vec_set
+
+
+def _check_for_none(corr, entry):
+    """Checks if entry for correlator corr is None"""
+    return len(list(filter(None, np.asarray(entry).flatten()))) < corr.N ** 2
 
 
 def _GEVP_solver(Gt, G0):

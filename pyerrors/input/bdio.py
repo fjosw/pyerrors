@@ -61,7 +61,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
     return_list = []
 
     print('Reading of bdio file started')
-    while 1 > 0:
+    while True:
         bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
 
@@ -373,7 +373,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     fbdio = bdio_open(ctypes.c_char_p(b_path), ctypes.c_char_p(b_read), ctypes.c_char_p(b_form))
 
     print('Reading of bdio file started')
-    while 1 > 0:
+    while True:
         bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
         if ruinfo < 0:
@@ -582,7 +582,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     fbdio = bdio_open(ctypes.c_char_p(b_path), ctypes.c_char_p(b_read), ctypes.c_char_p(b_form))
 
     print('Reading of bdio file started')
-    while 1 > 0:
+    while True:
         bdio_seek_record(fbdio)
         ruinfo = bdio_get_ruinfo(fbdio)
         if ruinfo < 0:

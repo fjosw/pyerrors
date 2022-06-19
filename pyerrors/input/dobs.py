@@ -738,7 +738,6 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             data = ''
             counters = [0 for o in obsl]
             offsets = [o.r_values[repname] - o.value if repname in o.r_values else 0 for o in obsl]
-            print(repname, offsets)
             for ci in idx:
                 data += '%d ' % ci
                 for oi in range(len(obsl)):

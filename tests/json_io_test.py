@@ -323,15 +323,16 @@ def test_dobsio():
     o5 /= co2[0]
     o5.tag = 2 * otag
 
-    tt1 = pe.Obs([np.random.rand(100)], ['t|r1'], idl=[range(2, 202, 2)])
-    tt2 = pe.Obs([np.random.rand(100)], ['t|r2'], idl=[range(2, 202, 2)])
+    tt1 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(2, 202, 2), range(22, 222, 2)])
     tt3 = pe.Obs([np.random.rand(102)], ['qe|r1'])
 
-    tt = tt1 + tt2 + tt3
+    tt = tt1 + tt3
 
     tt.tag = 'Test Obs: Ä'
 
-    ol = [o2, o3, o4, do, o5, tt]
+    tt4 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(1, 101, 1), range(2, 202, 2)])
+
+    ol = [o2, o3, o4, do, o5, tt, tt4, np.log(tt4 / o5**2), np.exp(o5 + np.log(co3 / tt3 + o4) / tt)]
     print(ol)
     fname = 'test_rw'
 
@@ -342,9 +343,6 @@ def test_dobsio():
     [o.gamma_method() for o in rl]
 
     for i in range(len(ol)):
-        assert (ol[i] - rl[i].is_zero())
-
-    for i in range(len(ol)):
         if isinstance(ol[i], pe.Obs):
             o = ol[i] - rl[i]
             assert(o.is_zero())
@@ -353,6 +351,9 @@ def test_dobsio():
         for j in range(len(or1)):
             o = or1[j] - or2[j]
             assert(o.is_zero())
+        if isinstance(ol[i], pe.Obs):
+            for name in ol[i].r_values:
+                assert(np.isclose(ol[i].r_values[name], rl[i].r_values[name]))
 
 
 def test_reconstruct_non_linear_r_obs(tmp_path):

@@ -379,10 +379,6 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
         return res
 
 
-# Reading (and writing) dobs is not yet working properly:
-# we have to loop over root[2:] because each entry is a dobs
-# But maybe this is just a problem with Ben's implementation
-
 # this is based on Mattia Bruno's implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py
 def import_dobs_string(content, noempty=False, full_output=False, separator_insertion=True):
     """Import a list of Obs from a string in the Zeuthen dobs format.
@@ -501,7 +497,7 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
             obs_names.append(name)
             idl.append(idld[name])
         res.append(Obs(deltas, obs_names, idl=idl))
-    print(mean, 'vs', res)
+        res[-1]._value = mean[i]
     _check(len(e_names) == ne)
 
     cnames = list(covd.keys())
@@ -579,16 +575,12 @@ def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insert
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname, 'r') as fin:
-            content = fin.read().decode('utf-8')
+            content = fin.read()
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r', encoding='utf-8') as fin:
+        with open(fname, 'r') as fin:
             content = fin.read()
-
-    # open and read gzipped xml file
-    infile = gzip.open(fname)
-    content = infile.read()
 
     return import_dobs_string(content, noempty, full_output, separator_insertion=separator_insertion)
 
@@ -745,16 +737,21 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             ad['layout'] = layout
             data = ''
             counters = [0 for o in obsl]
+            offsets = [o.r_values[repname] - o.value if repname in o.r_values else 0 for o in obsl]
             for ci in idx:
                 data += '%d ' % ci
                 for oi in range(len(obsl)):
                     o = obsl[oi]
                     if repname in o.idl:
                         if counters[oi] < 0:
-                            data += '0 '
+                            num = offsets[oi]
+                            if num == 0:
+                                data += '0 '
+                            else:
+                                data += '%1.16e ' % (num)
                             continue
                         if o.idl[repname][counters[oi]] == ci:
-                            num = o.deltas[repname][counters[oi]]
+                            num = o.deltas[repname][counters[oi]] + offsets[oi]
                             if num == 0:
                                 data += '0 '
                             else:
@@ -763,7 +760,11 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                             if counters[oi] >= len(o.idl[repname]):
                                 counters[oi] = -1
                         else:
-                            data += '0 '
+                            num = offsets[oi]
+                            if num == 0:
+                                data += '0 '
+                            else:
+                                data += '%1.16e ' % (num)
                     else:
                         data += '0 '
                 data += '\n'
@@ -773,31 +774,31 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
 
         allcov = {}
         for o in obsl:
-            for name in o.cov_names:
-                if name in allcov:
-                    if not np.array_equal(allcov[name], o.covobs[name].cov):
-                        raise Exception('Inconsistent covariance matrices for %s!' % (name))
+            for cname in o.cov_names:
+                if cname in allcov:
+                    if not np.array_equal(allcov[cname], o.covobs[cname].cov):
+                        raise Exception('Inconsistent covariance matrices for %s!' % (cname))
                 else:
-                    allcov[name] = o.covobs[name].cov
+                    allcov[cname] = o.covobs[cname].cov
         pd['cdata'] = []
-        for name in cov_names:
+        for cname in cov_names:
             cd = {}
-            cd['id'] = name
+            cd['id'] = cname
 
             covd = {'id': 'cov'}
-            if allcov[name].shape == ():
+            if allcov[cname].shape == ():
                 ncov = 1
                 covd['layout'] = '1 1 f'
-                covd['#data'] = '%1.14e' % (allcov[name])
+                covd['#data'] = '%1.14e' % (allcov[cname])
             else:
-                shape = allcov[name].shape
+                shape = allcov[cname].shape
                 assert (shape[0] == shape[1])
                 ncov = shape[0]
                 covd['layout'] = '%d %d f' % (ncov, ncov)
                 ds = ''
                 for i in range(ncov):
                     for j in range(ncov):
-                        val = allcov[name][i][j]
+                        val = allcov[cname][i][j]
                         if val == 0:
                             ds += '0 '
                         else:
@@ -810,8 +811,8 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             ds = ''
             for i in range(ncov):
                 for o in obsl:
-                    if name in o.covobs:
-                        val = o.covobs[name].grad[i]
+                    if cname in o.covobs:
+                        val = o.covobs[cname].grad[i]
                         if val != 0:
                             ds += '%1.14e ' % (val)
                         else:

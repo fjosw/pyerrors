@@ -731,32 +731,34 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None, title=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
         ----------
         x_range : list
-            list of two values, determining the range of the x-axis e.g. [4, 8]
+            list of two values, determining the range of the x-axis e.g. [4, 8].
         comp : Corr or list of Corr
             Correlator or list of correlators which are plotted for comparison.
             The tags of these correlators are used as labels if available.
         logscale : bool
-            Sets y-axis to logscale
+            Sets y-axis to logscale.
         plateau : Obs
-            Plateau value to be visualized in the figure
+            Plateau value to be visualized in the figure.
         fit_res : Fit_result
-            Fit_result object to be visualized
+            Fit_result object to be visualized.
         ylabel : str
-            Label for the y-axis
+            Label for the y-axis.
         save : str
-            path to file in which the figure should be saved
+            path to file in which the figure should be saved.
         auto_gamma : bool
             Apply the gamma method with standard parameters to all correlators and plateau values before plotting.
         hide_sigma : float
             Hides data points from the first value on which is consistent with zero within 'hide_sigma' standard errors.
         references : list
             List of floating point values that are displayed as horizontal lines for reference.
+        title : string
+            Optional title of the figure.
         """
         if self.N != 1:
             raise Exception("Correlator must be projected before plotting")
@@ -836,6 +838,10 @@ class Corr:
         handles, labels = ax1.get_legend_handles_labels()
         if labels:
             ax1.legend()
+
+        if title:
+            plt.title(title)
+
         plt.draw()
 
         if save:

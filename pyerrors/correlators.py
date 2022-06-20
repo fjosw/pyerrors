@@ -846,7 +846,7 @@ class Corr:
 
         if save:
             if isinstance(save, str):
-                fig.savefig(save)
+                fig.savefig(save, bbox_inches='tight')
             else:
                 raise Exception("'save' has to be a string.")
 

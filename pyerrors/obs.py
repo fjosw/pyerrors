@@ -426,6 +426,21 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
+    def reweight(self, rw):
+        """Reweight the obs with given rewighting factors.
+
+        Parameters
+        ----------
+        weight : Obs
+            Reweighting factor. An Observable that has to be defined on a superset of the
+            configurations in obs[i].idl for all i.
+        all_configs : bool
+            if True, the reweighted observables are normalized by the average of
+            the reweighting factor on all configurations in weight.idl and not
+            on the configurations in obs[i].idl. Default False.
+        """
+        return reweight(rw, [self])[0]
+
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
 
@@ -1330,7 +1345,7 @@ def reweight(weight, obs, **kwargs):
     all_configs : bool
         if True, the reweighted observables are normalized by the average of
         the reweighting factor on all configurations in weight.idl and not
-        on the configurations in obs[i].idl.
+        on the configurations in obs[i].idl. Default False.
     """
     result = []
     for i in range(len(obs)):

@@ -858,7 +858,7 @@ def test_covariance_additional_non_overlapping_data():
     assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
 
 
-def test_coavariance_reorder_non_overlapping_data():
+def test_covariance_reorder_non_overlapping_data():
     range1 = range(1, 20, 2)
     range2 = range(1, 41, 2)
 
@@ -882,6 +882,12 @@ def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [], means=[])
     assert q == o
+
+
+def test_reweight_method():
+    obs1 = pe.pseudo_Obs(0.2, 0.01, 'test')
+    rw = pe.pseudo_Obs(0.999, 0.001, 'test')
+    assert obs1.reweight(rw) == pe.reweight(rw, [obs1])[0]
 
 
 def test_jackknife():

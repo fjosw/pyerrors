@@ -439,7 +439,7 @@ class Obs:
             the reweighting factor on all configurations in weight.idl and not
             on the configurations in obs[i].idl. Default False.
         """
-        return reweight(rw, [self])[0]
+        return reweight(weight, [self])[0]
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.

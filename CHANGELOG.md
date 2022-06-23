@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.x.x] - 2022-xx-xx
+### Added
+- `Obs.reweight` method added in analogy to `Corr.reweight` which allows for a more convenient reweighting of individual observables.
+- `Corr.show` now has the additional argument `title` which allows to add a title to the figure. Figures are now saved with `bbox_inches='tight'`.
+
+### Fixed
+- `Corr.m_eff` can now deal with correlator entries which are exactly zero.
+- Minor bugs in `input.dobs` fixed.
+
 ## [2.1.3] - 2022-06-13
 ### Fixed
 - Further bugs in connection with correlator objects which have arrays with None entries as content fixed.

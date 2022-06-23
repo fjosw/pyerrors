@@ -1368,7 +1368,7 @@ def reweight(weight, obs, **kwargs):
         else:
             new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(obs[i].names)], sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
-        result.append(derived_observable(lambda x, **kwargs: x[0] / x[1], [tmp_obs, new_weight], **kwargs))
+        result.append(tmp_obs / new_weight)
         result[-1].reweighted = True
         result[-1].is_merged = obs[i].is_merged
 

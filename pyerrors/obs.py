@@ -426,7 +426,7 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def reweight(self, rw):
+    def reweight(self, weight):
         """Reweight the obs with given rewighting factors.
 
         Parameters

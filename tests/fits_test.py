@@ -495,6 +495,31 @@ def test_fit_no_autograd():
         pe.total_least_squares(oy, oy, func)
 
 
+def test_invalid_fit_function():
+    def func1(a, x):
+        return a[0] + a[1] * x + a[2] * anp.sinh(x) + a[199]
+
+    def func2(a, x, y):
+        return a[0] + a[1] * x
+
+    def func3(x):
+        return x
+
+    xvals =[]
+    yvals =[]
+    err = 0.1
+
+    for x in range(1, 8, 2):
+        xvals.append(x)
+        yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+    [o.gamma_method() for o in yvals]
+    for func in [func1, func2, func3]:
+        with pytest.raises(Exception):
+            pe.least_squares(xvals, yvals, func)
+        with pytest.raises(Exception):
+            pe.total_least_squares(yvals, yvals, func)
+
+
 def test_singular_correlated_fit():
     obs1 = pe.pseudo_Obs(1.0, 0.1, 'test')
     with pytest.raises(Exception):

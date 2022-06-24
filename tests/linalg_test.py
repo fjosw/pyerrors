@@ -258,8 +258,8 @@ def test_complex_matrix_inverse():
     inverse_matrix = np.linalg.inv(matrix)
     inverse_obs_matrix = pe.linalg.inv(obs_matrix)
     for (n, m), entry in np.ndenumerate(inverse_matrix):
-        assert np.isclose(inverse_matrix[n, m].real,  inverse_obs_matrix[n, m].real.value)
-        assert np.isclose(inverse_matrix[n, m].imag,  inverse_obs_matrix[n, m].imag.value)
+        assert np.isclose(inverse_matrix[n, m].real, inverse_obs_matrix[n, m].real.value)
+        assert np.isclose(inverse_matrix[n, m].imag, inverse_obs_matrix[n, m].imag.value)
 
 
 def test_matrix_functions():

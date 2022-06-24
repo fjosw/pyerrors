@@ -177,13 +177,15 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
-    for i in range(25):
+    for i in range(42):
         try:
             func(np.arange(i), x.T[0])
         except Exception:
-            pass
+            continue
         else:
             break
+    else:
+        raise RuntimeError("Fit function is not valid.")
 
     n_parms = i
     if not silent:
@@ -321,9 +323,11 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         try:
             func(np.arange(i), 0)
         except Exception:
-            pass
+            continue
         else:
             break
+    else:
+        raise RuntimeError("Fit function is not valid.")
 
     n_parms = i
 
@@ -442,13 +446,15 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
-    for i in range(25):
+    for i in range(42):
         try:
             func(np.arange(i), x.T[0])
         except Exception:
-            pass
+            continue
         else:
             break
+    else:
+        raise RuntimeError("Fit function is not valid.")
 
     n_parms = i
 

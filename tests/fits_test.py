@@ -194,7 +194,7 @@ def test_linear_fit_guesses():
         lin_func = lambda a, x: a[0] + a[1] * x
         with pytest.raises(Exception):
             pe.least_squares(xvals, yvals, lin_func)
-        [o.gamma_method() for o in yvals];
+        [o.gamma_method() for o in yvals]
         with pytest.raises(Exception):
             pe.least_squares(xvals, yvals, lin_func, initial_guess=[5])
 
@@ -414,7 +414,7 @@ def test_fit_vs_jackknife():
 
     for i, cov in enumerate([cov1, cov2, cov3]):
         dat = pe.misc.gen_correlated_data(np.arange(1, 4), cov, 'test', 0.5, samples=samples)
-        [o.gamma_method(S=0) for o in dat];
+        [o.gamma_method(S=0) for o in dat]
         func = lambda a, x: a[0] + a[1] * x
         fr = pe.least_squares(np.arange(1, 4), dat, func)
         fr.gamma_method(S=0)
@@ -448,8 +448,7 @@ def test_correlated_fit_vs_jackknife():
     x_val = np.arange(1, 6, 2)
     for i, cov in enumerate([cov1, cov2, cov3]):
         dat = pe.misc.gen_correlated_data(x_val + x_val ** 2 + np.random.normal(0.0, 0.1, 3), cov, 'test', 0.5, samples=samples)
-        [o.gamma_method(S=0) for o in dat];
-        dat
+        [o.gamma_method(S=0) for o in dat]
         func = lambda a, x: a[0] * x + a[1] * x ** 2
         fr = pe.least_squares(x_val, dat, func, correlated_fit=True, silent=True)
         [o.gamma_method(S=0) for o in fr]
@@ -494,6 +493,31 @@ def test_fit_no_autograd():
 
     with pytest.raises(Exception):
         pe.total_least_squares(oy, oy, func)
+
+
+def test_invalid_fit_function():
+    def func1(a, x):
+        return a[0] + a[1] * x + a[2] * anp.sinh(x) + a[199]
+
+    def func2(a, x, y):
+        return a[0] + a[1] * x
+
+    def func3(x):
+        return x
+
+    xvals =[]
+    yvals =[]
+    err = 0.1
+
+    for x in range(1, 8, 2):
+        xvals.append(x)
+        yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+    [o.gamma_method() for o in yvals]
+    for func in [func1, func2, func3]:
+        with pytest.raises(Exception):
+            pe.least_squares(xvals, yvals, func)
+        with pytest.raises(Exception):
+            pe.total_least_squares(yvals, yvals, func)
 
 
 def test_singular_correlated_fit():

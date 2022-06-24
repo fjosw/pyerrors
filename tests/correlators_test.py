@@ -249,9 +249,9 @@ def test_matrix_corr():
 
 def test_corr_none_entries():
     a = pe.pseudo_Obs(1.0, 0.1, 'a')
-    l = np.asarray([[a, a], [a, a]])
+    la = np.asarray([[a, a], [a, a]])
     n = np.asarray([[None, None], [None, None]])
-    x = [l, n]
+    x = [la, n]
     matr = pe.Corr(x)
     matr.projected(np.asarray([1.0, 0.0]))
 

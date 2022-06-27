@@ -384,7 +384,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
             d_buf = ctypes.c_double * (2 + d0 * d1 * 2)
             pd_buf = d_buf()
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iread = bdio_read_f64(ppd_buf, ctypes.c_size_t(rlen), ctypes.c_void_p(fbdio))
+            bdio_read_f64(ppd_buf, ctypes.c_size_t(rlen), ctypes.c_void_p(fbdio))
             if corr_type[corr_no] == 'complex':
                 tmp_mean = np.mean(np.asarray(np.split(np.asarray(pd_buf[2 + 2 * d1:-2 * d1:2]), d0 - 2)), axis=1)
             else:
@@ -593,7 +593,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
             d_buf = ctypes.c_double * (2 + d0)
             pd_buf = d_buf()
             ppd_buf = ctypes.c_void_p(ctypes.addressof(pd_buf))
-            iread = bdio_read_f64(ppd_buf, ctypes.c_size_t(rlen), ctypes.c_void_p(fbdio))
+            bdio_read_f64(ppd_buf, ctypes.c_size_t(rlen), ctypes.c_void_p(fbdio))
             tmp_mean = np.mean(np.asarray(pd_buf[2:]))
 
             data[corr_no].append(tmp_mean)

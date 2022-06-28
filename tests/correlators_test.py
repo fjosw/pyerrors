@@ -105,6 +105,15 @@ def test_m_eff():
         my_corr.m_eff('unkown_variant')
 
 
+def test_m_eff_negative_values():
+    for padding in [0, 4]:
+        my_corr = pe.correlators.Corr([1.0 * pe.pseudo_Obs(10, 0.1, 't'), 1.0 * pe.pseudo_Obs(9, 0.05, 't'), -pe.pseudo_Obs(9, 0.1, 't')], padding=[padding, padding])
+        m_eff_log = my_corr.m_eff('log')
+        assert m_eff_log[padding + 1] is None
+        m_eff_cosh = my_corr.m_eff('cosh')
+        assert m_eff_cosh[padding + 1] is None
+
+
 def test_reweighting():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
     assert my_corr.reweighted is False

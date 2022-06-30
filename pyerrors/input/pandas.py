@@ -2,6 +2,7 @@ import warnings
 import gzip
 import pandas as pd
 from ..obs import Obs
+from ..correlators import Corr
 from .json import create_json_string, import_json_string
 
 
@@ -23,7 +24,7 @@ def dump_df(df, fname, gz=True):
 
     out = df.copy()
     for column in out:
-        if isinstance(out[column][0], Obs):
+        if isinstance(out[column][0], (Obs, Corr)):
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
 
     if not fname.endswith('.csv'):
@@ -67,6 +68,6 @@ def load_df(fname, auto_gamma=False, gz=True):
             if re_import[column][0][:20] == '{"program":"pyerrors':
                 re_import[column] = re_import[column].transform(lambda x: import_json_string(x, verbose=False))
                 if auto_gamma is True:
-                    re_import[column].apply(Obs.gamma_method)
+                    re_import[column].apply(lambda x: x.gamma_method())
 
     return re_import

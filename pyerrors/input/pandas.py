@@ -29,7 +29,7 @@ def dump_df(df, fname, gz=True):
     if not fname.endswith('.csv'):
         fname += '.csv'
 
-    out.to_csv(fname)
+    out.to_csv(fname, index=False)
     if gz is True:
         with open(fname, 'rb') as f_in, gzip.open(fname + ".gz", 'wb') as f_out:
             f_out.writelines(f_in)

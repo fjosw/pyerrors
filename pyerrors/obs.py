@@ -684,6 +684,12 @@ class Obs:
         else:
             return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
 
+    def __hash__(self):
+        return hash((np.array([self.value]).astype(np.float32)[0],
+                     tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()]),
+                     tuple(np.array([o.errsq() for o in self.covobs.values()]).astype(np.float32).data.tobytes()),
+                     tuple(self.names)))
+
     # Overload comparisons
     def __lt__(self, other):
         return self.value < other

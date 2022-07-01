@@ -10,4 +10,5 @@ from . import hadrons
 from . import json
 from . import misc
 from . import openQCD
+from . import pandas
 from . import sfcf

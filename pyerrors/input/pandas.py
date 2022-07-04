@@ -1,5 +1,6 @@
 import warnings
 import gzip
+import sqlite3
 import pandas as pd
 from ..obs import Obs
 from ..correlators import Corr

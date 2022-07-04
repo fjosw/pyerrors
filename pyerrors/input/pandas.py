@@ -22,10 +22,7 @@ def dump_df(df, fname, gz=True):
         If True, the output is a gzipped csv file. If False, the output is a csv file.
     """
 
-    out = df.copy()
-    for column in out:
-        if isinstance(out[column][0], (Obs, Corr)):
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
+    out = serialize_df(df)
 
     if not fname.endswith('.csv'):
         fname += '.csv'
@@ -65,11 +62,39 @@ def load_df(fname, auto_gamma=False, gz=True):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         re_import = pd.read_csv(fname)
 
-    for column in re_import.select_dtypes(include="object"):
-        if isinstance(re_import[column][0], str):
-            if re_import[column][0][:20] == '{"program":"pyerrors':
-                re_import[column] = re_import[column].transform(lambda x: import_json_string(x, verbose=False))
-                if auto_gamma is True:
-                    re_import[column].apply(lambda x: x.gamma_method())
+    return deserialize_df(re_import, auto_gamma)
 
-    return re_import
+
+def serialize_df(df):
+    """Serializes all Obs or Corr valued columns into json strings according to the pyerrors json specification.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame to be serilized.
+    """
+    out = df.copy()
+    for column in out:
+        if isinstance(out[column][0], (Obs, Corr)):
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
+    return out
+
+
+def deserialize_df(df, auto_gamma=False):
+    """Deserializes all pyerrors json strings into Obs or Corr objects according to the pyerrors json specification.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame to be deserilized.
+    auto_gamma : bool
+        If True applies the gamma_method to all imported Obs objects with the default parameters for
+        the error analysis. Default False.
+    """
+    for column in df.select_dtypes(include="object"):
+        if isinstance(df[column][0], str):
+            if df[column][0][:20] == '{"program":"pyerrors':
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
+                if auto_gamma is True:
+                    df[column].apply(lambda x: x.gamma_method())
+    return df

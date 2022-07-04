@@ -28,3 +28,17 @@ def test_df_Corr(tmp_path):
 
     pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix())
     reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True)
+
+
+def test_default_export_pe_import(tmp_path):
+    df = pd.DataFrame([{"Column1": 1.1, "Column2": 2, "Column3": "my string£"}])
+    df.to_csv((tmp_path / 'plain_df.csv').as_posix(), index=False)
+    re_df = pe.input.pandas.load_df((tmp_path / 'plain_df').as_posix(), gz=False)
+    assert np.all(df == re_df)
+
+
+def test_pe_export_default_import(tmp_path):
+    df = pd.DataFrame([{"Column1": 1.1, "Column2": 2, "Column3": "my string£"}])
+    pe.input.pandas.dump_df(df, (tmp_path / 'pe_df').as_posix(), gz=False)
+    re_df = pd.read_csv((tmp_path / 'pe_df.csv').as_posix())
+    assert np.all(df == re_df)

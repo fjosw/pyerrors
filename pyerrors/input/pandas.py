@@ -7,7 +7,7 @@ from ..correlators import Corr
 from .json import create_json_string, import_json_string
 
 
-def to_sql(df, table_name, db, if_exists="replace", gz=True):
+def to_sql(df, table_name, db, if_exists='fail', gz=True):
     """Write DataFrame including Obs or Corr valued columns to sqlite database.
 
     Parameters
@@ -30,7 +30,7 @@ def to_sql(df, table_name, db, if_exists="replace", gz=True):
 
 
 def read_sql_query(sql, db, auto_gamma=False):
-    """Execute SQL query on sqlite database and obatin DataFrame including Obs or Corr valued columns.
+    """Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.
 
     Parameters
     ----------
@@ -113,7 +113,7 @@ def _serialize_df(df, gz=False):
     df : pandas.DataFrame
         DataFrame to be serilized.
     gz: bool
-        gzip the json string represenation. Default False.
+        gzip the json string representation. Default False.
     """
     out = df.copy()
     for column in out:

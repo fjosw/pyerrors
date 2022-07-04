@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pyerrors as pe
+import pytest
 
 def test_df_export_import(tmp_path):
     my_dict = {"int": 1,
@@ -61,3 +62,13 @@ def test_sql(tmp_path):
     for auto_gamma in [False, True]:
         re_df = pe.input.pandas.read_sql_query("SELECT * from My_table", my_db, auto_gamma=auto_gamma)
         assert np.all(re_df == pe_df)
+
+
+def test_sql_if_exists_fail(tmp_path):
+    pe_df = pd.DataFrame([{"Label": 1, "Obs": pe.pseudo_Obs(5 * np.exp(-0.2), 0.01, "test_ensemble", 20)}])
+    my_db = (tmp_path / "test_db.sqlite").as_posix()
+    pe.input.pandas.to_sql(pe_df, "My_table", my_db)
+    with pytest.raises(ValueError):
+        pe.input.pandas.to_sql(pe_df, "My_table", my_db)
+    pe.input.pandas.to_sql(pe_df, "My_table", my_db, if_exists='append')
+    pe.input.pandas.to_sql(pe_df, "My_table", my_db, if_exists='replace')

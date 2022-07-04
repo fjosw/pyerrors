@@ -6,6 +6,47 @@ from ..correlators import Corr
 from .json import create_json_string, import_json_string
 
 
+def to_sql(df, table_name, db, if_exists="replace", gz=True):
+    """Write DataFrame inlcuding Obs or Corr valued columns to sqlite database.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Dataframe to be written to the database.
+    table_name : str
+        Name of the table in the database.
+    db : str
+        Path to the sqlite database.
+    if exists : str
+        How to behave if table already exists. Options 'fail', 'replace', 'append'.
+    gz : bool
+        If True the json strings are gzipped.
+    """
+    se_df = pe.input.pandas.serialize_df(df, gz=gz)
+    con = sqlite3.connect(db)
+    se_df.to_sql(table_name, con, if_exists=if_exists)
+    con.close()
+
+
+def read_sql_query(sql, db, auto_gamma=False):
+    """Write DataFrame inlcuding Obs or Corr valued columns to sqlite database.
+
+    Parameters
+    ----------
+    sql : str
+        SQL query to be executed.
+    db : str
+        Path to the sqlite database.
+    auto_gamma : bool
+        If True applies the gamma_method to all imported Obs objects with the default parameters for
+        the error analysis. Default False.
+    """
+    con = sqlite3.connect(db)
+    extract_df = pd.read_sql_query(sql, con)
+    con.close()
+    return pe.input.pandas.deserialize_df(extract_df, auto_gamma=auto_gamma)
+
+
 def dump_df(df, fname, gz=True):
     """Exports a pandas DataFrame containing Obs valued columns to a (gzipped) csv file.
 
@@ -21,7 +62,6 @@ def dump_df(df, fname, gz=True):
     gz : bool
         If True, the output is a gzipped csv file. If False, the output is a csv file.
     """
-
     out = serialize_df(df, gz=False)
 
     if not fname.endswith('.csv'):
@@ -48,7 +88,6 @@ def load_df(fname, auto_gamma=False, gz=True):
     gz : bool
         If True, assumes that data is gzipped. If False, assumes JSON file.
     """
-
     if not fname.endswith('.csv') and not fname.endswith('.gz'):
         fname += '.csv'
 

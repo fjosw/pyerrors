@@ -1,5 +1,6 @@
 import os
 import gzip
+import rapidjson
 import numpy as np
 import pyerrors as pe
 import pyerrors.input.json as jsonio
@@ -376,6 +377,11 @@ def test_reconstruct_non_linear_r_obs_list(tmp_path):
         ro_list = pe.input.json.load_json((tmp_path / "test_equality_list").as_posix())
         for oa, ob in zip(to_list, ro_list):
             assert assert_equal_Obs(oa, ob)
+
+
+def test_import_non_json_string():
+    with pytest.raises(rapidjson.JSONDecodeError):
+        pe.input.json.import_json_string("this is garbage")
 
 
 def assert_equal_Obs(to, ro):

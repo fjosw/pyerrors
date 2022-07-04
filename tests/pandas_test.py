@@ -42,3 +42,12 @@ def test_pe_export_default_import(tmp_path):
     pe.input.pandas.dump_df(df, (tmp_path / 'pe_df').as_posix(), gz=False)
     re_df = pd.read_csv((tmp_path / 'pe_df.csv').as_posix())
     assert np.all(df == re_df)
+
+
+def test_gz_serialization():
+    my_obs = pe.pseudo_Obs(0.1, 0.01, "pandas DataFrame ensemble only for test purposes.")
+    my_df = pd.DataFrame([{"Label": 1, "Obs": my_obs}])
+    for gz in [False, True]:
+        ser = pe.input.pandas.serialize_df(my_df, gz=gz)
+        deser = pe.input.pandas.deserialize_df(ser)
+        np.all(my_df == deser)

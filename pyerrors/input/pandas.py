@@ -22,7 +22,7 @@ def dump_df(df, fname, gz=True):
         If True, the output is a gzipped csv file. If False, the output is a csv file.
     """
 
-    out = serialize_df(df)
+    out = serialize_df(df, gz=False)
 
     if not fname.endswith('.csv'):
         fname += '.csv'
@@ -62,21 +62,25 @@ def load_df(fname, auto_gamma=False, gz=True):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         re_import = pd.read_csv(fname)
 
-    return deserialize_df(re_import, auto_gamma)
+    return deserialize_df(re_import, auto_gamma=auto_gamma)
 
 
-def serialize_df(df):
+def serialize_df(df, gz=False):
     """Serializes all Obs or Corr valued columns into json strings according to the pyerrors json specification.
 
     Parameters
     ----------
     df : pandas.DataFrame
         DataFrame to be serilized.
+    gz: bool
+        gzip the json string represenation. Default False.
     """
     out = df.copy()
     for column in out:
         if isinstance(out[column][0], (Obs, Corr)):
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
+            if gz is True:
+                out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
     return out
 
 
@@ -90,8 +94,15 @@ def deserialize_df(df, auto_gamma=False):
     auto_gamma : bool
         If True applies the gamma_method to all imported Obs objects with the default parameters for
         the error analysis. Default False.
+
+    Notes:
+    ------
+    In case any column of the DataFrame is gzipped it is gunzipped in the process.
     """
     for column in df.select_dtypes(include="object"):
+        if isinstance(df[column][0], bytes):
+            if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
+                df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
         if isinstance(df[column][0], str):
             if df[column][0][:20] == '{"program":"pyerrors':
                 df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))

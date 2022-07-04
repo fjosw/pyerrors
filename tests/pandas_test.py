@@ -48,6 +48,6 @@ def test_gz_serialization():
     my_obs = pe.pseudo_Obs(0.1, 0.01, "pandas DataFrame ensemble only for test purposes.")
     my_df = pd.DataFrame([{"Label": 1, "Obs": my_obs}])
     for gz in [False, True]:
-        ser = pe.input.pandas.serialize_df(my_df, gz=gz)
-        deser = pe.input.pandas.deserialize_df(ser)
+        ser = pe.input.pandas._serialize_df(my_df, gz=gz)
+        deser = pe.input.pandas._deserialize_df(ser)
         np.all(my_df == deser)

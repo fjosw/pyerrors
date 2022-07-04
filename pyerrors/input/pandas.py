@@ -22,7 +22,7 @@ def to_sql(df, table_name, db, if_exists="replace", gz=True):
     gz : bool
         If True the json strings are gzipped.
     """
-    se_df = pe.input.pandas.serialize_df(df, gz=gz)
+    se_df = _serialize_df(df, gz=gz)
     con = sqlite3.connect(db)
     se_df.to_sql(table_name, con, if_exists=if_exists)
     con.close()
@@ -44,7 +44,7 @@ def read_sql_query(sql, db, auto_gamma=False):
     con = sqlite3.connect(db)
     extract_df = pd.read_sql_query(sql, con)
     con.close()
-    return pe.input.pandas.deserialize_df(extract_df, auto_gamma=auto_gamma)
+    return _deserialize_df(extract_df, auto_gamma=auto_gamma)
 
 
 def dump_df(df, fname, gz=True):
@@ -62,7 +62,7 @@ def dump_df(df, fname, gz=True):
     gz : bool
         If True, the output is a gzipped csv file. If False, the output is a csv file.
     """
-    out = serialize_df(df, gz=False)
+    out = _serialize_df(df, gz=False)
 
     if not fname.endswith('.csv'):
         fname += '.csv'
@@ -101,10 +101,10 @@ def load_df(fname, auto_gamma=False, gz=True):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
         re_import = pd.read_csv(fname)
 
-    return deserialize_df(re_import, auto_gamma=auto_gamma)
+    return _deserialize_df(re_import, auto_gamma=auto_gamma)
 
 
-def serialize_df(df, gz=False):
+def _serialize_df(df, gz=False):
     """Serializes all Obs or Corr valued columns into json strings according to the pyerrors json specification.
 
     Parameters
@@ -123,7 +123,7 @@ def serialize_df(df, gz=False):
     return out
 
 
-def deserialize_df(df, auto_gamma=False):
+def _deserialize_df(df, auto_gamma=False):
     """Deserializes all pyerrors json strings into Obs or Corr objects according to the pyerrors json specification.
 
     Parameters

@@ -50,11 +50,11 @@ def test_gz_serialization():
     for gz in [False, True]:
         ser = pe.input.pandas._serialize_df(my_df, gz=gz)
         deser = pe.input.pandas._deserialize_df(ser)
-        np.all(my_df == deser)
+        assert np.all(my_df == deser)
 
 
 def test_sql(tmp_path):
-    my_list = [{"Label": i, "Obs": pe.pseudo_Obs(5 * np.exp(-0.2 * i), 0.01, "test_ensemble", 20)} for i in range(150)]
+    my_list = [{"Label": i, "Obs": pe.pseudo_Obs(5 * np.exp(-0.2 * i), 0.01, "test_ensemble", 20)} for i in range(15)]
     pe_df = pd.DataFrame(my_list)
     my_db = (tmp_path / "test_db.sqlite").as_posix()
     pe.input.pandas.to_sql(pe_df, "My_table", my_db)

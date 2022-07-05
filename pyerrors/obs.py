@@ -692,7 +692,7 @@ class Obs:
         hash_tuple += tuple([o.encode() for o in self.names])
         m = hashlib.md5()
         [m.update(o) for o in hash_tuple]
-        return int(m.hexdigest(), 16)
+        return int(m.hexdigest(), 16) & 0xFFFFFFFF
 
     # Overload comparisons
     def __lt__(self, other):

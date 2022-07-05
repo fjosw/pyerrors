@@ -29,7 +29,7 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True):
     con.close()
 
 
-def read_sql_query(sql, db, auto_gamma=False):
+def read_sql(sql, db, auto_gamma=False):
     """Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.
 
     Parameters
@@ -43,7 +43,7 @@ def read_sql_query(sql, db, auto_gamma=False):
         the error analysis. Default False.
     """
     con = sqlite3.connect(db)
-    extract_df = pd.read_sql_query(sql, con)
+    extract_df = pd.read_sql(sql, con)
     con.close()
     return _deserialize_df(extract_df, auto_gamma=auto_gamma)
 

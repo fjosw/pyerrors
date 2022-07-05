@@ -1,4 +1,5 @@
 import warnings
+import hashlib
 import pickle
 from math import gcd
 from functools import reduce
@@ -685,10 +686,13 @@ class Obs:
             return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
 
     def __hash__(self):
-        return hash((np.array([self.value]).astype(np.float32)[0],
-                     tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()]),
-                     tuple(np.array([o.errsq() for o in self.covobs.values()]).astype(np.float32).data.tobytes()),
-                     tuple(self.names)))
+        hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
+        hash_tuple += tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()])
+        hash_tuple += tuple([np.array([o.errsq()]).astype(np.float32).data.tobytes() for o in self.covobs.values()])
+        hash_tuple += tuple([o.encode() for o in self.names])
+        m = hashlib.md5()
+        [m.update(o) for o in hash_tuple]
+        return int(m.hexdigest(), 16)
 
     # Overload comparisons
     def __lt__(self, other):

@@ -7,7 +7,7 @@ from ..correlators import Corr
 from .json import create_json_string, import_json_string
 
 
-def to_sql(df, table_name, db, if_exists='fail', gz=True):
+def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
     """Write DataFrame including Obs or Corr valued columns to sqlite database.
 
     Parameters
@@ -25,11 +25,11 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True):
     """
     se_df = _serialize_df(df, gz=gz)
     con = sqlite3.connect(db)
-    se_df.to_sql(table_name, con, if_exists=if_exists, index=False)
+    se_df.to_sql(table_name, con, if_exists=if_exists, index=False, **kwargs)
     con.close()
 
 
-def read_sql(sql, db, auto_gamma=False):
+def read_sql(sql, db, auto_gamma=False, **kwargs):
     """Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.
 
     Parameters
@@ -43,7 +43,7 @@ def read_sql(sql, db, auto_gamma=False):
         the error analysis. Default False.
     """
     con = sqlite3.connect(db)
-    extract_df = pd.read_sql(sql, con)
+    extract_df = pd.read_sql(sql, con, **kwargs)
     con.close()
     return _deserialize_df(extract_df, auto_gamma=auto_gamma)
 

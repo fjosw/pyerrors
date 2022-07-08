@@ -950,3 +950,16 @@ def test_cobs_array():
     cobs * np.identity(4)
     np.identity(4) / cobs
     cobs / np.ones((4, 4))
+
+
+def test_hash():
+    obs = pe.pseudo_Obs(0.3, 0.1, "test") + pe.Obs([np.random.normal(2.3, 0.2, 200)], ["test2"], [range(1, 400, 2)])
+    o1 = obs + pe.cov_Obs(0.0, 0.1, "co") + pe.cov_Obs(0.0, 0.8, "co2")
+    o2 = obs + pe.cov_Obs(0.0, 0.2, "co") + pe.cov_Obs(0.0, 0.8, "co2")
+
+    for i_obs in [obs, o1, o2]:
+        assert hash(i_obs) == hash(i_obs ** 2 / i_obs) == hash(1 * i_obs)
+        assert hash(i_obs) == hash((1 + 1e-16) * i_obs)
+        assert hash(i_obs) != hash((1 + 1e-7) * i_obs)
+    assert hash(obs) != hash(o1)
+    assert hash(o1) != hash(o2)

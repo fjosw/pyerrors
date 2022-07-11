@@ -569,6 +569,8 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
 def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     """Read the gradient flow coupling based on sfqcd gradient flow measurements. See 1607.06423 for details.
 
+    Note: The current implementation only works for c=0.3 and T=L. The definition of the coupling in 1607.06423 requires projection to topological charge zero which is not done within this function but has to be performed in a separate step.
+
     Parameters
     ----------
     path : str
@@ -599,6 +601,9 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     Zeuthen_flow : bool
         (optional) If True, the Zeuthen flow is used for the coupling. If False, the Wilson flow is used.
     """
+
+    if c != 0.3:
+        raise Exception("The required lattice norm is only implemented for c=0.3 at the moment.")
 
     plaq = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=6, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
     C2x1 = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=7, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)

@@ -65,6 +65,7 @@ def test_rwms():
 
     pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
 
+
 def test_Qtop():
     path = './tests//data/openqcd_test/'
     prefix = 'sfqcd'
@@ -97,3 +98,9 @@ def test_Qtop():
     qs = pe.input.openQCD.read_qtop_sector(path, '', 0.3, target=0, Zeuthen_flow=True, version='sfqcd')
 
     assert((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
+
+
+def test_gf_coupling():
+    path = './tests//data/openqcd_test/'
+    prefix = 'sfqcd'
+    gf = pe.input.openQCD.read_gf_coupling(path, prefix, c=0.3)

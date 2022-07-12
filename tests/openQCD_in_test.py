@@ -106,3 +106,5 @@ def test_gf_coupling():
     gf = pe.input.openQCD.read_gf_coupling(path, prefix, c=0.3)
     with pytest.raises(Exception):
         pe.input.openQCD.read_gf_coupling(path, prefix, c=0.35)
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_gf_coupling(path, prefix, c=0.3, Zeuthen_flow=False)

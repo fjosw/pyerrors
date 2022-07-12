@@ -613,6 +613,9 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     if T != L:
         raise Exception("The required lattice norm is only implemented for T=L at the moment.")
 
+    if Zeuthen_flow is not True:
+        raise Exception("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
+
     t = (c * L) ** 2 / 8
 
     normdict = {4: 0.012341170468270,

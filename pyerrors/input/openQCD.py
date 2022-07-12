@@ -607,7 +607,12 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
 
     plaq = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=6, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
     C2x1 = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=7, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
-    L = int(plaq.tag[2:])
+    L = plaq.tag["L"]
+    T = plaq.tag["T"]
+
+    if T != L:
+        raise Exception("The required lattice norm is only implemented for T=L at the moment.")
+
     t = (c * L) ** 2 / 8
 
     normdict = {4: 0.012341170468270,
@@ -888,7 +893,8 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]) + 1, 1) for rep in range(len(deltas))]
     deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep] + 1] for nrep in range(len(deltas))]
     result = Obs(deltas, rep_names, idl=idl)
-    result.tag = f"L={L}"
+    result.tag = {"T": tmax - 1,
+                  "L": L}
     return result
 
 

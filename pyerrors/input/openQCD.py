@@ -562,6 +562,126 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
     integer_charge : bool
         If True, the charge is rounded towards the nearest integer on each config.
     """
+
+    return _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version=version, obspos=0, **kwargs)
+
+
+def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
+    """Read the gradient flow coupling based on sfqcd gradient flow measurements. See 1607.06423 for details.
+
+    Note: The current implementation only works for c=0.3 and T=L. The definition of the coupling in 1607.06423 requires projection to topological charge zero which is not done within this function but has to be performed in a separate step.
+
+    Parameters
+    ----------
+    path : str
+        path of the measurement files
+    prefix : str
+        prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat.
+        Ignored if file names are passed explicitly via keyword files.
+    c : double
+        Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L.
+    dtr_cnfg : int
+        (optional) parameter that specifies the number of measurements
+        between two configs.
+        If it is not set, the distance between two measurements
+        in the file is assumed to be the distance between two configurations.
+    steps : int
+        (optional) Distance between two configurations in units of trajectories /
+         cycles. Assumed to be the distance between two measurements * dtr_cnfg if not given
+    r_start : list
+        list which contains the first config to be read for each replicum.
+    r_stop : list
+        list which contains the last config to be read for each replicum.
+    files : list
+        specify the exact files that need to be read
+        from path, practical if e.g. only one replicum is needed
+    names : list
+        Alternative labeling for replicas/ensembles.
+        Has to have the appropriate length.
+    Zeuthen_flow : bool
+        (optional) If True, the Zeuthen flow is used for the coupling. If False, the Wilson flow is used.
+    """
+
+    if c != 0.3:
+        raise Exception("The required lattice norm is only implemented for c=0.3 at the moment.")
+
+    plaq = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=6, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
+    C2x1 = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=7, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
+    L = plaq.tag["L"]
+    T = plaq.tag["T"]
+
+    if T != L:
+        raise Exception("The required lattice norm is only implemented for T=L at the moment.")
+
+    if Zeuthen_flow is not True:
+        raise Exception("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
+
+    t = (c * L) ** 2 / 8
+
+    normdict = {4: 0.012341170468270,
+                6: 0.010162691462430,
+                8: 0.009031614807931,
+                10: 0.008744966371393,
+                12: 0.008650917856809,
+                14: 8.611154391267955E-03,
+                16: 0.008591758449508,
+                20: 0.008575359627103,
+                24: 0.008569387847540,
+                28: 8.566803713382559E-03,
+                32: 0.008565541650006,
+                40: 8.564480684962046E-03,
+                48: 8.564098025073460E-03,
+                64: 8.563853943383087E-03}
+
+    return t * t * (5 / 3 * plaq - 1 / 12 * C2x1) / normdict[L]
+
+
+def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum_t=True, **kwargs):
+    """Read a flow observable based on openQCD gradient flow measurements.
+
+    Parameters
+    ----------
+    path : str
+        path of the measurement files
+    prefix : str
+        prefix of the measurement files, e.g. <prefix>_id0_r0.ms.dat.
+        Ignored if file names are passed explicitly via keyword files.
+    c : double
+        Smearing radius in units of the lattice extent, c = sqrt(8 t0) / L.
+    dtr_cnfg : int
+        (optional) parameter that specifies the number of measurements
+        between two configs.
+        If it is not set, the distance between two measurements
+        in the file is assumed to be the distance between two configurations.
+    steps : int
+        (optional) Distance between two configurations in units of trajectories /
+         cycles. Assumed to be the distance between two measurements * dtr_cnfg if not given
+    version : str
+        Either openQCD or sfqcd, depending on the data.
+    obspos : int
+        position of the obeservable in the measurement file. Only relevant for sfqcd files.
+    sum_t : bool
+        If true sum over all timeslices, if false only take the value at T/2.
+    L : int
+        spatial length of the lattice in L/a.
+        HAS to be set if version != sfqcd, since openQCD does not provide
+        this in the header
+    r_start : list
+        list which contains the first config to be read for each replicum.
+    r_stop : list
+        list which contains the last config to be read for each replicum.
+    files : list
+        specify the exact files that need to be read
+        from path, practical if e.g. only one replicum is needed
+    names : list
+        Alternative labeling for replicas/ensembles.
+        Has to have the appropriate length.
+    Zeuthen_flow : bool
+        (optional) If True, the Zeuthen flow is used for Qtop. Only possible
+        for version=='sfqcd' If False, the Wilson flow is used.
+    integer_charge : bool
+        If True, the charge is rounded towards the nearest integer on each config.
+    """
     known_versions = ["openQCD", "sfqcd"]
 
     if version not in known_versions:
@@ -618,16 +738,14 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
     r_stop_index = []
     deltas = []
     configlist = []
+    if not zeuthen:
+        obspos += 8
     for rep, file in enumerate(files):
         with open(path + "/" + file, "rb") as fp:
 
             Q = []
             traj_list = []
             if version in ['sfqcd']:
-                if zeuthen:
-                    obspos = 0
-                else:
-                    obspos = 8
                 t = fp.read(12)
                 header = struct.unpack('<iii', t)
                 zthfl = header[0]  # Zeuthen flow -> if it's equal to 2 it means that the Zeuthen flow is also 'measured' (apart from the Wilson flow)
@@ -742,8 +860,11 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
 
         Q_sum = []
         for i, item in enumerate(Q):
-            Q_sum.append([sum(item[current:current + tmax])
-                         for current in range(0, len(item), tmax)])
+            if sum_t is True:
+                Q_sum.append([sum(item[current:current + tmax])
+                             for current in range(0, len(item), tmax)])
+            else:
+                Q_sum.append([item[int(tmax / 2)]])
         Q_top = []
         if version in ['sfqcd']:
             for i in range(len(Q_sum) // (ncs + 1)):
@@ -775,6 +896,8 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
     idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]) + 1, 1) for rep in range(len(deltas))]
     deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep] + 1] for nrep in range(len(deltas))]
     result = Obs(deltas, rep_names, idl=idl)
+    result.tag = {"T": tmax - 1,
+                  "L": L}
     return result
 
 

@@ -254,11 +254,13 @@ class Corr:
 
     def matrix_symmetric(self):
         """Symmetrizes the correlator matrices on every timeslice."""
-        if self.N > 1:
-            transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
-            return 0.5 * (Corr(transposed) + self)
         if self.N == 1:
             raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
+        if self.is_matrix_symmetric():
+            return 1.0 * self
+        else:
+            transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
+            return 0.5 * (Corr(transposed) + self)
 
     def GEVP(self, t0, ts=None, sort="Eigenvalue", **kwargs):
         r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
@@ -299,10 +301,7 @@ class Corr:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
             sort = kwargs.get("sorted_list")
 
-        if self.is_matrix_symmetric():
-            symmetric_corr = self
-        else:
-            symmetric_corr = self.matrix_symmetric()
+        symmetric_corr = self.matrix_symmetric()
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")

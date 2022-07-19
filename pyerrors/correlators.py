@@ -244,6 +244,8 @@ class Corr:
         for t in range(self.T):
             for i in range(self.N):
                 for j in range(i + 1, self.N):
+                    if self[t][i, j] is self[t][j, i]:
+                        continue
                     if hash(self[t][i, j]) != hash(self[t][j, i]):
                         return False
         return True

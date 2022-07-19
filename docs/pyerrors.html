@@ -102,7 +102,7 @@ pyerrors    </h1>
 It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>. Some of its features are:</p>
 
 <ul>
-<li>automatic differentiation for exact liner error propagation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a> (partly based on the <a href="https://github.com/HIPS/autograd">autograd</a> package).</li>
+<li>automatic differentiation for exact linear error propagation as suggested in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a> (partly based on the <a href="https://github.com/HIPS/autograd">autograd</a> package).</li>
 <li>treatment of slow modes in the simulation as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>.</li>
 <li>coherent error propagation for data from different Markov chains.</li>
 <li>non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</li>
@@ -207,7 +207,7 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code> and <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
-<p>If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+<p>If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the window size is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.</p>
 
 <h3 id="exponential-tails">Exponential tails</h3>
@@ -417,7 +417,7 @@ where the Jacobian is computed for each derived quantity via automatic different
 
 <h1 id="error-propagation-in-iterative-algorithms">Error propagation in iterative algorithms</h1>
 
-<p><code><a href="">pyerrors</a></code> supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
+<p><code><a href="">pyerrors</a></code> supports exact linear error propagation for iterative algorithms like various variants of non-linear least squares fits or root finding. The derivatives required for the error propagation are calculated as described in <a href="https://arxiv.org/abs/1809.01289">arXiv:1809.01289</a>.</p>
 
 <h2 id="least-squares-fits">Least squares fits</h2>
 
@@ -474,7 +474,7 @@ Details about how the required covariance matrix is estimated can be found in <c
 
 <h2 id="total-least-squares-fits">Total least squares fits</h2>
 
-<p><code><a href="">pyerrors</a></code> can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in <a href="https://docs.scipy.org/doc/scipy/reference/odr.html">scipy</a>, see <code><a href="pyerrors/fits.html#least_squares">pyerrors.fits.least_squares</a></code>. The syntax is identical to the standard least squares case, the only diffrence being that <code>x</code> also has to be a <code>list</code> or <code>numpy.array</code> of <code>Obs</code>.</p>
+<p><code><a href="">pyerrors</a></code> can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in <a href="https://docs.scipy.org/doc/scipy/reference/odr.html">scipy</a>, see <code><a href="pyerrors/fits.html#least_squares">pyerrors.fits.least_squares</a></code>. The syntax is identical to the standard least squares case, the only difference being that <code>x</code> also has to be a <code>list</code> or <code>numpy.array</code> of <code>Obs</code>.</p>
 
 <p>For the full API see <code><a href="pyerrors/fits.html">pyerrors.fits</a></code> for fits and <code><a href="pyerrors/roots.html">pyerrors.roots</a></code> for finding roots of functions.</p>
 
@@ -585,7 +585,7 @@ The following entries are optional:</li>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="sd"># What is pyerrors?</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="sd">`pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="sd">It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">- automatic differentiation for exact liner error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">- automatic differentiation for exact linear error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">- treatment of slow modes in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228).</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="sd">- coherent error propagation for data from different Markov chains.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">- non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
@@ -691,7 +691,7 @@ The following entries are optional:</li>
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.</span>
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the window size is chosen to be zero.</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">In this case the error estimate is identical to the sample standard error.</span>
 </span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">### Exponential tails</span>
@@ -900,7 +900,7 @@ The following entries are optional:</li>
 </span><span id="L-317"><a href="#L-317"><span class="linenos">317</span></a>
 </span><span id="L-318"><a href="#L-318"><span class="linenos">318</span></a><span class="sd"># Error propagation in iterative algorithms</span>
 </span><span id="L-319"><a href="#L-319"><span class="linenos">319</span></a>
-</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a><span class="sd">`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
+</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a><span class="sd">`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least squares fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).</span>
 </span><span id="L-321"><a href="#L-321"><span class="linenos">321</span></a>
 </span><span id="L-322"><a href="#L-322"><span class="linenos">322</span></a><span class="sd">## Least squares fits</span>
 </span><span id="L-323"><a href="#L-323"><span class="linenos">323</span></a>
@@ -954,7 +954,7 @@ The following entries are optional:</li>
 </span><span id="L-371"><a href="#L-371"><span class="linenos">371</span></a><span class="sd">Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.</span>
 </span><span id="L-372"><a href="#L-372"><span class="linenos">372</span></a>
 </span><span id="L-373"><a href="#L-373"><span class="linenos">373</span></a><span class="sd">## Total least squares fits</span>
-</span><span id="L-374"><a href="#L-374"><span class="linenos">374</span></a><span class="sd">`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.</span>
+</span><span id="L-374"><a href="#L-374"><span class="linenos">374</span></a><span class="sd">`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.</span>
 </span><span id="L-375"><a href="#L-375"><span class="linenos">375</span></a>
 </span><span id="L-376"><a href="#L-376"><span class="linenos">376</span></a><span class="sd">For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.</span>
 </span><span id="L-377"><a href="#L-377"><span class="linenos">377</span></a>

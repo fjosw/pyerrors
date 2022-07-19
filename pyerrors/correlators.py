@@ -301,7 +301,11 @@ class Corr:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
             sort = kwargs.get("sorted_list")
 
-        symmetric_corr = self.matrix_symmetric()
+        if self.is_matrix_symmetric():
+            symmetric_corr = self
+        else:
+            symmetric_corr = self.matrix_symmetric()
+
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")

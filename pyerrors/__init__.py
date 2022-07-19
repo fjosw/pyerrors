@@ -2,7 +2,7 @@ r'''
 # What is pyerrors?
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
 It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:
-- automatic differentiation for exact liner error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).
+- automatic differentiation for exact linear error propagation as suggested in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289) (partly based on the [autograd](https://github.com/HIPS/autograd) package).
 - treatment of slow modes in the simulation as suggested in [arXiv:1009.5228](https://arxiv.org/abs/1009.5228).
 - coherent error propagation for data from different Markov chains.
 - non-linear fits with x- and y-errors and exact linear error propagation based on automatic differentiation as introduced in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
@@ -108,7 +108,7 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
 
-If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the windowsize is chosen to be zero.
+If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the window size is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.
 
 ### Exponential tails
@@ -317,7 +317,7 @@ o.covobs[k].grad
 
 # Error propagation in iterative algorithms
 
-`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least sqaures fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
+`pyerrors` supports exact linear error propagation for iterative algorithms like various variants of non-linear least squares fits or root finding. The derivatives required for the error propagation are calculated as described in [arXiv:1809.01289](https://arxiv.org/abs/1809.01289).
 
 ## Least squares fits
 
@@ -371,7 +371,7 @@ Details about how the required covariance matrix is estimated can be found in `p
 Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.
 
 ## Total least squares fits
-`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only diffrence being that `x` also has to be a `list` or `numpy.array` of `Obs`.
+`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.
 
 For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 

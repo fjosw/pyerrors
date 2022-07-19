@@ -237,6 +237,17 @@ class Corr:
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
+    def is_matrix_symmetric(self):
+        """Checks whether a correlator matrices is symmetric on every timeslice."""
+        if self.N == 1:
+            raise Exception("Only works for correlator matrices.")
+        for t in range(self.T):
+            for i in range(self.N):
+                for j in range(i + 1, self.N):
+                    if hash(self[t][i, j]) != hash(self[t][j, i]):
+                        return False
+        return True
+
     def matrix_symmetric(self):
         """Symmetrizes the correlator matrices on every timeslice."""
         if self.N > 1:

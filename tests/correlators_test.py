@@ -378,7 +378,7 @@ def test_is_matrix_symmetric():
                 if i != j:
                     mat[j, i] = obs
         corr_data.append(mat)
-    corr = pe.Corr(corr_data)
+    corr = pe.Corr(corr_data, padding=[0, 2])
 
     assert corr.is_matrix_symmetric()
     corr[0][0, 1] = 1.0 * corr[0][0, 1]

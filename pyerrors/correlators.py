@@ -242,6 +242,8 @@ class Corr:
         if self.N == 1:
             raise Exception("Only works for correlator matrices.")
         for t in range(self.T):
+            if self[t] is None:
+                continue
             for i in range(self.N):
                 for j in range(i + 1, self.N):
                     if self[t][i, j] is self[t][j, i]:
@@ -297,7 +299,10 @@ class Corr:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
             sort = kwargs.get("sorted_list")
 
-        symmetric_corr = self.matrix_symmetric()
+        if self.is_matrix_symmetric():
+            symmetric_corr = self
+        else:
+            symmetric_corr = self.matrix_symmetric()
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")

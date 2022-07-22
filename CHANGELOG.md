@@ -2,10 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.x.x] - 2022-xx-xx
+## [2.2.0] - 2022-xx-xx
 ### Added
+- New submodule `input.pandas` added which adds the possibility to read and write pandas DataFrames containing `Obs` or `Corr` objects to csv files or SQLite databases.
+- `hash` method for `Obs` objects added.
 - `Obs.reweight` method added in analogy to `Corr.reweight` which allows for a more convenient reweighting of individual observables.
 - `Corr.show` now has the additional argument `title` which allows to add a title to the figure. Figures are now saved with `bbox_inches='tight'`.
+- Function for the extraction of the gradient flow coupling added (see 1607.06423 for details).
 
 ### Fixed
 - `Corr.m_eff` can now deal with correlator entries which are exactly zero.

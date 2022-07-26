@@ -367,6 +367,28 @@ def test_matrix_symmetric():
     corr3.matrix_symmetric()
 
 
+def test_is_matrix_symmetric():
+    corr_data = []
+    for t in range(4):
+        mat = np.zeros((4, 4), dtype=object)
+        for i in range(4):
+            for j in range(i, 4):
+                obs = pe.pseudo_Obs(0.1, 0.047, "rgetrasrewe53455b153v13v5/*/*sdfgb")
+                mat[i, j] = obs
+                if i != j:
+                    mat[j, i] = obs
+        corr_data.append(mat)
+    corr = pe.Corr(corr_data, padding=[0, 2])
+
+    assert corr.is_matrix_symmetric()
+    corr[0][0, 1] = 1.0 * corr[0][0, 1]
+    assert corr.is_matrix_symmetric()
+    corr[3][2, 1] = (1 + 1e-14) * corr[3][2, 1]
+    assert corr.is_matrix_symmetric()
+    corr[0][0, 1] = 1.1 * corr[0][0, 1]
+    assert not corr.is_matrix_symmetric()
+
+
 def test_GEVP_solver():
 
     mat1 = np.random.rand(15, 15)

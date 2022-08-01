@@ -163,7 +163,7 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
                 Nt = h5file["DistillationContraction/Metadata"].attrs.get("Nt")[0]
 
                 identifier = []
-                for in_file in range(4):
+                for in_file in range(len(h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.keys()) - 1):
                     encoded_info = h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.get("DmfInputFiles_" + str(in_file))
                     full_info = encoded_info[0].decode().split("/")[-1].replace(".h5", "").split("_")
                     my_tuple = (full_info[0], full_info[1][1:], full_info[2], full_info[3])
@@ -174,8 +174,8 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
             for diagram in diagrams:
                 real_data = np.zeros(Nt)
                 for x0 in range(Nt):
-                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)]
-                    real_data += np.roll(raw_data[:]["re"].astype(np.double), -x0)
+                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)][:]["re"].astype(np.double)
+                    real_data += np.roll(raw_data, -x0)
                 real_data /= Nt
 
                 corr_data[diagram].append(real_data)

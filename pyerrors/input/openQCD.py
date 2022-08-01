@@ -157,7 +157,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 config_no = struct.unpack('i', t)[0]
                 configlist[-1].append(config_no)
                 for i in range(nrw):
-                    if(version == '2.0'):
+                    if (version == '2.0'):
                         tmpd = _read_array_openQCD2(fp)
                         tmpd = _read_array_openQCD2(fp)
                         tmp_rw = tmpd['arr']
@@ -364,7 +364,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
             configlist.append([])
             while True:
                 t = fp.read(4)
-                if(len(t) < 4):
+                if (len(t) < 4):
                     break
                 nc = struct.unpack('i', t)[0]
                 configlist[-1].append(nc)
@@ -754,7 +754,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
 
                 t = fp.read(12)
                 Ls = struct.unpack('<iii', t)
-                if(Ls[0] == Ls[1] and Ls[1] == Ls[2]):
+                if (Ls[0] == Ls[1] and Ls[1] == Ls[2]):
                     L = Ls[0]
                     if not (supposed_L == L) and supposed_L:
                         raise Exception("It seems the length given in the header and by you contradict each other")
@@ -769,7 +769,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
                 if c > cmax:
                     raise Exception('Flow has been determined between c=0 and c=%lf with tolerance %lf' % (cmax, tol))
 
-                if(zthfl == 2):
+                if (zthfl == 2):
                     nfl = 2  # number of flows
                 else:
                     nfl = 1
@@ -777,7 +777,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
 
                 while True:
                     t = fp.read(4)
-                    if(len(t) < 4):
+                    if (len(t) < 4):
                         break
                     traj_list.append(struct.unpack('i', t)[0])   # trajectory number when measurement was done
 
@@ -802,7 +802,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
 
                 while True:
                     t = fp.read(4)
-                    if(len(t) < 4):
+                    if (len(t) < 4):
                         break
                     traj_list.append(struct.unpack('i', t)[0])
                     # Wsl

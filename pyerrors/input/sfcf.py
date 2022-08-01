@@ -74,11 +74,11 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
 
     if version not in known_versions:
         raise Exception("This version is not known!")
-    if(version[-1] == "c"):
+    if (version[-1] == "c"):
         appended = False
         compact = True
         version = version[:-1]
-    elif(version[-1] == "a"):
+    elif (version[-1] == "a"):
         appended = True
         compact = False
         version = version[:-1]
@@ -252,7 +252,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         lines = fp.readlines()
                         # check, if the correlator is in fact
                         # printed completely
-                        if(start_read + T > len(lines)):
+                        if (start_read + T > len(lines)):
                             raise Exception("EOF before end of correlator data! Maybe " + path + '/' + item + '/' + sub_ls[cfg] + " is corrupted?")
                         # and start to read the correlator.
                         # the range here is chosen like this,
@@ -262,7 +262,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                             if k == start_read - 5 - b2b:
                                 if lines[k].strip() != 'name      ' + name:
                                     raise Exception('Wrong format', sub_ls[cfg])
-                            if(k >= start_read and k < start_read + T):
+                            if (k >= start_read and k < start_read + T):
                                 floats = list(map(float, lines[k].split()))
                                 deltas[k - start_read][i][cfg] = floats[-2:][im]
             else:
@@ -273,7 +273,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         # we can iterate over the whole file.
                         # here one can also implement the chekc from above.
                         for k, line in enumerate(fp):
-                            if(k >= start_read and k < start_read + T):
+                            if (k >= start_read and k < start_read + T):
                                 floats = list(map(float, line.split()))
                                 if version == "0.0":
                                     deltas[k - start][i][cnfg] = floats[im - single]

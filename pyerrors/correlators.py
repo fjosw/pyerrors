@@ -119,7 +119,7 @@ class Corr:
     def gamma_method(self, **kwargs):
         """Apply the gamma method to the content of the Corr."""
         for item in self.content:
-            if not(item is None):
+            if not (item is None):
                 if self.N == 1:
                     item[0].gamma_method(**kwargs)
                 else:
@@ -139,7 +139,7 @@ class Corr:
 
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
-        elif(vector_r is None):
+        elif (vector_r is None):
             vector_r = vector_l
         if isinstance(vector_l, list) and not isinstance(vector_r, list):
             if len(vector_l) != self.T:
@@ -178,7 +178,7 @@ class Corr:
         """
         if self.N == 1:
             raise Exception("Trying to pick item from projected Corr")
-        newcontent = [None if(item is None) else item[i, j] for item in self.content]
+        newcontent = [None if (item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
     def plottable(self):
@@ -211,7 +211,7 @@ class Corr:
                 newcontent.append(None)
             else:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
-        if(all([x is None for x in newcontent])):
+        if (all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
@@ -233,7 +233,7 @@ class Corr:
                 newcontent.append(None)
             else:
                 newcontent.append(0.5 * (self.content[t] - self.content[self.T - t]))
-        if(all([x is None for x in newcontent])):
+        if (all([x is None for x in newcontent])):
             raise Exception("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
@@ -534,7 +534,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(0.5 * (self.content[t + 1] - self.content[t - 1]))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[1, 1])
         elif variant == "forward":
@@ -544,7 +544,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t + 1] - self.content[t])
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[0, 1])
         elif variant == "backward":
@@ -554,7 +554,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] - self.content[t - 1])
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 0])
         elif variant == "improved":
@@ -564,7 +564,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append((1 / 12) * (self.content[t - 2] - 8 * self.content[t - 1] + 8 * self.content[t + 1] - self.content[t + 2]))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[2, 2])
         else:
@@ -588,7 +588,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
         elif variant == "improved":
@@ -598,7 +598,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append((1 / 12) * (-self.content[t + 2] + 16 * self.content[t + 1] - 30 * self.content[t] + 16 * self.content[t - 1] - self.content[t - 2]))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         else:
@@ -629,7 +629,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / self.content[t + 1])
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
             return np.log(Corr(newcontent, padding=[0, 1]))
@@ -654,7 +654,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], root_function, guess=guess)))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception('m_eff is undefined at all timeslices')
 
             return Corr(newcontent, padding=[0, 1])
@@ -666,7 +666,7 @@ class Corr:
                     newcontent.append(None)
                 else:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
-            if(all([x is None for x in newcontent])):
+            if (all([x is None for x in newcontent])):
                 raise Exception("m_eff is undefined at all timeslices")
             return np.arccosh(Corr(newcontent, padding=[1, 1]))
 
@@ -729,7 +729,7 @@ class Corr:
                 raise Exception("no plateau range provided")
         if self.N != 1:
             raise Exception("Correlator must be projected before getting a plateau.")
-        if(all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
+        if (all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
             raise Exception("plateau is undefined at all timeslices in plateaurange.")
         if auto_gamma:
             self.gamma_method()
@@ -994,7 +994,7 @@ class Corr:
 
     def __mul__(self, y):
         if isinstance(y, Corr):
-            if not((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
+            if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):
@@ -1022,7 +1022,7 @@ class Corr:
 
     def __truediv__(self, y):
         if isinstance(y, Corr):
-            if not((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
+            if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):

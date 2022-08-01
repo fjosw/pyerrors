@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.2.0] - 2022-xx-xx
+## [2.2.0] - 2022-08-01
 ### Added
 - New submodule `input.pandas` added which adds the possibility to read and write pandas DataFrames containing `Obs` or `Corr` objects to csv files or SQLite databases.
 - `hash` method for `Obs` objects added.

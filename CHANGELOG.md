@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - `Obs.reweight` method added in analogy to `Corr.reweight` which allows for a more convenient reweighting of individual observables.
 - `Corr.show` now has the additional argument `title` which allows to add a title to the figure. Figures are now saved with `bbox_inches='tight'`.
 - Function for the extraction of the gradient flow coupling added (see 1607.06423 for details).
+- `Corr.is_matrix_symmetric` added which efficiently checks whether a correlator matrix is symmetric. This is used to speed up the GEVP method.
 
 ### Fixed
 - `Corr.m_eff` can now deal with correlator entries which are exactly zero.
@@ -25,7 +26,7 @@ All notable changes to this project will be documented in this file.
 ## [2.1.1] - 2022-06-06
 ### Fixed
 - Bug in error propagation of correlated least square fits fixed.
-- `Fit_result.gamma_method` can now be called with kwargs
+- `Fit_result.gamma_method` can now be called with kwargs.
 
 ## [2.1.0] - 2022-05-31
 ### Added

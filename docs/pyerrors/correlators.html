@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 12.0.2"/>
+    <meta name="generator" content="pdoc 12.1.0"/>
     <title>pyerrors.correlators API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -1042,7 +1042,7 @@
 </span><span id="L-825"><a href="#L-825"><span class="linenos"> 825</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">hide_sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_err</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">-</span> <span class="mi">1</span>
 </span><span id="L-826"><a href="#L-826"><span class="linenos"> 826</span></a>                    <span class="k">else</span><span class="p">:</span>
 </span><span id="L-827"><a href="#L-827"><span class="linenos"> 827</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="L-828"><a href="#L-828"><span class="linenos"> 828</span></a>                    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
+</span><span id="L-828"><a href="#L-828"><span class="linenos"> 828</span></a>                    <span class="n">ax1</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
 </span><span id="L-829"><a href="#L-829"><span class="linenos"> 829</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="L-830"><a href="#L-830"><span class="linenos"> 830</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 </span><span id="L-831"><a href="#L-831"><span class="linenos"> 831</span></a>
@@ -2328,7 +2328,7 @@
 </span><span id="Corr-826"><a href="#Corr-826"><span class="linenos"> 826</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">hide_sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_err</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">-</span> <span class="mi">1</span>
 </span><span id="Corr-827"><a href="#Corr-827"><span class="linenos"> 827</span></a>                    <span class="k">else</span><span class="p">:</span>
 </span><span id="Corr-828"><a href="#Corr-828"><span class="linenos"> 828</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Corr-829"><a href="#Corr-829"><span class="linenos"> 829</span></a>                    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
+</span><span id="Corr-829"><a href="#Corr-829"><span class="linenos"> 829</span></a>                    <span class="n">ax1</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
 </span><span id="Corr-830"><a href="#Corr-830"><span class="linenos"> 830</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="Corr-831"><a href="#Corr-831"><span class="linenos"> 831</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 </span><span id="Corr-832"><a href="#Corr-832"><span class="linenos"> 832</span></a>
@@ -2879,7 +2879,7 @@ region indentified for this correlator.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">gamma_method</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+        <span class="name">gamma_method</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.gamma_method-view-source"><span>View Source</span></label>
 
@@ -2908,7 +2908,7 @@ region indentified for this correlator.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">projected</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span></span>)</span>
+        <span class="name">projected</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.projected-view-source"><span>View Source</span></label>
 
@@ -2969,7 +2969,7 @@ By default it will return the lowest source, which usually means unsmeared-unsme
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">item</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">i</span>, </span><span class="param"><span class="n">j</span></span>)</span>
+        <span class="name">item</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">i</span>, </span><span class="param"><span class="n">j</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.item-view-source"><span>View Source</span></label>
 
@@ -3011,7 +3011,7 @@ Second index to be picked.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">plottable</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">plottable</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.plottable-view-source"><span>View Source</span></label>
 
@@ -3046,7 +3046,7 @@ timeslice and the error on each timeslice.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.symmetric-view-source"><span>View Source</span></label>
 
@@ -3084,7 +3084,7 @@ timeslice and the error on each timeslice.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">anti_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">anti_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.anti_symmetric-view-source"><span>View Source</span></label>
 
@@ -3124,7 +3124,7 @@ timeslice and the error on each timeslice.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">is_matrix_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">is_matrix_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.is_matrix_symmetric-view-source"><span>View Source</span></label>
 
@@ -3157,7 +3157,7 @@ timeslice and the error on each timeslice.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">matrix_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">matrix_symmetric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.matrix_symmetric-view-source"><span>View Source</span></label>
 
@@ -3185,7 +3185,7 @@ timeslice and the error on each timeslice.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">GEVP</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">t0</span>, </span><span class="param"><span class="n">ts</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;Eigenvalue&#39;</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+        <span class="name">GEVP</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">t0</span>, </span><span class="param"><span class="n">ts</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;Eigenvalue&#39;</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.GEVP-view-source"><span>View Source</span></label>
 
@@ -3320,7 +3320,7 @@ Returns only the vector(s) for a specified state. The lowest state is zero.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">Eigenvalue</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">t0</span>, </span><span class="param"><span class="n">ts</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">state</span><span class="o">=</span><span class="mi">0</span>, </span><span class="param"><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;Eigenvalue&#39;</span></span>)</span>
+        <span class="name">Eigenvalue</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">t0</span>, </span><span class="param"><span class="n">ts</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">state</span><span class="o">=</span><span class="mi">0</span>, </span><span class="param"><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;Eigenvalue&#39;</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.Eigenvalue-view-source"><span>View Source</span></label>
 
@@ -3359,7 +3359,7 @@ The state one is interested in ordered by energy. The lowest state is zero.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">Hankel</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">N</span>, </span><span class="param"><span class="n">periodic</span><span class="o">=</span><span class="kc">False</span></span>)</span>
+        <span class="name">Hankel</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">N</span>, </span><span class="param"><span class="n">periodic</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.Hankel-view-source"><span>View Source</span></label>
 
@@ -3432,7 +3432,7 @@ determines whether the matrix is extended periodically</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">roll</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">dt</span></span>)</span>
+        <span class="name">roll</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">dt</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.roll-view-source"><span>View Source</span></label>
 
@@ -3467,7 +3467,7 @@ number of timeslices</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">reverse</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">reverse</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.reverse-view-source"><span>View Source</span></label>
 
@@ -3489,7 +3489,7 @@ number of timeslices</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">thin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">spacing</span><span class="o">=</span><span class="mi">2</span>, </span><span class="param"><span class="n">offset</span><span class="o">=</span><span class="mi">0</span></span>)</span>
+        <span class="name">thin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">spacing</span><span class="o">=</span><span class="mi">2</span>, </span><span class="param"><span class="n">offset</span><span class="o">=</span><span class="mi">0</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.thin-view-source"><span>View Source</span></label>
 
@@ -3534,7 +3534,7 @@ Offset the equal spacing</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">correlate</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">partner</span></span>)</span>
+        <span class="name">correlate</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">partner</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.correlate-view-source"><span>View Source</span></label>
 
@@ -3590,7 +3590,7 @@ correlator or a Corr of same length.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">reweight</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">weight</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+        <span class="name">reweight</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">weight</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.reweight-view-source"><span>View Source</span></label>
 
@@ -3643,7 +3643,7 @@ on the configurations in obs[i].idl.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">T_symmetry</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">partner</span>, </span><span class="param"><span class="n">parity</span><span class="o">=</span><span class="mi">1</span></span>)</span>
+        <span class="name">T_symmetry</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">partner</span>, </span><span class="param"><span class="n">parity</span><span class="o">=</span><span class="mi">1</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.T_symmetry-view-source"><span>View Source</span></label>
 
@@ -3700,7 +3700,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">deriv</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;symmetric&#39;</span></span>)</span>
+        <span class="name">deriv</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;symmetric&#39;</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.deriv-view-source"><span>View Source</span></label>
 
@@ -3780,7 +3780,7 @@ Available choice: symmetric, forward, backward, improved, default: symmetric</li
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">second_deriv</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;symmetric&#39;</span></span>)</span>
+        <span class="name">second_deriv</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;symmetric&#39;</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.second_deriv-view-source"><span>View Source</span></label>
 
@@ -3840,7 +3840,7 @@ Available choice: symmetric, improved, default: symmetric</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">m_eff</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span>, </span><span class="param"><span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span></span>)</span>
+        <span class="name">m_eff</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span>, </span><span class="param"><span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.m_eff-view-source"><span>View Source</span></label>
 
@@ -3940,7 +3940,7 @@ guess for the root finder, only relevant for the root variant</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">fit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">function</span>, </span><span class="param"><span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">silent</span><span class="o">=</span><span class="kc">False</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+        <span class="name">fit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">function</span>, </span><span class="param"><span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">silent</span><span class="o">=</span><span class="kc">False</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.fit-view-source"><span>View Source</span></label>
 
@@ -4006,7 +4006,7 @@ Decides whether output is printed to the standard output.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">plateau</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">method</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span>, </span><span class="param"><span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span></span>)</span>
+        <span class="name">plateau</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">method</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span>, </span><span class="param"><span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.plateau-view-source"><span>View Source</span></label>
 
@@ -4075,7 +4075,7 @@ apply gamma_method with default parameters to the Corr. Defaults to None</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">set_prange</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">prange</span></span>)</span>
+        <span class="name">set_prange</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">prange</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.set_prange-view-source"><span>View Source</span></label>
 
@@ -4105,7 +4105,7 @@ apply gamma_method with default parameters to the Corr. Defaults to None</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">show</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">x_range</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">comp</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">y_range</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">logscale</span><span class="o">=</span><span class="kc">False</span>,</span><span class="param">	<span class="n">plateau</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">save</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span>,</span><span class="param">	<span class="n">hide_sigma</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">references</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">title</span><span class="o">=</span><span class="kc">None</span></span>)</span>
+        <span class="name">show</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">x_range</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">comp</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">y_range</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">logscale</span><span class="o">=</span><span class="kc">False</span>,</span><span class="param">	<span class="n">plateau</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">save</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span>,</span><span class="param">	<span class="n">hide_sigma</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">references</span><span class="o">=</span><span class="kc">None</span>,</span><span class="param">	<span class="n">title</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.show-view-source"><span>View Source</span></label>
 
@@ -4180,7 +4180,7 @@ apply gamma_method with default parameters to the Corr. Defaults to None</li>
 </span><span id="Corr.show-826"><a href="#Corr.show-826"><span class="linenos">826</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">hide_sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_err</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">-</span> <span class="mi">1</span>
 </span><span id="Corr.show-827"><a href="#Corr.show-827"><span class="linenos">827</span></a>                    <span class="k">else</span><span class="p">:</span>
 </span><span id="Corr.show-828"><a href="#Corr.show-828"><span class="linenos">828</span></a>                        <span class="n">hide_from</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Corr.show-829"><a href="#Corr.show-829"><span class="linenos">829</span></a>                    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
+</span><span id="Corr.show-829"><a href="#Corr.show-829"><span class="linenos">829</span></a>                    <span class="n">ax1</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">y_err</span><span class="p">[:</span><span class="n">hide_from</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">corr</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">])</span>
 </span><span id="Corr.show-830"><a href="#Corr.show-830"><span class="linenos">830</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="Corr.show-831"><a href="#Corr.show-831"><span class="linenos">831</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;comp&#39; must be a correlator or a list of correlators.&quot;</span><span class="p">)</span>
 </span><span id="Corr.show-832"><a href="#Corr.show-832"><span class="linenos">832</span></a>
@@ -4270,7 +4270,7 @@ Optional title of the figure.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">spaghetti_plot</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">logscale</span><span class="o">=</span><span class="kc">True</span></span>)</span>
+        <span class="name">spaghetti_plot</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">logscale</span><span class="o">=</span><span class="kc">True</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.spaghetti_plot-view-source"><span>View Source</span></label>
 
@@ -4324,7 +4324,7 @@ Determines whether the scale of the y-axis is logarithmic or standard.</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">dump</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">filename</span>, </span><span class="param"><span class="n">datatype</span><span class="o">=</span><span class="s1">&#39;json.gz&#39;</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
+        <span class="name">dump</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">filename</span>, </span><span class="param"><span class="n">datatype</span><span class="o">=</span><span class="s1">&#39;json.gz&#39;</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.dump-view-source"><span>View Source</span></label>
 
@@ -4378,7 +4378,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">print</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">print_range</span><span class="o">=</span><span class="kc">None</span></span>)</span>
+        <span class="name">print</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">print_range</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.print-view-source"><span>View Source</span></label>
 
@@ -4397,7 +4397,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">sqrt</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">sqrt</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.sqrt-view-source"><span>View Source</span></label>
 
@@ -4416,7 +4416,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">log</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">log</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.log-view-source"><span>View Source</span></label>
 
@@ -4436,7 +4436,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">exp</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">exp</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.exp-view-source"><span>View Source</span></label>
 
@@ -4456,7 +4456,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">sin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">sin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.sin-view-source"><span>View Source</span></label>
 
@@ -4475,7 +4475,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">cos</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">cos</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.cos-view-source"><span>View Source</span></label>
 
@@ -4494,7 +4494,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tan</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">tan</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.tan-view-source"><span>View Source</span></label>
 
@@ -4513,7 +4513,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">sinh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">sinh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.sinh-view-source"><span>View Source</span></label>
 
@@ -4532,7 +4532,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">cosh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">cosh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.cosh-view-source"><span>View Source</span></label>
 
@@ -4551,7 +4551,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tanh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">tanh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.tanh-view-source"><span>View Source</span></label>
 
@@ -4570,7 +4570,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arcsin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arcsin</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arcsin-view-source"><span>View Source</span></label>
 
@@ -4589,7 +4589,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arccos</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arccos</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arccos-view-source"><span>View Source</span></label>
 
@@ -4608,7 +4608,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arctan</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arctan</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arctan-view-source"><span>View Source</span></label>
 
@@ -4627,7 +4627,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arcsinh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arcsinh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arcsinh-view-source"><span>View Source</span></label>
 
@@ -4646,7 +4646,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arccosh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arccosh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arccosh-view-source"><span>View Source</span></label>
 
@@ -4665,7 +4665,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">arctanh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span>)</span>
+        <span class="name">arctanh</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.arctanh-view-source"><span>View Source</span></label>
 
@@ -4706,7 +4706,7 @@ specifies a custom path for the file (default '.')</li>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">prune</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">Ntrunc</span>, </span><span class="param"><span class="n">tproj</span><span class="o">=</span><span class="mi">3</span>, </span><span class="param"><span class="n">t0proj</span><span class="o">=</span><span class="mi">2</span>, </span><span class="param"><span class="n">basematrix</span><span class="o">=</span><span class="kc">None</span></span>)</span>
+        <span class="name">prune</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">Ntrunc</span>, </span><span class="param"><span class="n">tproj</span><span class="o">=</span><span class="mi">3</span>, </span><span class="param"><span class="n">t0proj</span><span class="o">=</span><span class="mi">2</span>, </span><span class="param"><span class="n">basematrix</span><span class="o">=</span><span class="kc">None</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Corr.prune-view-source"><span>View Source</span></label>
 
@@ -4913,7 +4913,11 @@ bound $t_0 \leq t/2$ holds, since the condition number of $G(t)$ is decreased, c
                 let heading;
                 switch (result.doc.type) {
                     case "function":
-                        heading = `<span class="def">${doc.funcdef}</span> <span class="name">${doc.fullname}</span><span class="signature">${doc.signature}:</span>`;
+                        if (doc.fullname.endsWith(".__init__")) {
+                            heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
+                        } else {
+                            heading = `<span class="def">${doc.funcdef}</span> <span class="name">${doc.fullname}</span>${doc.signature}`;
+                        }
                         break;
                     case "class":
                         heading = `<span class="def">class</span> <span class="name">${doc.fullname}</span>`;

@@ -825,7 +825,7 @@ class Corr:
                         hide_from = np.argmax((hide_sigma * np.array(y_err[1:])) > np.abs(y[1:])) - 1
                     else:
                         hide_from = None
-                    plt.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
+                    ax1.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
                 raise Exception("'comp' must be a correlator or a list of correlators.")
 

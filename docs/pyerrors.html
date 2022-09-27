@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 12.1.0"/>
+    <meta name="generator" content="pdoc 12.2.0"/>
     <title>pyerrors API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -130,7 +130,8 @@ It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">
 
 <h2 id="basic-example">Basic example</h2>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span> <span class="c1"># Initialize an Obs object</span>
@@ -138,7 +139,8 @@ It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">
 <span class="n">my_new_obs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>                     <span class="c1"># Estimate the statistical error</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_new_obs</span><span class="p">)</span>                             <span class="c1"># Print the result to stdout</span>
 <span class="o">&gt;</span> <span class="mf">0.31498</span><span class="p">(</span><span class="mi">72</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <h1 id="the-obs-class">The <code>Obs</code> class</h1>
 
@@ -147,10 +149,12 @@ An <code>Obs</code> object can be initialized with two arguments, the first is a
 The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <h2 id="error-propagation">Error propagation</h2>
 
@@ -161,7 +165,8 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 
 <p>The <code>Obs</code> class is designed such that mathematical numpy functions can be used on <code>Obs</code> just as for regular floats.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">my_obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
@@ -175,14 +180,16 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 <span class="c1"># Check that value and fluctuations are zero within machine precision</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">iamzero</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="kc">True</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <h2 id="error-estimation">Error estimation</h2>
 
 <p>The error estimation within <code><a href="">pyerrors</a></code> is based on the gamma method introduced in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
 After having arrived at the derived quantity of interest the <code>gamma_method</code> can be called as detailed in the following example.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_sum</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mf">1.70</span><span class="p">(</span><span class="mi">57</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
@@ -190,20 +197,23 @@ After having arrived at the derived quantity of interest the <code>gamma_method<
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">2.71422900e+00</span> <span class="o">+/-</span> <span class="mf">6.40320983e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">2.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>We use the following definition of the integrated autocorrelation time established in <a href="https://link.springer.com/article/10.1007/BF01022990">Madras &amp; Sokal 1988</a>
 $$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
 The window $W$ is determined via the automatic windowing procedure described in <a href="https://arxiv.org/abs/hep-lat/0306017">arXiv:hep-lat/0306017</a>.
 The standard value for the parameter $S$ of this automatic windowing procedure is $S=2$. Other values for $S$ can be passed to the <code>gamma_method</code> as parameter.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">S</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.30675201e-01</span> <span class="o">+/-</span> <span class="mf">1.04585650e-01</span> <span class="p">(</span><span class="mf">37.099</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.29909703e+00</span> <span class="o">+/-</span> <span class="mf">9.77310102e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">3.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code> and <code><a href="pyerrors/obs.html#Obs.plot_tauint">pyerrors.obs.Obs.plot_tauint</a></code>.</p>
 
@@ -214,13 +224,15 @@ In this case the error estimate is identical to the sample standard error.</p>
 
 <p>Slow modes in the Monte Carlo history can be accounted for by attaching an exponential tail to the autocorrelation function $\rho$ as suggested in <a href="https://arxiv.org/abs/1009.5228">arXiv:1009.5228</a>. The longest autocorrelation time in the history, $\tau_\mathrm{exp}$, can be passed to the <code>gamma_method</code> as parameter. In this case the automatic windowing procedure is vacated and the parameter $S$ does not affect the error estimate.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">7.2</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_sum</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="n">tau_exp</span><span class="o">=</span><span class="mf">7.2</span><span class="p">)</span>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.28097762e-01</span> <span class="o">+/-</span> <span class="mf">5.79077524e-02</span> <span class="p">(</span><span class="mf">36.947</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.27218667e+00</span> <span class="o">+/-</span> <span class="mf">7.99583654e-01</span> <span class="n">tau_exp</span> <span class="o">=</span> <span class="mf">7.20</span><span class="p">,</span>  <span class="n">N_sigma</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>For the full API see <code><a href="pyerrors/obs.html#Obs.gamma_method">pyerrors.obs.Obs.gamma_method</a></code>.</p>
 
@@ -228,7 +240,8 @@ In this case the error estimate is identical to the sample standard error.</p>
 
 <p>Error propagation for multiple ensembles (Markov chains with different simulation parameters) is handled automatically. Ensembles are uniquely identified by their <code>name</code>.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">])</span>
 
 <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
@@ -237,11 +250,13 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">2</span> <span class="n">ensembles</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p><code><a href="">pyerrors</a></code> identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar <code>|</code> in the name of the data set.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r01&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1|r02&#39;</span><span class="p">])</span>
 
 <span class="o">&gt;</span> <span class="n">my_sum</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">+</span> <span class="n">obs2</span>
@@ -251,16 +266,19 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span>
 <span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r02&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <h3 id="error-estimation-for-multiple-ensembles">Error estimation for multiple ensembles</h3>
 
 <p>In order to keep track of different error analysis parameters for different ensembles one can make use of global dictionaries as detailed in the following example.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">S_dict</span><span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">S_dict</span><span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">8.0</span>
 <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="o">.</span><span class="n">tau_exp_dict</span><span class="p">[</span><span class="s1">&#39;ensemble3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>In case the <code>gamma_method</code> is called without any parameters it will use the values specified in the dictionaries for the respective ensembles.
 Passing arguments to the <code>gamma_method</code> still dominates over the dictionaries.</p>
@@ -269,7 +287,8 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 
 <p><code>Obs</code> objects defined on irregular Monte Carlo chains can be initialized with the parameter <code>idl</code>.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="c1"># Observable defined on configurations 20 to 519</span>
 <span class="n">obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">520</span><span class="p">)])</span>
 <span class="n">obs1</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">9.98319881e-01</span>
@@ -289,7 +308,8 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.01718064e+00</span>
 <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">5</span> <span class="n">configurations</span> <span class="p">(</span><span class="n">irregular</span> <span class="nb">range</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p><code>Obs</code> objects defined on regular and irregular histories of the same ensemble can be combined with each other and the correct error propagation and estimation is automatically taken care of.</p>
 
@@ -302,7 +322,8 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <p>When one is not interested in single observables but correlation functions, <code><a href="">pyerrors</a></code> offers the <code>Corr</code> class which simplifies the corresponding error propagation and provides the user with a set of standard methods. In order to initialize a <code>Corr</code> objects one needs to arrange the data as a list of <code>Obs</code></p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="n">x0</span><span class="o">/</span><span class="n">a</span>  <span class="n">Corr</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="o">------------------</span>
@@ -310,11 +331,13 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <span class="o">&gt;</span> <span class="mi">1</span>      <span class="mf">0.5156</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">2</span>      <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">3</span>      <span class="mf">0.2041</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>In case the correlation functions are not defined on the outermost timeslices, for example because of fixed boundary conditions, a padding can be introduced.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">([</span><span class="n">obs_0</span><span class="p">,</span> <span class="n">obs_1</span><span class="p">,</span> <span class="n">obs_2</span><span class="p">,</span> <span class="n">obs_3</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="n">x0</span><span class="o">/</span><span class="n">a</span>  <span class="n">Corr</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">a</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="o">------------------</span>
@@ -324,18 +347,23 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <span class="o">&gt;</span> <span class="mi">3</span>      <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">4</span>      <span class="mf">0.2041</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">5</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>The individual entries of a correlator can be accessed via slicing</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">my_corr</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 <span class="o">&gt;</span> <span class="mf">0.3227</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>Error propagation with the <code>Corr</code> class works very similar to <code>Obs</code> objects. Mathematical operations are overloaded and <code>Corr</code> objects can be computed together with other <code>Corr</code> objects, <code>Obs</code> objects or real numbers and integers.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_new_corr</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">my_corr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">+</span> <span class="mi">12</span> <span class="o">/</span> <span class="n">my_corr</span>
-</code></pre></div>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_new_corr</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">my_corr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">*</span> <span class="n">my_corr</span> <span class="o">+</span> <span class="mi">12</span> <span class="o">/</span> <span class="n">my_corr</span>
+</code></pre>
+</div>
 
 <p><code><a href="">pyerrors</a></code> provides the user with a set of regularly used methods for the manipulation of correlator objects:</p>
 
@@ -363,22 +391,26 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <p><code><a href="">pyerrors</a></code> can handle complex valued observables via the class <code><a href="pyerrors/obs.html#CObs">pyerrors.obs.CObs</a></code>.
 <code>CObs</code> are initialized with a real and an imaginary part which both can be <code>Obs</code> valued.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_real_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_real_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 <span class="n">my_imag_part</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">])</span>
 
 <span class="n">my_cobs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">CObs</span><span class="p">(</span><span class="n">my_real_part</span><span class="p">,</span> <span class="n">my_imag_part</span><span class="p">)</span>
 <span class="n">my_cobs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_cobs</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="p">(</span><span class="mf">0.9959</span><span class="p">(</span><span class="mi">91</span><span class="p">)</span><span class="o">+</span><span class="mf">0.659</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span><span class="n">j</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>Elementary mathematical operations are overloaded and samples are properly propagated as for the <code>Obs</code> class.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_derived_cobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">my_cobs</span> <span class="o">+</span> <span class="n">my_cobs</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">my_cobs</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_derived_cobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">my_cobs</span> <span class="o">+</span> <span class="n">my_cobs</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">my_cobs</span><span class="p">)</span>
 <span class="n">my_derived_cobs</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">my_derived_cobs</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="p">(</span><span class="mf">1.668</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span><span class="o">+</span><span class="mf">0.0</span><span class="n">j</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <h1 id="the-covobs-class">The <code>Covobs</code> class</h1>
 
@@ -386,7 +418,8 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 
 <p>This concept is built into the definition of <code>Covobs</code>. In <code><a href="">pyerrors</a></code>, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters <code>cov_Obs</code>, since the second argument of this function is the covariance matrix of the <code>Covobs</code>.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn"><a href="pyerrors/obs.html">pyerrors.obs</a></span> <span class="k">as</span> <span class="nn">pe</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn"><a href="pyerrors/obs.html">pyerrors.obs</a></span> <span class="k">as</span> <span class="nn">pe</span>
 
 <span class="n">mpi</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">cov_Obs</span><span class="p">(</span><span class="mf">134.9768</span><span class="p">,</span> <span class="mf">0.0005</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;pi^0 mass&#39;</span><span class="p">)</span>
 <span class="n">mpi</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -395,7 +428,8 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <span class="o">&gt;</span>  <span class="n">pi</span><span class="o">^</span><span class="mi">0</span> <span class="n">mass</span>     <span class="mf">5.00000000e-04</span>
 <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Covobs</span>   <span class="s1">&#39;pi^0 mass&#39;</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>The resulting object <code>mpi</code> is an <code>Obs</code> that contains a <code>Covobs</code>. In the following, it may be handled as any other <code>Obs</code>. The contribution of the covariance matrix to the error of an <code>Obs</code> is determined from the $M \times M$ covariance matrix $\Sigma$ and the gradient of the <code>Obs</code> with respect to the external quantities, which is the $1\times M$ Jacobian matrix $J$, via
 $$s = \sqrt{J^T \Sigma J}\,,$$
@@ -403,17 +437,21 @@ where the Jacobian is computed for each derived quantity via automatic different
 
 <p>Correlated auxiliary data is defined similarly to above, e.g., via</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">RAP</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">cov_Obs</span><span class="p">([</span><span class="mf">16.7457</span><span class="p">,</span> <span class="o">-</span><span class="mf">19.0475</span><span class="p">],</span> <span class="p">[[</span><span class="mf">3.49591</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.07560</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.07560</span><span class="p">,</span> <span class="mf">10.5834</span><span class="p">]],</span> <span class="s1">&#39;R_AP, 1906.03445, (5.3a)&#39;</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">RAP</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">cov_Obs</span><span class="p">([</span><span class="mf">16.7457</span><span class="p">,</span> <span class="o">-</span><span class="mf">19.0475</span><span class="p">],</span> <span class="p">[[</span><span class="mf">3.49591</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.07560</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.07560</span><span class="p">,</span> <span class="mf">10.5834</span><span class="p">]],</span> <span class="s1">&#39;R_AP, 1906.03445, (5.3a)&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">RAP</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="p">[</span><span class="n">Obs</span><span class="p">[</span><span class="mf">16.7</span><span class="p">(</span><span class="mf">1.9</span><span class="p">)],</span> <span class="n">Obs</span><span class="p">[</span><span class="o">-</span><span class="mf">19.0</span><span class="p">(</span><span class="mf">3.3</span><span class="p">)]]</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>where <code>RAP</code> now is a list of two <code>Obs</code> that contains the two correlated parameters.</p>
 
 <p>Since the gradient of a derived observable with respect to an external covariance matrix is propagated through the entire analysis, the <code>Covobs</code> class allows to quote the derivative of a result with respect to the external quantities. If these derivatives are published together with the result, small shifts in the definition of external quantities, e.g., the definition of the physical point, can be performed a posteriori based on the published information. This may help to compare results of different groups. The gradient of an <code>Obs</code> <code>o</code> with respect to a covariance matrix with the identifying string <code>k</code> may be accessed via</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">o</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span>
-</code></pre></div>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">o</span><span class="o">.</span><span class="n">covobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">grad</span>
+</code></pre>
+</div>
 
 <h1 id="error-propagation-in-iterative-algorithms">Error propagation in iterative algorithms</h1>
 
@@ -425,17 +463,20 @@ where the Jacobian is computed for each derived quantity via automatic different
 
 <p>Fit functions have to be of the following form</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">anp</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">anp</span>
 
 <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">anp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p><strong>It is important that numerical functions refer to <code>autograd.numpy</code> instead of <code>numpy</code> for the automatic differentiation in iterative algorithms to work properly.</strong></p>
 
 <p>Fits can then be performed via</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">fit_result</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">fit_result</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fit_result</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="n">Fit</span> <span class="k">with</span> <span class="mi">2</span> <span class="n">parameters</span>
 <span class="o">&gt;</span> <span class="n">Method</span><span class="p">:</span> <span class="n">Levenberg</span><span class="o">-</span><span class="n">Marquardt</span>
@@ -448,24 +489,29 @@ where the Jacobian is computed for each derived quantity via automatic different
 <span class="o">&gt;</span> <span class="n">Fit</span> <span class="n">parameters</span><span class="p">:</span>
 <span class="o">&gt;</span> <span class="mi">0</span>      <span class="mf">0.0548</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="mi">1</span>      <span class="mf">1.933</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>where x is a <code>list</code> or <code>numpy.array</code> of <code>floats</code> and y is a <code>list</code> or <code>numpy.array</code> of <code>Obs</code>.</p>
 
 <p>Data stored in <code>Corr</code> objects can be fitted directly using the <code>Corr.fit</code> method.</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_corr</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Corr</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 <span class="n">fit_result</span> <span class="o">=</span> <span class="n">my_corr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>this can simplify working with absolute fit ranges and takes care of gaps in the data automatically.</p>
 
 <p>For fit functions with multiple independent variables the fit function can be of the form</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x2</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p><code><a href="">pyerrors</a></code> also supports correlated fits which can be triggered via the parameter <code>correlated_fit=True</code>.
 Details about how the required covariance matrix is estimated can be found in <code><a href="pyerrors/obs.html#covariance">pyerrors.obs.covariance</a></code>.</p>
@@ -506,7 +552,8 @@ Details about how the required covariance matrix is estimated can be found in <c
 
 <p>This can be achieved by storing all information in one single file. The export routines of <code><a href="">pyerrors</a></code> are written such that as much information as possible is written automatically as described in the following example</p>
 
-<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;test_ensemble&quot;</span><span class="p">])</span>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;test_ensemble&quot;</span><span class="p">])</span>
 <span class="n">my_obs</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;My observable&quot;</span>
 
 <span class="n">pe</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dump_to_json</span><span class="p">(</span><span class="n">my_obs</span><span class="p">,</span> <span class="s2">&quot;test_output_file&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This file contains a test observable&quot;</span><span class="p">)</span>
@@ -517,7 +564,8 @@ Details about how the required covariance matrix is estimated can be found in <c
 
 <span class="nb">print</span><span class="p">(</span><span class="n">my_obs</span> <span class="o">==</span> <span class="n">check</span><span class="p">)</span>
 <span class="o">&gt;</span> <span class="kc">True</span>
-</code></pre></div>
+</code></pre>
+</div>
 
 <p>The format also allows to directly write out the content of <code>Corr</code> objects or lists and arrays of <code>Obs</code> objects by passing the desired data to <code><a href="pyerrors/input/json.html#dump_to_json">pyerrors.input.json.dump_to_json</a></code>.</p>
 
@@ -577,9 +625,9 @@ The following entries are optional:</li>
 <p>Julia I/O routines for the json.gz format, compatible with <a href="https://gitlab.ift.uam-csic.es/alberto/aderrors.jl">ADerrors.jl</a>, can be found <a href="https://github.com/fjosw/ADjson.jl">here</a>.</p>
 </div>
 
-                        <input id="pyerrors-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                        <input id="mod-pyerrors-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
-                        <label class="view-source-button" for="pyerrors-view-source"><span>View Source</span></label>
+                        <label class="view-source-button" for="mod-pyerrors-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="sd"># What is pyerrors?</span>

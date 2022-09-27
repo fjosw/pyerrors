@@ -106,7 +106,7 @@ my_sum.details()
 
 ```
 
-The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_tauint`.
+The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_rho`.
 
 If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the window size is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.

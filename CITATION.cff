@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: >-
+  pyerrors: a python framework for error analysis of
+  Monte Carlo data
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Fabian
+    family-names: Joswig
+    orcid: 'https://orcid.org/0000-0003-0740-6524'
+  - given-names: Simon
+    family-names: Kuberski
+    orcid: 'https://orcid.org/0000-0002-0955-9228'
+  - given-names: Justus T.
+    family-names: Kuhlmann
+  - given-names: Jan
+    family-names: Neuendorf
+    orcid: 'https://orcid.org/0000-0001-6177-7014'
+identifiers:
+  - type: doi
+    value: 10.48550/arXiv.2209.14371
+repository-code: 'https://github.com/fjosw/pyerrors'

@@ -83,8 +83,22 @@ def test_least_squares():
         assert math.isclose(pcov[i, i], betac[i].dvalue ** 2, abs_tol=1e-3)
 
 
+def test_fit_num_grad():
+    x = []
+    y = []
+    for i in range(2, 5):
+        x.append(i * 0.01)
+        y.append(pe.pseudo_Obs(i * 0.01, 0.0001, "ens"))
+
+    num = pe.fits.least_squares(x, y, lambda a, x: a[0] * np.exp(x) + a[1], num_grad=True)
+    auto = pe.fits.least_squares(x, y, lambda a, x: a[0] * anp.exp(x) + a[1], num_grad=False)
+
+    assert(num[0] == auto[0])
+    assert(num[1] == auto[1])
+
+
 def test_alternative_solvers():
-    dim = 192
+    dim = 92
     x = np.arange(dim)
     y = 2 * np.exp(-0.06 * x) + np.random.normal(0.0, 0.15, dim)
     yerr = 0.1 + 0.1 * np.random.rand(dim)
@@ -158,7 +172,7 @@ def test_correlated_fit():
 
 
 def test_fit_corr_independent():
-    dim = 50
+    dim = 30
     x = np.arange(dim)
     y = 0.84 * np.exp(-0.12 * x) + np.random.normal(0.0, 0.1, dim)
     yerr = [0.1] * dim
@@ -470,7 +484,7 @@ def test_correlated_fit_vs_jackknife():
 
 
 def test_fit_no_autograd():
-    dim = 10
+    dim = 3
     x = np.arange(dim)
     y = 2 * np.exp(-0.08 * x) + np.random.normal(0.0, 0.15, dim)
     yerr = 0.1 + 0.1 * np.random.rand(dim)
@@ -485,6 +499,8 @@ def test_fit_no_autograd():
 
     with pytest.raises(Exception):
         pe.least_squares(x, oy, func)
+
+    pe.least_squares(x, oy, func, num_grad=True)
 
     with pytest.raises(Exception):
         pe.total_least_squares(oy, oy, func)

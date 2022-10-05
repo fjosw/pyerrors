@@ -9,8 +9,9 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
 import iminuit
-from autograd import jacobian
+from autograd import jacobian as auto_jacobian
 from autograd import elementwise_grad as egrad
+from numdifftools import Jacobian as num_jacobian
 from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
@@ -114,6 +115,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If True, a plot which displays fit, data and residuals is generated (default False).
     qqplot : bool
         If True, a quantile-quantile plot of the fit result is generated (default False).
+    num_grad : bool
+        Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -173,6 +176,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     x = np.array(x)
 
     x_shape = x.shape
+
+    jacobian = auto_jacobian
 
     if not callable(func):
         raise TypeError('func has to be a function.')
@@ -318,6 +323,11 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     x = np.asarray(x)
 
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+    else:
+        jacobian = auto_jacobian
+
     if not callable(func):
         raise TypeError('func has to be a function.')
 
@@ -440,6 +450,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     output.fit_function = func
 
     x = np.asarray(x)
+
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+    else:
+        jacobian = auto_jacobian
 
     if x.shape[-1] != len(y):
         raise Exception('x and y input have to have the same length')

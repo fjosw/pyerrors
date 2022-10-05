@@ -416,7 +416,10 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not m.fmin.is_valid:
         raise Exception('The minimization procedure did not converge.')
 
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(params))
+    hess = jacobian(jacobian(chisqfunc))(params)
+    if kwargs.get('num_grad') is True:
+        hess = hess[0]
+    hess_inv = np.linalg.pinv(hess)
 
     def chisqfunc_compact(d):
         model = func(d[:n_parms], x)
@@ -424,6 +427,8 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         return chisq
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((params, y_f, p_f)))
+    if kwargs.get('num_grad') is True:
+        jac_jac = jac_jac[0]
 
     deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
 
@@ -591,6 +596,8 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             hess = jacobian(jacobian(chisqfunc))(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
+    if kwargs.get('num_grad') is True:
+        hess = hess[0]
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):
@@ -605,6 +612,8 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             return chisq
 
     jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
+    if kwargs.get('num_grad') is True:
+        jac_jac = jac_jac[0]
 
     # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
     try:

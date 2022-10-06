@@ -10,8 +10,10 @@ from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
 import iminuit
 from autograd import jacobian as auto_jacobian
+from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
 from numdifftools import Jacobian as num_jacobian
+from numdifftools import Hessian as num_hessian
 from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
@@ -458,8 +460,10 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     if kwargs.get('num_grad') is True:
         jacobian = num_jacobian
+        hessian = num_hessian
     else:
         jacobian = auto_jacobian
+        hessian = auto_hessian
 
     if x.shape[-1] != len(y):
         raise Exception('x and y input have to have the same length')
@@ -591,13 +595,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     fitp = fit_result.x
     try:
         if kwargs.get('correlated_fit') is True:
-            hess = jacobian(jacobian(chisqfunc_corr))(fitp)
+            hess = hessian(chisqfunc_corr)(fitp)
         else:
-            hess = jacobian(jacobian(chisqfunc))(fitp)
+            hess = hessian(chisqfunc)(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
-    if kwargs.get('num_grad') is True:
-        hess = hess[0]
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):
@@ -611,9 +613,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
             return chisq
 
-    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
-    if kwargs.get('num_grad') is True:
-        jac_jac = jac_jac[0]
+    jac_jac = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
 
     # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
     try:

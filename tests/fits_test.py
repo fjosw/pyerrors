@@ -90,8 +90,8 @@ def test_fit_num_grad():
         x.append(i * 0.01)
         y.append(pe.pseudo_Obs(i * 0.01, 0.0001, "ens"))
 
-    num = pe.fits.least_squares(x, y, lambda a, x: a[0] * np.exp(x) + a[1], num_grad=True)
-    auto = pe.fits.least_squares(x, y, lambda a, x: a[0] * anp.exp(x) + a[1], num_grad=False)
+    num = pe.fits.least_squares(x, y, lambda a, x: np.exp(a[0] * x) + a[1], num_grad=True)
+    auto = pe.fits.least_squares(x, y, lambda a, x: anp.exp(a[0] * x) + a[1], num_grad=False)
 
     assert(num[0] == auto[0])
     assert(num[1] == auto[1])

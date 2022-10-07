@@ -434,8 +434,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         return chisq
 
     jac_jac = hessian(chisqfunc_compact)(np.concatenate((params, y_f, p_f)))
-    if kwargs.get('num_grad') is True:
-        jac_jac = jac_jac[0]
 
     deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
 

@@ -426,8 +426,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
         raise Exception('The minimization procedure did not converge.')
 
     hess = hessian(chisqfunc)(params)
-    if kwargs.get('num_grad') is True:
-        hess = hess[0]
     hess_inv = np.linalg.pinv(hess)
 
     def chisqfunc_compact(d):

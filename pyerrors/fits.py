@@ -9,8 +9,11 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.odr import ODR, Model, RealData
 import iminuit
-from autograd import jacobian
+from autograd import jacobian as auto_jacobian
+from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
+from numdifftools import Jacobian as num_jacobian
+from numdifftools import Hessian as num_hessian
 from .obs import Obs, derived_observable, covariance, cov_Obs
 
 
@@ -114,6 +117,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If True, a plot which displays fit, data and residuals is generated (default False).
     qqplot : bool
         If True, a quantile-quantile plot of the fit result is generated (default False).
+    num_grad : bool
+        Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -160,6 +165,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
+    num_grad : bool
+        Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
 
     Notes
     -----
@@ -173,6 +180,13 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     x = np.array(x)
 
     x_shape = x.shape
+
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+        hessian = num_hessian
+    else:
+        jacobian = auto_jacobian
+        hessian = auto_hessian
 
     if not callable(func):
         raise TypeError('func has to be a function.')
@@ -268,7 +282,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     fitp = out.beta
     try:
-        hess = jacobian(jacobian(odr_chisquare))(np.concatenate((fitp, out.xplus.ravel())))
+        hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplus.ravel())))
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
@@ -277,7 +291,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_x = jacobian(jacobian(odr_chisquare_compact_x))(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
+    jac_jac_x = hessian(odr_chisquare_compact_x)(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
 
     # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
@@ -290,7 +304,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_y = jacobian(jacobian(odr_chisquare_compact_y))(np.concatenate((fitp, out.xplus.ravel(), y_f)))
+    jac_jac_y = hessian(odr_chisquare_compact_y)(np.concatenate((fitp, out.xplus.ravel(), y_f)))
 
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
@@ -317,6 +331,11 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     output.fit_function = func
 
     x = np.asarray(x)
+
+    if kwargs.get('num_grad') is True:
+        hessian = num_hessian
+    else:
+        hessian = auto_hessian
 
     if not callable(func):
         raise TypeError('func has to be a function.')
@@ -406,14 +425,15 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     if not m.fmin.is_valid:
         raise Exception('The minimization procedure did not converge.')
 
-    hess_inv = np.linalg.pinv(jacobian(jacobian(chisqfunc))(params))
+    hess = hessian(chisqfunc)(params)
+    hess_inv = np.linalg.pinv(hess)
 
     def chisqfunc_compact(d):
         model = func(d[:n_parms], x)
         chisq = anp.sum(((d[n_parms: n_parms + len(x)] - model) / dy_f) ** 2) + anp.sum(((d[n_parms + len(x):] - d[:n_parms]) / dp_f) ** 2)
         return chisq
 
-    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((params, y_f, p_f)))
+    jac_jac = hessian(chisqfunc_compact)(np.concatenate((params, y_f, p_f)))
 
     deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
 
@@ -440,6 +460,13 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     output.fit_function = func
 
     x = np.asarray(x)
+
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+        hessian = num_hessian
+    else:
+        jacobian = auto_jacobian
+        hessian = auto_hessian
 
     if x.shape[-1] != len(y):
         raise Exception('x and y input have to have the same length')
@@ -571,9 +598,9 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     fitp = fit_result.x
     try:
         if kwargs.get('correlated_fit') is True:
-            hess = jacobian(jacobian(chisqfunc_corr))(fitp)
+            hess = hessian(chisqfunc_corr)(fitp)
         else:
-            hess = jacobian(jacobian(chisqfunc))(fitp)
+            hess = hessian(chisqfunc)(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
@@ -589,7 +616,7 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
             chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
             return chisq
 
-    jac_jac = jacobian(jacobian(chisqfunc_compact))(np.concatenate((fitp, y_f)))
+    jac_jac = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
 
     # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
     try:

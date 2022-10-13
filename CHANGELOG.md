@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2022-10-13
+### Added
+- `least_squares` and `total_least_squares` fits now have an optional keyword argument `num_grad`. If this argument is set to `True` the error propagation of the fit is performed via numerical instead of automatic differentiation. This options allows for fits functions which contain special functions or which are not analytically known.
+
+### Fixed
+- Bug in `Corr.show` `comp` option fixed.
+
 ## [2.2.0] - 2022-08-01
 ### Added
 - New submodule `input.pandas` added which adds the possibility to read and write pandas DataFrames containing `Obs` or `Corr` objects to csv files or SQLite databases.

@@ -628,9 +628,19 @@ def test_gamma_method_irregular():
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
     ao.gamma_method()
 
+    arrt = [carr[i] for i in range(len(carr)) if i % 2 == 1]
+    idlt = [i for i in range(len(carr)) if i % 2 == 1]
+    for el in [int(e) for e in N * np.random.uniform(size=10)]:
+        arrt = arrt[:el] + arrt[el + 1:]
+        idlt = idlt[:el] + idlt[el + 1:]
+    ai = pe.Obs([arrt], ['a'], idl=[idlt])
+    ai.gamma_method()
+
     assert(ae.e_tauint['a'] < a.e_tauint['a'])
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
+    assert((ai.e_tauint['a'] - 4 * ai.e_dtauint['a'] < ao.e_tauint['a']))
+    assert((ai.e_tauint['a'] + 4 * ai.e_dtauint['a'] > ao.e_tauint['a']))
 
     a = pe.pseudo_Obs(1, .1, 'a', samples=10)
     a.idl['a'] = range(4, 15)

@@ -649,6 +649,25 @@ def test_gamma_method_irregular():
     ol = [a, b]
     o = (ol[0] - ol[1]) / (ol[1])
 
+    N = 1000
+    dat = gen_autocorrelated_array(np.random.normal(1, .2, size=N), .8)
+
+    idl_a = list(range(0, 1001, 1))
+    idl_a.remove(101)
+
+    oa = pe.Obs([dat], ["ens1"], idl=[idl_a])
+    oa.gamma_method()
+    tau_a = oa.e_tauint["ens1"]
+
+    idl_b = list(range(0, 10010, 10))
+    idl_b.remove(1010)
+
+    ob = pe.Obs([dat], ["ens1"], idl=[idl_b])
+    ob.gamma_method()
+    tau_b = ob.e_tauint["ens1"]
+
+    assert np.isclose(tau_a, tau_b)
+
 
 def test_covariance_is_variance():
     value = np.random.normal(5, 10)

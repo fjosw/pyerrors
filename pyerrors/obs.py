@@ -267,18 +267,6 @@ class Obs:
                 self.e_windowsize[e_name] = 0
                 continue
 
-            self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
-            # Make sure no entry of tauint is smaller than 0.5
-            self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
-            # hep-lat/0306017 eq. (42)
-            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
-            self.e_n_dtauint[e_name][0] = 0.0
-
-            def _compute_drho(i):
-                tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
-                self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
-
             gaps = []
             for r_name in e_content[e_name]:
                 if isinstance(self.idl[r_name], range):
@@ -290,6 +278,18 @@ class Obs:
                 raise Exception(f"Replica for ensemble {e_name} are not equally spaced.", gaps)
             else:
                 gapsize = gaps[0]
+
+            self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
+            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
+            # Make sure no entry of tauint is smaller than 0.5
+            self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
+            # hep-lat/0306017 eq. (42)
+            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) / gapsize + 0.5 - self.e_n_tauint[e_name]) / e_N)
+            self.e_n_dtauint[e_name][0] = 0.0
+
+            def _compute_drho(i):
+                tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
+                self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
 
             _compute_drho(gapsize)
             if self.tau_exp[e_name] > 0:

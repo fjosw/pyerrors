@@ -399,13 +399,24 @@ class Obs:
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self._dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
+            e_content = self.e_content
             for e_name in self.mc_names:
-                if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                if self.tau_exp[e_name] > 0:
-                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
+                if isinstance(self.idl[e_content[e_name][0]], range):
+                    gap = self.idl[e_content[e_name][0]].step
                 else:
-                    print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+                    gap = np.min(np.diff(self.idl[e_content[e_name][0]]))
+
+                if len(self.e_names) > 1:
+                    print('', e_name, '\t %3.6e +/- %3.6e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                tau_string = " \N{GREEK SMALL LETTER TAU}_int\t " + _format_uncertainty(self.e_tauint[e_name], self.e_dtauint[e_name])
+                tau_string += f" in units of {gap} config"
+                if gap > 1:
+                    tau_string += "s"
+                if self.tau_exp[e_name] > 0:
+                    tau_string = f"{tau_string: <45}" + '\t(\N{GREEK SMALL LETTER TAU}_exp=%3.2f, N_\N{GREEK SMALL LETTER SIGMA}=%1.0i)' % (self.tau_exp[e_name], self.N_sigma[e_name])
+                else:
+                    tau_string = f"{tau_string: <45}" + '\t(S=%3.2f)' % (self.S[e_name])
+                print(tau_string)
             for e_name in self.cov_names:
                 print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
         if ens_content is True:
@@ -422,7 +433,7 @@ class Obs:
                         if isinstance(self.idl[value[0]], range):
                             my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
                         else:
-                            my_string += ' (irregular range)'
+                            my_string += f' (irregular range from {self.idl[value[0]][0]} to {self.idl[value[0]][-1]})'
                     else:
                         sublist = []
                         for v in value:
@@ -431,7 +442,7 @@ class Obs:
                             if isinstance(self.idl[v], range):
                                 my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
                             else:
-                                my_substring += ' (irregular range)'
+                                my_substring += f' (irregular range from {self.idl[v][0]} to {self.idl[v][-1]})'
                             sublist.append(my_substring)
 
                         my_string += '\n' + '\n'.join(sublist)
@@ -690,13 +701,7 @@ class Obs:
     def __str__(self):
         if self._dvalue == 0.0:
             return str(self.value)
-        fexp = np.floor(np.log10(self._dvalue))
-        if fexp < 0.0:
-            return '{:{form}}({:2.0f})'.format(self.value, self._dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
-        elif fexp == 0.0:
-            return '{:.1f}({:1.1f})'.format(self.value, self._dvalue)
-        else:
-            return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
+        return _format_uncertainty(self.value, self._dvalue)
 
     def __hash__(self):
         hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
@@ -970,6 +975,17 @@ class CObs:
 
     def __repr__(self):
         return 'CObs[' + str(self) + ']'
+
+
+def _format_uncertainty(value, dvalue):
+    """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
+    fexp = np.floor(np.log10(dvalue))
+    if fexp < 0.0:
+        return '{:{form}}({:2.0f})'.format(value, dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+    elif fexp == 0.0:
+        return '{:.1f}({:1.1f})'.format(value, dvalue)
+    else:
+        return '{:.0f}({:2.0f})'.format(value, dvalue)
 
 
 def _expand_deltas(deltas, idx, shape):

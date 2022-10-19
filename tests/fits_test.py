@@ -235,8 +235,8 @@ def test_fit_corr_independent():
         assert np.isclose(out.chisquare, out_corr.chisquare)
         assert np.isclose(out.dof, out_corr.dof)
         assert np.isclose(out.chisquare_by_dof, out_corr.chisquare_by_dof)
-        assert (out[0] - out_corr[0]).is_zero(atol=1e-5)
-        assert (out[1] - out_corr[1]).is_zero(atol=1e-5)
+        assert (out[0] - out_corr[0]).is_zero(atol=1e-4)
+        assert (out[1] - out_corr[1]).is_zero(atol=1e-4)
 
 
 def test_linear_fit_guesses():

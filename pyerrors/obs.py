@@ -433,7 +433,7 @@ class Obs:
                         if isinstance(self.idl[value[0]], range):
                             my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
                         else:
-                            my_string += ' (irregular range)'
+                            my_string += f' (irregular range from {self.idl[value[0]][0]} to {self.idl[value[0]][-1]})'
                     else:
                         sublist = []
                         for v in value:
@@ -442,7 +442,7 @@ class Obs:
                             if isinstance(self.idl[v], range):
                                 my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
                             else:
-                                my_substring += ' (irregular range)'
+                                my_substring += f' (irregular range from {self.idl[v][0]} to {self.idl[v][-1]})'
                             sublist.append(my_substring)
 
                         my_string += '\n' + '\n'.join(sublist)

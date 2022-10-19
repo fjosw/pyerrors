@@ -399,13 +399,23 @@ class Obs:
             print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self._dvalue, self.ddvalue, percentage))
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
+            e_content = self.e_content
             for e_name in self.mc_names:
+                if isinstance(self.idl[e_content[e_name][0]], range):
+                    gap = self.idl[e_content[e_name][0]].step
+                else:
+                    gap = np.min(np.diff(self.idl[e_content[e_name][0]]))
+
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
                 if self.tau_exp[e_name] > 0:
-                    print(' t_int\t %3.8e +/- %3.8e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name]))
+                    tau_string = ' t_int\t %3.3e +/- %3.3e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name])
                 else:
-                    print(' t_int\t %3.8e +/- %3.8e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name]))
+                    tau_string = ' t_int\t %3.3e +/- %3.3e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name])
+                tau_string += f" in units of {gap} config"
+                if gap > 1:
+                    tau_string += "s"
+                print(tau_string)
             for e_name in self.cov_names:
                 print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
         if ens_content is True:

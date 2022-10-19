@@ -407,14 +407,15 @@ class Obs:
                     gap = np.min(np.diff(self.idl[e_content[e_name][0]]))
 
                 if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.8e +/- %3.8e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
-                if self.tau_exp[e_name] > 0:
-                    tau_string = ' t_int\t %3.3e +/- %3.3e tau_exp = %3.2f,  N_sigma = %1.0i' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.tau_exp[e_name], self.N_sigma[e_name])
-                else:
-                    tau_string = ' t_int\t %3.3e +/- %3.3e S = %3.2f' % (self.e_tauint[e_name], self.e_dtauint[e_name], self.S[e_name])
+                    print('', e_name, '\t %3.6e +/- %3.6e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                tau_string = " \N{GREEK SMALL LETTER TAU}_int\t " + _format_uncertainty(self.e_tauint[e_name], self.e_dtauint[e_name])
                 tau_string += f" in units of {gap} config"
                 if gap > 1:
                     tau_string += "s"
+                if self.tau_exp[e_name] > 0:
+                    tau_string = f"{tau_string: <45}" + '\t(\N{GREEK SMALL LETTER TAU}_exp=%3.2f, N_\N{GREEK SMALL LETTER SIGMA}=%1.0i)' % (self.tau_exp[e_name], self.N_sigma[e_name])
+                else:
+                    tau_string = f"{tau_string: <45}" + '\t(S=%3.2f)' % (self.S[e_name])
                 print(tau_string)
             for e_name in self.cov_names:
                 print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
@@ -700,13 +701,7 @@ class Obs:
     def __str__(self):
         if self._dvalue == 0.0:
             return str(self.value)
-        fexp = np.floor(np.log10(self._dvalue))
-        if fexp < 0.0:
-            return '{:{form}}({:2.0f})'.format(self.value, self._dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
-        elif fexp == 0.0:
-            return '{:.1f}({:1.1f})'.format(self.value, self._dvalue)
-        else:
-            return '{:.0f}({:2.0f})'.format(self.value, self._dvalue)
+        return _format_uncertainty(self.value, self._dvalue)
 
     def __hash__(self):
         hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
@@ -980,6 +975,17 @@ class CObs:
 
     def __repr__(self):
         return 'CObs[' + str(self) + ']'
+
+
+def _format_uncertainty(value, dvalue):
+    """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
+    fexp = np.floor(np.log10(dvalue))
+    if fexp < 0.0:
+        return '{:{form}}({:2.0f})'.format(value, dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+    elif fexp == 0.0:
+        return '{:.1f}({:1.1f})'.format(value, dvalue)
+    else:
+        return '{:.0f}({:2.0f})'.format(value, dvalue)
 
 
 def _expand_deltas(deltas, idx, shape):

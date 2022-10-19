@@ -628,9 +628,19 @@ def test_gamma_method_irregular():
     ao = pe.Obs([[carr[i] for i in range(len(carr)) if i % 2 == 1]], ['a'], idl=[[i for i in range(len(carr)) if i % 2 == 1]])
     ao.gamma_method()
 
+    arrt = [carr[i] for i in range(len(carr)) if i % 2 == 1]
+    idlt = [i for i in range(len(carr)) if i % 2 == 1]
+    for el in [int(e) for e in N * np.random.uniform(size=10)]:
+        arrt = arrt[:el] + arrt[el + 1:]
+        idlt = idlt[:el] + idlt[el + 1:]
+    ai = pe.Obs([arrt], ['a'], idl=[idlt])
+    ai.gamma_method()
+
     assert(ae.e_tauint['a'] < a.e_tauint['a'])
     assert((ae.e_tauint['a'] - 4 * ae.e_dtauint['a'] < ao.e_tauint['a']))
     assert((ae.e_tauint['a'] + 4 * ae.e_dtauint['a'] > ao.e_tauint['a']))
+    assert((ai.e_tauint['a'] - 4 * ai.e_dtauint['a'] < ao.e_tauint['a']))
+    assert((ai.e_tauint['a'] + 4 * ai.e_dtauint['a'] > ao.e_tauint['a']))
 
     a = pe.pseudo_Obs(1, .1, 'a', samples=10)
     a.idl['a'] = range(4, 15)
@@ -638,6 +648,25 @@ def test_gamma_method_irregular():
     b.idl['a'] = range(4, 608, 4)
     ol = [a, b]
     o = (ol[0] - ol[1]) / (ol[1])
+
+    N = 1000
+    dat = gen_autocorrelated_array(np.random.normal(1, .2, size=N), .8)
+
+    idl_a = list(range(0, 1001, 1))
+    idl_a.remove(101)
+
+    oa = pe.Obs([dat], ["ens1"], idl=[idl_a])
+    oa.gamma_method()
+    tau_a = oa.e_tauint["ens1"]
+
+    idl_b = list(range(0, 10010, 10))
+    idl_b.remove(1010)
+
+    ob = pe.Obs([dat], ["ens1"], idl=[idl_b])
+    ob.gamma_method()
+    tau_b = ob.e_tauint["ens1"]
+
+    assert np.isclose(tau_a, tau_b)
 
 
 def test_covariance_is_variance():

@@ -90,13 +90,37 @@ def test_deriv():
     assert np.all([o == 0 for o in (corr.deriv('forward').deriv('backward') - corr.second_deriv())[1:-1]])
     assert np.all([o == 0 for o in (corr.deriv('backward').deriv('forward') - corr.second_deriv())[1:-1]])
 
+    corr_content = []
+    exponent = -0.05
+    for t in range(24):
+        corr_content.append(pe.pseudo_Obs(np.exp(t * exponent), np.exp(t * exponent) * 0.02, 't'))
+
+    corr = pe.Corr(corr_content)
+
+    for o in [(corr.deriv('log') / corr / exponent - 1)[10], (corr.second_deriv('log') / corr / exponent**2 - 1)[12]]:
+        o.gamma_method()
+        assert (o.is_zero_within_error() and np.isclose(0.0, o.value, 1e-12, 1e-12))
+
 
 def test_m_eff():
     for padding in [0, 4]:
         my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(9, 0.05, 't'), pe.pseudo_Obs(9, 0.1, 't'), pe.pseudo_Obs(10, 0.05, 't')], padding=[padding, padding])
         my_corr.m_eff('log')
+        my_corr.m_eff('logsym')
         my_corr.m_eff('cosh')
         my_corr.m_eff('arccosh')
+
+    corr_content = []
+    exponent = -2.2
+    for t in range(24):
+        corr_content.append(pe.pseudo_Obs(np.exp(t * exponent), np.exp(t * exponent) * 0.02, 't'))
+
+    corr = pe.Corr(corr_content)
+
+    for variant in ['log', 'logsym']:
+        o = (corr.m_eff(variant) / exponent + 1)[7]
+        o.gamma_method()
+        assert (o.is_zero_within_error() and np.isclose(0.0, o.value, 1e-12, 1e-12))
 
     with pytest.warns(RuntimeWarning):
         my_corr.m_eff('sinh')
@@ -112,6 +136,8 @@ def test_m_eff_negative_values():
         assert m_eff_log[padding + 1] is None
         m_eff_cosh = my_corr.m_eff('cosh')
         assert m_eff_cosh[padding + 1] is None
+        with pytest.raises(Exception):
+            my_corr.m_eff('logsym')
 
 
 def test_reweighting():

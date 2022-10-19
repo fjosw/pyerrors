@@ -279,21 +279,33 @@ class Obs:
                 tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
                 self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
 
-            _compute_drho(1)
+            gaps = []
+            for r_name in e_content[e_name]:
+                if isinstance(self.idl[r_name], range):
+                    gaps.append(1)
+                else:
+                    gaps.append(np.min(np.diff(self.idl[r_name])))
+
+            if not np.all([gi == gaps[0] for gi in gaps]):
+                raise Exception(f"Replica for ensemble {e_name} are not equally spaced.", gaps)
+            else:
+                gapsize = gaps[0]
+
+            _compute_drho(gapsize)
             if self.tau_exp[e_name] > 0:
                 texp = self.tau_exp[e_name]
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")
-                for n in range(1, w_max // 2):
-                    _compute_drho(n + 1)
+                for n in range(gapsize, w_max // 2, gapsize):
+                    _compute_drho(n + gapsize)
                     if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
                         self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
                         # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
+                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n / gapsize + 0.5) / e_N)
                         self.e_windowsize[e_name] = n
                         break
             else:
@@ -305,16 +317,17 @@ class Obs:
                     self.e_windowsize[e_name] = 0
                 else:
                     # Standard automatic windowing procedure
-                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
-                    g_w = np.exp(- np.arange(1, w_max) / tau) - tau / np.sqrt(np.arange(1, w_max) * e_N)
+                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][gapsize::gapsize] + 1) / (2 * self.e_n_tauint[e_name][gapsize::gapsize] - 1))
+                    g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
                     for n in range(1, w_max):
                         if n < w_max // 2 - 2:
-                            _compute_drho(n + 1)
+                            _compute_drho(gapsize * n + gapsize)
                         if g_w[n - 1] < 0 or n >= w_max - 1:
-                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                            n *= gapsize
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                             self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
+                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n / gapsize + 0.5) / e_N)
                             self.e_windowsize[e_name] = n
                             break
 

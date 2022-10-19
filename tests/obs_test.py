@@ -669,6 +669,23 @@ def test_gamma_method_irregular():
     assert np.isclose(tau_a, tau_b)
 
 
+def test_irregular_gapped_dtauint():
+    my_idl = list(range(0, 5010, 10))
+    my_idl.remove(400)
+    my_idl2 = list(range(0, 501, 1))
+    my_idl2.remove(40)
+
+    my_data = np.random.normal(1.1, 0.2, 500)
+    obs = pe.Obs([my_data], ["B1"], idl=[my_idl])
+    obs.gamma_method()
+
+    obs2 = pe.Obs([my_data], ["B2"], idl=[my_idl2])
+    obs2.gamma_method()
+
+    assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+    assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+
+
 def test_covariance_is_variance():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1] - 2022-10-19
+### Fixed
+- Integrated autocorrelation times are now correctly estimated for gapped irregular Monte Carlo chains.
+- The output of `Obs.details` was improved and now contains information about the stepsize in configurations for which the integrated autocorrelation time was estimated.
+
 ## [2.3.0] - 2022-10-13
 ### Added
 - `least_squares` and `total_least_squares` fits now have an optional keyword argument `num_grad`. If this argument is set to `True` the error propagation of the fit is performed via numerical instead of automatic differentiation. This options allows for fits functions which contain special functions or which are not analytically known.

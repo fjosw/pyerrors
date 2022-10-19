@@ -523,7 +523,7 @@ class Corr:
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, forward, backward, improved, default: symmetric
+            Available choice: symmetric, forward, backward, improved, log, default: symmetric
         """
         if self.N != 1:
             raise Exception("deriv only implemented for one-dimensional correlators.")
@@ -567,6 +567,17 @@ class Corr:
             if (all([x is None for x in newcontent])):
                 raise Exception('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[2, 2])
+        elif variant == 'log':
+            newcontent = []
+            for t in range(self.T):
+                if (self.content[t] is None) or (self.content[t] <= 0):
+                    newcontent.append(None)
+                else:
+                    newcontent.append(np.log(self.content[t]))
+            if (all([x is None for x in newcontent])):
+                raise Exception("Log is undefined at all timeslices")
+            logcorr = Corr(newcontent)
+            return self * logcorr.deriv('symmetric')
         else:
             raise Exception("Unknown variant.")
 
@@ -577,7 +588,7 @@ class Corr:
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, improved, default: symmetric
+            Available choice: symmetric, improved, log, default: symmetric
         """
         if self.N != 1:
             raise Exception("second_deriv only implemented for one-dimensional correlators.")
@@ -601,6 +612,17 @@ class Corr:
             if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
+        elif variant == 'log':
+            newcontent = []
+            for t in range(self.T):
+                if (self.content[t] is None) or (self.content[t] <= 0):
+                    newcontent.append(None)
+                else:
+                    newcontent.append(np.log(self.content[t]))
+            if (all([x is None for x in newcontent])):
+                raise Exception("Log is undefined at all timeslices")
+            logcorr = Corr(newcontent)
+            return self * (logcorr.second_deriv('symmetric') + (logcorr.deriv('symmetric'))**2)
         else:
             raise Exception("Unknown variant.")
 
@@ -615,6 +637,7 @@ class Corr:
             sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
             See, e.g., arXiv:1205.5380
             arccosh : Uses the explicit form of the symmetrized correlator (not recommended)
+            logsym: uses the symmetric effective mass log(C(t-1) / C(t+1))/2
         guess : float
             guess for the root finder, only relevant for the root variant
         """
@@ -633,6 +656,20 @@ class Corr:
                 raise Exception('m_eff is undefined at all timeslices')
 
             return np.log(Corr(newcontent, padding=[0, 1]))
+
+        elif variant == 'logsym':
+            newcontent = []
+            for t in range(1, self.T - 1):
+                if ((self.content[t - 1] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
+                    newcontent.append(None)
+                elif self.content[t - 1][0].value / self.content[t + 1][0].value < 0:
+                    newcontent.append(None)
+                else:
+                    newcontent.append(self.content[t - 1] / self.content[t + 1])
+            if (all([x is None for x in newcontent])):
+                raise Exception('m_eff is undefined at all timeslices')
+
+            return np.log(Corr(newcontent, padding=[1, 1])) / 2
 
         elif variant in ['periodic', 'cosh', 'sinh']:
             if variant in ['periodic', 'cosh']:

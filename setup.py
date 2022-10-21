@@ -11,7 +11,7 @@ with open(convert_path('pyerrors/version.py')) as ver_file:
 
 setup(name='pyerrors',
       version=version['__version__'],
-      description='Statistical error analysis for Monte Carlo simulations',
+      description='Error propagation and statistical analysis for Monte Carlo simulations',
       long_description=long_description,
       long_description_content_type='text/markdown',
       url="https://github.com/fjosw/pyerrors",

@@ -998,6 +998,12 @@ def test_cobs_array():
     cobs / np.ones((4, 4))
 
 
+def test_details_tau_no_error():
+    tt = pe.Obs([np.random.rand(500)], ["ens"])
+    tt.gamma_method(S=0)
+    tt.details()
+
+
 def test_hash():
     obs = pe.pseudo_Obs(0.3, 0.1, "test") + pe.Obs([np.random.normal(2.3, 0.2, 200)], ["test2"], [range(1, 400, 2)])
     o1 = obs + pe.cov_Obs(0.0, 0.1, "co") + pe.cov_Obs(0.0, 0.8, "co2")

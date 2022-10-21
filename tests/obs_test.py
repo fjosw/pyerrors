@@ -534,7 +534,7 @@ def test_merge_intersection():
         assert pe.obs._merge_idx(idl_list) == pe.obs._intersection_idx(idl_list)
 
 
-def test_intersection_collapse():
+def test_intersection_reduce():
     range1 = range(1, 2000, 2)
     range2 = range(2, 2001, 8)
 
@@ -542,7 +542,7 @@ def test_intersection_collapse():
     obs_merge = obs1 + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
 
     intersection = pe.obs._intersection_idx([o.idl["ens"] for o in [obs1, obs_merge]])
-    coll = pe.obs._collapse_deltas_for_merge(obs_merge.deltas["ens"], obs_merge.idl["ens"], len(obs_merge.idl["ens"]), range1)
+    coll = pe.obs._reduce_deltas(obs_merge.deltas["ens"], obs_merge.idl["ens"], range1)
 
     assert np.all(coll == obs1.deltas["ens"])
 

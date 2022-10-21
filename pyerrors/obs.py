@@ -1097,34 +1097,6 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 
-def _collapse_deltas_for_merge(deltas, idx, shape, new_idx):
-    """Collapse deltas defined on idx to the list of configs that is defined by new_idx.
-       If idx and new_idx are of type range, the smallest
-       common divisor of the step sizes is used as new step size.
-
-    Parameters
-    ----------
-    deltas : list
-        List of fluctuations
-    idx : list
-        List or range of configs on which the deltas are defined.
-        Has to be a subset of new_idx and has to be sorted in ascending order.
-    shape : list
-        Number of configs in idx.
-    new_idx : list
-        List of configs that defines the new range, has to be sorted in ascending order.
-    """
-
-    if type(idx) is range and type(new_idx) is range:
-        if idx == new_idx:
-            return deltas
-    ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
-    for i in range(shape):
-        if idx[i] in new_idx:
-            ret[idx[i] - new_idx[0]] = deltas[i]
-    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
-
-
 def _filter_zeroes(deltas, idx, eps=Obs.filter_eps):
     """Filter out all configurations with vanishing fluctuation such that they do not
        contribute to the error estimate anymore. Returns the new deltas and
@@ -1355,20 +1327,17 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas
-    shape = len(idx_new)
-    ret = np.zeros(shape)
-    oldpos = 0
-    for i in range(shape):
-        pos = -1
-        for j in range(oldpos, len(idx_old)):
-            if idx_old[j] == idx_new[i]:
-                pos = j
-                break
-        if pos < 0:
-            raise Exception('Error in _reduce_deltas: Config %d not in idx_old' % (idx_new[i]))
-        ret[i] = deltas[pos]
-        oldpos = pos
-    return np.array(ret)
+    # Use groupby to efficiently check whether all elements of idx_old and idx_new are identical
+    try:
+        g = groupby([idx_old, idx_new])
+        if next(g, True) and not next(g, False):
+            return deltas
+    except Exception:
+        pass
+    indices = np.intersect1d(idx_old, idx_new, assume_unique=True, return_indices=True)[1]
+    if len(indices) < len(idx_new):
+        raise Exception('Error in _reduce_deltas: Config of idx_new not in idx_old')
+    return np.array(deltas)[indices]
 
 
 def reweight(weight, obs, **kwargs):
@@ -1546,8 +1515,8 @@ def _covariance_element(obs1, obs2):
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = _collapse_deltas_for_merge(deltas1, idx1, len(idx1), new_idx)
-        deltas2 = _collapse_deltas_for_merge(deltas2, idx2, len(idx2), new_idx)
+        deltas1 = _reduce_deltas(deltas1, idx1, new_idx)
+        deltas2 = _reduce_deltas(deltas2, idx2, new_idx)
         return np.sum(deltas1 * deltas2)
 
     if set(obs1.names).isdisjoint(set(obs2.names)):

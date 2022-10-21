@@ -699,8 +699,6 @@ class Obs:
         return 'Obs[' + str(self) + ']'
 
     def __str__(self):
-        if self._dvalue == 0.0:
-            return str(self.value)
         return _format_uncertainty(self.value, self._dvalue)
 
     def __hash__(self):
@@ -979,6 +977,8 @@ class CObs:
 
 def _format_uncertainty(value, dvalue):
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
+    if dvalue == 0.0:
+        return str(value)
     fexp = np.floor(np.log10(dvalue))
     if fexp < 0.0:
         return '{:{form}}({:2.0f})'.format(value, dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')

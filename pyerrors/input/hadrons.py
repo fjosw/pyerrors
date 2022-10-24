@@ -50,7 +50,7 @@ def _get_files(path, filestem, idl):
         idx = idl
         warnings.warn("Configurations are not evenly spaced.", RuntimeWarning)
     else:
-        raise Exception("Configurations are not evenly spaced.")
+        raise Exception("Configurations are not evenly spaced. Provide an idl if you want to proceed with this set of configurations.")
 
     return filtered_files, idx
 

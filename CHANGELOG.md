@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2022-xx-xx
+### Added
+- Log-derivatives and symmetric log-effective mass added.
+- Covariance for irregular Monte Carlo chains sped up.
+
+### Fixed
+- Bug in `Obs.details` fixed which appeared when tau had zero error.
+
+
 ## [2.3.1] - 2022-10-19
 ### Fixed
 - Integrated autocorrelation times are now correctly estimated for gapped irregular Monte Carlo chains.

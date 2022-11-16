@@ -1430,6 +1430,9 @@ def correlate(obs_a, obs_b):
 def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     r'''Calculates the error covariance matrix of a set of observables.
 
+    WARNING: This function should be used with care, especially for observables with support on multiple
+             ensembles with differing autocorrelations. See the notes below for details.
+
     The gamma method has to be applied first to all observables.
 
     Parameters

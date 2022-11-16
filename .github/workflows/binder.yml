@@ -2,7 +2,7 @@ name: binder
 on:
   push:
     branches:
-      - develop
+      - master
 
 jobs:
   Create-MyBinderOrg-Cache:

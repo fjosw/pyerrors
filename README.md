@@ -8,7 +8,7 @@
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
-To install the most recent release run
+To install the most recent release (via [pypi](https://pypi.org/project/pyerrors/)) run
 ```bash
 pip install pyerrors     # Fresh install
 pip install -U pyerrors  # Upgrade

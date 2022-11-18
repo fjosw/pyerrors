@@ -11,24 +11,32 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
 
     Parameters
     ----------
-    quarks: str
+    path : str
+        Path to the sfcf files.
+    prefix : str
+        Prefix of the sfcf files.
+    name : str
+        Name of the correlation function to read.
+    quarks : str
         Label of the quarks used in the sfcf input file. e.g. "quark quark"
         for version 0.0 this does NOT need to be given with the typical " - "
         that is present in the output file,
         this is done automatically for this version
-    noffset: int
+    corr_type : str
+        Type of correlation function to read. Can be
+        - 'bi' for boundary-inner
+        - 'bb' for boundary-boundary
+        - 'bib' for boundary-inner-boundary
+    noffset : int
         Offset of the source (only relevant when wavefunctions are used)
-    wf: int
+    wf : int
         ID of wave function
-    wf2: int
+    wf2 : int
         ID of the second wavefunction
         (only relevant for boundary-to-boundary correlation functions)
-    im: bool
+    im : bool
         if True, read imaginary instead of real part
         of the correlation function.
-    corr_type : str
-        change between bi (boundary - inner) (default) bib (boundary - inner - boundary) and bb (boundary - boundary)
-        correlator types
     names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length

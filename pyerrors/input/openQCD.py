@@ -723,6 +723,8 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
             if fnmatch.fnmatch(f, prefix + "*" + postfix):
                 files.append(f)
 
+        files = sorted(files)
+
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != len(files):

@@ -553,6 +553,8 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
     files : list
         specify the exact files that need to be read
         from path, practical if e.g. only one replicum is needed
+    postfix : str
+        postfix of the file to read, e.g. '.gfms.dat' for openQCD-files
     names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length.
@@ -598,6 +600,8 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length.
+    postfix : str
+        postfix of the file to read, e.g. '.gfms.dat' for openQCD-files
     Zeuthen_flow : bool
         (optional) If True, the Zeuthen flow is used for the coupling. If False, the Wilson flow is used.
     """
@@ -676,6 +680,8 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     names : list
         Alternative labeling for replicas/ensembles.
         Has to have the appropriate length.
+    postfix : str
+        postfix of the file to read, e.g. '.gfms.dat' for openQCD-files
     Zeuthen_flow : bool
         (optional) If True, the Zeuthen flow is used for Qtop. Only possible
         for version=='sfqcd' If False, the Wilson flow is used.
@@ -700,6 +706,9 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         else:
             L = kwargs.get("L")
         postfix = ".ms.dat"
+
+    if "postfix" in kwargs:
+        postfix = kwargs.get("postfix")
 
     if "files" in kwargs:
         files = kwargs.get("files")

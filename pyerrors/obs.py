@@ -1401,7 +1401,7 @@ def correlate(obs_a, obs_b):
     """
 
     if sorted(obs_a.names) != sorted(obs_b.names):
-        raise Exception('Ensembles do not fit')
+        raise Exception(f"Ensembles do not fit {set(sorted(obs_a.names)) ^ set(sorted(obs_b.names))}")
     if len(obs_a.cov_names) or len(obs_b.cov_names):
         raise Exception('Error: Not possible to correlate Obs that contain covobs!')
     for name in obs_a.names:

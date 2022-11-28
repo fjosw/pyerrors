@@ -142,6 +142,8 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
     for explore_file in explore_path.iterdir():
         if explore_file.is_file():
             stem = explore_file.with_suffix("").with_suffix("").as_posix().split("/")[-1]
+        else:
+            continue
 
         file_list = []
         for dir in directories:

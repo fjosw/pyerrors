@@ -1,5 +1,4 @@
 import os
-import warnings
 from collections import Counter
 import h5py
 from pathlib import Path

@@ -186,10 +186,15 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
+    def _jsonifier(o):
+        if isinstance(o, np.int64):
+            return int(o)
+        raise TypeError('%r is not JSON serializable' % o)
+
     if indent:
-        return json.dumps(d, indent=indent, ensure_ascii=False, write_mode=json.WM_SINGLE_LINE_ARRAY)
+        return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_SINGLE_LINE_ARRAY)
     else:
-        return json.dumps(d, indent=indent, ensure_ascii=False, write_mode=json.WM_COMPACT)
+        return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_COMPACT)
 
 
 def dump_to_json(ol, fname, description='', indent=1, gz=True):

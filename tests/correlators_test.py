@@ -310,6 +310,7 @@ def test_GEVP_warnings():
     with pytest.warns(DeprecationWarning):
         corr_mat.GEVP(0, sorted_list="Eigenvalue")
 
+
 def test_GEVP_exceptions():
     corr_aa = _gen_corr(1)
     corr_ab = 0.5 * corr_aa
@@ -370,6 +371,10 @@ def test_GEVP_exceptions():
 
     with pytest.raises(Exception):
         corr_0.matrix_symmetric()
+
+    n_corr_mat = -corr_mat
+    with pytest.raises(np.linalg.LinAlgError):
+        n_corr_mat.GEVP(2)
 
 
 def test_matrix_symmetric():

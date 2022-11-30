@@ -328,7 +328,7 @@ class Corr:
                 except Exception:
                     all_vecs.append(None)
             if sort == "Eigenvector":
-                if (ts is None):
+                if ts is None:
                     raise Exception("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
 

@@ -311,12 +311,8 @@ class Corr:
                 raise Exception("ts is required if sort=None.")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts.")
-            G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
-            for i in range(self.N):
-                for j in range(self.N):
-                    G0[i, j] = symmetric_corr[t0][i, j].value
-                    Gt[i, j] = symmetric_corr[ts][i, j].value
-
+            G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
+            Gt = np.vectorize(lambda x: x.value)(symmetric_corr[ts])
             reordered_vecs = _GEVP_solver(Gt, G0)
 
         elif sort in ["Eigenvalue", "Eigenvector"]:

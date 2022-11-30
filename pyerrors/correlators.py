@@ -306,12 +306,14 @@ class Corr:
         else:
             symmetric_corr = self.matrix_symmetric()
 
+        G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
+        np.linalg.cholesky(G0)  # Check if matrix G0 is positive-semidefinite.
+
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts.")
-            G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
             Gt = np.vectorize(lambda x: x.value)(symmetric_corr[ts])
             reordered_vecs = _GEVP_solver(Gt, G0)
 
@@ -319,7 +321,6 @@ class Corr:
             if sort == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
             all_vecs = [None] * (t0 + 1)
-            G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
             for t in range(t0 + 1, self.T):
                 try:
                     Gt = np.vectorize(lambda x: x.value)(symmetric_corr[t])

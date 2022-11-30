@@ -323,14 +323,10 @@ class Corr:
             if sort == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
             all_vecs = [None] * (t0 + 1)
+            G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
             for t in range(t0 + 1, self.T):
                 try:
-                    G0, Gt = np.empty([self.N, self.N], dtype="double"), np.empty([self.N, self.N], dtype="double")
-                    for i in range(self.N):
-                        for j in range(self.N):
-                            G0[i, j] = symmetric_corr[t0][i, j].value
-                            Gt[i, j] = symmetric_corr[t][i, j].value
-
+                    Gt = np.vectorize(lambda x: x.value)(symmetric_corr[t])
                     all_vecs.append(_GEVP_solver(Gt, G0))
                 except Exception:
                     all_vecs.append(None)

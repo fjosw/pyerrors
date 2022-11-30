@@ -420,7 +420,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         elif io['type'] == 'Corr':
             ol.append(get_Corr_from_dict(io))
         else:
-            raise Exception("Unkown datatype.")
+            raise Exception("Unknown datatype.")
 
     if full_output:
         retd = {}

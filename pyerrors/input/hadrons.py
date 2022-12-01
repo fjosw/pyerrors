@@ -172,9 +172,15 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
                 # "DistillationContraction/Metadata/DmfSuffix" contains info about different quarks, irrelevant in the SU(3) case.
 
             for diagram in diagrams:
+
+                if diagram == "triangle" and "Identity" not in str(identifier):
+                    part = "im"
+                else:
+                    part = "re"
+
                 real_data = np.zeros(Nt)
                 for x0 in range(Nt):
-                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)][:]["re"].astype(np.double)
+                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)][:][part].astype(np.double)
                     real_data += np.roll(raw_data, -x0)
                 real_data /= Nt
 

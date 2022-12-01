@@ -12,6 +12,9 @@ import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
 
+# Improve print output of numpy.ndarrays containing Obs objects.
+np.set_printoptions(formatter={'object': lambda x: str(x)})
+
 
 class Obs:
     """Class for a general observable.

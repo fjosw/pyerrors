@@ -25,6 +25,12 @@ class Fit_result(Sequence):
     fit_parameters : list
         results for the individual fit parameters,
         also accessible via indices.
+    chisquare_by_dof : float
+        reduced chisquare.
+    p_value : float
+        p-value of the fit
+    t2_p_value : float
+        Hotelling t-squared p-value for correlated fits.
     """
 
     def __init__(self):
@@ -50,6 +56,8 @@ class Fit_result(Sequence):
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
         if hasattr(self, 'p_value'):
             my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
+        if hasattr(self, 't2_p_value'):
+            my_str += 't\u00B2p-value = ' + f'{self.t2_p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
@@ -633,6 +641,11 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
     output.chisquare = chisquare
     output.dof = x.shape[-1] - n_parms
     output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
+    # Hotelling t-squared p-value for correlated fits.
+    if kwargs.get('correlated_fit') is True:
+        n_cov = np.min(np.vectorize(lambda x: x.N)(y))
+        output.t2_p_value = 1 - scipy.stats.f.cdf((n_cov - output.dof) / (output.dof * (n_cov - 1)) * output.chisquare,
+                                                  output.dof, n_cov - output.dof)
 
     if kwargs.get('resplot') is True:
         residual_plot(x, y, func, result)

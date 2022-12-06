@@ -214,6 +214,15 @@ def test_correlated_fit():
             assert(diff.is_zero_within_error(sigma=5))
 
 
+def test_hotelling_t():
+    tt1 = pe.Obs([np.random.rand(50)], ["ens"])
+    tt1.gamma_method()
+    tt2 = pe.Obs([np.random.rand(50)], ["ens"])
+    tt2.gamma_method()
+    ft = pe.fits.least_squares([1, 2], [tt1, tt2], lambda a, x: a[0], correlated_fit=True)
+    assert ft.t2_p_value >= ft.p_value
+
+
 def test_fit_corr_independent():
     dim = 30
     x = np.arange(dim)

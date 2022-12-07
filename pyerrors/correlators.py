@@ -916,7 +916,7 @@ class Corr:
         if self.N != 1:
             raise Exception("Correlator needs to be projected first.")
 
-        mc_names = list(set([item for sublist in [o[0].mc_names for o in self.content if o is not None] for item in sublist]))
+        mc_names = list(set([item for sublist in [sum(map(o[0].e_content.get, o[0].mc_names), []) for o in self.content if o is not None] for item in sublist]))
         x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content) if o is not None]
 
         for name in mc_names:

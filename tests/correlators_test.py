@@ -498,7 +498,8 @@ def test_corr_vector_operations():
 
 def test_spaghetti_plot():
     corr = _gen_corr(12, 50)
-    corr += pe.pseudo_Obs(0.0, 0.1, 'another_ensemble')
+    corr += pe.pseudo_Obs(0.0, 0.1, 'another_ensemble|r0')
+    corr += pe.pseudo_Obs(0.0, 0.1, 'another_ensemble|r1')
     corr += pe.cov_Obs(0.0, 0.01 ** 2, 'covobs')
 
     corr.spaghetti_plot(True)

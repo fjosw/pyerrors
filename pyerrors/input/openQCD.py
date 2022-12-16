@@ -985,3 +985,63 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     qtop = read_qtop(path, prefix, c, **kwargs)
 
     return qtop_projection(qtop, target=target)
+
+
+def read_ms5_xsf(path, prefix, qc, corr):
+
+    found = []
+    files = []
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+    for f in found:
+        if fnmatch.fnmatch(f, prefix + ".ms5_xsf_"+qc+".dat"):
+            files.append(f)
+
+    files = sorted(files)
+    for file in files:
+        with open(path+"/"+file, "rb") as fp:
+            t = fp.read(8)
+            kappa = struct.unpack('d', t)[0]
+            t = fp.read(8)
+            csw = struct.unpack('d', t)[0]
+            t = fp.read(8)
+            dF = struct.unpack('d', t)[0]
+            t = fp.read(8)
+            zF = struct.unpack('d', t)[0]
+            
+            print("Parameters:\n kappa:",kappa, "csw:",csw,"dF:", dF,"zF:", zF)
+            
+            t = fp.read(4)
+            tmax = struct.unpack('i', t)[0]
+            t = fp.read(4)
+            bnd = struct.unpack('i', t)[0]
+
+            print("T:", tmax)
+            t = fp.read(4)
+            cnfg = struct.unpack('i', t)[0]
+            print(cnfg)
+            placesBI = ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt",
+                      "lT", "lTt"]
+            placesBB = ["g1", "l1"]
+            if not corr in placesBB:
+                for i in range(placesBI.index(corr)):
+                    t = fp.read(8*2*tmax)
+            
+                t = fp.read(8*2*tmax)
+                tmpcorr = struct.unpack('d'*2*tmax, t)
+                corrres = [[],[]]
+                for i in range(len(tmpcorr)):
+                    corrres[i%2].append(tmpcorr[i])
+            else:
+                # boundary to boundary correlators
+                for i in range(len(placesBI)):
+                    t = fp.read(8*2*tmax)
+                for i in range(placesBB.index(corr)):
+                    t = fp.read(8*2)
+                t = fp.read(8*2)
+                corrres = list(struct.unpack('d'*2, t))
+
+            
+            print(corrres)
+        

@@ -106,11 +106,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     Do not need to use ordered dictionaries: python version >= 3.7: Dictionary order is guaranteed to be insertion order.
     (https://docs.python.org/3/library/stdtypes.html#dict-views) Ensures that x, y and func values are mapped correctly.
     
-    x : ordered dict
+    x : dict
         dict of lists.
-    y : ordered dict
+    y : dict
         dict of lists of Obs.
-    funcs : ordered dict
+    funcs : dict
         dict of objects
         fit functions have to be of the form (here a[0] is the common fit parameter)
         ```python
@@ -141,7 +141,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
-        Reliable alternatives are migrad, Powell and Nelder-Mead.
+        Reliable alternatives are migrad (default for combined fit), Powell and Nelder-Mead.
     correlated_fit : bool
         If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
@@ -744,6 +744,10 @@ def _combined_fit(x,y,func,silent=False,**kwargs):
             raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
         x0 = [0.1] * n_parms
+    
+    output.method = kwargs.get('method', 'migrad')
+    if not silent:
+        print('Method:', output.method)
         
     def chisqfunc(p):
         chisq = 0.0
@@ -756,10 +760,6 @@ def _combined_fit(x,y,func,silent=False,**kwargs):
             C_inv =  np.diag(np.diag(np.ones((len(x_array),len(x_array)))))/dy_f/dy_f
             chisq += anp.sum((y_f - model)@ C_inv @(y_f - model))
         return chisq
-    
-    output.method = kwargs.get('method', 'Levenberg-Marquardt')
-    if not silent:
-        print('Method:', output.method)
         
     if output.method == 'migrad':
         tolerance = 1e-4
@@ -816,7 +816,7 @@ def _combined_fit(x,y,func,silent=False,**kwargs):
         for key in func.keys():
             x_array = np.asarray(x[key])
             if (len(x_array)!= 0):
-                hat_vector.append(anp.array(jacobian(func[key])(fit_result.x, x_array)))
+                hat_vector.append(jacobian(func[key])(fit_result.x, x_array))
         hat_vector = [item for sublist in hat_vector for item in sublist]
         return hat_vector
     

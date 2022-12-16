@@ -12,7 +12,7 @@ from numdifftools import Hessian as num_hessian
 import scipy.optimize
 import scipy.stats
 
-def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
+def combined_fit(x,y,funcs,silent=False,**kwargs):
     r'''Performs a combined non-linear fit.
     Parameters
     ----------
@@ -62,10 +62,17 @@ def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
         y_all+=y[key]
     
     x_all = np.asarray(x_all)
-
+    
+    if len(x_all.shape) > 2:
+        raise Exception('Unknown format for x values')
+    
     # number of fit parameters
     n_parms_ls = []
     for key in funcs.keys():
+        if not callable(funcs[key]):
+            raise TypeError('func (key='+ key + ') is not a function.')
+        if len(x[key]) != len(y[key]):
+            raise Exception('x and y input (key='+ key + ') do not have the same length')
         for i in range(42):
             try:
                 funcs[key](np.arange(i), x_all.T[0])
@@ -76,7 +83,7 @@ def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
             else:
                 break
         else:
-            raise RuntimeError("Fit function is not valid.")
+            raise RuntimeError("Fit function (key="+ key + ") is not valid.")
         n_parms = i
         n_parms_ls.append(n_parms)
     n_parms = max(n_parms_ls)
@@ -102,22 +109,34 @@ def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
             chisq += anp.sum((y_f - model)@ C_inv @(y_f - model))
         return chisq
     
-    if 'tol' in kwargs:
-        fit_result = iminuit.minimize(chisqfunc, x0,tol=kwargs.get('tol'))
-        fit_result = iminuit.minimize(chisqfunc, fit_result.x,tol=kwargs.get('tol'))
-    else:
-        fit_result = iminuit.minimize(chisqfunc, x0,tol=1e-4)
-        fit_result = iminuit.minimize(chisqfunc, fit_result.x,tol=1e-4)
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
         
+    if output.method == 'migrad':
+        tolerance = 1e-4
+        if 'tol' in kwargs:
+            tolerance = kwargs.get('tol')
+        fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance) # Stopping criterion 0.002 * tol * errordef
+        output.iterations = fit_result.nfev
+    else:
+        tolerance = 1e-12
+        if 'tol' in kwargs:
+            tolerance = kwargs.get('tol')
+        fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=tolerance)
+        output.iterations = fit_result.nit
+
     chisquare = fit_result.fun
-    
-    output.method = 'migrad'
     output.message = fit_result.message
+    
+    if not fit_result.success:
+        raise Exception('The minimization procedure did not converge.')
 
     if x_all.shape[-1] - n_parms > 0:
         output.chisquare = chisqfunc(fit_result.x)
         output.dof = x_all.shape[-1] - n_parms
         output.chisquare_by_dof = output.chisquare/output.dof
+        output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     else:
         output.chisquare_by_dof = float('nan')
     
@@ -145,9 +164,22 @@ def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
         chisq = anp.sum(list_tmp)
         return chisq
     
+    def prepare_hat_matrix(): # should be cross-checked again
+        hat_vector = []
+        for key in funcs.keys():
+            x_array = np.asarray(x[key])
+            if (len(x_array)!= 0):
+                hat_vector.append(anp.array(jacobian(funcs[key])(fit_result.x, x_array)))
+        hat_vector = [item for sublist in hat_vector for item in sublist]
+        return hat_vector
+    
     fitp = fit_result.x
     y_f = [o.value for o in y_all] # y_f is constructed based on the ordered dictionary if the order is changed then the y values are not allocated to the the correct x and func values in the hessian
     dy_f = [o.dvalue for o in y_all] # the same goes for dy_f
+    
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+        
     try:
         hess = hessian(chisqfunc)(fitp)
     except TypeError:
@@ -160,6 +192,20 @@ def combined_total_least_squares(x,y,funcs,silent=False,**kwargs):
         deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
     except np.linalg.LinAlgError:
         raise Exception("Cannot invert hessian matrix.")
+        
+        
+    if kwargs.get('expected_chisquare') is True:
+        if kwargs.get('correlated_fit') is not True:
+            W = np.diag(1 / np.asarray(dy_f))
+            cov = covariance(y_all)
+            hat_vector = prepare_hat_matrix()
+            A = W @ hat_vector #hat_vector = 'jacobian(func)(fit_result.x, x)'
+            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
+            expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
+            output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
+            if not silent:
+                print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
+
 
     result = []
     for i in range(n_parms):

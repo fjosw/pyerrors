@@ -457,7 +457,6 @@ from .obs import *
 from .correlators import *
 from .fits import *
 from .misc import *
-from . import combined_fits
 from . import dirac
 from . import input
 from . import linalg

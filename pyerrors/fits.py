@@ -703,12 +703,8 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         jacobian = auto_jacobian
         hessian = auto_hessian
 
-    x_all = []
-    y_all = []
-    for key in x.keys():
-        y_all += y[key]
-
     x_all = np.concatenate([np.array(o) for o in x.values()])
+    y_all = np.concatenate([np.array(o) for o in y.values()])
 
     if len(x_all.shape) > 2:
         raise Exception('Unknown format for x values')

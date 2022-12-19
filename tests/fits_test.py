@@ -608,6 +608,22 @@ def test_ks_test():
     pe.fits.ks_test(fit_res)
 
 
+def test_combined_fit_list_v_array():
+    res = []
+    y_test = {'a': [pe.Obs([np.random.normal(i, 0.5, 1000)], ['ensemble1']) for i in range(1, 7)]}
+    for x_test in [{'a': [0, 1, 2, 3, 4, 5]}, {'a': np.arange(6)}]:
+        for key in y_test.keys():
+            [item.gamma_method() for item in y_test[key]]
+        def func_a(a, x):
+            return a[1] * x + a[0]
+
+        funcs_test = {"a": func_a}
+        res.append(pe.fits.least_squares(x_test, y_test, funcs_test))
+
+    assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+    assert (res[0][1] - res[1][1]).is_zero(atol=1e-8)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

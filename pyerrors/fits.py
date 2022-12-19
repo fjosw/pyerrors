@@ -706,10 +706,9 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     x_all = []
     y_all = []
     for key in x.keys():
-        x_all += x[key]
         y_all += y[key]
 
-    x_all = np.asarray(x_all)
+    x_all = np.concatenate([np.array(o) for o in x.values()])
 
     if len(x_all.shape) > 2:
         raise Exception('Unknown format for x values')

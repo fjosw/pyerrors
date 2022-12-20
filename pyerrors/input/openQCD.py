@@ -1074,8 +1074,8 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
                     corrres = [[],[]]
                     for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
-                    for t in range(tmax): realsamples[t].append(corrres[0][t])
-                    for t in range(tmax): imagsamples[t].append(corrres[1][t])
+                    for t in range(int(len(tmpcorr)/2)): realsamples[t].append(corrres[0][t])
+                    for t in range(int(len(tmpcorr)/2)): imagsamples[t].append(corrres[1][t])
                 else:
                     tmpcorr = asascii[1+2*tmax*len(placesBI):1+2*tmax*len(placesBI)+2]
                     corrres = [[],[]]
@@ -1084,7 +1084,7 @@ def read_ms5_xsf(path, prefix, qc, corr):
     realObs = []
     imagObs = []
     compObs = []
-    for t in range(tmax): realObs.append(Obs([realsamples[t]], names = [prefix], idl = [cnfgs]))
-    for t in range(tmax): imagObs.append(Obs([imagsamples[t]], names = [prefix], idl = [cnfgs]))
-    for t in range(tmax): compObs.append(CObs(realObs[t], imagObs[t]))
+    for t in range(int(len(tmpcorr)/2)): realObs.append(Obs([realsamples[t]], names = [prefix], idl = [cnfgs]))
+    for t in range(int(len(tmpcorr)/2)): imagObs.append(Obs([imagsamples[t]], names = [prefix], idl = [cnfgs]))
+    for t in range(int(len(tmpcorr)/2)): compObs.append(CObs(realObs[t], imagObs[t]))
     return Corr(compObs)

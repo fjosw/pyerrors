@@ -1198,8 +1198,8 @@ class Corr:
     @property
     def real(self):
         def return_real(obs_OR_cobs):
-            if isinstance(obs_OR_cobs[0], CObs):
-                return obs_OR_cobs[0].real
+            if isinstance(obs_OR_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.real)(obs_OR_cobs)
             else:
                 return obs_OR_cobs
 
@@ -1208,8 +1208,8 @@ class Corr:
     @property
     def imag(self):
         def return_imag(obs_OR_cobs):
-            if isinstance(obs_OR_cobs[0], CObs):
-                return obs_OR_cobs[0].imag
+            if isinstance(obs_OR_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.imag)(obs_OR_cobs)
             else:
                 return obs_OR_cobs * 0  # So it stays the right type
 

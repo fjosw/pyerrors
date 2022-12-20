@@ -532,3 +532,13 @@ def test_prune():
     with pytest.raises(Exception):
         corr_mat.prune(3)
         corr_mat.prune(4)
+
+
+def test_complex_Corr():
+    o1 = pe.pseudo_Obs(1.0, 0.1, "test")
+    cobs = pe.CObs(o1, -o1)
+    ccorr = pe.Corr([cobs, cobs, cobs])
+    assert np.all([ccorr.imag[i] == -ccorr.real[i] for i in range(ccorr.T)])
+    print(ccorr)
+    mcorr = pe.Corr(np.array([[ccorr, ccorr], [ccorr, ccorr]]))
+    assert np.all([mcorr.imag[i] == -mcorr.real[i] for i in range(mcorr.T)])

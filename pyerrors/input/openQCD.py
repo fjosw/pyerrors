@@ -1072,15 +1072,12 @@ def read_ms5_xsf(path, prefix, qc, corr):
                 
                 if not corr in placesBB:
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
-                    corrres = [[],[]]
-                    for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
-                    for t in range(int(len(tmpcorr)/2)): realsamples[t].append(corrres[0][t])
-                    for t in range(int(len(tmpcorr)/2)): imagsamples[t].append(corrres[1][t])
                 else:
-                    tmpcorr = asascii[1+2*tmax*len(placesBI):1+2*tmax*len(placesBI)+2]
-                    corrres = [[],[]]
-                    for i in range(len(tmpcorr)):
-                        corrres[i%2].append(tmpcorr[i])
+                    tmpcorr = asascii[1+2*tmax*len(placesBI)+2*placesBI.index(corr):1+2*tmax*len(placesBI)+2*placesBI.index(corr)+2]
+                corrres = [[],[]]
+                for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
+                for t in range(int(len(tmpcorr)/2)): realsamples[t].append(corrres[0][t])
+                for t in range(int(len(tmpcorr)/2)): imagsamples[t].append(corrres[1][t])
     # we have the data now... but we need to re format the whole thing and put it into Corr objects.
     realObs = []
     imagObs = []

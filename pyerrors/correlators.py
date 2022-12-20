@@ -969,6 +969,8 @@ class Corr:
             content_string += "Description: " + self.tag + "\n"
         if self.N != 1:
             return content_string
+        if isinstance(self[0], CObs):
+            return content_string
 
         if print_range[1]:
             print_range[1] += 1

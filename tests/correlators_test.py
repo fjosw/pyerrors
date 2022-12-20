@@ -539,3 +539,4 @@ def test_complex_Corr():
     cobs = pe.CObs(o1, o1)
     ccorr = pe.Corr([cobs, cobs, cobs])
     assert np.all([ccorr.imag[i] == ccorr.real[i] for i in range(ccorr.T)])
+    print(ccorr)

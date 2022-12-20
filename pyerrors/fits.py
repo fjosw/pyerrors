@@ -140,7 +140,9 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
-        Reliable alternatives are migrad (default for combined fit), Powell and Nelder-Mead.
+        Reliable alternatives are migrad, Powell and Nelder-Mead.
+    tol: float, optional
+        can only be used for combined fits and methods other than Levenberg-Marquard
     correlated_fit : bool
         If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
@@ -706,6 +708,9 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     x_all = np.concatenate([np.array(o) for o in x.values()])
     y_all = np.concatenate([np.array(o) for o in y.values()])
 
+    y_f = [o.value for o in y_all]
+    dy_f = [o.dvalue for o in y_all]
+
     if len(x_all.shape) > 2:
         raise Exception('Unknown format for x values')
 
@@ -740,10 +745,6 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     else:
         x0 = [0.1] * n_parms
 
-    output.method = kwargs.get('method', 'migrad')
-    if not silent:
-        print('Method:', output.method)
-
     def chisqfunc(p):
         chisq = 0.0
         for key in func.keys():
@@ -756,27 +757,46 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
             chisq += anp.sum((y_f - model) @ C_inv @ (y_f - model))
         return chisq
 
-    if output.method == 'migrad':
-        tolerance = 1e-4
-        if 'tol' in kwargs:
-            tolerance = kwargs.get('tol')
-        fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
-        output.iterations = fit_result.nfev
-    else:
-        tolerance = 1e-12
-        if 'tol' in kwargs:
-            tolerance = kwargs.get('tol')
-        fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=tolerance)
-        output.iterations = fit_result.nit
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
 
-    chisquare = fit_result.fun
+    if output.method != 'Levenberg-Marquardt':
+        if output.method == 'migrad':
+            tolerance = 1e-4
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
+            output.iterations = fit_result.nfev
+        else:
+            tolerance = 1e-12
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=tolerance)
+            output.iterations = fit_result.nit
+
+        chisquare = fit_result.fun
+
+    else:
+        def chisqfunc_residuals(p):
+            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in func.keys()])
+            chisq = ((y_f - model) / dy_f)
+            return chisq
+        if 'tol' in kwargs:
+            print('tol cannot be set for Levenberg-Marquardt')
+        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+
+        chisquare = np.sum(fit_result.fun ** 2)
+        assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
+        output.iterations = fit_result.nfev
+
     output.message = fit_result.message
 
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')
 
     if x_all.shape[-1] - n_parms > 0:
-        output.chisquare = chisqfunc(fit_result.x)
+        output.chisquare = chisquare
         output.dof = x_all.shape[-1] - n_parms
         output.chisquare_by_dof = output.chisquare / output.dof
         output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
@@ -815,8 +835,6 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         return hat_vector
 
     fitp = fit_result.x
-    y_f = [o.value for o in y_all]
-    dy_f = [o.dvalue for o in y_all]
 
     if np.any(np.asarray(dy_f) <= 0.0):
         raise Exception('No y errors available, run the gamma method first.')
@@ -842,7 +860,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
             A = W @ hat_vector  # hat_vector = 'jacobian(func)(fit_result.x, x)'
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
-            output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
+            output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
             if not silent:
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
 

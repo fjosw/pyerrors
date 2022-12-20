@@ -625,6 +625,32 @@ def test_combined_fit_list_v_array():
         assert (res[0][1] - res[1][1]).is_zero(atol=1e-8)
 
 
+def test_combined_fit_vs_standard_fit():
+
+    x_const = {'a':[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'b':np.arange(10, 20)}
+    y_const = {'a':[pe.Obs([np.random.normal(1, val, 1000)], ['ensemble1']) 
+                for val in [0.25, 0.3, 0.01, 0.2, 0.5, 1.3, 0.26, 0.4, 0.1, 1.0]],
+            'b':[pe.Obs([np.random.normal(1, val, 1000)], ['ensemble1'])
+                for val in [0.5, 1.12, 0.26, 0.25, 0.3, 0.01, 0.2, 1.0, 0.38, 0.1]]}
+    for key in y_const.keys():
+        [item.gamma_method() for item in y_const[key]]
+    y_const_ls = np.concatenate([np.array(o) for o in y_const.values()])
+    x_const_ls = np.arange(0, 20)
+
+    def func_const(a,x):
+        return  0 * x + a[0]
+
+    funcs_const = {"a": func_const,"b": func_const}
+    for method_kw in ['Levenberg-Marquardt', 'migrad', 'Powell', 'Nelder-Mead']:
+        res = []
+        res.append(pe.fits.least_squares(x_const, y_const, funcs_const, method = method_kw, expected_chisquare=True))
+        res.append(pe.fits.least_squares(x_const_ls, y_const_ls, func_const, method = method_kw, expected_chisquare=True))
+        [item.gamma_method for item in res]
+        assert np.isclose(0.0, (res[0].chisquare_by_dof - res[1].chisquare_by_dof), 1e-14, 1e-8)
+        assert np.isclose(0.0, (res[0].chisquare_by_expected_chisquare - res[1].chisquare_by_expected_chisquare), 1e-14, 1e-8)
+        assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
+        assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

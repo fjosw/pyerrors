@@ -108,24 +108,6 @@ def test_prior_fit_num_grad():
     auto = pe.fits.least_squares(x, y, lambda a, x: anp.exp(a[0] * x) + a[1], num_grad=False, piors=y[:2])
 
 
-def test_least_squares_num_grad():
-    x = []
-    y = []
-    for i in range(2, 5):
-        x.append(i * 0.01)
-        y.append(pe.pseudo_Obs(i * 0.01, 0.0001, "ens"))
-
-    num = pe.fits.least_squares(x, y, lambda a, x: np.exp(a[0] * x) + a[1], num_grad=True)
-    auto = pe.fits.least_squares(x, y, lambda a, x: anp.exp(a[0] * x) + a[1], num_grad=False)
-
-    assert(num[0] == auto[0])
-    assert(num[1] == auto[1])
-
-
-    assert(num[0] == auto[0])
-    assert(num[1] == auto[1])
-
-
 def test_total_least_squares_num_grad():
     x = []
     y = []
@@ -650,6 +632,106 @@ def test_combined_fit_vs_standard_fit():
         assert np.isclose(0.0, (res[0].chisquare_by_expected_chisquare - res[1].chisquare_by_expected_chisquare), 1e-14, 1e-8)
         assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
         assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+
+
+def test_combined_fit_invalid_fit_functions():
+    def func1(a, x):
+        return a[0] + a[1] * x + a[2] * anp.sinh(x) + a[199]
+
+    def func2(a, x, y):
+        return a[0] + a[1] * x
+
+    def func3(x):
+        return x
+
+    def func_valid(a,x):
+        return a[0] + a[1] * x
+
+    xvals =[]
+    yvals =[]
+    err = 0.1
+
+    for x in range(1, 8, 2):
+        xvals.append(x)
+        yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+    [o.gamma_method() for o in yvals]
+    for func in [func1, func2, func3]:
+        with pytest.raises(Exception):
+            pe.least_squares({'a':xvals}, {'a':yvals}, {'a':func})
+        with pytest.raises(Exception):
+            pe.least_squares({'a':xvals, 'b':xvals}, {'a':yvals, 'b':yvals}, {'a':func, 'b':func_valid})
+        with pytest.raises(Exception):
+            pe.least_squares({'a':xvals, 'b':xvals}, {'a':yvals, 'b':yvals}, {'a':func_valid, 'b':func})
+
+
+def test_combined_fit_no_autograd():
+
+    def func_exp1(x):
+        return 0.3*np.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*np.exp(0.8*x)
+
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_a(a,x):
+        return a[0]*np.exp(a[1]*x)
+
+    def func_b(a,x):
+        return a[0]*np.exp(a[2]*x)
+
+    funcs = {'a':func_a, 'b':func_b}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
+        'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
+
+    for key in funcs.keys():
+        [item.gamma_method() for item in ys[key]]
+
+    with pytest.raises(Exception):
+        pe.least_squares(xs, ys, funcs)
+
+    pe.least_squares(xs, ys, funcs, num_grad=True)
+
+
+def test_combined_fit_num_grad():
+    def func_exp1(x):
+        return 0.3*np.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*np.exp(0.8*x)
+
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_num_a(a,x):
+        return a[0]*np.exp(a[1]*x)
+
+    def func_num_b(a,x):
+        return a[0]*np.exp(a[2]*x)
+
+    def func_auto_a(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_auto_b(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
+    funcs_num = {'a':func_num_a, 'b':func_num_b}
+    funcs_auto = {'a':func_auto_a, 'b':func_auto_b}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
+        'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
+
+    for key in funcs_num.keys():
+        [item.gamma_method() for item in ys[key]]
+
+    num = pe.fits.least_squares(xs, ys, funcs_num, num_grad=True)
+    auto = pe.fits.least_squares(xs, ys, funcs_auto, num_grad=False)
+
+    assert(num[0] == auto[0])
+    assert(num[1] == auto[1])
+
 
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.

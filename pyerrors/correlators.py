@@ -1136,8 +1136,10 @@ class Corr:
         for t in range(self.T):
             if _check_for_none(self, newcontent[t]):
                 continue
-            if np.isnan(np.sum(newcontent[t]).value):
-                newcontent[t] = None
+            tmp_sum = np.sum(newcontent[t])
+            if hasattr(tmp_sum, "value"):
+                if np.isnan(tmp_sum.value):
+                    newcontent[t] = None
         if all([item is None for item in newcontent]):
             raise Exception('Operation returns undefined correlator')
         return Corr(newcontent)
@@ -1194,8 +1196,8 @@ class Corr:
     @property
     def real(self):
         def return_real(obs_OR_cobs):
-            if isinstance(obs_OR_cobs, CObs):
-                return obs_OR_cobs.real
+            if isinstance(obs_OR_cobs[0], CObs):
+                return obs_OR_cobs[0].real
             else:
                 return obs_OR_cobs
 
@@ -1204,8 +1206,8 @@ class Corr:
     @property
     def imag(self):
         def return_imag(obs_OR_cobs):
-            if isinstance(obs_OR_cobs, CObs):
-                return obs_OR_cobs.imag
+            if isinstance(obs_OR_cobs[0], CObs):
+                return obs_OR_cobs[0].imag
             else:
                 return obs_OR_cobs * 0  # So it stays the right type
 

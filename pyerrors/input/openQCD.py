@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs
 from ..fits import fit_lin
+from ..obs import CObs
+from ..correlators import Corr
+
 
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
@@ -989,7 +992,8 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
 
 def read_ms5_xsf(path, prefix, qc, corr):
     """
-    Read and process data from files with a specific prefix and containing the given quark combination in the file name.
+    Read and process data from files produced by the ms5_xsf method
+    with a specific prefix and for a given quark combination.
 
     Parameters
     ----------
@@ -1051,25 +1055,36 @@ def read_ms5_xsf(path, prefix, qc, corr):
 
             chunksize = 4 +( 8 *2*tmax*10)+( 8 *2*2)
             packstr   ='=i'+('d'*2*tmax*10)+('d'*2*2)
+            cnfgs = []
+            realsamples = []
+            imagsamples = []
+            for t in range(tmax):
+                realsamples.append([])
+                imagsamples.append([])
+                
             while True:
                 cnfgt = fp.read(chunksize)
                 if not cnfgt:
                     break
                 asascii=struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                #print(cnfg)
+                cnfgs.append(cnfg)
                 
                 if not corr in placesBB:
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
                     corrres = [[],[]]
-                    for i in range(len(tmpcorr)):
-                        corrres[i%2].append(tmpcorr[i])
+                    for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
+                    for t in range(tmax): realsamples[t].append(corrres[0][t])
+                    for t in range(tmax): imagsamples[t].append(corrres[1][t])
                 else:
                     tmpcorr = asascii[1+2*tmax*len(placesBI):1+2*tmax*len(placesBI)+2]
                     corrres = [[],[]]
                     for i in range(len(tmpcorr)):
                         corrres[i%2].append(tmpcorr[i])
-            
-                #print(corrres)
-                
-        
+    realObs = []
+    imagObs = []
+    compObs = []
+    for t in range(tmax): realObs.append(Obs(realsamples[t], names = prefix, idl = cnfgs))
+    for t in range(tmax): imagObs.append(Obs(imagsamples[t], names = prefix, idl = cnfgs))
+    for t in range(tmax): compObs.append(CObs(realObs[t], imagObs[t]))
+    return Corr(compObs)

@@ -1081,6 +1081,7 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     corrres = [[],[]]
                     for i in range(len(tmpcorr)):
                         corrres[i%2].append(tmpcorr[i])
+    # we have the data now... but we need to re format the whole thing and put it into Corr objects.
     realObs = []
     imagObs = []
     compObs = []

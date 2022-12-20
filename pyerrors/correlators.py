@@ -69,9 +69,6 @@ class Corr:
 
         if isinstance(data_input, list):
 
-            if all([isinstance(item, (Obs, CObs)) for item in data_input]):
-                _assert_equal_properties(data_input)
-                self.content = [np.asarray([item]) for item in data_input]
             if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None])
                 self.content = [np.asarray([item]) if item is not None else None for item in data_input]
@@ -972,6 +969,8 @@ class Corr:
             content_string += "Description: " + self.tag + "\n"
         if self.N != 1:
             return content_string
+        if isinstance(self[0], CObs):
+            return content_string
 
         if print_range[1]:
             print_range[1] += 1
@@ -1139,8 +1138,10 @@ class Corr:
         for t in range(self.T):
             if _check_for_none(self, newcontent[t]):
                 continue
-            if np.isnan(np.sum(newcontent[t]).value):
-                newcontent[t] = None
+            tmp_sum = np.sum(newcontent[t])
+            if hasattr(tmp_sum, "value"):
+                if np.isnan(tmp_sum.value):
+                    newcontent[t] = None
         if all([item is None for item in newcontent]):
             raise Exception('Operation returns undefined correlator')
         return Corr(newcontent)
@@ -1197,8 +1198,8 @@ class Corr:
     @property
     def real(self):
         def return_real(obs_OR_cobs):
-            if isinstance(obs_OR_cobs, CObs):
-                return obs_OR_cobs.real
+            if isinstance(obs_OR_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.real)(obs_OR_cobs)
             else:
                 return obs_OR_cobs
 
@@ -1207,8 +1208,8 @@ class Corr:
     @property
     def imag(self):
         def return_imag(obs_OR_cobs):
-            if isinstance(obs_OR_cobs, CObs):
-                return obs_OR_cobs.imag
+            if isinstance(obs_OR_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.imag)(obs_OR_cobs)
             else:
                 return obs_OR_cobs * 0  # So it stays the right type
 

@@ -1084,7 +1084,7 @@ def read_ms5_xsf(path, prefix, qc, corr):
     realObs = []
     imagObs = []
     compObs = []
-    for t in range(tmax): realObs.append(Obs(realsamples[t], names = prefix, idl = cnfgs))
-    for t in range(tmax): imagObs.append(Obs(imagsamples[t], names = prefix, idl = cnfgs))
+    for t in range(tmax): realObs.append(Obs([realsamples[t]], names = [prefix], idl = [cnfgs]))
+    for t in range(tmax): imagObs.append(Obs([imagsamples[t]], names = [prefix], idl = [cnfgs]))
     for t in range(tmax): compObs.append(CObs(realObs[t], imagObs[t]))
     return Corr(compObs)

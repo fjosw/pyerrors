@@ -1029,53 +1029,28 @@ def read_ms5_xsf(path, prefix, qc, corr):
 
             # bytes per config
             # the chunks have the following structure:
-            # confignumber, 10x timedependent complex correlators, 2x timeindependent complex correlators
+            # confignumber, 10x timedependent complex correlators as doubles, 2x timeindependent complex correlators as doubles
 
             chunksize = 4 +( 8 *2*tmax*10)+( 8 *2*2)
-            print(chunksize)
-            packstr   ='i'+('d'*2*tmax*10)+('d'*2*2)
+            packstr   ='=i'+('d'*2*tmax*10)+('d'*2*2)
             while True:
                 cnfgt = fp.read(chunksize)
                 if not cnfgt:
                     break
                 asascii=struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                #cnfg = struct.unpack('i', t)[0]
                 print(cnfg)
                 
                 if not corr in placesBB:
-                    #for i in range(placesBI.index(corr)):
-                    #    t = fp.read(8*2*tmax)
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
-                    #t = fp.read(8*2*tmax)
-                    #tmpcorr = struct.unpack('d'*2*tmax, t)
                     corrres = [[],[]]
                     for i in range(len(tmpcorr)):
                         corrres[i%2].append(tmpcorr[i])
-                    # jump to next config
-                    #t = fp.read(chunksize-(4+placesBI.index(corr)*8*2*tmax+2*8*2))
                 else:
-                    #for i in range(placesBI.index(corr)):
-                    #    t = fp.read(8*2*tmax)
                     tmpcorr = asascii[1+2*tmax*len(placesBI):1+2*tmax*len(placesBI)+2]
-                    #t = fp.read(8*2*tmax)
-                    #tmpcorr = struct.unpack('d'*2*tmax, t)
                     corrres = [[],[]]
                     for i in range(len(tmpcorr)):
                         corrres[i%2].append(tmpcorr[i])
-                    # jump to next config
-                    #t = fp.read(chunksize-(4+placesBI.index(corr)*8*2*tmax+2*8*2))
-
-                    # boundary to boundary correlators
-                    #for i in range(len(placesBI)):
-                    #    t = fp.read(8*2*tmax)
-                    #for i in range(placesBB.index(corr)):
-                    #    t = fp.read(8*2)
-                    #t = fp.read(8*2)
-                    #corrres = list(struct.unpack('d'*2, t))
-                    # jump to next config
-                    #t = fp.read(chunksize-(4+len(placesBI)*8*2*tmax+(2-placesBB.index(corr))*8*2))
-                
             
-            print(corrres)
+                print(corrres)
         

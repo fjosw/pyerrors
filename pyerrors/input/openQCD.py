@@ -1039,7 +1039,7 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     break
                 asascii=struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                print(cnfg)
+                #print(cnfg)
                 
                 if not corr in placesBB:
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
@@ -1052,5 +1052,6 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     for i in range(len(tmpcorr)):
                         corrres[i%2].append(tmpcorr[i])
             
-                print(corrres)
+                #print(corrres)
+                
         

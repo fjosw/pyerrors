@@ -988,7 +988,25 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
 
 
 def read_ms5_xsf(path, prefix, qc, corr):
+    """
+    Read and process data from files with a specific prefix and containing the given quark combination in the file name.
 
+    Parameters
+    ----------
+    path : str
+        The path to the directory containing the data files.
+    prefix : str
+        The prefix of the data files to be processed.
+    qc : str
+        The quark combination to be used to filter the data files.
+    corr : str
+        The correlator to be extracted from the data files.
+
+    Returns
+    -------
+    list of list of float
+        A list of lists containing the real and imaginary parts of the specified correlator for each configuration.
+    """
     found = []
     files = []
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):

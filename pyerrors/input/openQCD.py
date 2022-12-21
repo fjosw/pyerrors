@@ -991,6 +991,40 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
 
 
 def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
+    """
+    Read data from files in the specified directory with the specified prefix and quark combination extension, and return a `Corr` object containing the data.
+    
+    Parameters
+    ----------
+    path : str
+        The directory to search for the files in.
+    prefix : str
+        The prefix to match the files against.
+    qc : str
+        The quark combination extension to match the files against.
+    corr : str
+        The correlator to extract data for.
+    sep : str, optional
+        The separator to use when parsing the replika names.
+    **kwargs
+        Additional keyword arguments. The following keyword arguments are recognized:
+        
+        - names (List[str]): A list of names to use for the replicas.
+    
+    Returns
+    -------
+    Corr
+        A complex valued `Corr` object containing the data read from the files.
+    
+    Raises
+    ------
+    FileNotFoundError
+        If no files matching the specified prefix and quark combination extension are found in the specified directory.
+    IOError
+        If there is an error reading a file.
+    struct.error
+        If there is an error unpacking binary data.
+    """
     found = []
     files = []
     names = []

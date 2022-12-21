@@ -12,7 +12,6 @@ from ..obs import CObs
 from ..correlators import Corr
 
 
-
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
@@ -1014,7 +1013,11 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     Returns
     -------
     Corr
-        A complex valued `Corr` object containing the data read from the files.
+        A complex valued `Corr` object containing the data read from the files. In case of boudary to bulk correlators.
+    or
+    CObs
+        A complex valued `CObs` object containing the data read from the files. In case of boudary to boundary correlators.
+
 
     Raises
     ------
@@ -1066,7 +1069,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
             t = fp.read(4)
             tmax = struct.unpack('i', t)[0]
             t = fp.read(4)
-            # bnd = struct.unpack('i', t)[0]
+            bnd = struct.unpack('i', t)[0]
 
             placesBI = ["gS", "gP",
                         "gA", "gV",
@@ -1075,7 +1078,6 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                         "lT", "lTt"]
             placesBB = ["g1", "l1"]
 
-            # bytes per config
             # the chunks have the following structure:
             # confignumber, 10x timedependent complex correlators as doubles, 2x timeindependent complex correlators as doubles
 
@@ -1115,18 +1117,17 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         s += ", " + str(len(realsamples[rep][t]))
     s += " samples"
     print(s)
-    print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF)
+    print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF, "bnd:", bnd)
 
     # we have the data now... but we need to re format the whole thing and put it into Corr objects.
 
-    realObs = []
-    imagObs = []
     compObs = []
 
     for t in range(int(len(tmpcorr) / 2)):
-        realObs.append(Obs([realsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs))
-    for t in range(int(len(tmpcorr) / 2)):
-        imagObs.append(Obs([imagsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs))
-    for t in range(int(len(tmpcorr) / 2)):
-        compObs.append(CObs(realObs[t], imagObs[t]))
-    return Corr(compObs)
+        compObs.append(CObs(Obs([realsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs),
+                            Obs([imagsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs)))
+
+    if len(compObs) == 1:
+        return compObs[0]
+    else:
+        return Corr(compObs)

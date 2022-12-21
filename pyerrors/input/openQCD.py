@@ -1034,7 +1034,10 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
     for f in found:
         if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_"+qc+".dat"):
             files.append(f)
-            names.append(prefix+"|r"+f.split(".")[0].split(sep)[1])
+            if not sep == "":
+                names.append(prefix+"|r"+f.split(".")[0].split(sep)[1])
+            else:
+                names.append(prefix)
     files = sorted(files)
 
     if "names" in kwargs:

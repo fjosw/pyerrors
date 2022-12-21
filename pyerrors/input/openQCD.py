@@ -990,37 +990,28 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     return qtop_projection(qtop, target=target)
 
 
-def read_ms5_xsf(path, prefix, qc, corr):
-    """
-    Read and process data from files produced by the ms5_xsf method
-    with a specific prefix and for a given quark combination.
-
-    Parameters
-    ----------
-    path : str
-        The path to the directory containing the data files.
-    prefix : str
-        The prefix of the data files to be processed.
-    qc : str
-        The quark combination to be used to filter the data files.
-    corr : str
-        The correlator to be extracted from the data files.
-
-    Returns
-    -------
-    list of list of float
-        A list of lists containing the real and imaginary parts of the specified correlator for each configuration.
-    """
+def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
     found = []
     files = []
+    names = []
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):
         found.extend(filenames)
         break
     for f in found:
-        if fnmatch.fnmatch(f, prefix + ".ms5_xsf_"+qc+".dat"):
+        if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_"+qc+".dat"):
             files.append(f)
-
+            names.append(prefix+"|r"+f.split(".")[0].split(sep)[1])
     files = sorted(files)
+
+    if "names" in kwargs:
+        names = kwargs.get("names")
+    else:
+        names = sorted(names)
+    
+    cnfgs = []
+    realsamples = []
+    imagsamples = []
+    repnum = 0
     for file in files:
         with open(path+"/"+file, "rb") as fp:
             
@@ -1033,14 +1024,11 @@ def read_ms5_xsf(path, prefix, qc, corr):
             t = fp.read(8)
             zF = struct.unpack('d', t)[0]
             
-            print("Parameters:\n kappa:",kappa, "csw:",csw,"dF:", dF,"zF:", zF)
-            
             t = fp.read(4)
             tmax = struct.unpack('i', t)[0]
             t = fp.read(4)
             bnd = struct.unpack('i', t)[0]
-
-            print("T:", tmax)
+                
             
             placesBI = ["gS", "gP", 
                         "gA", "gV", 
@@ -1053,14 +1041,14 @@ def read_ms5_xsf(path, prefix, qc, corr):
             # the chunks have the following structure:
             # confignumber, 10x timedependent complex correlators as doubles, 2x timeindependent complex correlators as doubles
 
-            chunksize = 4 +( 8 *2*tmax*10)+( 8 *2*2)
+            chunksize =  4 +( 8 *2*tmax*10)+( 8 *2*2)
             packstr   ='=i'+('d'*2*tmax*10)+('d'*2*2)
-            cnfgs = []
-            realsamples = []
-            imagsamples = []
+            cnfgs.append([])
+            realsamples.append([])
+            imagsamples.append([])
             for t in range(tmax):
-                realsamples.append([])
-                imagsamples.append([])
+                realsamples[repnum].append([])
+                imagsamples[repnum].append([])
                 
             while True:
                 cnfgt = fp.read(chunksize)
@@ -1068,7 +1056,7 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     break
                 asascii=struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                cnfgs.append(cnfg)
+                cnfgs[repnum].append(cnfg)
                 
                 if not corr in placesBB:
                     tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
@@ -1076,13 +1064,24 @@ def read_ms5_xsf(path, prefix, qc, corr):
                     tmpcorr = asascii[1+2*tmax*len(placesBI)+2*placesBB.index(corr):1+2*tmax*len(placesBI)+2*placesBB.index(corr)+2]
                 corrres = [[],[]]
                 for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
-                for t in range(int(len(tmpcorr)/2)): realsamples[t].append(corrres[0][t])
-                for t in range(int(len(tmpcorr)/2)): imagsamples[t].append(corrres[1][t])
+                for t in range(int(len(tmpcorr)/2)): realsamples[repnum][t].append(corrres[0][t])
+                for t in range(int(len(tmpcorr)/2)): imagsamples[repnum][t].append(corrres[1][t])
+        repnum += 1
+    
+    s = "Read correlator "+ corr+ " from "+ str(repnum)+ " replika with "+str(len(realsamples[0][t]))
+    for rep in range(1,repnum):
+        s+=", "+str(len(realsamples[rep][t]))
+    s+=" samples"
+    print(s)
+    print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF)
+    
     # we have the data now... but we need to re format the whole thing and put it into Corr objects.
+    
     realObs = []
     imagObs = []
     compObs = []
-    for t in range(int(len(tmpcorr)/2)): realObs.append(Obs([realsamples[t]], names = [prefix], idl = [cnfgs]))
-    for t in range(int(len(tmpcorr)/2)): imagObs.append(Obs([imagsamples[t]], names = [prefix], idl = [cnfgs]))
+
+    for t in range(int(len(tmpcorr)/2)): realObs.append(Obs([realsamples[rep][t] for rep in range(repnum)], names = names, idl = cnfgs))
+    for t in range(int(len(tmpcorr)/2)): imagObs.append(Obs([imagsamples[rep][t] for rep in range(repnum)], names = names, idl = cnfgs))
     for t in range(int(len(tmpcorr)/2)): compObs.append(CObs(realObs[t], imagObs[t]))
     return Corr(compObs)

@@ -990,10 +990,10 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     return qtop_projection(qtop, target=target)
 
 
-def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
+def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     """
     Read data from files in the specified directory with the specified prefix and quark combination extension, and return a `Corr` object containing the data.
-    
+
     Parameters
     ----------
     path : str
@@ -1008,14 +1008,14 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
         The separator to use when parsing the replika names.
     **kwargs
         Additional keyword arguments. The following keyword arguments are recognized:
-        
+
         - names (List[str]): A list of names to use for the replicas.
-    
+
     Returns
     -------
     Corr
         A complex valued `Corr` object containing the data read from the files.
-    
+
     Raises
     ------
     FileNotFoundError
@@ -1025,17 +1025,19 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
     struct.error
         If there is an error unpacking binary data.
     """
+
     found = []
     files = []
     names = []
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):
         found.extend(filenames)
         break
+
     for f in found:
-        if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_"+qc+".dat"):
+        if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_" + qc + ".dat"):
             files.append(f)
             if not sep == "":
-                names.append(prefix+"|r"+f.split(".")[0].split(sep)[1])
+                names.append(prefix + "|r" + f.split(".")[0].split(sep)[1])
             else:
                 names.append(prefix)
     files = sorted(files)
@@ -1044,14 +1046,14 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
         names = kwargs.get("names")
     else:
         names = sorted(names)
-    
+
     cnfgs = []
     realsamples = []
     imagsamples = []
     repnum = 0
     for file in files:
-        with open(path+"/"+file, "rb") as fp:
-            
+        with open(path + "/" + file, "rb") as fp:
+
             t = fp.read(8)
             kappa = struct.unpack('d', t)[0]
             t = fp.read(8)
@@ -1060,16 +1062,15 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
             dF = struct.unpack('d', t)[0]
             t = fp.read(8)
             zF = struct.unpack('d', t)[0]
-            
+
             t = fp.read(4)
             tmax = struct.unpack('i', t)[0]
             t = fp.read(4)
-            bnd = struct.unpack('i', t)[0]
-                
-            
-            placesBI = ["gS", "gP", 
-                        "gA", "gV", 
-                        "gVt", "lA", 
+            # bnd = struct.unpack('i', t)[0]
+
+            placesBI = ["gS", "gP",
+                        "gA", "gV",
+                        "gVt", "lA",
                         "lV", "lVt",
                         "lT", "lTt"]
             placesBB = ["g1", "l1"]
@@ -1078,47 +1079,54 @@ def read_ms5_xsf(path, prefix, qc, corr, sep = "r", **kwargs):
             # the chunks have the following structure:
             # confignumber, 10x timedependent complex correlators as doubles, 2x timeindependent complex correlators as doubles
 
-            chunksize =  4 +( 8 *2*tmax*10)+( 8 *2*2)
-            packstr   ='=i'+('d'*2*tmax*10)+('d'*2*2)
+            chunksize = 4 + (8 * 2 * tmax * 10) + (8 * 2 * 2)
+            packstr = '=i' + ('d' * 2 * tmax * 10) + ('d' * 2 * 2)
             cnfgs.append([])
             realsamples.append([])
             imagsamples.append([])
             for t in range(tmax):
                 realsamples[repnum].append([])
                 imagsamples[repnum].append([])
-                
+
             while True:
                 cnfgt = fp.read(chunksize)
                 if not cnfgt:
                     break
-                asascii=struct.unpack(packstr, cnfgt)
+                asascii = struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
                 cnfgs[repnum].append(cnfg)
-                
-                if not corr in placesBB:
-                    tmpcorr = asascii[1+2*tmax*placesBI.index(corr):1+2*tmax*placesBI.index(corr)+2*tmax]
+
+                if corr not in placesBB:
+                    tmpcorr = asascii[1 + 2 * tmax * placesBI.index(corr):1 + 2 * tmax * placesBI.index(corr) + 2 * tmax]
                 else:
-                    tmpcorr = asascii[1+2*tmax*len(placesBI)+2*placesBB.index(corr):1+2*tmax*len(placesBI)+2*placesBB.index(corr)+2]
-                corrres = [[],[]]
-                for i in range(len(tmpcorr)): corrres[i%2].append(tmpcorr[i])
-                for t in range(int(len(tmpcorr)/2)): realsamples[repnum][t].append(corrres[0][t])
-                for t in range(int(len(tmpcorr)/2)): imagsamples[repnum][t].append(corrres[1][t])
+                    tmpcorr = asascii[1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr):1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr) + 2]
+
+                corrres = [[], []]
+                for i in range(len(tmpcorr)):
+                    corrres[i % 2].append(tmpcorr[i])
+                for t in range(int(len(tmpcorr) / 2)):
+                    realsamples[repnum][t].append(corrres[0][t])
+                for t in range(int(len(tmpcorr) / 2)):
+                    imagsamples[repnum][t].append(corrres[1][t])
         repnum += 1
-    
-    s = "Read correlator "+ corr+ " from "+ str(repnum)+ " replika with "+str(len(realsamples[0][t]))
-    for rep in range(1,repnum):
-        s+=", "+str(len(realsamples[rep][t]))
-    s+=" samples"
+
+    s = "Read correlator " + corr + " from " + str(repnum) + " replika with " + str(len(realsamples[0][t]))
+    for rep in range(1, repnum):
+        s += ", " + str(len(realsamples[rep][t]))
+    s += " samples"
     print(s)
     print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF)
-    
+
     # we have the data now... but we need to re format the whole thing and put it into Corr objects.
-    
+
     realObs = []
     imagObs = []
     compObs = []
 
-    for t in range(int(len(tmpcorr)/2)): realObs.append(Obs([realsamples[rep][t] for rep in range(repnum)], names = names, idl = cnfgs))
-    for t in range(int(len(tmpcorr)/2)): imagObs.append(Obs([imagsamples[rep][t] for rep in range(repnum)], names = names, idl = cnfgs))
-    for t in range(int(len(tmpcorr)/2)): compObs.append(CObs(realObs[t], imagObs[t]))
+    for t in range(int(len(tmpcorr) / 2)):
+        realObs.append(Obs([realsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs))
+    for t in range(int(len(tmpcorr) / 2)):
+        imagObs.append(Obs([imagsamples[rep][t] for rep in range(repnum)], names=names, idl=cnfgs))
+    for t in range(int(len(tmpcorr) / 2)):
+        compObs.append(CObs(realObs[t], imagObs[t]))
     return Corr(compObs)

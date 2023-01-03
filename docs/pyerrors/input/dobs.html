@@ -111,7 +111,7 @@
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="c1"># Based on https://stackoverflow.com/a/10076823</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="k">def</span> <span class="nf">_etree_to_dict</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>    <span class="sd">&quot;&quot;&quot; Convert the content of an XML file to a python dict&quot;&quot;&quot;</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert the content of an XML file to a python dict&quot;&quot;&quot;</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">attrib</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">children</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="k">if</span> <span class="n">children</span><span class="p">:</span>
@@ -182,7 +182,7 @@
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="k">def</span> <span class="nf">create_pobs_string</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">enstag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to an xml string</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to an xml string</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">    according to the Zeuthen pobs format.</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>
@@ -268,7 +268,7 @@
 </span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="k">def</span> <span class="nf">write_pobs</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">enstag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
 </span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="sd">    according to the Zeuthen pobs format.</span>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>
@@ -320,7 +320,7 @@
 </span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>
 </span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="k">class</span> <span class="nc">_NoTagInDataError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>    <span class="sd">&quot;&quot;&quot;Raised when tag is not in data&quot;&quot;&quot;</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when tag is not in data&quot;&quot;&quot;</span>
 </span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
 </span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
 </span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">&#39;Tag </span><span class="si">%s</span><span class="s1"> not in data!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
@@ -385,7 +385,7 @@
 </span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="k">def</span> <span class="nf">read_pobs</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen pobs format.</span>
+</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen pobs format.</span>
 </span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>
 </span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a>
@@ -477,7 +477,7 @@
 </span><span id="L-381"><a href="#L-381"><span class="linenos">381</span></a>
 </span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a><span class="c1"># this is based on Mattia Bruno&#39;s implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py</span>
 </span><span id="L-383"><a href="#L-383"><span class="linenos">383</span></a><span class="k">def</span> <span class="nf">import_dobs_string</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">noempty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-384"><a href="#L-384"><span class="linenos">384</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from a string in the Zeuthen dobs format.</span>
+</span><span id="L-384"><a href="#L-384"><span class="linenos">384</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from a string in the Zeuthen dobs format.</span>
 </span><span id="L-385"><a href="#L-385"><span class="linenos">385</span></a>
 </span><span id="L-386"><a href="#L-386"><span class="linenos">386</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="L-387"><a href="#L-387"><span class="linenos">387</span></a>
@@ -640,7 +640,7 @@
 </span><span id="L-544"><a href="#L-544"><span class="linenos">544</span></a>
 </span><span id="L-545"><a href="#L-545"><span class="linenos">545</span></a>
 </span><span id="L-546"><a href="#L-546"><span class="linenos">546</span></a><span class="k">def</span> <span class="nf">read_dobs</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">noempty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-547"><a href="#L-547"><span class="linenos">547</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen dobs format.</span>
+</span><span id="L-547"><a href="#L-547"><span class="linenos">547</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen dobs format.</span>
 </span><span id="L-548"><a href="#L-548"><span class="linenos">548</span></a>
 </span><span id="L-549"><a href="#L-549"><span class="linenos">549</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="L-550"><a href="#L-550"><span class="linenos">550</span></a>
@@ -741,7 +741,7 @@
 </span><span id="L-645"><a href="#L-645"><span class="linenos">645</span></a>
 </span><span id="L-646"><a href="#L-646"><span class="linenos">646</span></a>
 </span><span id="L-647"><a href="#L-647"><span class="linenos">647</span></a><span class="k">def</span> <span class="nf">create_dobs_string</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;dobs v1.0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">who</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enstags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-648"><a href="#L-648"><span class="linenos">648</span></a>    <span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
+</span><span id="L-648"><a href="#L-648"><span class="linenos">648</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
 </span><span id="L-649"><a href="#L-649"><span class="linenos">649</span></a><span class="sd">    to a .xml.gz file according to the Zeuthen dobs format.</span>
 </span><span id="L-650"><a href="#L-650"><span class="linenos">650</span></a>
 </span><span id="L-651"><a href="#L-651"><span class="linenos">651</span></a><span class="sd">    Tags are not written or recovered automatically. The separator |is removed from the replica names.</span>
@@ -925,7 +925,7 @@
 </span><span id="L-829"><a href="#L-829"><span class="linenos">829</span></a>
 </span><span id="L-830"><a href="#L-830"><span class="linenos">830</span></a>
 </span><span id="L-831"><a href="#L-831"><span class="linenos">831</span></a><span class="k">def</span> <span class="nf">write_dobs</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;dobs v1.0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">who</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enstags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-832"><a href="#L-832"><span class="linenos">832</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
+</span><span id="L-832"><a href="#L-832"><span class="linenos">832</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
 </span><span id="L-833"><a href="#L-833"><span class="linenos">833</span></a><span class="sd">    according to the Zeuthen dobs format.</span>
 </span><span id="L-834"><a href="#L-834"><span class="linenos">834</span></a>
 </span><span id="L-835"><a href="#L-835"><span class="linenos">835</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>
@@ -988,7 +988,7 @@
     </div>
     <a class="headerlink" href="#create_pobs_string"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="create_pobs_string-89"><a href="#create_pobs_string-89"><span class="linenos"> 89</span></a><span class="k">def</span> <span class="nf">create_pobs_string</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">enstag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="create_pobs_string-90"><a href="#create_pobs_string-90"><span class="linenos"> 90</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to an xml string</span>
+</span><span id="create_pobs_string-90"><a href="#create_pobs_string-90"><span class="linenos"> 90</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to an xml string</span>
 </span><span id="create_pobs_string-91"><a href="#create_pobs_string-91"><span class="linenos"> 91</span></a><span class="sd">    according to the Zeuthen pobs format.</span>
 </span><span id="create_pobs_string-92"><a href="#create_pobs_string-92"><span class="linenos"> 92</span></a>
 </span><span id="create_pobs_string-93"><a href="#create_pobs_string-93"><span class="linenos"> 93</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>
@@ -1112,7 +1112,7 @@ Enstag that is written to pobs. If None, the ensemble name is used.</li>
     </div>
     <a class="headerlink" href="#write_pobs"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="write_pobs-175"><a href="#write_pobs-175"><span class="linenos">175</span></a><span class="k">def</span> <span class="nf">write_pobs</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">enstag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="write_pobs-176"><a href="#write_pobs-176"><span class="linenos">176</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
+</span><span id="write_pobs-176"><a href="#write_pobs-176"><span class="linenos">176</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
 </span><span id="write_pobs-177"><a href="#write_pobs-177"><span class="linenos">177</span></a><span class="sd">    according to the Zeuthen pobs format.</span>
 </span><span id="write_pobs-178"><a href="#write_pobs-178"><span class="linenos">178</span></a>
 </span><span id="write_pobs-179"><a href="#write_pobs-179"><span class="linenos">179</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>
@@ -1197,7 +1197,7 @@ If True, the output is a gzipped xml. If False, the output is an xml file.</li>
     </div>
     <a class="headerlink" href="#read_pobs"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_pobs-292"><a href="#read_pobs-292"><span class="linenos">292</span></a><span class="k">def</span> <span class="nf">read_pobs</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="read_pobs-293"><a href="#read_pobs-293"><span class="linenos">293</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen pobs format.</span>
+</span><span id="read_pobs-293"><a href="#read_pobs-293"><span class="linenos">293</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen pobs format.</span>
 </span><span id="read_pobs-294"><a href="#read_pobs-294"><span class="linenos">294</span></a>
 </span><span id="read_pobs-295"><a href="#read_pobs-295"><span class="linenos">295</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="read_pobs-296"><a href="#read_pobs-296"><span class="linenos">296</span></a>
@@ -1322,7 +1322,7 @@ None (default): Replica names remain unchanged.</li>
     </div>
     <a class="headerlink" href="#import_dobs_string"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="import_dobs_string-384"><a href="#import_dobs_string-384"><span class="linenos">384</span></a><span class="k">def</span> <span class="nf">import_dobs_string</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">noempty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="import_dobs_string-385"><a href="#import_dobs_string-385"><span class="linenos">385</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from a string in the Zeuthen dobs format.</span>
+</span><span id="import_dobs_string-385"><a href="#import_dobs_string-385"><span class="linenos">385</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from a string in the Zeuthen dobs format.</span>
 </span><span id="import_dobs_string-386"><a href="#import_dobs_string-386"><span class="linenos">386</span></a>
 </span><span id="import_dobs_string-387"><a href="#import_dobs_string-387"><span class="linenos">387</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="import_dobs_string-388"><a href="#import_dobs_string-388"><span class="linenos">388</span></a>
@@ -1524,7 +1524,7 @@ None or False: No separator is inserted.</li>
     </div>
     <a class="headerlink" href="#read_dobs"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_dobs-547"><a href="#read_dobs-547"><span class="linenos">547</span></a><span class="k">def</span> <span class="nf">read_dobs</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">noempty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separator_insertion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="read_dobs-548"><a href="#read_dobs-548"><span class="linenos">548</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen dobs format.</span>
+</span><span id="read_dobs-548"><a href="#read_dobs-548"><span class="linenos">548</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs from an xml.gz file in the Zeuthen dobs format.</span>
 </span><span id="read_dobs-549"><a href="#read_dobs-549"><span class="linenos">549</span></a>
 </span><span id="read_dobs-550"><a href="#read_dobs-550"><span class="linenos">550</span></a><span class="sd">    Tags are not written or recovered automatically.</span>
 </span><span id="read_dobs-551"><a href="#read_dobs-551"><span class="linenos">551</span></a>
@@ -1607,7 +1607,7 @@ None or False: No separator is inserted.</li>
     </div>
     <a class="headerlink" href="#create_dobs_string"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="create_dobs_string-648"><a href="#create_dobs_string-648"><span class="linenos">648</span></a><span class="k">def</span> <span class="nf">create_dobs_string</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;dobs v1.0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">who</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enstags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="create_dobs_string-649"><a href="#create_dobs_string-649"><span class="linenos">649</span></a>    <span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
+</span><span id="create_dobs_string-649"><a href="#create_dobs_string-649"><span class="linenos">649</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
 </span><span id="create_dobs_string-650"><a href="#create_dobs_string-650"><span class="linenos">650</span></a><span class="sd">    to a .xml.gz file according to the Zeuthen dobs format.</span>
 </span><span id="create_dobs_string-651"><a href="#create_dobs_string-651"><span class="linenos">651</span></a>
 </span><span id="create_dobs_string-652"><a href="#create_dobs_string-652"><span class="linenos">652</span></a><span class="sd">    Tags are not written or recovered automatically. The separator |is removed from the replica names.</span>
@@ -1833,7 +1833,7 @@ Otherwise, the ensemble name is used.</li>
     </div>
     <a class="headerlink" href="#write_dobs"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="write_dobs-832"><a href="#write_dobs-832"><span class="linenos">832</span></a><span class="k">def</span> <span class="nf">write_dobs</span><span class="p">(</span><span class="n">obsl</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="s1">&#39;dobs v1.0&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="p">[],</span> <span class="n">who</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enstags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="write_dobs-833"><a href="#write_dobs-833"><span class="linenos">833</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
+</span><span id="write_dobs-833"><a href="#write_dobs-833"><span class="linenos">833</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .xml.gz file</span>
 </span><span id="write_dobs-834"><a href="#write_dobs-834"><span class="linenos">834</span></a><span class="sd">    according to the Zeuthen dobs format.</span>
 </span><span id="write_dobs-835"><a href="#write_dobs-835"><span class="linenos">835</span></a>
 </span><span id="write_dobs-836"><a href="#write_dobs-836"><span class="linenos">836</span></a><span class="sd">    Tags are not written or recovered automatically. The separator | is removed from the replica names.</span>

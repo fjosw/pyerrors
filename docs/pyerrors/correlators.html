@@ -224,7 +224,7 @@
 </span><span id="L-11"><a href="#L-11"><span class="linenos">  11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">  12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">  13</span></a><span class="k">class</span> <span class="nc">Corr</span><span class="p">:</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">  14</span></a>    <span class="sd">&quot;&quot;&quot;The class for a correlator (time dependent sequence of pe.Obs).</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">  14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The class for a correlator (time dependent sequence of pe.Obs).</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">  15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">  16</span></a><span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">  17</span></a><span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
@@ -237,7 +237,7 @@
 </span><span id="L-24"><a href="#L-24"><span class="linenos">  24</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">  25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">  26</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">  27</span></a>        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">  27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">  28</span></a>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">  29</span></a><span class="sd">        Parameters</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">  30</span></a><span class="sd">        ----------</span>
@@ -308,7 +308,7 @@
 </span><span id="L-95"><a href="#L-95"><span class="linenos">  95</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos">  96</span></a>
 </span><span id="L-97"><a href="#L-97"><span class="linenos">  97</span></a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos">  98</span></a>        <span class="sd">&quot;&quot;&quot;Return the content of timeslice idx&quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos">  98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the content of timeslice idx&quot;&quot;&quot;</span>
 </span><span id="L-99"><a href="#L-99"><span class="linenos">  99</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos"> 100</span></a>            <span class="k">return</span> <span class="kc">None</span>
 </span><span id="L-101"><a href="#L-101"><span class="linenos"> 101</span></a>        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -327,7 +327,7 @@
 </span><span id="L-114"><a href="#L-114"><span class="linenos"> 114</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Reweighting status of correlator corrupted.&quot;</span><span class="p">)</span>
 </span><span id="L-115"><a href="#L-115"><span class="linenos"> 115</span></a>
 </span><span id="L-116"><a href="#L-116"><span class="linenos"> 116</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos"> 117</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos"> 117</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
 </span><span id="L-118"><a href="#L-118"><span class="linenos"> 118</span></a>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
 </span><span id="L-119"><a href="#L-119"><span class="linenos"> 119</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
 </span><span id="L-120"><a href="#L-120"><span class="linenos"> 120</span></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -338,7 +338,7 @@
 </span><span id="L-125"><a href="#L-125"><span class="linenos"> 125</span></a>                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-126"><a href="#L-126"><span class="linenos"> 126</span></a>
 </span><span id="L-127"><a href="#L-127"><span class="linenos"> 127</span></a>    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos"> 128</span></a>        <span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos"> 128</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
 </span><span id="L-129"><a href="#L-129"><span class="linenos"> 129</span></a>
 </span><span id="L-130"><a href="#L-130"><span class="linenos"> 130</span></a><span class="sd">        The method can use one or two vectors.</span>
 </span><span id="L-131"><a href="#L-131"><span class="linenos"> 131</span></a><span class="sd">        If two are specified it returns v1@G@v2 (the order might be very important.)</span>
@@ -377,7 +377,7 @@
 </span><span id="L-164"><a href="#L-164"><span class="linenos"> 164</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </span><span id="L-165"><a href="#L-165"><span class="linenos"> 165</span></a>
 </span><span id="L-166"><a href="#L-166"><span class="linenos"> 166</span></a>    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos"> 167</span></a>        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos"> 167</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 </span><span id="L-168"><a href="#L-168"><span class="linenos"> 168</span></a>
 </span><span id="L-169"><a href="#L-169"><span class="linenos"> 169</span></a><span class="sd">        Parameters</span>
 </span><span id="L-170"><a href="#L-170"><span class="linenos"> 170</span></a><span class="sd">        ----------</span>
@@ -392,7 +392,7 @@
 </span><span id="L-179"><a href="#L-179"><span class="linenos"> 179</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </span><span id="L-180"><a href="#L-180"><span class="linenos"> 180</span></a>
 </span><span id="L-181"><a href="#L-181"><span class="linenos"> 181</span></a>    <span class="k">def</span> <span class="nf">plottable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos"> 182</span></a>        <span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos"> 182</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos"> 183</span></a>
 </span><span id="L-184"><a href="#L-184"><span class="linenos"> 184</span></a><span class="sd">        Outputs three lists containing the timeslice index, the value on each</span>
 </span><span id="L-185"><a href="#L-185"><span class="linenos"> 185</span></a><span class="sd">        timeslice and the error on each timeslice.</span>
@@ -406,7 +406,7 @@
 </span><span id="L-193"><a href="#L-193"><span class="linenos"> 193</span></a>        <span class="k">return</span> <span class="n">x_list</span><span class="p">,</span> <span class="n">y_list</span><span class="p">,</span> <span class="n">y_err_list</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos"> 194</span></a>
 </span><span id="L-195"><a href="#L-195"><span class="linenos"> 195</span></a>    <span class="k">def</span> <span class="nf">symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-196"><a href="#L-196"><span class="linenos"> 196</span></a>        <span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="L-196"><a href="#L-196"><span class="linenos"> 196</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="L-197"><a href="#L-197"><span class="linenos"> 197</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos"> 198</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="L-199"><a href="#L-199"><span class="linenos"> 199</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -426,7 +426,7 @@
 </span><span id="L-213"><a href="#L-213"><span class="linenos"> 213</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 </span><span id="L-214"><a href="#L-214"><span class="linenos"> 214</span></a>
 </span><span id="L-215"><a href="#L-215"><span class="linenos"> 215</span></a>    <span class="k">def</span> <span class="nf">anti_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos"> 216</span></a>        <span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos"> 216</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="L-217"><a href="#L-217"><span class="linenos"> 217</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="L-218"><a href="#L-218"><span class="linenos"> 218</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;anti_symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="L-219"><a href="#L-219"><span class="linenos"> 219</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -448,7 +448,7 @@
 </span><span id="L-235"><a href="#L-235"><span class="linenos"> 235</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 </span><span id="L-236"><a href="#L-236"><span class="linenos"> 236</span></a>
 </span><span id="L-237"><a href="#L-237"><span class="linenos"> 237</span></a>    <span class="k">def</span> <span class="nf">is_matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos"> 238</span></a>        <span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos"> 238</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos"> 239</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="L-240"><a href="#L-240"><span class="linenos"> 240</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Only works for correlator matrices.&quot;</span><span class="p">)</span>
 </span><span id="L-241"><a href="#L-241"><span class="linenos"> 241</span></a>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
@@ -463,7 +463,7 @@
 </span><span id="L-250"><a href="#L-250"><span class="linenos"> 250</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span><span id="L-251"><a href="#L-251"><span class="linenos"> 251</span></a>
 </span><span id="L-252"><a href="#L-252"><span class="linenos"> 252</span></a>    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-253"><a href="#L-253"><span class="linenos"> 253</span></a>        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="L-253"><a href="#L-253"><span class="linenos"> 253</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="L-254"><a href="#L-254"><span class="linenos"> 254</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="L-255"><a href="#L-255"><span class="linenos"> 255</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 </span><span id="L-256"><a href="#L-256"><span class="linenos"> 256</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix_symmetric</span><span class="p">():</span>
@@ -473,7 +473,7 @@
 </span><span id="L-260"><a href="#L-260"><span class="linenos"> 260</span></a>            <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">transposed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">)</span>
 </span><span id="L-261"><a href="#L-261"><span class="linenos"> 261</span></a>
 </span><span id="L-262"><a href="#L-262"><span class="linenos"> 262</span></a>    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-263"><a href="#L-263"><span class="linenos"> 263</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
+</span><span id="L-263"><a href="#L-263"><span class="linenos"> 263</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
 </span><span id="L-264"><a href="#L-264"><span class="linenos"> 264</span></a>
 </span><span id="L-265"><a href="#L-265"><span class="linenos"> 265</span></a><span class="sd">        The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the</span>
 </span><span id="L-266"><a href="#L-266"><span class="linenos"> 266</span></a><span class="sd">        largest eigenvalue(s). The eigenvector(s) for the individual states can be accessed via slicing</span>
@@ -552,7 +552,7 @@
 </span><span id="L-339"><a href="#L-339"><span class="linenos"> 339</span></a>            <span class="k">return</span> <span class="n">reordered_vecs</span>
 </span><span id="L-340"><a href="#L-340"><span class="linenos"> 340</span></a>
 </span><span id="L-341"><a href="#L-341"><span class="linenos"> 341</span></a>    <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">):</span>
-</span><span id="L-342"><a href="#L-342"><span class="linenos"> 342</span></a>        <span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
+</span><span id="L-342"><a href="#L-342"><span class="linenos"> 342</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
 </span><span id="L-343"><a href="#L-343"><span class="linenos"> 343</span></a>
 </span><span id="L-344"><a href="#L-344"><span class="linenos"> 344</span></a><span class="sd">        Parameters</span>
 </span><span id="L-345"><a href="#L-345"><span class="linenos"> 345</span></a><span class="sd">        ----------</span>
@@ -565,7 +565,7 @@
 </span><span id="L-352"><a href="#L-352"><span class="linenos"> 352</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
 </span><span id="L-353"><a href="#L-353"><span class="linenos"> 353</span></a>
 </span><span id="L-354"><a href="#L-354"><span class="linenos"> 354</span></a>    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-355"><a href="#L-355"><span class="linenos"> 355</span></a>        <span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
+</span><span id="L-355"><a href="#L-355"><span class="linenos"> 355</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
 </span><span id="L-356"><a href="#L-356"><span class="linenos"> 356</span></a>
 </span><span id="L-357"><a href="#L-357"><span class="linenos"> 357</span></a><span class="sd">        C(t) c(t+1) ... c(t+n-1)</span>
 </span><span id="L-358"><a href="#L-358"><span class="linenos"> 358</span></a><span class="sd">        C(t+1) c(t+2) ... c(t+n)</span>
@@ -606,7 +606,7 @@
 </span><span id="L-393"><a href="#L-393"><span class="linenos"> 393</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="L-394"><a href="#L-394"><span class="linenos"> 394</span></a>
 </span><span id="L-395"><a href="#L-395"><span class="linenos"> 395</span></a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-</span><span id="L-396"><a href="#L-396"><span class="linenos"> 396</span></a>        <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
+</span><span id="L-396"><a href="#L-396"><span class="linenos"> 396</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 </span><span id="L-397"><a href="#L-397"><span class="linenos"> 397</span></a>
 </span><span id="L-398"><a href="#L-398"><span class="linenos"> 398</span></a><span class="sd">        Parameters</span>
 </span><span id="L-399"><a href="#L-399"><span class="linenos"> 399</span></a><span class="sd">        ----------</span>
@@ -616,11 +616,11 @@
 </span><span id="L-403"><a href="#L-403"><span class="linenos"> 403</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">),</span> <span class="n">dt</span><span class="p">)))</span>
 </span><span id="L-404"><a href="#L-404"><span class="linenos"> 404</span></a>
 </span><span id="L-405"><a href="#L-405"><span class="linenos"> 405</span></a>    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-406"><a href="#L-406"><span class="linenos"> 406</span></a>        <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
+</span><span id="L-406"><a href="#L-406"><span class="linenos"> 406</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
 </span><span id="L-407"><a href="#L-407"><span class="linenos"> 407</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </span><span id="L-408"><a href="#L-408"><span class="linenos"> 408</span></a>
 </span><span id="L-409"><a href="#L-409"><span class="linenos"> 409</span></a>    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-</span><span id="L-410"><a href="#L-410"><span class="linenos"> 410</span></a>        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+</span><span id="L-410"><a href="#L-410"><span class="linenos"> 410</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
 </span><span id="L-411"><a href="#L-411"><span class="linenos"> 411</span></a>
 </span><span id="L-412"><a href="#L-412"><span class="linenos"> 412</span></a><span class="sd">        Parameters</span>
 </span><span id="L-413"><a href="#L-413"><span class="linenos"> 413</span></a><span class="sd">        ----------</span>
@@ -638,7 +638,7 @@
 </span><span id="L-425"><a href="#L-425"><span class="linenos"> 425</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="L-426"><a href="#L-426"><span class="linenos"> 426</span></a>
 </span><span id="L-427"><a href="#L-427"><span class="linenos"> 427</span></a>    <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-</span><span id="L-428"><a href="#L-428"><span class="linenos"> 428</span></a>        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+</span><span id="L-428"><a href="#L-428"><span class="linenos"> 428</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
 </span><span id="L-429"><a href="#L-429"><span class="linenos"> 429</span></a>
 </span><span id="L-430"><a href="#L-430"><span class="linenos"> 430</span></a><span class="sd">        Parameters</span>
 </span><span id="L-431"><a href="#L-431"><span class="linenos"> 431</span></a><span class="sd">        ----------</span>
@@ -667,7 +667,7 @@
 </span><span id="L-454"><a href="#L-454"><span class="linenos"> 454</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="L-455"><a href="#L-455"><span class="linenos"> 455</span></a>
 </span><span id="L-456"><a href="#L-456"><span class="linenos"> 456</span></a>    <span class="k">def</span> <span class="nf">reweight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-457"><a href="#L-457"><span class="linenos"> 457</span></a>        <span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
+</span><span id="L-457"><a href="#L-457"><span class="linenos"> 457</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
 </span><span id="L-458"><a href="#L-458"><span class="linenos"> 458</span></a>
 </span><span id="L-459"><a href="#L-459"><span class="linenos"> 459</span></a><span class="sd">        Parameters</span>
 </span><span id="L-460"><a href="#L-460"><span class="linenos"> 460</span></a><span class="sd">        ----------</span>
@@ -690,7 +690,7 @@
 </span><span id="L-477"><a href="#L-477"><span class="linenos"> 477</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="L-478"><a href="#L-478"><span class="linenos"> 478</span></a>
 </span><span id="L-479"><a href="#L-479"><span class="linenos"> 479</span></a>    <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="L-480"><a href="#L-480"><span class="linenos"> 480</span></a>        <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
+</span><span id="L-480"><a href="#L-480"><span class="linenos"> 480</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 </span><span id="L-481"><a href="#L-481"><span class="linenos"> 481</span></a>
 </span><span id="L-482"><a href="#L-482"><span class="linenos"> 482</span></a><span class="sd">        Parameters</span>
 </span><span id="L-483"><a href="#L-483"><span class="linenos"> 483</span></a><span class="sd">        ----------</span>
@@ -720,7 +720,7 @@
 </span><span id="L-507"><a href="#L-507"><span class="linenos"> 507</span></a>        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">+</span> <span class="n">T_partner</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 </span><span id="L-508"><a href="#L-508"><span class="linenos"> 508</span></a>
 </span><span id="L-509"><a href="#L-509"><span class="linenos"> 509</span></a>    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="L-510"><a href="#L-510"><span class="linenos"> 510</span></a>        <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
+</span><span id="L-510"><a href="#L-510"><span class="linenos"> 510</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 </span><span id="L-511"><a href="#L-511"><span class="linenos"> 511</span></a>
 </span><span id="L-512"><a href="#L-512"><span class="linenos"> 512</span></a><span class="sd">        Parameters</span>
 </span><span id="L-513"><a href="#L-513"><span class="linenos"> 513</span></a><span class="sd">        ----------</span>
@@ -785,7 +785,7 @@
 </span><span id="L-572"><a href="#L-572"><span class="linenos"> 572</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown variant.&quot;</span><span class="p">)</span>
 </span><span id="L-573"><a href="#L-573"><span class="linenos"> 573</span></a>
 </span><span id="L-574"><a href="#L-574"><span class="linenos"> 574</span></a>    <span class="k">def</span> <span class="nf">second_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="L-575"><a href="#L-575"><span class="linenos"> 575</span></a>        <span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
+</span><span id="L-575"><a href="#L-575"><span class="linenos"> 575</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
 </span><span id="L-576"><a href="#L-576"><span class="linenos"> 576</span></a>
 </span><span id="L-577"><a href="#L-577"><span class="linenos"> 577</span></a><span class="sd">        Parameters</span>
 </span><span id="L-578"><a href="#L-578"><span class="linenos"> 578</span></a><span class="sd">        ----------</span>
@@ -830,7 +830,7 @@
 </span><span id="L-617"><a href="#L-617"><span class="linenos"> 617</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown variant.&quot;</span><span class="p">)</span>
 </span><span id="L-618"><a href="#L-618"><span class="linenos"> 618</span></a>
 </span><span id="L-619"><a href="#L-619"><span class="linenos"> 619</span></a>    <span class="k">def</span> <span class="nf">m_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-</span><span id="L-620"><a href="#L-620"><span class="linenos"> 620</span></a>        <span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
+</span><span id="L-620"><a href="#L-620"><span class="linenos"> 620</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
 </span><span id="L-621"><a href="#L-621"><span class="linenos"> 621</span></a>
 </span><span id="L-622"><a href="#L-622"><span class="linenos"> 622</span></a><span class="sd">        Parameters</span>
 </span><span id="L-623"><a href="#L-623"><span class="linenos"> 623</span></a><span class="sd">        ----------</span>
@@ -914,7 +914,7 @@
 </span><span id="L-701"><a href="#L-701"><span class="linenos"> 701</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 </span><span id="L-702"><a href="#L-702"><span class="linenos"> 702</span></a>
 </span><span id="L-703"><a href="#L-703"><span class="linenos"> 703</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-704"><a href="#L-704"><span class="linenos"> 704</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
+</span><span id="L-704"><a href="#L-704"><span class="linenos"> 704</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 </span><span id="L-705"><a href="#L-705"><span class="linenos"> 705</span></a>
 </span><span id="L-706"><a href="#L-706"><span class="linenos"> 706</span></a><span class="sd">        Parameters</span>
 </span><span id="L-707"><a href="#L-707"><span class="linenos"> 707</span></a><span class="sd">        ----------</span>
@@ -948,7 +948,7 @@
 </span><span id="L-735"><a href="#L-735"><span class="linenos"> 735</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span><span id="L-736"><a href="#L-736"><span class="linenos"> 736</span></a>
 </span><span id="L-737"><a href="#L-737"><span class="linenos"> 737</span></a>    <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-738"><a href="#L-738"><span class="linenos"> 738</span></a>        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
+</span><span id="L-738"><a href="#L-738"><span class="linenos"> 738</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 </span><span id="L-739"><a href="#L-739"><span class="linenos"> 739</span></a>
 </span><span id="L-740"><a href="#L-740"><span class="linenos"> 740</span></a><span class="sd">        Parameters</span>
 </span><span id="L-741"><a href="#L-741"><span class="linenos"> 741</span></a><span class="sd">        ----------</span>
@@ -985,7 +985,7 @@
 </span><span id="L-772"><a href="#L-772"><span class="linenos"> 772</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsupported plateau method: &quot;</span> <span class="o">+</span> <span class="n">method</span><span class="p">)</span>
 </span><span id="L-773"><a href="#L-773"><span class="linenos"> 773</span></a>
 </span><span id="L-774"><a href="#L-774"><span class="linenos"> 774</span></a>    <span class="k">def</span> <span class="nf">set_prange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prange</span><span class="p">):</span>
-</span><span id="L-775"><a href="#L-775"><span class="linenos"> 775</span></a>        <span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
+</span><span id="L-775"><a href="#L-775"><span class="linenos"> 775</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
 </span><span id="L-776"><a href="#L-776"><span class="linenos"> 776</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">prange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
 </span><span id="L-777"><a href="#L-777"><span class="linenos"> 777</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;prange must be a list or array with two values&quot;</span><span class="p">)</span>
 </span><span id="L-778"><a href="#L-778"><span class="linenos"> 778</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">int</span><span class="p">))):</span>
@@ -997,7 +997,7 @@
 </span><span id="L-784"><a href="#L-784"><span class="linenos"> 784</span></a>        <span class="k">return</span>
 </span><span id="L-785"><a href="#L-785"><span class="linenos"> 785</span></a>
 </span><span id="L-786"><a href="#L-786"><span class="linenos"> 786</span></a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hide_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-787"><a href="#L-787"><span class="linenos"> 787</span></a>        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
+</span><span id="L-787"><a href="#L-787"><span class="linenos"> 787</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 </span><span id="L-788"><a href="#L-788"><span class="linenos"> 788</span></a>
 </span><span id="L-789"><a href="#L-789"><span class="linenos"> 789</span></a><span class="sd">        Parameters</span>
 </span><span id="L-790"><a href="#L-790"><span class="linenos"> 790</span></a><span class="sd">        ----------</span>
@@ -1116,7 +1116,7 @@
 </span><span id="L-903"><a href="#L-903"><span class="linenos"> 903</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;save&#39; has to be a string.&quot;</span><span class="p">)</span>
 </span><span id="L-904"><a href="#L-904"><span class="linenos"> 904</span></a>
 </span><span id="L-905"><a href="#L-905"><span class="linenos"> 905</span></a>    <span class="k">def</span> <span class="nf">spaghetti_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-906"><a href="#L-906"><span class="linenos"> 906</span></a>        <span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
+</span><span id="L-906"><a href="#L-906"><span class="linenos"> 906</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
 </span><span id="L-907"><a href="#L-907"><span class="linenos"> 907</span></a>
 </span><span id="L-908"><a href="#L-908"><span class="linenos"> 908</span></a><span class="sd">        Parameters</span>
 </span><span id="L-909"><a href="#L-909"><span class="linenos"> 909</span></a><span class="sd">        ----------</span>
@@ -1145,7 +1145,7 @@
 </span><span id="L-932"><a href="#L-932"><span class="linenos"> 932</span></a>            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 </span><span id="L-933"><a href="#L-933"><span class="linenos"> 933</span></a>
 </span><span id="L-934"><a href="#L-934"><span class="linenos"> 934</span></a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-935"><a href="#L-935"><span class="linenos"> 935</span></a>        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
+</span><span id="L-935"><a href="#L-935"><span class="linenos"> 935</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 </span><span id="L-936"><a href="#L-936"><span class="linenos"> 936</span></a><span class="sd">        Parameters</span>
 </span><span id="L-937"><a href="#L-937"><span class="linenos"> 937</span></a><span class="sd">        ----------</span>
 </span><span id="L-938"><a href="#L-938"><span class="linenos"> 938</span></a><span class="sd">        filename : str</span>
@@ -1429,7 +1429,7 @@
 </span><span id="L-1216"><a href="#L-1216"><span class="linenos">1216</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_imag</span><span class="p">)</span>
 </span><span id="L-1217"><a href="#L-1217"><span class="linenos">1217</span></a>
 </span><span id="L-1218"><a href="#L-1218"><span class="linenos">1218</span></a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ntrunc</span><span class="p">,</span> <span class="n">tproj</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">t0proj</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">basematrix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-1219"><a href="#L-1219"><span class="linenos">1219</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
+</span><span id="L-1219"><a href="#L-1219"><span class="linenos">1219</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
 </span><span id="L-1220"><a href="#L-1220"><span class="linenos">1220</span></a>
 </span><span id="L-1221"><a href="#L-1221"><span class="linenos">1221</span></a><span class="sd">        This method can be used to reduce the size of an (N x N) correlation matrix</span>
 </span><span id="L-1222"><a href="#L-1222"><span class="linenos">1222</span></a><span class="sd">        to (Ntrunc x Ntrunc) by solving a GEVP at very early times where the noise</span>
@@ -1487,7 +1487,7 @@
 </span><span id="L-1274"><a href="#L-1274"><span class="linenos">1274</span></a>
 </span><span id="L-1275"><a href="#L-1275"><span class="linenos">1275</span></a>
 </span><span id="L-1276"><a href="#L-1276"><span class="linenos">1276</span></a><span class="k">def</span> <span class="nf">_sort_vectors</span><span class="p">(</span><span class="n">vec_set</span><span class="p">,</span> <span class="n">ts</span><span class="p">):</span>
-</span><span id="L-1277"><a href="#L-1277"><span class="linenos">1277</span></a>    <span class="sd">&quot;&quot;&quot;Helper function used to find a set of Eigenvectors consistent over all timeslices&quot;&quot;&quot;</span>
+</span><span id="L-1277"><a href="#L-1277"><span class="linenos">1277</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function used to find a set of Eigenvectors consistent over all timeslices&quot;&quot;&quot;</span>
 </span><span id="L-1278"><a href="#L-1278"><span class="linenos">1278</span></a>    <span class="n">reference_sorting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vec_set</span><span class="p">[</span><span class="n">ts</span><span class="p">])</span>
 </span><span id="L-1279"><a href="#L-1279"><span class="linenos">1279</span></a>    <span class="n">N</span> <span class="o">=</span> <span class="n">reference_sorting</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </span><span id="L-1280"><a href="#L-1280"><span class="linenos">1280</span></a>    <span class="n">sorted_vec_set</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1514,12 +1514,12 @@
 </span><span id="L-1301"><a href="#L-1301"><span class="linenos">1301</span></a>
 </span><span id="L-1302"><a href="#L-1302"><span class="linenos">1302</span></a>
 </span><span id="L-1303"><a href="#L-1303"><span class="linenos">1303</span></a><span class="k">def</span> <span class="nf">_check_for_none</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
-</span><span id="L-1304"><a href="#L-1304"><span class="linenos">1304</span></a>    <span class="sd">&quot;&quot;&quot;Checks if entry for correlator corr is None&quot;&quot;&quot;</span>
+</span><span id="L-1304"><a href="#L-1304"><span class="linenos">1304</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if entry for correlator corr is None&quot;&quot;&quot;</span>
 </span><span id="L-1305"><a href="#L-1305"><span class="linenos">1305</span></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))</span> <span class="o">&lt;</span> <span class="n">corr</span><span class="o">.</span><span class="n">N</span> <span class="o">**</span> <span class="mi">2</span>
 </span><span id="L-1306"><a href="#L-1306"><span class="linenos">1306</span></a>
 </span><span id="L-1307"><a href="#L-1307"><span class="linenos">1307</span></a>
 </span><span id="L-1308"><a href="#L-1308"><span class="linenos">1308</span></a><span class="k">def</span> <span class="nf">_GEVP_solver</span><span class="p">(</span><span class="n">Gt</span><span class="p">,</span> <span class="n">G0</span><span class="p">):</span>
-</span><span id="L-1309"><a href="#L-1309"><span class="linenos">1309</span></a>    <span class="sd">&quot;&quot;&quot;Helper function for solving the GEVP and sorting the eigenvectors.</span>
+</span><span id="L-1309"><a href="#L-1309"><span class="linenos">1309</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function for solving the GEVP and sorting the eigenvectors.</span>
 </span><span id="L-1310"><a href="#L-1310"><span class="linenos">1310</span></a>
 </span><span id="L-1311"><a href="#L-1311"><span class="linenos">1311</span></a><span class="sd">    The helper function assumes that both provided matrices are symmetric and</span>
 </span><span id="L-1312"><a href="#L-1312"><span class="linenos">1312</span></a><span class="sd">    only processes the lower triangular part of both matrices. In case the matrices</span>
@@ -1541,7 +1541,7 @@
     </div>
     <a class="headerlink" href="#Corr"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr-14"><a href="#Corr-14"><span class="linenos">  14</span></a><span class="k">class</span> <span class="nc">Corr</span><span class="p">:</span>
-</span><span id="Corr-15"><a href="#Corr-15"><span class="linenos">  15</span></a>    <span class="sd">&quot;&quot;&quot;The class for a correlator (time dependent sequence of pe.Obs).</span>
+</span><span id="Corr-15"><a href="#Corr-15"><span class="linenos">  15</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The class for a correlator (time dependent sequence of pe.Obs).</span>
 </span><span id="Corr-16"><a href="#Corr-16"><span class="linenos">  16</span></a>
 </span><span id="Corr-17"><a href="#Corr-17"><span class="linenos">  17</span></a><span class="sd">    Everything, this class does, can be achieved using lists or arrays of Obs.</span>
 </span><span id="Corr-18"><a href="#Corr-18"><span class="linenos">  18</span></a><span class="sd">    But it is simply more convenient to have a dedicated object for correlators.</span>
@@ -1554,7 +1554,7 @@
 </span><span id="Corr-25"><a href="#Corr-25"><span class="linenos">  25</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="Corr-26"><a href="#Corr-26"><span class="linenos">  26</span></a>
 </span><span id="Corr-27"><a href="#Corr-27"><span class="linenos">  27</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr-28"><a href="#Corr-28"><span class="linenos">  28</span></a>        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+</span><span id="Corr-28"><a href="#Corr-28"><span class="linenos">  28</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
 </span><span id="Corr-29"><a href="#Corr-29"><span class="linenos">  29</span></a>
 </span><span id="Corr-30"><a href="#Corr-30"><span class="linenos">  30</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-31"><a href="#Corr-31"><span class="linenos">  31</span></a><span class="sd">        ----------</span>
@@ -1625,7 +1625,7 @@
 </span><span id="Corr-96"><a href="#Corr-96"><span class="linenos">  96</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">prange</span> <span class="o">=</span> <span class="n">prange</span>
 </span><span id="Corr-97"><a href="#Corr-97"><span class="linenos">  97</span></a>
 </span><span id="Corr-98"><a href="#Corr-98"><span class="linenos">  98</span></a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-</span><span id="Corr-99"><a href="#Corr-99"><span class="linenos">  99</span></a>        <span class="sd">&quot;&quot;&quot;Return the content of timeslice idx&quot;&quot;&quot;</span>
+</span><span id="Corr-99"><a href="#Corr-99"><span class="linenos">  99</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the content of timeslice idx&quot;&quot;&quot;</span>
 </span><span id="Corr-100"><a href="#Corr-100"><span class="linenos"> 100</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Corr-101"><a href="#Corr-101"><span class="linenos"> 101</span></a>            <span class="k">return</span> <span class="kc">None</span>
 </span><span id="Corr-102"><a href="#Corr-102"><span class="linenos"> 102</span></a>        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -1644,7 +1644,7 @@
 </span><span id="Corr-115"><a href="#Corr-115"><span class="linenos"> 115</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Reweighting status of correlator corrupted.&quot;</span><span class="p">)</span>
 </span><span id="Corr-116"><a href="#Corr-116"><span class="linenos"> 116</span></a>
 </span><span id="Corr-117"><a href="#Corr-117"><span class="linenos"> 117</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr-118"><a href="#Corr-118"><span class="linenos"> 118</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
+</span><span id="Corr-118"><a href="#Corr-118"><span class="linenos"> 118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
 </span><span id="Corr-119"><a href="#Corr-119"><span class="linenos"> 119</span></a>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
 </span><span id="Corr-120"><a href="#Corr-120"><span class="linenos"> 120</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
 </span><span id="Corr-121"><a href="#Corr-121"><span class="linenos"> 121</span></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -1655,7 +1655,7 @@
 </span><span id="Corr-126"><a href="#Corr-126"><span class="linenos"> 126</span></a>                            <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="Corr-127"><a href="#Corr-127"><span class="linenos"> 127</span></a>
 </span><span id="Corr-128"><a href="#Corr-128"><span class="linenos"> 128</span></a>    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr-129"><a href="#Corr-129"><span class="linenos"> 129</span></a>        <span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
+</span><span id="Corr-129"><a href="#Corr-129"><span class="linenos"> 129</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
 </span><span id="Corr-130"><a href="#Corr-130"><span class="linenos"> 130</span></a>
 </span><span id="Corr-131"><a href="#Corr-131"><span class="linenos"> 131</span></a><span class="sd">        The method can use one or two vectors.</span>
 </span><span id="Corr-132"><a href="#Corr-132"><span class="linenos"> 132</span></a><span class="sd">        If two are specified it returns v1@G@v2 (the order might be very important.)</span>
@@ -1694,7 +1694,7 @@
 </span><span id="Corr-165"><a href="#Corr-165"><span class="linenos"> 165</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </span><span id="Corr-166"><a href="#Corr-166"><span class="linenos"> 166</span></a>
 </span><span id="Corr-167"><a href="#Corr-167"><span class="linenos"> 167</span></a>    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
-</span><span id="Corr-168"><a href="#Corr-168"><span class="linenos"> 168</span></a>        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+</span><span id="Corr-168"><a href="#Corr-168"><span class="linenos"> 168</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 </span><span id="Corr-169"><a href="#Corr-169"><span class="linenos"> 169</span></a>
 </span><span id="Corr-170"><a href="#Corr-170"><span class="linenos"> 170</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-171"><a href="#Corr-171"><span class="linenos"> 171</span></a><span class="sd">        ----------</span>
@@ -1709,7 +1709,7 @@
 </span><span id="Corr-180"><a href="#Corr-180"><span class="linenos"> 180</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">)</span>
 </span><span id="Corr-181"><a href="#Corr-181"><span class="linenos"> 181</span></a>
 </span><span id="Corr-182"><a href="#Corr-182"><span class="linenos"> 182</span></a>    <span class="k">def</span> <span class="nf">plottable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-183"><a href="#Corr-183"><span class="linenos"> 183</span></a>        <span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
+</span><span id="Corr-183"><a href="#Corr-183"><span class="linenos"> 183</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
 </span><span id="Corr-184"><a href="#Corr-184"><span class="linenos"> 184</span></a>
 </span><span id="Corr-185"><a href="#Corr-185"><span class="linenos"> 185</span></a><span class="sd">        Outputs three lists containing the timeslice index, the value on each</span>
 </span><span id="Corr-186"><a href="#Corr-186"><span class="linenos"> 186</span></a><span class="sd">        timeslice and the error on each timeslice.</span>
@@ -1723,7 +1723,7 @@
 </span><span id="Corr-194"><a href="#Corr-194"><span class="linenos"> 194</span></a>        <span class="k">return</span> <span class="n">x_list</span><span class="p">,</span> <span class="n">y_list</span><span class="p">,</span> <span class="n">y_err_list</span>
 </span><span id="Corr-195"><a href="#Corr-195"><span class="linenos"> 195</span></a>
 </span><span id="Corr-196"><a href="#Corr-196"><span class="linenos"> 196</span></a>    <span class="k">def</span> <span class="nf">symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-197"><a href="#Corr-197"><span class="linenos"> 197</span></a>        <span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="Corr-197"><a href="#Corr-197"><span class="linenos"> 197</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="Corr-198"><a href="#Corr-198"><span class="linenos"> 198</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr-199"><a href="#Corr-199"><span class="linenos"> 199</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="Corr-200"><a href="#Corr-200"><span class="linenos"> 200</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1743,7 +1743,7 @@
 </span><span id="Corr-214"><a href="#Corr-214"><span class="linenos"> 214</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 </span><span id="Corr-215"><a href="#Corr-215"><span class="linenos"> 215</span></a>
 </span><span id="Corr-216"><a href="#Corr-216"><span class="linenos"> 216</span></a>    <span class="k">def</span> <span class="nf">anti_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-217"><a href="#Corr-217"><span class="linenos"> 217</span></a>        <span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="Corr-217"><a href="#Corr-217"><span class="linenos"> 217</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="Corr-218"><a href="#Corr-218"><span class="linenos"> 218</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr-219"><a href="#Corr-219"><span class="linenos"> 219</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;anti_symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="Corr-220"><a href="#Corr-220"><span class="linenos"> 220</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1765,7 +1765,7 @@
 </span><span id="Corr-236"><a href="#Corr-236"><span class="linenos"> 236</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">newcontent</span><span class="p">,</span> <span class="n">prange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prange</span><span class="p">)</span>
 </span><span id="Corr-237"><a href="#Corr-237"><span class="linenos"> 237</span></a>
 </span><span id="Corr-238"><a href="#Corr-238"><span class="linenos"> 238</span></a>    <span class="k">def</span> <span class="nf">is_matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-239"><a href="#Corr-239"><span class="linenos"> 239</span></a>        <span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="Corr-239"><a href="#Corr-239"><span class="linenos"> 239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="Corr-240"><a href="#Corr-240"><span class="linenos"> 240</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr-241"><a href="#Corr-241"><span class="linenos"> 241</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Only works for correlator matrices.&quot;</span><span class="p">)</span>
 </span><span id="Corr-242"><a href="#Corr-242"><span class="linenos"> 242</span></a>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
@@ -1780,7 +1780,7 @@
 </span><span id="Corr-251"><a href="#Corr-251"><span class="linenos"> 251</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span><span id="Corr-252"><a href="#Corr-252"><span class="linenos"> 252</span></a>
 </span><span id="Corr-253"><a href="#Corr-253"><span class="linenos"> 253</span></a>    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-254"><a href="#Corr-254"><span class="linenos"> 254</span></a>        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="Corr-254"><a href="#Corr-254"><span class="linenos"> 254</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="Corr-255"><a href="#Corr-255"><span class="linenos"> 255</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr-256"><a href="#Corr-256"><span class="linenos"> 256</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 </span><span id="Corr-257"><a href="#Corr-257"><span class="linenos"> 257</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix_symmetric</span><span class="p">():</span>
@@ -1790,7 +1790,7 @@
 </span><span id="Corr-261"><a href="#Corr-261"><span class="linenos"> 261</span></a>            <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Corr</span><span class="p">(</span><span class="n">transposed</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">)</span>
 </span><span id="Corr-262"><a href="#Corr-262"><span class="linenos"> 262</span></a>
 </span><span id="Corr-263"><a href="#Corr-263"><span class="linenos"> 263</span></a>    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr-264"><a href="#Corr-264"><span class="linenos"> 264</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
+</span><span id="Corr-264"><a href="#Corr-264"><span class="linenos"> 264</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
 </span><span id="Corr-265"><a href="#Corr-265"><span class="linenos"> 265</span></a>
 </span><span id="Corr-266"><a href="#Corr-266"><span class="linenos"> 266</span></a><span class="sd">        The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the</span>
 </span><span id="Corr-267"><a href="#Corr-267"><span class="linenos"> 267</span></a><span class="sd">        largest eigenvalue(s). The eigenvector(s) for the individual states can be accessed via slicing</span>
@@ -1869,7 +1869,7 @@
 </span><span id="Corr-340"><a href="#Corr-340"><span class="linenos"> 340</span></a>            <span class="k">return</span> <span class="n">reordered_vecs</span>
 </span><span id="Corr-341"><a href="#Corr-341"><span class="linenos"> 341</span></a>
 </span><span id="Corr-342"><a href="#Corr-342"><span class="linenos"> 342</span></a>    <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">):</span>
-</span><span id="Corr-343"><a href="#Corr-343"><span class="linenos"> 343</span></a>        <span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
+</span><span id="Corr-343"><a href="#Corr-343"><span class="linenos"> 343</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
 </span><span id="Corr-344"><a href="#Corr-344"><span class="linenos"> 344</span></a>
 </span><span id="Corr-345"><a href="#Corr-345"><span class="linenos"> 345</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-346"><a href="#Corr-346"><span class="linenos"> 346</span></a><span class="sd">        ----------</span>
@@ -1882,7 +1882,7 @@
 </span><span id="Corr-353"><a href="#Corr-353"><span class="linenos"> 353</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
 </span><span id="Corr-354"><a href="#Corr-354"><span class="linenos"> 354</span></a>
 </span><span id="Corr-355"><a href="#Corr-355"><span class="linenos"> 355</span></a>    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr-356"><a href="#Corr-356"><span class="linenos"> 356</span></a>        <span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
+</span><span id="Corr-356"><a href="#Corr-356"><span class="linenos"> 356</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
 </span><span id="Corr-357"><a href="#Corr-357"><span class="linenos"> 357</span></a>
 </span><span id="Corr-358"><a href="#Corr-358"><span class="linenos"> 358</span></a><span class="sd">        C(t) c(t+1) ... c(t+n-1)</span>
 </span><span id="Corr-359"><a href="#Corr-359"><span class="linenos"> 359</span></a><span class="sd">        C(t+1) c(t+2) ... c(t+n)</span>
@@ -1923,7 +1923,7 @@
 </span><span id="Corr-394"><a href="#Corr-394"><span class="linenos"> 394</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="Corr-395"><a href="#Corr-395"><span class="linenos"> 395</span></a>
 </span><span id="Corr-396"><a href="#Corr-396"><span class="linenos"> 396</span></a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-</span><span id="Corr-397"><a href="#Corr-397"><span class="linenos"> 397</span></a>        <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
+</span><span id="Corr-397"><a href="#Corr-397"><span class="linenos"> 397</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 </span><span id="Corr-398"><a href="#Corr-398"><span class="linenos"> 398</span></a>
 </span><span id="Corr-399"><a href="#Corr-399"><span class="linenos"> 399</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-400"><a href="#Corr-400"><span class="linenos"> 400</span></a><span class="sd">        ----------</span>
@@ -1933,11 +1933,11 @@
 </span><span id="Corr-404"><a href="#Corr-404"><span class="linenos"> 404</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">),</span> <span class="n">dt</span><span class="p">)))</span>
 </span><span id="Corr-405"><a href="#Corr-405"><span class="linenos"> 405</span></a>
 </span><span id="Corr-406"><a href="#Corr-406"><span class="linenos"> 406</span></a>    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr-407"><a href="#Corr-407"><span class="linenos"> 407</span></a>        <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
+</span><span id="Corr-407"><a href="#Corr-407"><span class="linenos"> 407</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
 </span><span id="Corr-408"><a href="#Corr-408"><span class="linenos"> 408</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </span><span id="Corr-409"><a href="#Corr-409"><span class="linenos"> 409</span></a>
 </span><span id="Corr-410"><a href="#Corr-410"><span class="linenos"> 410</span></a>    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-</span><span id="Corr-411"><a href="#Corr-411"><span class="linenos"> 411</span></a>        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+</span><span id="Corr-411"><a href="#Corr-411"><span class="linenos"> 411</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
 </span><span id="Corr-412"><a href="#Corr-412"><span class="linenos"> 412</span></a>
 </span><span id="Corr-413"><a href="#Corr-413"><span class="linenos"> 413</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-414"><a href="#Corr-414"><span class="linenos"> 414</span></a><span class="sd">        ----------</span>
@@ -1955,7 +1955,7 @@
 </span><span id="Corr-426"><a href="#Corr-426"><span class="linenos"> 426</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="Corr-427"><a href="#Corr-427"><span class="linenos"> 427</span></a>
 </span><span id="Corr-428"><a href="#Corr-428"><span class="linenos"> 428</span></a>    <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-</span><span id="Corr-429"><a href="#Corr-429"><span class="linenos"> 429</span></a>        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+</span><span id="Corr-429"><a href="#Corr-429"><span class="linenos"> 429</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
 </span><span id="Corr-430"><a href="#Corr-430"><span class="linenos"> 430</span></a>
 </span><span id="Corr-431"><a href="#Corr-431"><span class="linenos"> 431</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-432"><a href="#Corr-432"><span class="linenos"> 432</span></a><span class="sd">        ----------</span>
@@ -1984,7 +1984,7 @@
 </span><span id="Corr-455"><a href="#Corr-455"><span class="linenos"> 455</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="Corr-456"><a href="#Corr-456"><span class="linenos"> 456</span></a>
 </span><span id="Corr-457"><a href="#Corr-457"><span class="linenos"> 457</span></a>    <span class="k">def</span> <span class="nf">reweight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr-458"><a href="#Corr-458"><span class="linenos"> 458</span></a>        <span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
+</span><span id="Corr-458"><a href="#Corr-458"><span class="linenos"> 458</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
 </span><span id="Corr-459"><a href="#Corr-459"><span class="linenos"> 459</span></a>
 </span><span id="Corr-460"><a href="#Corr-460"><span class="linenos"> 460</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-461"><a href="#Corr-461"><span class="linenos"> 461</span></a><span class="sd">        ----------</span>
@@ -2007,7 +2007,7 @@
 </span><span id="Corr-478"><a href="#Corr-478"><span class="linenos"> 478</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="n">new_content</span><span class="p">)</span>
 </span><span id="Corr-479"><a href="#Corr-479"><span class="linenos"> 479</span></a>
 </span><span id="Corr-480"><a href="#Corr-480"><span class="linenos"> 480</span></a>    <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="Corr-481"><a href="#Corr-481"><span class="linenos"> 481</span></a>        <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
+</span><span id="Corr-481"><a href="#Corr-481"><span class="linenos"> 481</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 </span><span id="Corr-482"><a href="#Corr-482"><span class="linenos"> 482</span></a>
 </span><span id="Corr-483"><a href="#Corr-483"><span class="linenos"> 483</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-484"><a href="#Corr-484"><span class="linenos"> 484</span></a><span class="sd">        ----------</span>
@@ -2037,7 +2037,7 @@
 </span><span id="Corr-508"><a href="#Corr-508"><span class="linenos"> 508</span></a>        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">+</span> <span class="n">T_partner</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 </span><span id="Corr-509"><a href="#Corr-509"><span class="linenos"> 509</span></a>
 </span><span id="Corr-510"><a href="#Corr-510"><span class="linenos"> 510</span></a>    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="Corr-511"><a href="#Corr-511"><span class="linenos"> 511</span></a>        <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
+</span><span id="Corr-511"><a href="#Corr-511"><span class="linenos"> 511</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 </span><span id="Corr-512"><a href="#Corr-512"><span class="linenos"> 512</span></a>
 </span><span id="Corr-513"><a href="#Corr-513"><span class="linenos"> 513</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-514"><a href="#Corr-514"><span class="linenos"> 514</span></a><span class="sd">        ----------</span>
@@ -2102,7 +2102,7 @@
 </span><span id="Corr-573"><a href="#Corr-573"><span class="linenos"> 573</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown variant.&quot;</span><span class="p">)</span>
 </span><span id="Corr-574"><a href="#Corr-574"><span class="linenos"> 574</span></a>
 </span><span id="Corr-575"><a href="#Corr-575"><span class="linenos"> 575</span></a>    <span class="k">def</span> <span class="nf">second_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="Corr-576"><a href="#Corr-576"><span class="linenos"> 576</span></a>        <span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
+</span><span id="Corr-576"><a href="#Corr-576"><span class="linenos"> 576</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
 </span><span id="Corr-577"><a href="#Corr-577"><span class="linenos"> 577</span></a>
 </span><span id="Corr-578"><a href="#Corr-578"><span class="linenos"> 578</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-579"><a href="#Corr-579"><span class="linenos"> 579</span></a><span class="sd">        ----------</span>
@@ -2147,7 +2147,7 @@
 </span><span id="Corr-618"><a href="#Corr-618"><span class="linenos"> 618</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown variant.&quot;</span><span class="p">)</span>
 </span><span id="Corr-619"><a href="#Corr-619"><span class="linenos"> 619</span></a>
 </span><span id="Corr-620"><a href="#Corr-620"><span class="linenos"> 620</span></a>    <span class="k">def</span> <span class="nf">m_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-</span><span id="Corr-621"><a href="#Corr-621"><span class="linenos"> 621</span></a>        <span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
+</span><span id="Corr-621"><a href="#Corr-621"><span class="linenos"> 621</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
 </span><span id="Corr-622"><a href="#Corr-622"><span class="linenos"> 622</span></a>
 </span><span id="Corr-623"><a href="#Corr-623"><span class="linenos"> 623</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-624"><a href="#Corr-624"><span class="linenos"> 624</span></a><span class="sd">        ----------</span>
@@ -2231,7 +2231,7 @@
 </span><span id="Corr-702"><a href="#Corr-702"><span class="linenos"> 702</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown variant.&#39;</span><span class="p">)</span>
 </span><span id="Corr-703"><a href="#Corr-703"><span class="linenos"> 703</span></a>
 </span><span id="Corr-704"><a href="#Corr-704"><span class="linenos"> 704</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr-705"><a href="#Corr-705"><span class="linenos"> 705</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
+</span><span id="Corr-705"><a href="#Corr-705"><span class="linenos"> 705</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 </span><span id="Corr-706"><a href="#Corr-706"><span class="linenos"> 706</span></a>
 </span><span id="Corr-707"><a href="#Corr-707"><span class="linenos"> 707</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-708"><a href="#Corr-708"><span class="linenos"> 708</span></a><span class="sd">        ----------</span>
@@ -2265,7 +2265,7 @@
 </span><span id="Corr-736"><a href="#Corr-736"><span class="linenos"> 736</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span><span id="Corr-737"><a href="#Corr-737"><span class="linenos"> 737</span></a>
 </span><span id="Corr-738"><a href="#Corr-738"><span class="linenos"> 738</span></a>    <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr-739"><a href="#Corr-739"><span class="linenos"> 739</span></a>        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
+</span><span id="Corr-739"><a href="#Corr-739"><span class="linenos"> 739</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 </span><span id="Corr-740"><a href="#Corr-740"><span class="linenos"> 740</span></a>
 </span><span id="Corr-741"><a href="#Corr-741"><span class="linenos"> 741</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-742"><a href="#Corr-742"><span class="linenos"> 742</span></a><span class="sd">        ----------</span>
@@ -2302,7 +2302,7 @@
 </span><span id="Corr-773"><a href="#Corr-773"><span class="linenos"> 773</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsupported plateau method: &quot;</span> <span class="o">+</span> <span class="n">method</span><span class="p">)</span>
 </span><span id="Corr-774"><a href="#Corr-774"><span class="linenos"> 774</span></a>
 </span><span id="Corr-775"><a href="#Corr-775"><span class="linenos"> 775</span></a>    <span class="k">def</span> <span class="nf">set_prange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prange</span><span class="p">):</span>
-</span><span id="Corr-776"><a href="#Corr-776"><span class="linenos"> 776</span></a>        <span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
+</span><span id="Corr-776"><a href="#Corr-776"><span class="linenos"> 776</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
 </span><span id="Corr-777"><a href="#Corr-777"><span class="linenos"> 777</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">prange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
 </span><span id="Corr-778"><a href="#Corr-778"><span class="linenos"> 778</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;prange must be a list or array with two values&quot;</span><span class="p">)</span>
 </span><span id="Corr-779"><a href="#Corr-779"><span class="linenos"> 779</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">int</span><span class="p">))):</span>
@@ -2314,7 +2314,7 @@
 </span><span id="Corr-785"><a href="#Corr-785"><span class="linenos"> 785</span></a>        <span class="k">return</span>
 </span><span id="Corr-786"><a href="#Corr-786"><span class="linenos"> 786</span></a>
 </span><span id="Corr-787"><a href="#Corr-787"><span class="linenos"> 787</span></a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hide_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr-788"><a href="#Corr-788"><span class="linenos"> 788</span></a>        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
+</span><span id="Corr-788"><a href="#Corr-788"><span class="linenos"> 788</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 </span><span id="Corr-789"><a href="#Corr-789"><span class="linenos"> 789</span></a>
 </span><span id="Corr-790"><a href="#Corr-790"><span class="linenos"> 790</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-791"><a href="#Corr-791"><span class="linenos"> 791</span></a><span class="sd">        ----------</span>
@@ -2433,7 +2433,7 @@
 </span><span id="Corr-904"><a href="#Corr-904"><span class="linenos"> 904</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;save&#39; has to be a string.&quot;</span><span class="p">)</span>
 </span><span id="Corr-905"><a href="#Corr-905"><span class="linenos"> 905</span></a>
 </span><span id="Corr-906"><a href="#Corr-906"><span class="linenos"> 906</span></a>    <span class="k">def</span> <span class="nf">spaghetti_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="Corr-907"><a href="#Corr-907"><span class="linenos"> 907</span></a>        <span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
+</span><span id="Corr-907"><a href="#Corr-907"><span class="linenos"> 907</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
 </span><span id="Corr-908"><a href="#Corr-908"><span class="linenos"> 908</span></a>
 </span><span id="Corr-909"><a href="#Corr-909"><span class="linenos"> 909</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-910"><a href="#Corr-910"><span class="linenos"> 910</span></a><span class="sd">        ----------</span>
@@ -2462,7 +2462,7 @@
 </span><span id="Corr-933"><a href="#Corr-933"><span class="linenos"> 933</span></a>            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 </span><span id="Corr-934"><a href="#Corr-934"><span class="linenos"> 934</span></a>
 </span><span id="Corr-935"><a href="#Corr-935"><span class="linenos"> 935</span></a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr-936"><a href="#Corr-936"><span class="linenos"> 936</span></a>        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
+</span><span id="Corr-936"><a href="#Corr-936"><span class="linenos"> 936</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 </span><span id="Corr-937"><a href="#Corr-937"><span class="linenos"> 937</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr-938"><a href="#Corr-938"><span class="linenos"> 938</span></a><span class="sd">        ----------</span>
 </span><span id="Corr-939"><a href="#Corr-939"><span class="linenos"> 939</span></a><span class="sd">        filename : str</span>
@@ -2746,7 +2746,7 @@
 </span><span id="Corr-1217"><a href="#Corr-1217"><span class="linenos">1217</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_func_to_corr</span><span class="p">(</span><span class="n">return_imag</span><span class="p">)</span>
 </span><span id="Corr-1218"><a href="#Corr-1218"><span class="linenos">1218</span></a>
 </span><span id="Corr-1219"><a href="#Corr-1219"><span class="linenos">1219</span></a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ntrunc</span><span class="p">,</span> <span class="n">tproj</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">t0proj</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">basematrix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr-1220"><a href="#Corr-1220"><span class="linenos">1220</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
+</span><span id="Corr-1220"><a href="#Corr-1220"><span class="linenos">1220</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
 </span><span id="Corr-1221"><a href="#Corr-1221"><span class="linenos">1221</span></a>
 </span><span id="Corr-1222"><a href="#Corr-1222"><span class="linenos">1222</span></a><span class="sd">        This method can be used to reduce the size of an (N x N) correlation matrix</span>
 </span><span id="Corr-1223"><a href="#Corr-1223"><span class="linenos">1223</span></a><span class="sd">        to (Ntrunc x Ntrunc) by solving a GEVP at very early times where the noise</span>
@@ -2827,7 +2827,7 @@ matrix at every timeslice. Other dependency (eg. spatial) are not supported.</p>
     </div>
     <a class="headerlink" href="#Corr.__init__"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.__init__-27"><a href="#Corr.__init__-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prange</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr.__init__-28"><a href="#Corr.__init__-28"><span class="linenos">28</span></a>        <span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
+</span><span id="Corr.__init__-28"><a href="#Corr.__init__-28"><span class="linenos">28</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize a Corr object.</span>
 </span><span id="Corr.__init__-29"><a href="#Corr.__init__-29"><span class="linenos">29</span></a>
 </span><span id="Corr.__init__-30"><a href="#Corr.__init__-30"><span class="linenos">30</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.__init__-31"><a href="#Corr.__init__-31"><span class="linenos">31</span></a><span class="sd">        ----------</span>
@@ -2930,7 +2930,7 @@ region indentified for this correlator.</li>
     </div>
     <a class="headerlink" href="#Corr.gamma_method"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.gamma_method-117"><a href="#Corr.gamma_method-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr.gamma_method-118"><a href="#Corr.gamma_method-118"><span class="linenos">118</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
+</span><span id="Corr.gamma_method-118"><a href="#Corr.gamma_method-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to the content of the Corr.&quot;&quot;&quot;</span>
 </span><span id="Corr.gamma_method-119"><a href="#Corr.gamma_method-119"><span class="linenos">119</span></a>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
 </span><span id="Corr.gamma_method-120"><a href="#Corr.gamma_method-120"><span class="linenos">120</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
 </span><span id="Corr.gamma_method-121"><a href="#Corr.gamma_method-121"><span class="linenos">121</span></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -2959,7 +2959,7 @@ region indentified for this correlator.</li>
     </div>
     <a class="headerlink" href="#Corr.projected"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.projected-128"><a href="#Corr.projected-128"><span class="linenos">128</span></a>    <span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vector_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr.projected-129"><a href="#Corr.projected-129"><span class="linenos">129</span></a>        <span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
+</span><span id="Corr.projected-129"><a href="#Corr.projected-129"><span class="linenos">129</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;We need to project the Correlator with a Vector to get a single value at each timeslice.</span>
 </span><span id="Corr.projected-130"><a href="#Corr.projected-130"><span class="linenos">130</span></a>
 </span><span id="Corr.projected-131"><a href="#Corr.projected-131"><span class="linenos">131</span></a><span class="sd">        The method can use one or two vectors.</span>
 </span><span id="Corr.projected-132"><a href="#Corr.projected-132"><span class="linenos">132</span></a><span class="sd">        If two are specified it returns v1@G@v2 (the order might be very important.)</span>
@@ -3020,7 +3020,7 @@ By default it will return the lowest source, which usually means unsmeared-unsme
     </div>
     <a class="headerlink" href="#Corr.item"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.item-167"><a href="#Corr.item-167"><span class="linenos">167</span></a>    <span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
-</span><span id="Corr.item-168"><a href="#Corr.item-168"><span class="linenos">168</span></a>        <span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
+</span><span id="Corr.item-168"><a href="#Corr.item-168"><span class="linenos">168</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.</span>
 </span><span id="Corr.item-169"><a href="#Corr.item-169"><span class="linenos">169</span></a>
 </span><span id="Corr.item-170"><a href="#Corr.item-170"><span class="linenos">170</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.item-171"><a href="#Corr.item-171"><span class="linenos">171</span></a><span class="sd">        ----------</span>
@@ -3062,7 +3062,7 @@ Second index to be picked.</li>
     </div>
     <a class="headerlink" href="#Corr.plottable"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.plottable-182"><a href="#Corr.plottable-182"><span class="linenos">182</span></a>    <span class="k">def</span> <span class="nf">plottable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.plottable-183"><a href="#Corr.plottable-183"><span class="linenos">183</span></a>        <span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
+</span><span id="Corr.plottable-183"><a href="#Corr.plottable-183"><span class="linenos">183</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Outputs the correlator in a plotable format.</span>
 </span><span id="Corr.plottable-184"><a href="#Corr.plottable-184"><span class="linenos">184</span></a>
 </span><span id="Corr.plottable-185"><a href="#Corr.plottable-185"><span class="linenos">185</span></a><span class="sd">        Outputs three lists containing the timeslice index, the value on each</span>
 </span><span id="Corr.plottable-186"><a href="#Corr.plottable-186"><span class="linenos">186</span></a><span class="sd">        timeslice and the error on each timeslice.</span>
@@ -3097,7 +3097,7 @@ timeslice and the error on each timeslice.</p>
     </div>
     <a class="headerlink" href="#Corr.symmetric"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.symmetric-196"><a href="#Corr.symmetric-196"><span class="linenos">196</span></a>    <span class="k">def</span> <span class="nf">symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.symmetric-197"><a href="#Corr.symmetric-197"><span class="linenos">197</span></a>        <span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="Corr.symmetric-197"><a href="#Corr.symmetric-197"><span class="linenos">197</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="Corr.symmetric-198"><a href="#Corr.symmetric-198"><span class="linenos">198</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr.symmetric-199"><a href="#Corr.symmetric-199"><span class="linenos">199</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="Corr.symmetric-200"><a href="#Corr.symmetric-200"><span class="linenos">200</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -3135,7 +3135,7 @@ timeslice and the error on each timeslice.</p>
     </div>
     <a class="headerlink" href="#Corr.anti_symmetric"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.anti_symmetric-216"><a href="#Corr.anti_symmetric-216"><span class="linenos">216</span></a>    <span class="k">def</span> <span class="nf">anti_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.anti_symmetric-217"><a href="#Corr.anti_symmetric-217"><span class="linenos">217</span></a>        <span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
+</span><span id="Corr.anti_symmetric-217"><a href="#Corr.anti_symmetric-217"><span class="linenos">217</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Anti-symmetrize the correlator around x0=0.&quot;&quot;&quot;</span>
 </span><span id="Corr.anti_symmetric-218"><a href="#Corr.anti_symmetric-218"><span class="linenos">218</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr.anti_symmetric-219"><a href="#Corr.anti_symmetric-219"><span class="linenos">219</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;anti_symmetric cannot be safely applied to multi-dimensional correlators.&#39;</span><span class="p">)</span>
 </span><span id="Corr.anti_symmetric-220"><a href="#Corr.anti_symmetric-220"><span class="linenos">220</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -3175,7 +3175,7 @@ timeslice and the error on each timeslice.</p>
     </div>
     <a class="headerlink" href="#Corr.is_matrix_symmetric"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.is_matrix_symmetric-238"><a href="#Corr.is_matrix_symmetric-238"><span class="linenos">238</span></a>    <span class="k">def</span> <span class="nf">is_matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.is_matrix_symmetric-239"><a href="#Corr.is_matrix_symmetric-239"><span class="linenos">239</span></a>        <span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="Corr.is_matrix_symmetric-239"><a href="#Corr.is_matrix_symmetric-239"><span class="linenos">239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks whether a correlator matrices is symmetric on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="Corr.is_matrix_symmetric-240"><a href="#Corr.is_matrix_symmetric-240"><span class="linenos">240</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr.is_matrix_symmetric-241"><a href="#Corr.is_matrix_symmetric-241"><span class="linenos">241</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Only works for correlator matrices.&quot;</span><span class="p">)</span>
 </span><span id="Corr.is_matrix_symmetric-242"><a href="#Corr.is_matrix_symmetric-242"><span class="linenos">242</span></a>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
@@ -3208,7 +3208,7 @@ timeslice and the error on each timeslice.</p>
     </div>
     <a class="headerlink" href="#Corr.matrix_symmetric"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.matrix_symmetric-253"><a href="#Corr.matrix_symmetric-253"><span class="linenos">253</span></a>    <span class="k">def</span> <span class="nf">matrix_symmetric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.matrix_symmetric-254"><a href="#Corr.matrix_symmetric-254"><span class="linenos">254</span></a>        <span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
+</span><span id="Corr.matrix_symmetric-254"><a href="#Corr.matrix_symmetric-254"><span class="linenos">254</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Symmetrizes the correlator matrices on every timeslice.&quot;&quot;&quot;</span>
 </span><span id="Corr.matrix_symmetric-255"><a href="#Corr.matrix_symmetric-255"><span class="linenos">255</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 </span><span id="Corr.matrix_symmetric-256"><a href="#Corr.matrix_symmetric-256"><span class="linenos">256</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Trying to symmetrize a correlator matrix, that already has N=1.&quot;</span><span class="p">)</span>
 </span><span id="Corr.matrix_symmetric-257"><a href="#Corr.matrix_symmetric-257"><span class="linenos">257</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix_symmetric</span><span class="p">():</span>
@@ -3236,7 +3236,7 @@ timeslice and the error on each timeslice.</p>
     </div>
     <a class="headerlink" href="#Corr.GEVP"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.GEVP-263"><a href="#Corr.GEVP-263"><span class="linenos">263</span></a>    <span class="k">def</span> <span class="nf">GEVP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr.GEVP-264"><a href="#Corr.GEVP-264"><span class="linenos">264</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
+</span><span id="Corr.GEVP-264"><a href="#Corr.GEVP-264"><span class="linenos">264</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.</span>
 </span><span id="Corr.GEVP-265"><a href="#Corr.GEVP-265"><span class="linenos">265</span></a>
 </span><span id="Corr.GEVP-266"><a href="#Corr.GEVP-266"><span class="linenos">266</span></a><span class="sd">        The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the</span>
 </span><span id="Corr.GEVP-267"><a href="#Corr.GEVP-267"><span class="linenos">267</span></a><span class="sd">        largest eigenvalue(s). The eigenvector(s) for the individual states can be accessed via slicing</span>
@@ -3366,7 +3366,7 @@ Returns only the vector(s) for a specified state. The lowest state is zero.</li>
     </div>
     <a class="headerlink" href="#Corr.Eigenvalue"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.Eigenvalue-342"><a href="#Corr.Eigenvalue-342"><span class="linenos">342</span></a>    <span class="k">def</span> <span class="nf">Eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;Eigenvalue&quot;</span><span class="p">):</span>
-</span><span id="Corr.Eigenvalue-343"><a href="#Corr.Eigenvalue-343"><span class="linenos">343</span></a>        <span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
+</span><span id="Corr.Eigenvalue-343"><a href="#Corr.Eigenvalue-343"><span class="linenos">343</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Determines the eigenvalue of the GEVP by solving and projecting the correlator</span>
 </span><span id="Corr.Eigenvalue-344"><a href="#Corr.Eigenvalue-344"><span class="linenos">344</span></a>
 </span><span id="Corr.Eigenvalue-345"><a href="#Corr.Eigenvalue-345"><span class="linenos">345</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.Eigenvalue-346"><a href="#Corr.Eigenvalue-346"><span class="linenos">346</span></a><span class="sd">        ----------</span>
@@ -3405,7 +3405,7 @@ The state one is interested in ordered by energy. The lowest state is zero.</li>
     </div>
     <a class="headerlink" href="#Corr.Hankel"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.Hankel-355"><a href="#Corr.Hankel-355"><span class="linenos">355</span></a>    <span class="k">def</span> <span class="nf">Hankel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr.Hankel-356"><a href="#Corr.Hankel-356"><span class="linenos">356</span></a>        <span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
+</span><span id="Corr.Hankel-356"><a href="#Corr.Hankel-356"><span class="linenos">356</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an NxN Hankel matrix</span>
 </span><span id="Corr.Hankel-357"><a href="#Corr.Hankel-357"><span class="linenos">357</span></a>
 </span><span id="Corr.Hankel-358"><a href="#Corr.Hankel-358"><span class="linenos">358</span></a><span class="sd">        C(t) c(t+1) ... c(t+n-1)</span>
 </span><span id="Corr.Hankel-359"><a href="#Corr.Hankel-359"><span class="linenos">359</span></a><span class="sd">        C(t+1) c(t+2) ... c(t+n)</span>
@@ -3478,7 +3478,7 @@ determines whether the matrix is extended periodically</li>
     </div>
     <a class="headerlink" href="#Corr.roll"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.roll-396"><a href="#Corr.roll-396"><span class="linenos">396</span></a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-</span><span id="Corr.roll-397"><a href="#Corr.roll-397"><span class="linenos">397</span></a>        <span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
+</span><span id="Corr.roll-397"><a href="#Corr.roll-397"><span class="linenos">397</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Periodically shift the correlator by dt timeslices</span>
 </span><span id="Corr.roll-398"><a href="#Corr.roll-398"><span class="linenos">398</span></a>
 </span><span id="Corr.roll-399"><a href="#Corr.roll-399"><span class="linenos">399</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.roll-400"><a href="#Corr.roll-400"><span class="linenos">400</span></a><span class="sd">        ----------</span>
@@ -3513,7 +3513,7 @@ number of timeslices</li>
     </div>
     <a class="headerlink" href="#Corr.reverse"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.reverse-406"><a href="#Corr.reverse-406"><span class="linenos">406</span></a>    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Corr.reverse-407"><a href="#Corr.reverse-407"><span class="linenos">407</span></a>        <span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
+</span><span id="Corr.reverse-407"><a href="#Corr.reverse-407"><span class="linenos">407</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reverse the time ordering of the Corr&quot;&quot;&quot;</span>
 </span><span id="Corr.reverse-408"><a href="#Corr.reverse-408"><span class="linenos">408</span></a>        <span class="k">return</span> <span class="n">Corr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">[::</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </span></pre></div>
 
@@ -3535,7 +3535,7 @@ number of timeslices</li>
     </div>
     <a class="headerlink" href="#Corr.thin"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.thin-410"><a href="#Corr.thin-410"><span class="linenos">410</span></a>    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-</span><span id="Corr.thin-411"><a href="#Corr.thin-411"><span class="linenos">411</span></a>        <span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
+</span><span id="Corr.thin-411"><a href="#Corr.thin-411"><span class="linenos">411</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Thin out a correlator to suppress correlations</span>
 </span><span id="Corr.thin-412"><a href="#Corr.thin-412"><span class="linenos">412</span></a>
 </span><span id="Corr.thin-413"><a href="#Corr.thin-413"><span class="linenos">413</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.thin-414"><a href="#Corr.thin-414"><span class="linenos">414</span></a><span class="sd">        ----------</span>
@@ -3580,7 +3580,7 @@ Offset the equal spacing</li>
     </div>
     <a class="headerlink" href="#Corr.correlate"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.correlate-428"><a href="#Corr.correlate-428"><span class="linenos">428</span></a>    <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">):</span>
-</span><span id="Corr.correlate-429"><a href="#Corr.correlate-429"><span class="linenos">429</span></a>        <span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
+</span><span id="Corr.correlate-429"><a href="#Corr.correlate-429"><span class="linenos">429</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Correlate the correlator with another correlator or Obs</span>
 </span><span id="Corr.correlate-430"><a href="#Corr.correlate-430"><span class="linenos">430</span></a>
 </span><span id="Corr.correlate-431"><a href="#Corr.correlate-431"><span class="linenos">431</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.correlate-432"><a href="#Corr.correlate-432"><span class="linenos">432</span></a><span class="sd">        ----------</span>
@@ -3636,7 +3636,7 @@ correlator or a Corr of same length.</li>
     </div>
     <a class="headerlink" href="#Corr.reweight"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.reweight-457"><a href="#Corr.reweight-457"><span class="linenos">457</span></a>    <span class="k">def</span> <span class="nf">reweight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr.reweight-458"><a href="#Corr.reweight-458"><span class="linenos">458</span></a>        <span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
+</span><span id="Corr.reweight-458"><a href="#Corr.reweight-458"><span class="linenos">458</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reweight the correlator.</span>
 </span><span id="Corr.reweight-459"><a href="#Corr.reweight-459"><span class="linenos">459</span></a>
 </span><span id="Corr.reweight-460"><a href="#Corr.reweight-460"><span class="linenos">460</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.reweight-461"><a href="#Corr.reweight-461"><span class="linenos">461</span></a><span class="sd">        ----------</span>
@@ -3689,7 +3689,7 @@ on the configurations in obs[i].idl.</li>
     </div>
     <a class="headerlink" href="#Corr.T_symmetry"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.T_symmetry-480"><a href="#Corr.T_symmetry-480"><span class="linenos">480</span></a>    <span class="k">def</span> <span class="nf">T_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partner</span><span class="p">,</span> <span class="n">parity</span><span class="o">=+</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="Corr.T_symmetry-481"><a href="#Corr.T_symmetry-481"><span class="linenos">481</span></a>        <span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
+</span><span id="Corr.T_symmetry-481"><a href="#Corr.T_symmetry-481"><span class="linenos">481</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the time symmetry average of the correlator and its partner</span>
 </span><span id="Corr.T_symmetry-482"><a href="#Corr.T_symmetry-482"><span class="linenos">482</span></a>
 </span><span id="Corr.T_symmetry-483"><a href="#Corr.T_symmetry-483"><span class="linenos">483</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.T_symmetry-484"><a href="#Corr.T_symmetry-484"><span class="linenos">484</span></a><span class="sd">        ----------</span>
@@ -3746,7 +3746,7 @@ Parity quantum number of the correlator, can be +1 or -1</li>
     </div>
     <a class="headerlink" href="#Corr.deriv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.deriv-510"><a href="#Corr.deriv-510"><span class="linenos">510</span></a>    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="Corr.deriv-511"><a href="#Corr.deriv-511"><span class="linenos">511</span></a>        <span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
+</span><span id="Corr.deriv-511"><a href="#Corr.deriv-511"><span class="linenos">511</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the first derivative of the correlator with respect to x0.</span>
 </span><span id="Corr.deriv-512"><a href="#Corr.deriv-512"><span class="linenos">512</span></a>
 </span><span id="Corr.deriv-513"><a href="#Corr.deriv-513"><span class="linenos">513</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.deriv-514"><a href="#Corr.deriv-514"><span class="linenos">514</span></a><span class="sd">        ----------</span>
@@ -3837,7 +3837,7 @@ Available choice: symmetric, forward, backward, improved, log, default: symmetri
     </div>
     <a class="headerlink" href="#Corr.second_deriv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.second_deriv-575"><a href="#Corr.second_deriv-575"><span class="linenos">575</span></a>    <span class="k">def</span> <span class="nf">second_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s2">&quot;symmetric&quot;</span><span class="p">):</span>
-</span><span id="Corr.second_deriv-576"><a href="#Corr.second_deriv-576"><span class="linenos">576</span></a>        <span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
+</span><span id="Corr.second_deriv-576"><a href="#Corr.second_deriv-576"><span class="linenos">576</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the second derivative of the correlator with respect to x0.</span>
 </span><span id="Corr.second_deriv-577"><a href="#Corr.second_deriv-577"><span class="linenos">577</span></a>
 </span><span id="Corr.second_deriv-578"><a href="#Corr.second_deriv-578"><span class="linenos">578</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.second_deriv-579"><a href="#Corr.second_deriv-579"><span class="linenos">579</span></a><span class="sd">        ----------</span>
@@ -3908,7 +3908,7 @@ Available choice: symmetric, improved, log, default: symmetric</li>
     </div>
     <a class="headerlink" href="#Corr.m_eff"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.m_eff-620"><a href="#Corr.m_eff-620"><span class="linenos">620</span></a>    <span class="k">def</span> <span class="nf">m_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-</span><span id="Corr.m_eff-621"><a href="#Corr.m_eff-621"><span class="linenos">621</span></a>        <span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
+</span><span id="Corr.m_eff-621"><a href="#Corr.m_eff-621"><span class="linenos">621</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the effective mass of the correlator as correlator object</span>
 </span><span id="Corr.m_eff-622"><a href="#Corr.m_eff-622"><span class="linenos">622</span></a>
 </span><span id="Corr.m_eff-623"><a href="#Corr.m_eff-623"><span class="linenos">623</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.m_eff-624"><a href="#Corr.m_eff-624"><span class="linenos">624</span></a><span class="sd">        ----------</span>
@@ -4024,7 +4024,7 @@ guess for the root finder, only relevant for the root variant</li>
     </div>
     <a class="headerlink" href="#Corr.fit"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.fit-704"><a href="#Corr.fit-704"><span class="linenos">704</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">fitrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr.fit-705"><a href="#Corr.fit-705"><span class="linenos">705</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
+</span><span id="Corr.fit-705"><a href="#Corr.fit-705"><span class="linenos">705</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Fits function to the data</span>
 </span><span id="Corr.fit-706"><a href="#Corr.fit-706"><span class="linenos">706</span></a>
 </span><span id="Corr.fit-707"><a href="#Corr.fit-707"><span class="linenos">707</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.fit-708"><a href="#Corr.fit-708"><span class="linenos">708</span></a><span class="sd">        ----------</span>
@@ -4090,7 +4090,7 @@ Decides whether output is printed to the standard output.</li>
     </div>
     <a class="headerlink" href="#Corr.plateau"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.plateau-738"><a href="#Corr.plateau-738"><span class="linenos">738</span></a>    <span class="k">def</span> <span class="nf">plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plateau_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="Corr.plateau-739"><a href="#Corr.plateau-739"><span class="linenos">739</span></a>        <span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
+</span><span id="Corr.plateau-739"><a href="#Corr.plateau-739"><span class="linenos">739</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Extract a plateau value from a Corr object</span>
 </span><span id="Corr.plateau-740"><a href="#Corr.plateau-740"><span class="linenos">740</span></a>
 </span><span id="Corr.plateau-741"><a href="#Corr.plateau-741"><span class="linenos">741</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.plateau-742"><a href="#Corr.plateau-742"><span class="linenos">742</span></a><span class="sd">        ----------</span>
@@ -4159,7 +4159,7 @@ apply gamma_method with default parameters to the Corr. Defaults to None</li>
     </div>
     <a class="headerlink" href="#Corr.set_prange"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.set_prange-775"><a href="#Corr.set_prange-775"><span class="linenos">775</span></a>    <span class="k">def</span> <span class="nf">set_prange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prange</span><span class="p">):</span>
-</span><span id="Corr.set_prange-776"><a href="#Corr.set_prange-776"><span class="linenos">776</span></a>        <span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
+</span><span id="Corr.set_prange-776"><a href="#Corr.set_prange-776"><span class="linenos">776</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the attribute prange of the Corr object.&quot;&quot;&quot;</span>
 </span><span id="Corr.set_prange-777"><a href="#Corr.set_prange-777"><span class="linenos">777</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">prange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
 </span><span id="Corr.set_prange-778"><a href="#Corr.set_prange-778"><span class="linenos">778</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;prange must be a list or array with two values&quot;</span><span class="p">)</span>
 </span><span id="Corr.set_prange-779"><a href="#Corr.set_prange-779"><span class="linenos">779</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">int</span><span class="p">))):</span>
@@ -4189,7 +4189,7 @@ apply gamma_method with default parameters to the Corr. Defaults to None</li>
     </div>
     <a class="headerlink" href="#Corr.show"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.show-787"><a href="#Corr.show-787"><span class="linenos">787</span></a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plateau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hide_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr.show-788"><a href="#Corr.show-788"><span class="linenos">788</span></a>        <span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
+</span><span id="Corr.show-788"><a href="#Corr.show-788"><span class="linenos">788</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots the correlator using the tag of the correlator as label if available.</span>
 </span><span id="Corr.show-789"><a href="#Corr.show-789"><span class="linenos">789</span></a>
 </span><span id="Corr.show-790"><a href="#Corr.show-790"><span class="linenos">790</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.show-791"><a href="#Corr.show-791"><span class="linenos">791</span></a><span class="sd">        ----------</span>
@@ -4354,7 +4354,7 @@ Optional title of the figure.</li>
     </div>
     <a class="headerlink" href="#Corr.spaghetti_plot"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.spaghetti_plot-906"><a href="#Corr.spaghetti_plot-906"><span class="linenos">906</span></a>    <span class="k">def</span> <span class="nf">spaghetti_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="Corr.spaghetti_plot-907"><a href="#Corr.spaghetti_plot-907"><span class="linenos">907</span></a>        <span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
+</span><span id="Corr.spaghetti_plot-907"><a href="#Corr.spaghetti_plot-907"><span class="linenos">907</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.</span>
 </span><span id="Corr.spaghetti_plot-908"><a href="#Corr.spaghetti_plot-908"><span class="linenos">908</span></a>
 </span><span id="Corr.spaghetti_plot-909"><a href="#Corr.spaghetti_plot-909"><span class="linenos">909</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.spaghetti_plot-910"><a href="#Corr.spaghetti_plot-910"><span class="linenos">910</span></a><span class="sd">        ----------</span>
@@ -4408,7 +4408,7 @@ Determines whether the scale of the y-axis is logarithmic or standard.</li>
     </div>
     <a class="headerlink" href="#Corr.dump"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.dump-935"><a href="#Corr.dump-935"><span class="linenos">935</span></a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="s2">&quot;json.gz&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Corr.dump-936"><a href="#Corr.dump-936"><span class="linenos">936</span></a>        <span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
+</span><span id="Corr.dump-936"><a href="#Corr.dump-936"><span class="linenos">936</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Dumps the Corr into a file of chosen type</span>
 </span><span id="Corr.dump-937"><a href="#Corr.dump-937"><span class="linenos">937</span></a><span class="sd">        Parameters</span>
 </span><span id="Corr.dump-938"><a href="#Corr.dump-938"><span class="linenos">938</span></a><span class="sd">        ----------</span>
 </span><span id="Corr.dump-939"><a href="#Corr.dump-939"><span class="linenos">939</span></a><span class="sd">        filename : str</span>
@@ -4768,7 +4768,7 @@ specifies a custom path for the file (default '.')</li>
     </div>
     <a class="headerlink" href="#Corr.prune"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Corr.prune-1219"><a href="#Corr.prune-1219"><span class="linenos">1219</span></a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ntrunc</span><span class="p">,</span> <span class="n">tproj</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">t0proj</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">basematrix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Corr.prune-1220"><a href="#Corr.prune-1220"><span class="linenos">1220</span></a>        <span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
+</span><span id="Corr.prune-1220"><a href="#Corr.prune-1220"><span class="linenos">1220</span></a><span class="w">        </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39; Project large correlation matrix to lowest states</span>
 </span><span id="Corr.prune-1221"><a href="#Corr.prune-1221"><span class="linenos">1221</span></a>
 </span><span id="Corr.prune-1222"><a href="#Corr.prune-1222"><span class="linenos">1222</span></a><span class="sd">        This method can be used to reduce the size of an (N x N) correlation matrix</span>
 </span><span id="Corr.prune-1223"><a href="#Corr.prune-1223"><span class="linenos">1223</span></a><span class="sd">        to (Ntrunc x Ntrunc) by solving a GEVP at very early times where the noise</span>

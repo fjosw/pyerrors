@@ -109,7 +109,7 @@
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="k">def</span> <span class="nf">matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>    <span class="sd">&quot;&quot;&quot;Matrix multiply all operands.</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix multiply all operands.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">    Parameters</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    ----------</span>
@@ -165,7 +165,7 @@
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    Parameters</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    ----------</span>
@@ -226,7 +226,7 @@
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
 </span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>    <span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
 </span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
 </span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">    Parameters</span>
 </span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">    ----------</span>
@@ -300,24 +300,24 @@
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>    <span class="sd">&quot;&quot;&quot;Inverse of Obs or CObs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Inverse of Obs or CObs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a>    <span class="k">return</span> <span class="n">_mat_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>
 </span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>
 </span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="k">def</span> <span class="nf">cholesky</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>    <span class="sd">&quot;&quot;&quot;Cholesky decomposition of Obs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Cholesky decomposition of Obs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Cholesky decomposition is not implemented for CObs.&quot;</span><span class="p">)</span>
 </span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>    <span class="k">return</span> <span class="n">_mat_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>    <span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>    <span class="k">return</span> <span class="n">_scalar_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>
 </span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>
 </span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="k">def</span> <span class="nf">_scalar_mat_op</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>    <span class="sd">&quot;&quot;&quot;Computes the matrix to scalar operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the matrix to scalar operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>    <span class="k">def</span> <span class="nf">_mat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>        <span class="n">dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
 </span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>
@@ -338,7 +338,7 @@
 </span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>
 </span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="k">def</span> <span class="nf">_mat_mat_op</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>    <span class="sd">&quot;&quot;&quot;Computes the matrix to matrix operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the matrix to matrix operation op to a given matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="c1"># Use real representation to calculate matrix operations for complex matrices</span>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
@@ -364,25 +364,25 @@
 </span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>
 </span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>
 </span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a><span class="k">def</span> <span class="nf">eigh</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a>    <span class="sd">&quot;&quot;&quot;Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh.&quot;&quot;&quot;</span>
+</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh.&quot;&quot;&quot;</span>
 </span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>    <span class="n">w</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a>    <span class="n">v</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a>    <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="n">v</span>
 </span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a>
 </span><span id="L-267"><a href="#L-267"><span class="linenos">267</span></a>
 </span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a><span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a>    <span class="sd">&quot;&quot;&quot;Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig.&quot;&quot;&quot;</span>
+</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig.&quot;&quot;&quot;</span>
 </span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a>    <span class="n">w</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a>    <span class="k">return</span> <span class="n">w</span>
 </span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a>
 </span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a>
 </span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a><span class="k">def</span> <span class="nf">pinv</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a>    <span class="sd">&quot;&quot;&quot;Computes the Moore-Penrose pseudoinverse of a matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Moore-Penrose pseudoinverse of a matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>    <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a>
 </span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a>
 </span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a><span class="k">def</span> <span class="nf">svd</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a>    <span class="sd">&quot;&quot;&quot;Computes the singular value decomposition of a matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the singular value decomposition of a matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a>    <span class="n">u</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a>    <span class="n">vh</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">2</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
@@ -403,7 +403,7 @@
     </div>
     <a class="headerlink" href="#matmul"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="matmul-7"><a href="#matmul-7"><span class="linenos"> 7</span></a><span class="k">def</span> <span class="nf">matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="matmul-8"><a href="#matmul-8"><span class="linenos"> 8</span></a>    <span class="sd">&quot;&quot;&quot;Matrix multiply all operands.</span>
+</span><span id="matmul-8"><a href="#matmul-8"><span class="linenos"> 8</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix multiply all operands.</span>
 </span><span id="matmul-9"><a href="#matmul-9"><span class="linenos"> 9</span></a>
 </span><span id="matmul-10"><a href="#matmul-10"><span class="linenos">10</span></a><span class="sd">    Parameters</span>
 </span><span id="matmul-11"><a href="#matmul-11"><span class="linenos">11</span></a><span class="sd">    ----------</span>
@@ -485,7 +485,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#jack_matmul"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="jack_matmul-63"><a href="#jack_matmul-63"><span class="linenos"> 63</span></a><span class="k">def</span> <span class="nf">jack_matmul</span><span class="p">(</span><span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="jack_matmul-64"><a href="#jack_matmul-64"><span class="linenos"> 64</span></a>    <span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
+</span><span id="jack_matmul-64"><a href="#jack_matmul-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix multiply both operands making use of the jackknife approximation.</span>
 </span><span id="jack_matmul-65"><a href="#jack_matmul-65"><span class="linenos"> 65</span></a>
 </span><span id="jack_matmul-66"><a href="#jack_matmul-66"><span class="linenos"> 66</span></a><span class="sd">    Parameters</span>
 </span><span id="jack_matmul-67"><a href="#jack_matmul-67"><span class="linenos"> 67</span></a><span class="sd">    ----------</span>
@@ -572,7 +572,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#einsum"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="einsum-124"><a href="#einsum-124"><span class="linenos">124</span></a><span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span><span class="n">subscripts</span><span class="p">,</span> <span class="o">*</span><span class="n">operands</span><span class="p">):</span>
-</span><span id="einsum-125"><a href="#einsum-125"><span class="linenos">125</span></a>    <span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
+</span><span id="einsum-125"><a href="#einsum-125"><span class="linenos">125</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for numpy.einsum</span>
 </span><span id="einsum-126"><a href="#einsum-126"><span class="linenos">126</span></a>
 </span><span id="einsum-127"><a href="#einsum-127"><span class="linenos">127</span></a><span class="sd">    Parameters</span>
 </span><span id="einsum-128"><a href="#einsum-128"><span class="linenos">128</span></a><span class="sd">    ----------</span>
@@ -673,7 +673,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#inv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="inv-198"><a href="#inv-198"><span class="linenos">198</span></a><span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="inv-199"><a href="#inv-199"><span class="linenos">199</span></a>    <span class="sd">&quot;&quot;&quot;Inverse of Obs or CObs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="inv-199"><a href="#inv-199"><span class="linenos">199</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Inverse of Obs or CObs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="inv-200"><a href="#inv-200"><span class="linenos">200</span></a>    <span class="k">return</span> <span class="n">_mat_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </span></pre></div>
 
@@ -695,7 +695,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#cholesky"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="cholesky-203"><a href="#cholesky-203"><span class="linenos">203</span></a><span class="k">def</span> <span class="nf">cholesky</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="cholesky-204"><a href="#cholesky-204"><span class="linenos">204</span></a>    <span class="sd">&quot;&quot;&quot;Cholesky decomposition of Obs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="cholesky-204"><a href="#cholesky-204"><span class="linenos">204</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Cholesky decomposition of Obs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="cholesky-205"><a href="#cholesky-205"><span class="linenos">205</span></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">CObs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
 </span><span id="cholesky-206"><a href="#cholesky-206"><span class="linenos">206</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Cholesky decomposition is not implemented for CObs.&quot;</span><span class="p">)</span>
 </span><span id="cholesky-207"><a href="#cholesky-207"><span class="linenos">207</span></a>    <span class="k">return</span> <span class="n">_mat_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
@@ -719,7 +719,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#det"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="det-210"><a href="#det-210"><span class="linenos">210</span></a><span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-</span><span id="det-211"><a href="#det-211"><span class="linenos">211</span></a>    <span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
+</span><span id="det-211"><a href="#det-211"><span class="linenos">211</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Determinant of Obs valued matrices.&quot;&quot;&quot;</span>
 </span><span id="det-212"><a href="#det-212"><span class="linenos">212</span></a>    <span class="k">return</span> <span class="n">_scalar_mat_op</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 </span></pre></div>
 
@@ -741,7 +741,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#eigh"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="eigh-262"><a href="#eigh-262"><span class="linenos">262</span></a><span class="k">def</span> <span class="nf">eigh</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="eigh-263"><a href="#eigh-263"><span class="linenos">263</span></a>    <span class="sd">&quot;&quot;&quot;Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh.&quot;&quot;&quot;</span>
+</span><span id="eigh-263"><a href="#eigh-263"><span class="linenos">263</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh.&quot;&quot;&quot;</span>
 </span><span id="eigh-264"><a href="#eigh-264"><span class="linenos">264</span></a>    <span class="n">w</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="eigh-265"><a href="#eigh-265"><span class="linenos">265</span></a>    <span class="n">v</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="eigh-266"><a href="#eigh-266"><span class="linenos">266</span></a>    <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="n">v</span>
@@ -765,7 +765,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#eig"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="eig-269"><a href="#eig-269"><span class="linenos">269</span></a><span class="k">def</span> <span class="nf">eig</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="eig-270"><a href="#eig-270"><span class="linenos">270</span></a>    <span class="sd">&quot;&quot;&quot;Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig.&quot;&quot;&quot;</span>
+</span><span id="eig-270"><a href="#eig-270"><span class="linenos">270</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig.&quot;&quot;&quot;</span>
 </span><span id="eig-271"><a href="#eig-271"><span class="linenos">271</span></a>    <span class="n">w</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="eig-272"><a href="#eig-272"><span class="linenos">272</span></a>    <span class="k">return</span> <span class="n">w</span>
 </span></pre></div>
@@ -788,7 +788,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#pinv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="pinv-275"><a href="#pinv-275"><span class="linenos">275</span></a><span class="k">def</span> <span class="nf">pinv</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="pinv-276"><a href="#pinv-276"><span class="linenos">276</span></a>    <span class="sd">&quot;&quot;&quot;Computes the Moore-Penrose pseudoinverse of a matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="pinv-276"><a href="#pinv-276"><span class="linenos">276</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Moore-Penrose pseudoinverse of a matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="pinv-277"><a href="#pinv-277"><span class="linenos">277</span></a>    <span class="k">return</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">obs</span><span class="p">)</span>
 </span></pre></div>
 
@@ -810,7 +810,7 @@ Obs valued.</li>
     </div>
     <a class="headerlink" href="#svd"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="svd-280"><a href="#svd-280"><span class="linenos">280</span></a><span class="k">def</span> <span class="nf">svd</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="svd-281"><a href="#svd-281"><span class="linenos">281</span></a>    <span class="sd">&quot;&quot;&quot;Computes the singular value decomposition of a matrix of Obs.&quot;&quot;&quot;</span>
+</span><span id="svd-281"><a href="#svd-281"><span class="linenos">281</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the singular value decomposition of a matrix of Obs.&quot;&quot;&quot;</span>
 </span><span id="svd-282"><a href="#svd-282"><span class="linenos">282</span></a>    <span class="n">u</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="svd-283"><a href="#svd-283"><span class="linenos">283</span></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>
 </span><span id="svd-284"><a href="#svd-284"><span class="linenos">284</span></a>    <span class="n">vh</span> <span class="o">=</span> <span class="n">derived_observable</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">anp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">2</span><span class="p">],</span> <span class="n">obs</span><span class="p">)</span>

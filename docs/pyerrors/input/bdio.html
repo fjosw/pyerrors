@@ -92,7 +92,7 @@
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="k">def</span> <span class="nf">read_ADerrors</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>    <span class="sd">&quot;&quot;&quot; Extract generic MCMC data from a bdio file</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract generic MCMC data from a bdio file</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    read_ADerrors requires bdio to be compiled into a shared library. This can be achieved by</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    adding the flag -fPIC to CC and changing the all target to</span>
@@ -243,7 +243,7 @@
 </span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>
 </span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>
 </span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="k">def</span> <span class="nf">write_ADerrors</span><span class="p">(</span><span class="n">obs_list</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="sd">&quot;&quot;&quot; Write Obs to a bdio file according to ADerrors conventions</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Write Obs to a bdio file according to ADerrors conventions</span>
 </span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">    read_mesons requires bdio to be compiled into a shared library. This can be achieved by</span>
 </span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">    adding the flag -fPIC to CC and changing the all target to</span>
@@ -376,7 +376,7 @@
 </span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="k">def</span> <span class="nf">read_mesons</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>    <span class="sd">&quot;&quot;&quot; Extract mesons data from a bdio file and return it as a dictionary</span>
+</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract mesons data from a bdio file and return it as a dictionary</span>
 </span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>
 </span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a><span class="sd">    The dictionary can be accessed with a tuple consisting of (type, source_position, kappa1, kappa2)</span>
 </span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a>
@@ -586,7 +586,7 @@
 </span><span id="L-499"><a href="#L-499"><span class="linenos">499</span></a>
 </span><span id="L-500"><a href="#L-500"><span class="linenos">500</span></a>
 </span><span id="L-501"><a href="#L-501"><span class="linenos">501</span></a><span class="k">def</span> <span class="nf">read_dSdm</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-502"><a href="#L-502"><span class="linenos">502</span></a>    <span class="sd">&quot;&quot;&quot; Extract dSdm data from a bdio file and return it as a dictionary</span>
+</span><span id="L-502"><a href="#L-502"><span class="linenos">502</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract dSdm data from a bdio file and return it as a dictionary</span>
 </span><span id="L-503"><a href="#L-503"><span class="linenos">503</span></a>
 </span><span id="L-504"><a href="#L-504"><span class="linenos">504</span></a><span class="sd">    The dictionary can be accessed with a tuple consisting of (type, kappa)</span>
 </span><span id="L-505"><a href="#L-505"><span class="linenos">505</span></a>
@@ -780,7 +780,7 @@
     </div>
     <a class="headerlink" href="#read_ADerrors"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_ADerrors-8"><a href="#read_ADerrors-8"><span class="linenos">  8</span></a><span class="k">def</span> <span class="nf">read_ADerrors</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="read_ADerrors-9"><a href="#read_ADerrors-9"><span class="linenos">  9</span></a>    <span class="sd">&quot;&quot;&quot; Extract generic MCMC data from a bdio file</span>
+</span><span id="read_ADerrors-9"><a href="#read_ADerrors-9"><span class="linenos">  9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract generic MCMC data from a bdio file</span>
 </span><span id="read_ADerrors-10"><a href="#read_ADerrors-10"><span class="linenos"> 10</span></a>
 </span><span id="read_ADerrors-11"><a href="#read_ADerrors-11"><span class="linenos"> 11</span></a><span class="sd">    read_ADerrors requires bdio to be compiled into a shared library. This can be achieved by</span>
 </span><span id="read_ADerrors-12"><a href="#read_ADerrors-12"><span class="linenos"> 12</span></a><span class="sd">    adding the flag -fPIC to CC and changing the all target to</span>
@@ -962,7 +962,7 @@ adding the flag -fPIC to CC and changing the all target to</p>
     </div>
     <a class="headerlink" href="#write_ADerrors"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="write_ADerrors-159"><a href="#write_ADerrors-159"><span class="linenos">159</span></a><span class="k">def</span> <span class="nf">write_ADerrors</span><span class="p">(</span><span class="n">obs_list</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="write_ADerrors-160"><a href="#write_ADerrors-160"><span class="linenos">160</span></a>    <span class="sd">&quot;&quot;&quot; Write Obs to a bdio file according to ADerrors conventions</span>
+</span><span id="write_ADerrors-160"><a href="#write_ADerrors-160"><span class="linenos">160</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Write Obs to a bdio file according to ADerrors conventions</span>
 </span><span id="write_ADerrors-161"><a href="#write_ADerrors-161"><span class="linenos">161</span></a>
 </span><span id="write_ADerrors-162"><a href="#write_ADerrors-162"><span class="linenos">162</span></a><span class="sd">    read_mesons requires bdio to be compiled into a shared library. This can be achieved by</span>
 </span><span id="write_ADerrors-163"><a href="#write_ADerrors-163"><span class="linenos">163</span></a><span class="sd">    adding the flag -fPIC to CC and changing the all target to</span>
@@ -1118,7 +1118,7 @@ adding the flag -fPIC to CC and changing the all target to</p>
     </div>
     <a class="headerlink" href="#read_mesons"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_mesons-292"><a href="#read_mesons-292"><span class="linenos">292</span></a><span class="k">def</span> <span class="nf">read_mesons</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="read_mesons-293"><a href="#read_mesons-293"><span class="linenos">293</span></a>    <span class="sd">&quot;&quot;&quot; Extract mesons data from a bdio file and return it as a dictionary</span>
+</span><span id="read_mesons-293"><a href="#read_mesons-293"><span class="linenos">293</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract mesons data from a bdio file and return it as a dictionary</span>
 </span><span id="read_mesons-294"><a href="#read_mesons-294"><span class="linenos">294</span></a>
 </span><span id="read_mesons-295"><a href="#read_mesons-295"><span class="linenos">295</span></a><span class="sd">    The dictionary can be accessed with a tuple consisting of (type, source_position, kappa1, kappa2)</span>
 </span><span id="read_mesons-296"><a href="#read_mesons-296"><span class="linenos">296</span></a>
@@ -1371,7 +1371,7 @@ Manually overwrite ensemble name</li>
     </div>
     <a class="headerlink" href="#read_dSdm"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_dSdm-502"><a href="#read_dSdm-502"><span class="linenos">502</span></a><span class="k">def</span> <span class="nf">read_dSdm</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">bdio_path</span><span class="o">=</span><span class="s1">&#39;./libbdio.so&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="read_dSdm-503"><a href="#read_dSdm-503"><span class="linenos">503</span></a>    <span class="sd">&quot;&quot;&quot; Extract dSdm data from a bdio file and return it as a dictionary</span>
+</span><span id="read_dSdm-503"><a href="#read_dSdm-503"><span class="linenos">503</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Extract dSdm data from a bdio file and return it as a dictionary</span>
 </span><span id="read_dSdm-504"><a href="#read_dSdm-504"><span class="linenos">504</span></a>
 </span><span id="read_dSdm-505"><a href="#read_dSdm-505"><span class="linenos">505</span></a><span class="sd">    The dictionary can be accessed with a tuple consisting of (type, kappa)</span>
 </span><span id="read_dSdm-506"><a href="#read_dSdm-506"><span class="linenos">506</span></a>

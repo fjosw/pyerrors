@@ -156,7 +156,7 @@
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    Parameters</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    -----------------</span>
@@ -219,7 +219,7 @@
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="k">def</span> <span class="nf">read_DistillationContraction_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">diagrams</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;direct&quot;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons DistillationContraction hdf5 files in given directory structure</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons DistillationContraction hdf5 files in given directory structure</span>
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">    Parameters</span>
 </span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">    -----------------</span>
@@ -317,7 +317,7 @@
 </span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>
 </span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>    <span class="nd">@property</span>
 </span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>    <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>        <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
 </span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
 </span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">        in and out momenta of the propagator are exchanged.</span>
@@ -348,7 +348,7 @@
 </span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a>
 </span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a>
 </span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
 </span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a>
 </span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">    Parameters</span>
 </span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a><span class="sd">    ----------</span>
@@ -388,7 +388,7 @@
 </span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a>
 </span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a>
 </span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a><span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
+</span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="sd">    Parameters</span>
 </span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a><span class="sd">    ----------</span>
@@ -442,7 +442,7 @@
 </span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a>
 </span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a>
 </span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="k">def</span> <span class="nf">read_Fourquark_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;VA&quot;</span><span class="p">,</span> <span class="s2">&quot;AV&quot;</span><span class="p">]):</span>
-</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
+</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
 </span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a>
 </span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a><span class="sd">    Parameters</span>
 </span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">    ----------</span>
@@ -579,7 +579,7 @@
     </div>
     <a class="headerlink" href="#read_meson_hd5"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_meson_hd5-57"><a href="#read_meson_hd5-57"><span class="linenos"> 57</span></a><span class="k">def</span> <span class="nf">read_meson_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">meson</span><span class="o">=</span><span class="s1">&#39;meson_0&#39;</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="read_meson_hd5-58"><a href="#read_meson_hd5-58"><span class="linenos"> 58</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
+</span><span id="read_meson_hd5-58"><a href="#read_meson_hd5-58"><span class="linenos"> 58</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Read hadrons meson hdf5 file and extract the meson labeled &#39;meson&#39;</span>
 </span><span id="read_meson_hd5-59"><a href="#read_meson_hd5-59"><span class="linenos"> 59</span></a>
 </span><span id="read_meson_hd5-60"><a href="#read_meson_hd5-60"><span class="linenos"> 60</span></a><span class="sd">    Parameters</span>
 </span><span id="read_meson_hd5-61"><a href="#read_meson_hd5-61"><span class="linenos"> 61</span></a><span class="sd">    -----------------</span>
@@ -680,7 +680,7 @@ If specified only configurations in the given range are read in.</li>
     </div>
     <a class="headerlink" href="#read_DistillationContraction_hd5"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_DistillationContraction_hd5-120"><a href="#read_DistillationContraction_hd5-120"><span class="linenos">120</span></a><span class="k">def</span> <span class="nf">read_DistillationContraction_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">diagrams</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;direct&quot;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="read_DistillationContraction_hd5-121"><a href="#read_DistillationContraction_hd5-121"><span class="linenos">121</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons DistillationContraction hdf5 files in given directory structure</span>
+</span><span id="read_DistillationContraction_hd5-121"><a href="#read_DistillationContraction_hd5-121"><span class="linenos">121</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons DistillationContraction hdf5 files in given directory structure</span>
 </span><span id="read_DistillationContraction_hd5-122"><a href="#read_DistillationContraction_hd5-122"><span class="linenos">122</span></a>
 </span><span id="read_DistillationContraction_hd5-123"><a href="#read_DistillationContraction_hd5-123"><span class="linenos">123</span></a><span class="sd">    Parameters</span>
 </span><span id="read_DistillationContraction_hd5-124"><a href="#read_DistillationContraction_hd5-124"><span class="linenos">124</span></a><span class="sd">    -----------------</span>
@@ -808,7 +808,7 @@ If specified only configurations in the given range are read in.</li>
 </span><span id="Npr_matrix-216"><a href="#Npr_matrix-216"><span class="linenos">216</span></a>
 </span><span id="Npr_matrix-217"><a href="#Npr_matrix-217"><span class="linenos">217</span></a>    <span class="nd">@property</span>
 </span><span id="Npr_matrix-218"><a href="#Npr_matrix-218"><span class="linenos">218</span></a>    <span class="k">def</span> <span class="nf">g5H</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Npr_matrix-219"><a href="#Npr_matrix-219"><span class="linenos">219</span></a>        <span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
+</span><span id="Npr_matrix-219"><a href="#Npr_matrix-219"><span class="linenos">219</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gamma_5 hermitean conjugate</span>
 </span><span id="Npr_matrix-220"><a href="#Npr_matrix-220"><span class="linenos">220</span></a>
 </span><span id="Npr_matrix-221"><a href="#Npr_matrix-221"><span class="linenos">221</span></a><span class="sd">        Uses the fact that the propagator is gamma5 hermitean, so just the</span>
 </span><span id="Npr_matrix-222"><a href="#Npr_matrix-222"><span class="linenos">222</span></a><span class="sd">        in and out momenta of the propagator are exchanged.</span>
@@ -1091,7 +1091,7 @@ in and out momenta of the propagator are exchanged.</p>
     </div>
     <a class="headerlink" href="#read_ExternalLeg_hd5"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_ExternalLeg_hd5-249"><a href="#read_ExternalLeg_hd5-249"><span class="linenos">249</span></a><span class="k">def</span> <span class="nf">read_ExternalLeg_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="read_ExternalLeg_hd5-250"><a href="#read_ExternalLeg_hd5-250"><span class="linenos">250</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
+</span><span id="read_ExternalLeg_hd5-250"><a href="#read_ExternalLeg_hd5-250"><span class="linenos">250</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons ExternalLeg hdf5 file and output an array of CObs</span>
 </span><span id="read_ExternalLeg_hd5-251"><a href="#read_ExternalLeg_hd5-251"><span class="linenos">251</span></a>
 </span><span id="read_ExternalLeg_hd5-252"><a href="#read_ExternalLeg_hd5-252"><span class="linenos">252</span></a><span class="sd">    Parameters</span>
 </span><span id="read_ExternalLeg_hd5-253"><a href="#read_ExternalLeg_hd5-253"><span class="linenos">253</span></a><span class="sd">    ----------</span>
@@ -1161,7 +1161,7 @@ If specified only configurations in the given range are read in.</li>
     </div>
     <a class="headerlink" href="#read_Bilinear_hd5"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_Bilinear_hd5-289"><a href="#read_Bilinear_hd5-289"><span class="linenos">289</span></a><span class="k">def</span> <span class="nf">read_Bilinear_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="read_Bilinear_hd5-290"><a href="#read_Bilinear_hd5-290"><span class="linenos">290</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
+</span><span id="read_Bilinear_hd5-290"><a href="#read_Bilinear_hd5-290"><span class="linenos">290</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons Bilinear hdf5 file and output an array of CObs</span>
 </span><span id="read_Bilinear_hd5-291"><a href="#read_Bilinear_hd5-291"><span class="linenos">291</span></a>
 </span><span id="read_Bilinear_hd5-292"><a href="#read_Bilinear_hd5-292"><span class="linenos">292</span></a><span class="sd">    Parameters</span>
 </span><span id="read_Bilinear_hd5-293"><a href="#read_Bilinear_hd5-293"><span class="linenos">293</span></a><span class="sd">    ----------</span>
@@ -1245,7 +1245,7 @@ If specified only configurations in the given range are read in.</li>
     </div>
     <a class="headerlink" href="#read_Fourquark_hd5"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="read_Fourquark_hd5-343"><a href="#read_Fourquark_hd5-343"><span class="linenos">343</span></a><span class="k">def</span> <span class="nf">read_Fourquark_hd5</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">ens_id</span><span class="p">,</span> <span class="n">idl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;VA&quot;</span><span class="p">,</span> <span class="s2">&quot;AV&quot;</span><span class="p">]):</span>
-</span><span id="read_Fourquark_hd5-344"><a href="#read_Fourquark_hd5-344"><span class="linenos">344</span></a>    <span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
+</span><span id="read_Fourquark_hd5-344"><a href="#read_Fourquark_hd5-344"><span class="linenos">344</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs</span>
 </span><span id="read_Fourquark_hd5-345"><a href="#read_Fourquark_hd5-345"><span class="linenos">345</span></a>
 </span><span id="read_Fourquark_hd5-346"><a href="#read_Fourquark_hd5-346"><span class="linenos">346</span></a><span class="sd">    Parameters</span>
 </span><span id="read_Fourquark_hd5-347"><a href="#read_Fourquark_hd5-347"><span class="linenos">347</span></a><span class="sd">    ----------</span>

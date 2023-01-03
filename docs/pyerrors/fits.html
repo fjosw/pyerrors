@@ -126,7 +126,7 @@
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="k">class</span> <span class="nc">Fit_result</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="sd">&quot;&quot;&quot;Represents fit results.</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents fit results.</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">    Attributes</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">    ----------</span>
@@ -151,7 +151,7 @@
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">)</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">]</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -177,7 +177,7 @@
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="k">def</span> <span class="nf">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x).</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x).</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    Parameters</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    ----------</span>
@@ -243,7 +243,7 @@
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="k">def</span> <span class="nf">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
 </span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">    Parameters</span>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">    ----------</span>
@@ -765,7 +765,7 @@
 </span><span id="L-657"><a href="#L-657"><span class="linenos">657</span></a>
 </span><span id="L-658"><a href="#L-658"><span class="linenos">658</span></a>
 </span><span id="L-659"><a href="#L-659"><span class="linenos">659</span></a><span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-660"><a href="#L-660"><span class="linenos">660</span></a>    <span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
+</span><span id="L-660"><a href="#L-660"><span class="linenos">660</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
 </span><span id="L-661"><a href="#L-661"><span class="linenos">661</span></a>
 </span><span id="L-662"><a href="#L-662"><span class="linenos">662</span></a><span class="sd">    Parameters</span>
 </span><span id="L-663"><a href="#L-663"><span class="linenos">663</span></a><span class="sd">    ----------</span>
@@ -791,7 +791,7 @@
 </span><span id="L-683"><a href="#L-683"><span class="linenos">683</span></a>
 </span><span id="L-684"><a href="#L-684"><span class="linenos">684</span></a>
 </span><span id="L-685"><a href="#L-685"><span class="linenos">685</span></a><span class="k">def</span> <span class="nf">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">o_y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-</span><span id="L-686"><a href="#L-686"><span class="linenos">686</span></a>    <span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
+</span><span id="L-686"><a href="#L-686"><span class="linenos">686</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
 </span><span id="L-687"><a href="#L-687"><span class="linenos">687</span></a><span class="sd">       check if the residuals of the fit are gaussian distributed.</span>
 </span><span id="L-688"><a href="#L-688"><span class="linenos">688</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-689"><a href="#L-689"><span class="linenos">689</span></a>
@@ -817,7 +817,7 @@
 </span><span id="L-709"><a href="#L-709"><span class="linenos">709</span></a>
 </span><span id="L-710"><a href="#L-710"><span class="linenos">710</span></a>
 </span><span id="L-711"><a href="#L-711"><span class="linenos">711</span></a><span class="k">def</span> <span class="nf">residual_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">fit_res</span><span class="p">):</span>
-</span><span id="L-712"><a href="#L-712"><span class="linenos">712</span></a>    <span class="sd">&quot;&quot;&quot; Generates a plot which compares the fit to the data and displays the corresponding residuals&quot;&quot;&quot;</span>
+</span><span id="L-712"><a href="#L-712"><span class="linenos">712</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Generates a plot which compares the fit to the data and displays the corresponding residuals&quot;&quot;&quot;</span>
 </span><span id="L-713"><a href="#L-713"><span class="linenos">713</span></a>    <span class="n">sorted_x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </span><span id="L-714"><a href="#L-714"><span class="linenos">714</span></a>    <span class="n">xstart</span> <span class="o">=</span> <span class="n">sorted_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sorted_x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span><span id="L-715"><a href="#L-715"><span class="linenos">715</span></a>    <span class="n">xstop</span> <span class="o">=</span> <span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
@@ -847,7 +847,7 @@
 </span><span id="L-739"><a href="#L-739"><span class="linenos">739</span></a>
 </span><span id="L-740"><a href="#L-740"><span class="linenos">740</span></a>
 </span><span id="L-741"><a href="#L-741"><span class="linenos">741</span></a><span class="k">def</span> <span class="nf">error_band</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
-</span><span id="L-742"><a href="#L-742"><span class="linenos">742</span></a>    <span class="sd">&quot;&quot;&quot;Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.&quot;&quot;&quot;</span>
+</span><span id="L-742"><a href="#L-742"><span class="linenos">742</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.&quot;&quot;&quot;</span>
 </span><span id="L-743"><a href="#L-743"><span class="linenos">743</span></a>    <span class="n">cov</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
 </span><span id="L-744"><a href="#L-744"><span class="linenos">744</span></a>    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cov</span> <span class="o">-</span> <span class="n">cov</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">):</span>
 </span><span id="L-745"><a href="#L-745"><span class="linenos">745</span></a>        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Covariance matrix is not symmetric within floating point precision&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
@@ -865,7 +865,7 @@
 </span><span id="L-757"><a href="#L-757"><span class="linenos">757</span></a>
 </span><span id="L-758"><a href="#L-758"><span class="linenos">758</span></a>
 </span><span id="L-759"><a href="#L-759"><span class="linenos">759</span></a><span class="k">def</span> <span class="nf">ks_test</span><span class="p">(</span><span class="n">objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-760"><a href="#L-760"><span class="linenos">760</span></a>    <span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the p-values of all fit object.</span>
+</span><span id="L-760"><a href="#L-760"><span class="linenos">760</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the p-values of all fit object.</span>
 </span><span id="L-761"><a href="#L-761"><span class="linenos">761</span></a>
 </span><span id="L-762"><a href="#L-762"><span class="linenos">762</span></a><span class="sd">    Parameters</span>
 </span><span id="L-763"><a href="#L-763"><span class="linenos">763</span></a><span class="sd">    ----------</span>
@@ -918,7 +918,7 @@
     </div>
     <a class="headerlink" href="#Fit_result"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Fit_result-21"><a href="#Fit_result-21"><span class="linenos">21</span></a><span class="k">class</span> <span class="nc">Fit_result</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
-</span><span id="Fit_result-22"><a href="#Fit_result-22"><span class="linenos">22</span></a>    <span class="sd">&quot;&quot;&quot;Represents fit results.</span>
+</span><span id="Fit_result-22"><a href="#Fit_result-22"><span class="linenos">22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents fit results.</span>
 </span><span id="Fit_result-23"><a href="#Fit_result-23"><span class="linenos">23</span></a>
 </span><span id="Fit_result-24"><a href="#Fit_result-24"><span class="linenos">24</span></a><span class="sd">    Attributes</span>
 </span><span id="Fit_result-25"><a href="#Fit_result-25"><span class="linenos">25</span></a><span class="sd">    ----------</span>
@@ -943,7 +943,7 @@
 </span><span id="Fit_result-44"><a href="#Fit_result-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">)</span>
 </span><span id="Fit_result-45"><a href="#Fit_result-45"><span class="linenos">45</span></a>
 </span><span id="Fit_result-46"><a href="#Fit_result-46"><span class="linenos">46</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Fit_result-47"><a href="#Fit_result-47"><span class="linenos">47</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
+</span><span id="Fit_result-47"><a href="#Fit_result-47"><span class="linenos">47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
 </span><span id="Fit_result-48"><a href="#Fit_result-48"><span class="linenos">48</span></a>        <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">]</span>
 </span><span id="Fit_result-49"><a href="#Fit_result-49"><span class="linenos">49</span></a>
 </span><span id="Fit_result-50"><a href="#Fit_result-50"><span class="linenos">50</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1017,7 +1017,7 @@ Hotelling t-squared p-value for correlated fits.</li>
     </div>
     <a class="headerlink" href="#Fit_result.gamma_method"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Fit_result.gamma_method-46"><a href="#Fit_result.gamma_method-46"><span class="linenos">46</span></a>    <span class="k">def</span> <span class="nf">gamma_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Fit_result.gamma_method-47"><a href="#Fit_result.gamma_method-47"><span class="linenos">47</span></a>        <span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
+</span><span id="Fit_result.gamma_method-47"><a href="#Fit_result.gamma_method-47"><span class="linenos">47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the gamma method to all fit parameters&quot;&quot;&quot;</span>
 </span><span id="Fit_result.gamma_method-48"><a href="#Fit_result.gamma_method-48"><span class="linenos">48</span></a>        <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">]</span>
 </span></pre></div>
 
@@ -1050,7 +1050,7 @@ Hotelling t-squared p-value for correlated fits.</li>
     </div>
     <a class="headerlink" href="#least_squares"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="least_squares-72"><a href="#least_squares-72"><span class="linenos"> 72</span></a><span class="k">def</span> <span class="nf">least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="least_squares-73"><a href="#least_squares-73"><span class="linenos"> 73</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x).</span>
+</span><span id="least_squares-73"><a href="#least_squares-73"><span class="linenos"> 73</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x).</span>
 </span><span id="least_squares-74"><a href="#least_squares-74"><span class="linenos"> 74</span></a>
 </span><span id="least_squares-75"><a href="#least_squares-75"><span class="linenos"> 75</span></a><span class="sd">    Parameters</span>
 </span><span id="least_squares-76"><a href="#least_squares-76"><span class="linenos"> 76</span></a><span class="sd">    ----------</span>
@@ -1194,7 +1194,7 @@ Use numerical differentation instead of automatic differentiation to perform the
     </div>
     <a class="headerlink" href="#total_least_squares"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="total_least_squares-138"><a href="#total_least_squares-138"><span class="linenos">138</span></a><span class="k">def</span> <span class="nf">total_least_squares</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="total_least_squares-139"><a href="#total_least_squares-139"><span class="linenos">139</span></a>    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
+</span><span id="total_least_squares-139"><a href="#total_least_squares-139"><span class="linenos">139</span></a><span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.</span>
 </span><span id="total_least_squares-140"><a href="#total_least_squares-140"><span class="linenos">140</span></a>
 </span><span id="total_least_squares-141"><a href="#total_least_squares-141"><span class="linenos">141</span></a><span class="sd">    Parameters</span>
 </span><span id="total_least_squares-142"><a href="#total_least_squares-142"><span class="linenos">142</span></a><span class="sd">    ----------</span>
@@ -1457,7 +1457,7 @@ Use numerical differentation instead of automatic differentiation to perform the
     </div>
     <a class="headerlink" href="#fit_lin"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="fit_lin-660"><a href="#fit_lin-660"><span class="linenos">660</span></a><span class="k">def</span> <span class="nf">fit_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="fit_lin-661"><a href="#fit_lin-661"><span class="linenos">661</span></a>    <span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
+</span><span id="fit_lin-661"><a href="#fit_lin-661"><span class="linenos">661</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a linear fit to y = n + m * x and returns two Obs n, m.</span>
 </span><span id="fit_lin-662"><a href="#fit_lin-662"><span class="linenos">662</span></a>
 </span><span id="fit_lin-663"><a href="#fit_lin-663"><span class="linenos">663</span></a><span class="sd">    Parameters</span>
 </span><span id="fit_lin-664"><a href="#fit_lin-664"><span class="linenos">664</span></a><span class="sd">    ----------</span>
@@ -1510,7 +1510,7 @@ List of Obs, the dvalues of the Obs are used as yerror for the fit.</li>
     </div>
     <a class="headerlink" href="#qqplot"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="qqplot-686"><a href="#qqplot-686"><span class="linenos">686</span></a><span class="k">def</span> <span class="nf">qqplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">o_y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-</span><span id="qqplot-687"><a href="#qqplot-687"><span class="linenos">687</span></a>    <span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
+</span><span id="qqplot-687"><a href="#qqplot-687"><span class="linenos">687</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a quantile-quantile plot of the fit result which can be used to</span>
 </span><span id="qqplot-688"><a href="#qqplot-688"><span class="linenos">688</span></a><span class="sd">       check if the residuals of the fit are gaussian distributed.</span>
 </span><span id="qqplot-689"><a href="#qqplot-689"><span class="linenos">689</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="qqplot-690"><a href="#qqplot-690"><span class="linenos">690</span></a>
@@ -1554,7 +1554,7 @@ check if the residuals of the fit are gaussian distributed.</p>
     </div>
     <a class="headerlink" href="#residual_plot"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="residual_plot-712"><a href="#residual_plot-712"><span class="linenos">712</span></a><span class="k">def</span> <span class="nf">residual_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">fit_res</span><span class="p">):</span>
-</span><span id="residual_plot-713"><a href="#residual_plot-713"><span class="linenos">713</span></a>    <span class="sd">&quot;&quot;&quot; Generates a plot which compares the fit to the data and displays the corresponding residuals&quot;&quot;&quot;</span>
+</span><span id="residual_plot-713"><a href="#residual_plot-713"><span class="linenos">713</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot; Generates a plot which compares the fit to the data and displays the corresponding residuals&quot;&quot;&quot;</span>
 </span><span id="residual_plot-714"><a href="#residual_plot-714"><span class="linenos">714</span></a>    <span class="n">sorted_x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </span><span id="residual_plot-715"><a href="#residual_plot-715"><span class="linenos">715</span></a>    <span class="n">xstart</span> <span class="o">=</span> <span class="n">sorted_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sorted_x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span><span id="residual_plot-716"><a href="#residual_plot-716"><span class="linenos">716</span></a>    <span class="n">xstop</span> <span class="o">=</span> <span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
@@ -1601,7 +1601,7 @@ check if the residuals of the fit are gaussian distributed.</p>
     </div>
     <a class="headerlink" href="#error_band"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="error_band-742"><a href="#error_band-742"><span class="linenos">742</span></a><span class="k">def</span> <span class="nf">error_band</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">beta</span><span class="p">):</span>
-</span><span id="error_band-743"><a href="#error_band-743"><span class="linenos">743</span></a>    <span class="sd">&quot;&quot;&quot;Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.&quot;&quot;&quot;</span>
+</span><span id="error_band-743"><a href="#error_band-743"><span class="linenos">743</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.&quot;&quot;&quot;</span>
 </span><span id="error_band-744"><a href="#error_band-744"><span class="linenos">744</span></a>    <span class="n">cov</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
 </span><span id="error_band-745"><a href="#error_band-745"><span class="linenos">745</span></a>    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cov</span> <span class="o">-</span> <span class="n">cov</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">):</span>
 </span><span id="error_band-746"><a href="#error_band-746"><span class="linenos">746</span></a>        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Covariance matrix is not symmetric within floating point precision&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
@@ -1636,7 +1636,7 @@ check if the residuals of the fit are gaussian distributed.</p>
     </div>
     <a class="headerlink" href="#ks_test"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="ks_test-760"><a href="#ks_test-760"><span class="linenos">760</span></a><span class="k">def</span> <span class="nf">ks_test</span><span class="p">(</span><span class="n">objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="ks_test-761"><a href="#ks_test-761"><span class="linenos">761</span></a>    <span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the p-values of all fit object.</span>
+</span><span id="ks_test-761"><a href="#ks_test-761"><span class="linenos">761</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Performs a Kolmogorov–Smirnov test for the p-values of all fit object.</span>
 </span><span id="ks_test-762"><a href="#ks_test-762"><span class="linenos">762</span></a>
 </span><span id="ks_test-763"><a href="#ks_test-763"><span class="linenos">763</span></a><span class="sd">    Parameters</span>
 </span><span id="ks_test-764"><a href="#ks_test-764"><span class="linenos">764</span></a><span class="sd">    ----------</span>

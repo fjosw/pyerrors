@@ -108,7 +108,7 @@
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="k">def</span> <span class="nf">create_json_string</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>    <span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">    to a .json(.gz) file</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    Parameters</span>
@@ -291,7 +291,7 @@
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>
 </span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a>
 </span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="k">def</span> <span class="nf">dump_to_json</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
 </span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>
 </span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">    Parameters</span>
 </span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">    ----------</span>
@@ -328,7 +328,7 @@
 </span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>
 </span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="k">def</span> <span class="nf">_parse_json_dict</span><span class="p">(</span><span class="n">json_dict</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a dict that</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a dict that</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="sd">    was built out of a json string.</span>
 </span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>
 </span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
@@ -534,7 +534,7 @@
 </span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>
 </span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>
 </span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a><span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
+</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
 </span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>
 </span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a><span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
@@ -554,7 +554,7 @@
 </span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a>
 </span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a>
 </span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json(.gz) file.</span>
+</span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json(.gz) file.</span>
 </span><span id="L-465"><a href="#L-465"><span class="linenos">465</span></a>
 </span><span id="L-466"><a href="#L-466"><span class="linenos">466</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="L-467"><a href="#L-467"><span class="linenos">467</span></a><span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
@@ -588,7 +588,7 @@
 </span><span id="L-495"><a href="#L-495"><span class="linenos">495</span></a>
 </span><span id="L-496"><a href="#L-496"><span class="linenos">496</span></a>
 </span><span id="L-497"><a href="#L-497"><span class="linenos">497</span></a><span class="k">def</span> <span class="nf">_ol_from_dict</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">):</span>
-</span><span id="L-498"><a href="#L-498"><span class="linenos">498</span></a>    <span class="sd">&quot;&quot;&quot;Convert a dictionary of Obs objects to a list and a dictionary that contains</span>
+</span><span id="L-498"><a href="#L-498"><span class="linenos">498</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a dictionary of Obs objects to a list and a dictionary that contains</span>
 </span><span id="L-499"><a href="#L-499"><span class="linenos">499</span></a><span class="sd">    placeholders instead of the Obs objects.</span>
 </span><span id="L-500"><a href="#L-500"><span class="linenos">500</span></a>
 </span><span id="L-501"><a href="#L-501"><span class="linenos">501</span></a><span class="sd">    Parameters</span>
@@ -668,7 +668,7 @@
 </span><span id="L-575"><a href="#L-575"><span class="linenos">575</span></a>
 </span><span id="L-576"><a href="#L-576"><span class="linenos">576</span></a>
 </span><span id="L-577"><a href="#L-577"><span class="linenos">577</span></a><span class="k">def</span> <span class="nf">dump_dict_to_json</span><span class="p">(</span><span class="n">od</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="L-578"><a href="#L-578"><span class="linenos">578</span></a>    <span class="sd">&quot;&quot;&quot;Export a dict of Obs or structures containing Obs to a .json(.gz) file</span>
+</span><span id="L-578"><a href="#L-578"><span class="linenos">578</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a dict of Obs or structures containing Obs to a .json(.gz) file</span>
 </span><span id="L-579"><a href="#L-579"><span class="linenos">579</span></a>
 </span><span id="L-580"><a href="#L-580"><span class="linenos">580</span></a><span class="sd">    Parameters</span>
 </span><span id="L-581"><a href="#L-581"><span class="linenos">581</span></a><span class="sd">    ----------</span>
@@ -704,7 +704,7 @@
 </span><span id="L-611"><a href="#L-611"><span class="linenos">611</span></a>
 </span><span id="L-612"><a href="#L-612"><span class="linenos">612</span></a>
 </span><span id="L-613"><a href="#L-613"><span class="linenos">613</span></a><span class="k">def</span> <span class="nf">_od_from_list_and_dict</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">):</span>
-</span><span id="L-614"><a href="#L-614"><span class="linenos">614</span></a>    <span class="sd">&quot;&quot;&quot;Parse a list of Obs or structures containing Obs and an accompanying</span>
+</span><span id="L-614"><a href="#L-614"><span class="linenos">614</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a list of Obs or structures containing Obs and an accompanying</span>
 </span><span id="L-615"><a href="#L-615"><span class="linenos">615</span></a><span class="sd">    dict, where the structures have been replaced by placeholders to a</span>
 </span><span id="L-616"><a href="#L-616"><span class="linenos">616</span></a><span class="sd">    dict that contains the structures.</span>
 </span><span id="L-617"><a href="#L-617"><span class="linenos">617</span></a>
@@ -767,7 +767,7 @@
 </span><span id="L-674"><a href="#L-674"><span class="linenos">674</span></a>
 </span><span id="L-675"><a href="#L-675"><span class="linenos">675</span></a>
 </span><span id="L-676"><a href="#L-676"><span class="linenos">676</span></a><span class="k">def</span> <span class="nf">load_json_dict</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">):</span>
-</span><span id="L-677"><a href="#L-677"><span class="linenos">677</span></a>    <span class="sd">&quot;&quot;&quot;Import a dict of Obs or structures containing Obs from a .json(.gz) file.</span>
+</span><span id="L-677"><a href="#L-677"><span class="linenos">677</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a dict of Obs or structures containing Obs from a .json(.gz) file.</span>
 </span><span id="L-678"><a href="#L-678"><span class="linenos">678</span></a>
 </span><span id="L-679"><a href="#L-679"><span class="linenos">679</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="L-680"><a href="#L-680"><span class="linenos">680</span></a>
@@ -813,7 +813,7 @@
     </div>
     <a class="headerlink" href="#create_json_string"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="create_json_string-18"><a href="#create_json_string-18"><span class="linenos"> 18</span></a><span class="k">def</span> <span class="nf">create_json_string</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="create_json_string-19"><a href="#create_json_string-19"><span class="linenos"> 19</span></a>    <span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
+</span><span id="create_json_string-19"><a href="#create_json_string-19"><span class="linenos"> 19</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate the string for the export of a list of Obs or structures containing Obs</span>
 </span><span id="create_json_string-20"><a href="#create_json_string-20"><span class="linenos"> 20</span></a><span class="sd">    to a .json(.gz) file</span>
 </span><span id="create_json_string-21"><a href="#create_json_string-21"><span class="linenos"> 21</span></a>
 </span><span id="create_json_string-22"><a href="#create_json_string-22"><span class="linenos"> 22</span></a><span class="sd">    Parameters</span>
@@ -1028,7 +1028,7 @@ saves disk space.</li>
     </div>
     <a class="headerlink" href="#dump_to_json"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="dump_to_json-201"><a href="#dump_to_json-201"><span class="linenos">201</span></a><span class="k">def</span> <span class="nf">dump_to_json</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="dump_to_json-202"><a href="#dump_to_json-202"><span class="linenos">202</span></a>    <span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
+</span><span id="dump_to_json-202"><a href="#dump_to_json-202"><span class="linenos">202</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a list of Obs or structures containing Obs to a .json(.gz) file</span>
 </span><span id="dump_to_json-203"><a href="#dump_to_json-203"><span class="linenos">203</span></a>
 </span><span id="dump_to_json-204"><a href="#dump_to_json-204"><span class="linenos">204</span></a><span class="sd">    Parameters</span>
 </span><span id="dump_to_json-205"><a href="#dump_to_json-205"><span class="linenos">205</span></a><span class="sd">    ----------</span>
@@ -1100,7 +1100,7 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
     </div>
     <a class="headerlink" href="#import_json_string"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="import_json_string-444"><a href="#import_json_string-444"><span class="linenos">444</span></a><span class="k">def</span> <span class="nf">import_json_string</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="import_json_string-445"><a href="#import_json_string-445"><span class="linenos">445</span></a>    <span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
+</span><span id="import_json_string-445"><a href="#import_json_string-445"><span class="linenos">445</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconstruct a list of Obs or structures containing Obs from a json string.</span>
 </span><span id="import_json_string-446"><a href="#import_json_string-446"><span class="linenos">446</span></a>
 </span><span id="import_json_string-447"><a href="#import_json_string-447"><span class="linenos">447</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="import_json_string-448"><a href="#import_json_string-448"><span class="linenos">448</span></a><span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
@@ -1152,7 +1152,7 @@ If False, only the data is returned.</li>
     </div>
     <a class="headerlink" href="#load_json"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="load_json-464"><a href="#load_json-464"><span class="linenos">464</span></a><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-</span><span id="load_json-465"><a href="#load_json-465"><span class="linenos">465</span></a>    <span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json(.gz) file.</span>
+</span><span id="load_json-465"><a href="#load_json-465"><span class="linenos">465</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a list of Obs or structures containing Obs from a .json(.gz) file.</span>
 </span><span id="load_json-466"><a href="#load_json-466"><span class="linenos">466</span></a>
 </span><span id="load_json-467"><a href="#load_json-467"><span class="linenos">467</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="load_json-468"><a href="#load_json-468"><span class="linenos">468</span></a><span class="sd">    If the list contains only one element, it is unpacked from the list.</span>
@@ -1220,7 +1220,7 @@ If False, only the data is returned.</li>
     </div>
     <a class="headerlink" href="#dump_dict_to_json"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="dump_dict_to_json-578"><a href="#dump_dict_to_json-578"><span class="linenos">578</span></a><span class="k">def</span> <span class="nf">dump_dict_to_json</span><span class="p">(</span><span class="n">od</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-</span><span id="dump_dict_to_json-579"><a href="#dump_dict_to_json-579"><span class="linenos">579</span></a>    <span class="sd">&quot;&quot;&quot;Export a dict of Obs or structures containing Obs to a .json(.gz) file</span>
+</span><span id="dump_dict_to_json-579"><a href="#dump_dict_to_json-579"><span class="linenos">579</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a dict of Obs or structures containing Obs to a .json(.gz) file</span>
 </span><span id="dump_dict_to_json-580"><a href="#dump_dict_to_json-580"><span class="linenos">580</span></a>
 </span><span id="dump_dict_to_json-581"><a href="#dump_dict_to_json-581"><span class="linenos">581</span></a><span class="sd">    Parameters</span>
 </span><span id="dump_dict_to_json-582"><a href="#dump_dict_to_json-582"><span class="linenos">582</span></a><span class="sd">    ----------</span>
@@ -1293,7 +1293,7 @@ If True, the output is a gzipped json. If False, the output is a json file.</li>
     </div>
     <a class="headerlink" href="#load_json_dict"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="load_json_dict-677"><a href="#load_json_dict-677"><span class="linenos">677</span></a><span class="k">def</span> <span class="nf">load_json_dict</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="s1">&#39;DICTOBS&#39;</span><span class="p">):</span>
-</span><span id="load_json_dict-678"><a href="#load_json_dict-678"><span class="linenos">678</span></a>    <span class="sd">&quot;&quot;&quot;Import a dict of Obs or structures containing Obs from a .json(.gz) file.</span>
+</span><span id="load_json_dict-678"><a href="#load_json_dict-678"><span class="linenos">678</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a dict of Obs or structures containing Obs from a .json(.gz) file.</span>
 </span><span id="load_json_dict-679"><a href="#load_json_dict-679"><span class="linenos">679</span></a>
 </span><span id="load_json_dict-680"><a href="#load_json_dict-680"><span class="linenos">680</span></a><span class="sd">    The following structures are supported: Obs, list, numpy.ndarray, Corr</span>
 </span><span id="load_json_dict-681"><a href="#load_json_dict-681"><span class="linenos">681</span></a>

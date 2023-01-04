@@ -349,6 +349,8 @@ class Obs:
             self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
         return
 
+    gm = gamma_method
+
     def _calc_gamma(self, deltas, idx, shape, w_max, fft):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)

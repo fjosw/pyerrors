@@ -1015,3 +1015,15 @@ def test_hash():
         assert hash(i_obs) != hash((1 + 1e-7) * i_obs)
     assert hash(obs) != hash(o1)
     assert hash(o1) != hash(o2)
+
+def test_gm_alias():
+    samples = np.random.rand(500)
+
+    tt1 = pe.Obs([samples], ["ens"])
+    tt1.gamma_method()
+
+    tt2 = pe.Obs([samples], ["ens"])
+    tt2.gm()
+
+    assert np.isclose(tt1.dvalue, tt2.dvalue)
+

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2023-xx-xx
+### Added
+- Hotelling t-squared p-value added for correlated fits.
+- String conversion of numpy arrays containing `Obs` improved.
+- Alias `gm` for `Obs.gamma_method` added.
+- Input routine for xSF measurement program added.
+
+### Fixed
+- Complex valued `Corr` objects fixed.
+- Small bug in `qtop_projection` fixed.
+
 ## [2.4.0] - 2022-12-01
 ### Added
 - Log-derivatives and symmetric log-effective mass added.
@@ -12,8 +23,6 @@ All notable changes to this project will be documented in this file.
 - Bug in `Obs.details` fixed which appeared when tau had zero error.
 - Bug in `input.json` export in connection with `numpy.int64` fixed.
 - Small bug fixes in `input.openQCD`.
-
-
 
 ## [2.3.1] - 2022-10-19
 ### Fixed

@@ -49,7 +49,7 @@ class Obs:
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
                  'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'is_merged', 'tag', '_covobs', '__dict__']
+                 'idl', 'tag', '_covobs', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -97,7 +97,6 @@ class Obs:
 
         self._value = 0
         self.N = 0
-        self.is_merged = {}
         self.idl = {}
         if idl is not None:
             for name, idx in sorted(zip(names, idl)):
@@ -1153,7 +1152,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     new_cov_names = sorted(set([y for x in [o.cov_names for o in raveled_data] for y in x]))
     new_sample_names = sorted(set(new_names) - set(new_cov_names))
 
-    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_sample_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
 
     if data.ndim == 1:
@@ -1179,8 +1177,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             tmp_values = np.array(tmp_values).reshape(data.shape)
         new_r_values[name] = func(tmp_values, **kwargs)
         new_idl_d[name] = _merge_idx(idl)
-        if not is_merged[name]:
-            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
@@ -1266,7 +1262,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             final_result[i_val].names.append(name)
         final_result[i_val]._covobs = new_covobs
         final_result[i_val]._value = new_val
-        final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted
 
     if multi == 0:
@@ -1347,7 +1342,6 @@ def reweight(weight, obs, **kwargs):
 
         result.append(tmp_obs / new_weight)
         result[-1].reweighted = True
-        result[-1].is_merged = obs[i].is_merged
 
     return result
 
@@ -1391,7 +1385,6 @@ def correlate(obs_a, obs_b):
         new_idl.append(obs_a.idl[name])
 
     o = Obs(new_samples, sorted(obs_a.names), idl=new_idl)
-    o.is_merged = {name: (obs_a.is_merged.get(name, False) or obs_b.is_merged.get(name, False)) for name in o.names}
     o.reweighted = obs_a.reweighted or obs_b.reweighted
     return o
 
@@ -1589,7 +1582,6 @@ def merge_obs(list_of_obs):
 
     names = sorted(new_dict.keys())
     o = Obs([new_dict[name] for name in names], names, idl=[idl_dict[name] for name in names])
-    o.is_merged = {name: np.any([oi.is_merged.get(name, False) for oi in list_of_obs]) for name in o.names}
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
 

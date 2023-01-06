@@ -542,3 +542,13 @@ def test_complex_Corr():
     print(ccorr)
     mcorr = pe.Corr(np.array([[ccorr, ccorr], [ccorr, ccorr]]))
     assert np.all([mcorr.imag[i] == -mcorr.real[i] for i in range(mcorr.T)])
+
+
+def test_corr_no_filtering():
+    li = [-pe.pseudo_Obs(.2, .1, 'a', samples=10) for i in range(96)]
+    for i in range(len(li)):
+        li[i].idl['a'] = range(1, 21, 2)
+    c= pe.Corr(li)
+    b = pe.pseudo_Obs(1, 1e-11, 'a', samples=30)
+    c *= b
+    assert np.all([c[0].idl == o.idl for o in c])

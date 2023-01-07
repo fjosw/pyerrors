@@ -57,7 +57,6 @@ class Obs:
     tau_exp_dict = {}
     N_sigma_global = 1.0
     N_sigma_dict = {}
-    filter_eps = 1e-10
 
     def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
@@ -1102,35 +1101,6 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 
-def _filter_zeroes(deltas, idx, eps=Obs.filter_eps):
-    """Filter out all configurations with vanishing fluctuation such that they do not
-       contribute to the error estimate anymore. Returns the new deltas and
-       idx according to the filtering.
-       A fluctuation is considered to be vanishing, if it is smaller than eps times
-       the mean of the absolute values of all deltas in one list.
-
-    Parameters
-    ----------
-    deltas : list
-        List of fluctuations
-    idx : list
-        List or ranges of configs on which the deltas are defined.
-    eps : float
-        Prefactor that enters the filter criterion.
-    """
-    new_deltas = []
-    new_idx = []
-    maxd = np.mean(np.fabs(deltas))
-    for i in range(len(deltas)):
-        if abs(deltas[i]) > eps * maxd:
-            new_deltas.append(deltas[i])
-            new_idx.append(idx[i])
-    if new_idx:
-        return np.array(new_deltas), new_idx
-    else:
-        return deltas, idx
-
-
 def derived_observable(func, data, array_mode=False, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
@@ -1287,14 +1257,8 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         new_names_obs = []
         for name in new_names:
             if name not in new_covobs:
-                if is_merged[name]:
-                    filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
-                else:
-                    filtered_deltas = new_deltas[name]
-                    filtered_idl_d = new_idl_d[name]
-
-                new_samples.append(filtered_deltas)
-                new_idl.append(filtered_idl_d)
+                new_samples.append(new_deltas[name])
+                new_idl.append(new_idl_d[name])
                 new_means.append(new_r_values[name][i_val])
                 new_names_obs.append(name)
         final_result[i_val] = Obs(new_samples, new_names_obs, means=new_means, idl=new_idl)

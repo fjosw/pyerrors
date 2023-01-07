@@ -109,7 +109,7 @@ def _assert_equal_properties(ol, otype=Obs):
     for o in ol[1:]:
         if not isinstance(o, otype):
             raise Exception("Wrong data type in list.")
-        for attr in ["is_merged", "reweighted", "e_content", "idl"]:
+        for attr in ["reweighted", "e_content", "idl"]:
             if hasattr(ol[0], attr):
                 if not getattr(ol[0], attr) == getattr(o, attr):
                     raise Exception(f"All Obs in list have to have the same state '{attr}'.")

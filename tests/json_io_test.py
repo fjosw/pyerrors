@@ -404,11 +404,4 @@ def assert_equal_Obs(to, ro):
             if not np.allclose(v, v2, atol=1e-14):
                 print(kw, "does not match.")
                 return False
-
-    m_to = getattr(to, "is_merged")
-    m_ro = getattr(ro, "is_merged")
-    if not m_to == m_ro:
-        if not (all(value is False for value in m_ro.values()) and all(value is False for value in m_to.values())):
-            print("is_merged", "does not match.")
-            return False
     return True

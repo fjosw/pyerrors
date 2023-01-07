@@ -201,8 +201,6 @@ def test_matmul_irregular_histories():
         t2 = pe.linalg.matmul(standard_matrix, irregular_matrix)
 
         assert np.all([o.is_zero() for o in (t1 - t2).ravel()])
-        assert np.all([o.is_merged for o in t1.ravel()])
-        assert np.all([o.is_merged for o in t2.ravel()])
 
 
 def test_irregular_matrix_inverse():

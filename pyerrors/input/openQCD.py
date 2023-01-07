@@ -932,7 +932,6 @@ def qtop_projection(qtop, target=0):
         proj_qtop.append(np.array([1 if round(qtop.r_values[n] + q) == target else 0 for q in qtop.deltas[n]]))
 
     reto = Obs(proj_qtop, qtop.names, idl=[qtop.idl[name] for name in qtop.names])
-    reto.is_merged = qtop.is_merged
     return reto
 
 

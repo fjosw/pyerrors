@@ -55,9 +55,15 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     files: list
         list of files to be read per replica, default is all.
         for non-compact output format, hand the folders to be read here.
-    check_configs:
+    check_configs: list[list[int]]
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
+    
+    Returns
+    -------
+    result: list[Obs]
+        list of Observables with length T, observable per timeslice.
+        bb-type correlators have length 1.
     """
     if kwargs.get('im'):
         im = 1

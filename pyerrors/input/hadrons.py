@@ -74,6 +74,11 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
         two-point function. The gammas argument dominateds over meson.
     idl : range
         If specified only configurations in the given range are read in.
+    
+    Returns
+    -------
+    corr : Corr
+        Correlator of the source sink combination in question.
     '''
 
     files, idx = _get_files(path, filestem, idl)

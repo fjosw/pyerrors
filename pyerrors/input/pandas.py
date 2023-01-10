@@ -69,6 +69,9 @@ def dump_df(df, fname, gz=True):
         Filename of the output file.
     gz : bool
         If True, the output is a gzipped csv file. If False, the output is a csv file.
+    Returns
+    -------
+    None
     """
     out = _serialize_df(df, gz=False)
 
@@ -95,6 +98,10 @@ def load_df(fname, auto_gamma=False, gz=True):
         the error analysis. Default False.
     gz : bool
         If True, assumes that data is gzipped. If False, assumes JSON file.
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with the content of the sqlite database.
     """
     if not fname.endswith('.csv') and not fname.endswith('.gz'):
         fname += '.csv'

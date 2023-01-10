@@ -22,6 +22,9 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
         How to behave if table already exists. Options 'fail', 'replace', 'append'.
     gz : bool
         If True the json strings are gzipped.
+    Returns
+    -------
+    None
     """
     se_df = _serialize_df(df, gz=gz)
     con = sqlite3.connect(db)
@@ -41,6 +44,10 @@ def read_sql(sql, db, auto_gamma=False, **kwargs):
     auto_gamma : bool
         If True applies the gamma_method to all imported Obs objects with the default parameters for
         the error analysis. Default False.
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with the content of the sqlite database.
     """
     con = sqlite3.connect(db)
     extract_df = pd.read_sql(sql, con, **kwargs)

@@ -18,6 +18,11 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
     ----------
     file_path -- path to the bdio file
     bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
+    
+    Returns
+    -------
+    data : List[Obs]
+        Extracted data
     """
     bdio = ctypes.cdll.LoadLibrary(bdio_path)
 
@@ -169,6 +174,11 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
     ----------
     file_path -- path to the bdio file
     bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
+
+    Returns
+    -------
+    success : int
+        returns 0 is successful
     """
 
     for obs in obs_list:
@@ -314,6 +324,11 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
         Fixed step size between two measurements (default 1)
     alternative_ensemble_name : str
         Manually overwrite ensemble name
+    
+    Returns
+    -------
+    data : 
+        Extracted meson data
     """
 
     start = kwargs.get('start', 1)

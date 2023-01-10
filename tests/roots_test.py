@@ -42,3 +42,13 @@ def test_root_no_autograd():
 
     with pytest.raises(Exception):
         my_root = pe.roots.find_root(my_obs, root_function)
+
+
+def test_root_multi_parameter():
+    o1 = pe.pseudo_Obs(1.1, 0.1, "test")
+    o2 = pe.pseudo_Obs(1.3, 0.12, "test")
+
+    f2 = lambda x, d: d[0] + d[1] * x
+
+    assert f2(-o1 / o2, [o1, o2]) == 0
+    assert pe.find_root([o1, o2], f2) == -o1 / o2

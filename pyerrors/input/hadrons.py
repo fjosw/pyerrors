@@ -303,6 +303,10 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
         name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
+    Returns
+    -------
+    result_dict: dict[Npr_matrix]
+        extracted Bilinears
     """
 
     files, idx = _get_files(path, filestem, idl)
@@ -359,6 +363,10 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
         If specified only configurations in the given range are read in.
     vertices : list
         Vertex functions to be extracted.
+    Returns
+    -------
+    result_dict : dict[Npr_matrix]
+        extracted fourquark matrizes
     """
 
     files, idx = _get_files(path, filestem, idl)

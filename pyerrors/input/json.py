@@ -29,6 +29,11 @@ def create_json_string(ol, description='', indent=1):
     indent : int
         Specify the indentation level of the json file. None or 0 is permissible and
         saves disk space.
+
+    Returns
+    -------
+    json_string : str
+        String for export to .json(.gz) file
     """
 
     def _gen_data_d_from_list(ol):
@@ -215,6 +220,10 @@ def dump_to_json(ol, fname, description='', indent=1, gz=True):
         saves disk space.
     gz : bool
         If True, the output is a gzipped json. If False, the output is a json file.
+
+    Returns
+    -------
+    Null
     """
 
     jsonstring = create_json_string(ol, description, indent)
@@ -250,6 +259,17 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned.
+
+    Returns
+    -------
+    result : list[Obs]
+        reconstructed list of observables from the json string
+    or
+    result : Obs
+        only one observable if the list only has one entry
+    or
+    result : dict
+        if full_output=True
     """
 
     def _gen_obsd_from_datad(d):
@@ -455,6 +475,17 @@ def import_json_string(json_string, verbose=True, full_output=False):
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned.
+
+    Returns
+    -------
+    result : list[Obs]
+        reconstructed list of observables from the json string
+    or
+    result : Obs
+        only one observable if the list only has one entry
+    or
+    result : dict
+        if full_output=True
     """
 
     return _parse_json_dict(json.loads(json_string), verbose, full_output)
@@ -477,6 +508,17 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned.
+
+    Returns
+    -------
+    result : list[Obs]
+        reconstructed list of observables from the json string
+    or
+    result : Obs
+        only one observable if the list only has one entry
+    or
+    result : dict
+        if full_output=True
     """
     if not fname.endswith('.json') and not fname.endswith('.gz'):
         fname += '.json'
@@ -594,6 +636,10 @@ def dump_dict_to_json(od, fname, description='', indent=1, reps='DICTOBS', gz=Tr
         Specify the structure of the placeholder in exported dict to be reps[0-9]+.
     gz : bool
         If True, the output is a gzipped json. If False, the output is a json file.
+
+    Returns
+    -------
+    None
     """
 
     if not isinstance(od, dict):

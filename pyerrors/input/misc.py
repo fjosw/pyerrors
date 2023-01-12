@@ -19,7 +19,7 @@ def read_pbp(path, prefix, **kwargs):
     Returns
     -------
     result : list[Obs]
-        list of observables read    
+        list of observables read
     """
 
     ls = []

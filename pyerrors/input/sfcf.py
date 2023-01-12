@@ -58,7 +58,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     check_configs: list[list[int]]
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
-    
+
     Returns
     -------
     result: list[Obs]

@@ -574,7 +574,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
         for version=='sfqcd' If False, the Wilson flow is used.
     integer_charge : bool
         If True, the charge is rounded towards the nearest integer on each config.
-    
+
     Returns
     -------
     result : Obs

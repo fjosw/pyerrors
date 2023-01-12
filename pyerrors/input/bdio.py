@@ -18,7 +18,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
     ----------
     file_path -- path to the bdio file
     bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
-    
+
     Returns
     -------
     data : List[Obs]
@@ -324,10 +324,10 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
         Fixed step size between two measurements (default 1)
     alternative_ensemble_name : str
         Manually overwrite ensemble name
-    
+
     Returns
     -------
-    data : 
+    data : dict
         Extracted meson data
     """
 

@@ -49,7 +49,7 @@ class Obs:
                  'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
                  'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
                  'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'is_merged', 'tag', '_covobs', '__dict__']
+                 'idl', 'tag', '_covobs', '__dict__']
 
     S_global = 2.0
     S_dict = {}
@@ -57,7 +57,6 @@ class Obs:
     tau_exp_dict = {}
     N_sigma_global = 1.0
     N_sigma_dict = {}
-    filter_eps = 1e-10
 
     def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
@@ -98,7 +97,6 @@ class Obs:
 
         self._value = 0
         self.N = 0
-        self.is_merged = {}
         self.idl = {}
         if idl is not None:
             for name, idx in sorted(zip(names, idl)):
@@ -348,6 +346,8 @@ class Obs:
         else:
             self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
         return
+
+    gm = gamma_method
 
     def _calc_gamma(self, deltas, idx, shape, w_max, fft):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
@@ -1100,35 +1100,6 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
 
 
-def _filter_zeroes(deltas, idx, eps=Obs.filter_eps):
-    """Filter out all configurations with vanishing fluctuation such that they do not
-       contribute to the error estimate anymore. Returns the new deltas and
-       idx according to the filtering.
-       A fluctuation is considered to be vanishing, if it is smaller than eps times
-       the mean of the absolute values of all deltas in one list.
-
-    Parameters
-    ----------
-    deltas : list
-        List of fluctuations
-    idx : list
-        List or ranges of configs on which the deltas are defined.
-    eps : float
-        Prefactor that enters the filter criterion.
-    """
-    new_deltas = []
-    new_idx = []
-    maxd = np.mean(np.fabs(deltas))
-    for i in range(len(deltas)):
-        if abs(deltas[i]) > eps * maxd:
-            new_deltas.append(deltas[i])
-            new_idx.append(idx[i])
-    if new_idx:
-        return np.array(new_deltas), new_idx
-    else:
-        return deltas, idx
-
-
 def derived_observable(func, data, array_mode=False, **kwargs):
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
@@ -1181,7 +1152,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     new_cov_names = sorted(set([y for x in [o.cov_names for o in raveled_data] for y in x]))
     new_sample_names = sorted(set(new_names) - set(new_cov_names))
 
-    is_merged = {name: (len(list(filter(lambda o: o.is_merged.get(name, False) is True, raveled_data))) > 0) for name in new_sample_names}
     reweighted = len(list(filter(lambda o: o.reweighted is True, raveled_data))) > 0
 
     if data.ndim == 1:
@@ -1207,8 +1177,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             tmp_values = np.array(tmp_values).reshape(data.shape)
         new_r_values[name] = func(tmp_values, **kwargs)
         new_idl_d[name] = _merge_idx(idl)
-        if not is_merged[name]:
-            is_merged[name] = (1 != len(set([len(idx) for idx in [*idl, new_idl_d[name]]])))
 
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
@@ -1285,14 +1253,8 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         new_names_obs = []
         for name in new_names:
             if name not in new_covobs:
-                if is_merged[name]:
-                    filtered_deltas, filtered_idl_d = _filter_zeroes(new_deltas[name], new_idl_d[name])
-                else:
-                    filtered_deltas = new_deltas[name]
-                    filtered_idl_d = new_idl_d[name]
-
-                new_samples.append(filtered_deltas)
-                new_idl.append(filtered_idl_d)
+                new_samples.append(new_deltas[name])
+                new_idl.append(new_idl_d[name])
                 new_means.append(new_r_values[name][i_val])
                 new_names_obs.append(name)
         final_result[i_val] = Obs(new_samples, new_names_obs, means=new_means, idl=new_idl)
@@ -1300,7 +1262,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             final_result[i_val].names.append(name)
         final_result[i_val]._covobs = new_covobs
         final_result[i_val]._value = new_val
-        final_result[i_val].is_merged = is_merged
         final_result[i_val].reweighted = reweighted
 
     if multi == 0:
@@ -1381,7 +1342,6 @@ def reweight(weight, obs, **kwargs):
 
         result.append(tmp_obs / new_weight)
         result[-1].reweighted = True
-        result[-1].is_merged = obs[i].is_merged
 
     return result
 
@@ -1425,7 +1385,6 @@ def correlate(obs_a, obs_b):
         new_idl.append(obs_a.idl[name])
 
     o = Obs(new_samples, sorted(obs_a.names), idl=new_idl)
-    o.is_merged = {name: (obs_a.is_merged.get(name, False) or obs_b.is_merged.get(name, False)) for name in o.names}
     o.reweighted = obs_a.reweighted or obs_b.reweighted
     return o
 
@@ -1623,7 +1582,6 @@ def merge_obs(list_of_obs):
 
     names = sorted(new_dict.keys())
     o = Obs([new_dict[name] for name in names], names, idl=[idl_dict[name] for name in names])
-    o.is_merged = {name: np.any([oi.is_merged.get(name, False) for oi in list_of_obs]) for name in o.names}
     o.reweighted = np.max([oi.reweighted for oi in list_of_obs])
     return o
 

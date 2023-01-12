@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2023-01-07
+### Added
+- Alias `gm` for `Obs.gamma_method` added.
+- Hotelling t-squared p-value added for correlated fits.
+- String conversion of numpy arrays containing `Obs` improved.
+- Input routine for xSF measurement program added.
+
+### Fixed
+- Complex valued `Corr` objects fixed.
+- Small bug in `qtop_projection` fixed.
+- Bug in `Corr.spaghetti_plot` fixed which appeared in connection with replica separators.
+
+### Changed
+- Merged `Obs` are no longer filtered as this lead to inconsistent `idl`s in some edge cases. Error estimates are unaffected up to filter precision.
+
+### Removed
+- Removed the `Obs` attribute `is_merged` as this information was only needed for the filtering. The change results in a ~1.15x speed up in the multiplication of two `Obs`.
+
 ## [2.4.0] - 2022-12-01
 ### Added
 - Log-derivatives and symmetric log-effective mass added.
@@ -12,8 +30,6 @@ All notable changes to this project will be documented in this file.
 - Bug in `Obs.details` fixed which appeared when tau had zero error.
 - Bug in `input.json` export in connection with `numpy.int64` fixed.
 - Small bug fixes in `input.openQCD`.
-
-
 
 ## [2.3.1] - 2022-10-19
 ### Fixed

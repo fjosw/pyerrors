@@ -46,8 +46,6 @@ def create_json_string(ol, description='', indent=1):
             for r_name in ol[0].e_content[name]:
                 rd = {}
                 rd['name'] = r_name
-                if ol[0].is_merged.get(r_name, False):
-                    rd['is_merged'] = True
                 rd['deltas'] = []
                 offsets = [o.r_values[r_name] - o.value for o in ol]
                 deltas = np.column_stack([ol[oi].deltas[r_name] + offsets[oi] for oi in range(No)])
@@ -143,7 +141,6 @@ def create_json_string(ol, description='', indent=1):
         for name in obs._covobs:
             my_obs.names.append(name)
         my_obs.reweighted = obs.reweighted
-        my_obs.is_merged = obs.is_merged
         return my_obs
 
     def write_Corr_to_dict(my_corr):
@@ -278,7 +275,6 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
             retd['names'] = []
             retd['idl'] = []
             retd['deltas'] = []
-            retd['is_merged'] = {}
             for ens in d:
                 for rep in ens['replica']:
                     rep_name = rep['name']
@@ -290,7 +286,6 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
                     retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])
                     retd['deltas'].append(np.array([di[1:] for di in rep['deltas']]))
-                    retd['is_merged'][rep_name] = rep.get('is_merged', False)
         return retd
 
     def _gen_covobsd_from_cdatad(d):
@@ -320,7 +315,6 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         if od:
             ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
             ret._value = values[0]
-            ret.is_merged = od['is_merged']
         else:
             ret = Obs([], [], means=[])
             ret._value = values[0]
@@ -346,7 +340,6 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
             if od:
                 ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
                 ret[-1]._value = values[i]
-                ret[-1].is_merged = od['is_merged']
             else:
                 ret.append(Obs([], [], means=[]))
                 ret[-1]._value = values[i]
@@ -374,7 +367,6 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
             if od:
                 ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
                 ret[-1]._value = values[i]
-                ret[-1].is_merged = od['is_merged']
             else:
                 ret.append(Obs([], [], means=[]))
                 ret[-1]._value = values[i]

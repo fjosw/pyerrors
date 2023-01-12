@@ -15,6 +15,11 @@ def read_pbp(path, prefix, **kwargs):
         list which contains the first config to be read for each replicum
     r_stop : list
         list which contains the last config to be read for each replicum
+
+    Returns
+    -------
+    result : list[Obs]
+        list of observables read    
     """
 
     ls = []

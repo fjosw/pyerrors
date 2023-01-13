@@ -124,6 +124,8 @@ class Corr:
                         for j in range(self.N):
                             item[i, j].gamma_method(**kwargs)
 
+    gm = gamma_method
+
     def projected(self, vector_l=None, vector_r=None, normalize=False):
         """We need to project the Correlator with a Vector to get a single value at each timeslice.
 

@@ -46,6 +46,8 @@ class Fit_result(Sequence):
         """Apply the gamma method to all fit parameters"""
         [o.gamma_method(**kwargs) for o in self.fit_parameters]
 
+    gm = gamma_method
+
     def __str__(self):
         my_str = 'Goodness of fit:\n'
         if hasattr(self, 'chisquare_by_dof'):

@@ -552,3 +552,17 @@ def test_corr_no_filtering():
     b = pe.pseudo_Obs(1, 1e-11, 'a', samples=30)
     c *= b
     assert np.all([c[0].idl == o.idl for o in c])
+
+
+def test_corr_symmetric():
+    obs = []
+    for _ in range(4):
+        obs.append(pe.pseudo_Obs(np.random.rand(), 0.1, "test"))
+
+    for corr in [pe.Corr([obs[0] + 8, obs[1], obs[2], obs[3]]),
+                 pe.Corr([obs[0] + 8, obs[1], obs[2], None]),
+                 pe.Corr([None, obs[1], obs[2], obs[3]])]:
+        scorr = corr.symmetric()
+        assert scorr[1] == scorr[3]
+        assert scorr[2] == corr[2]
+        assert scorr[0] == corr[0]

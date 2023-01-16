@@ -26,6 +26,11 @@ def epsilon_tensor(i, j, k):
     """Rank-3 epsilon tensor
 
     Based on https://codegolf.stackexchange.com/a/160375
+
+    Returns
+    -------
+    elem : int
+        Element (i,j,k) of the epsilon tensor of rank 3
     """
     test_set = set((i, j, k))
     if not (test_set <= set((1, 2, 3)) or test_set <= set((0, 1, 2))):
@@ -38,6 +43,12 @@ def epsilon_tensor_rank4(i, j, k, o):
     """Rank-4 epsilon tensor
 
     Extension of https://codegolf.stackexchange.com/a/160375
+
+
+    Returns
+    -------
+    elem : int
+        Element (i,j,k,o) of the epsilon tensor of rank 4
     """
     test_set = set((i, j, k, o))
     if not (test_set <= set((1, 2, 3, 4)) or test_set <= set((0, 1, 2, 3))):

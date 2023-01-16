@@ -7,7 +7,7 @@ from ..obs import Obs
 
 
 def read_pbp(path, prefix, **kwargs):
-    """Read pbp format from given folder structure. Returns a list of length nrw
+    """Read pbp format from given folder structure.
 
     Parameters
     ----------
@@ -15,6 +15,11 @@ def read_pbp(path, prefix, **kwargs):
         list which contains the first config to be read for each replicum
     r_stop : list
         list which contains the last config to be read for each replicum
+
+    Returns
+    -------
+    result : list[Obs]
+        list of observables read
     """
 
     ls = []

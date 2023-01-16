@@ -14,6 +14,10 @@ def dump_object(obj, name, **kwargs):
         name of the file
     path : str
         specifies a custom path for the file (default '.')
+
+    Returns
+    -------
+    None
     """
     if 'path' in kwargs:
         file_name = kwargs.get('path') + '/' + name + '.p'
@@ -30,6 +34,11 @@ def load_object(path):
     ----------
     path : str
         path to the file
+
+    Returns
+    -------
+    object : Obs
+        Loaded Object
     """
     with open(path, 'rb') as file:
         return pickle.load(file)
@@ -48,6 +57,11 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         name of the ensemble for which the Obs is to be generated.
     samples: int
         number of samples for the Obs (default 1000).
+
+    Returns
+    -------
+    res : Obs
+        Generated Observable
     """
     if dvalue <= 0.0:
         return Obs([np.zeros(samples) + value], [name])
@@ -83,6 +97,11 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
         every dataset.
     samples : int
         number of samples to be generated for each observable.
+
+    Returns
+    -------
+    corr_obs : list[Obs]
+        Generated observable list
     """
 
     assert len(means) == cov.shape[-1]

@@ -22,6 +22,10 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
         How to behave if table already exists. Options 'fail', 'replace', 'append'.
     gz : bool
         If True the json strings are gzipped.
+
+    Returns
+    -------
+    None
     """
     se_df = _serialize_df(df, gz=gz)
     con = sqlite3.connect(db)
@@ -41,6 +45,11 @@ def read_sql(sql, db, auto_gamma=False, **kwargs):
     auto_gamma : bool
         If True applies the gamma_method to all imported Obs objects with the default parameters for
         the error analysis. Default False.
+
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with the content of the sqlite database.
     """
     con = sqlite3.connect(db)
     extract_df = pd.read_sql(sql, con, **kwargs)
@@ -62,6 +71,10 @@ def dump_df(df, fname, gz=True):
         Filename of the output file.
     gz : bool
         If True, the output is a gzipped csv file. If False, the output is a csv file.
+
+    Returns
+    -------
+    None
     """
     out = _serialize_df(df, gz=False)
 
@@ -88,6 +101,11 @@ def load_df(fname, auto_gamma=False, gz=True):
         the error analysis. Default False.
     gz : bool
         If True, assumes that data is gzipped. If False, assumes JSON file.
+
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with the content of the sqlite database.
     """
     if not fname.endswith('.csv') and not fname.endswith('.gz'):
         fname += '.csv'

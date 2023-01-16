@@ -731,7 +731,7 @@ def qqplot(x, o_y, func, p):
 
 def residual_plot(x, y, func, fit_res):
     """Generates a plot which compares the fit to the data and displays the corresponding residuals
-    
+
     Returns
     -------
     None
@@ -766,7 +766,7 @@ def residual_plot(x, y, func, fit_res):
 
 def error_band(x, func, beta):
     """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.
-    
+
     Returns
     -------
     err : np.array(Obs)

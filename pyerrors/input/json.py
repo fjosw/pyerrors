@@ -729,6 +729,14 @@ def load_json_dict(fname, verbose=True, gz=True, full_output=False, reps='DICTOB
         If False, only the data is returned.
     reps : str
         Specify the structure of the placeholder in imported dict to be reps[0-9]+.
+
+    Returns
+    -------
+    data : Obs / list / Corr
+        Read data
+    or
+    data : dict
+        Read data and meta-data
     """
     indata = load_json(fname, verbose=verbose, gz=gz, full_output=True)
     description = indata['description']['description']

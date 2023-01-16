@@ -765,7 +765,7 @@ def residual_plot(x, y, func, fit_res):
 
 
 def error_band(x, func, beta):
-    """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.
+    """Calculate the error band for an array of sample values x, for given fit function func with optimized parameters beta.
 
     Returns
     -------

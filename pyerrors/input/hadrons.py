@@ -134,6 +134,11 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
         List of strings of the diagrams to extract, e.g. ["direct", "box", "cross"].
     idl : range
         If specified only configurations in the given range are read in.
+
+    Returns
+    -------
+    result : dict
+        extracted DistillationContration data
     """
 
     res_dict = {}
@@ -263,6 +268,11 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
         name of the ensemble, required for internal bookkeeping
     idl : range
         If specified only configurations in the given range are read in.
+
+    Returns
+    -------
+    result : Npr_matrix
+        read Cobs-matrix
     """
 
     files, idx = _get_files(path, filestem, idl)
@@ -367,7 +377,7 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
 
     Returns
     -------
-    result_dict : dict[Npr_matrix]
+    result_dict : dict
         extracted fourquark matrizes
     """
 

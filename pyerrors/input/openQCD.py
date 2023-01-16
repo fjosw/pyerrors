@@ -294,6 +294,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     Returns
     -------
     t0 : Obs
+        Extracted t0
     """
 
     ls = []
@@ -578,7 +579,7 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
     Returns
     -------
     result : Obs
-        topological charge
+        Read topological charge
     """
 
     return _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version=version, obspos=0, **kwargs)

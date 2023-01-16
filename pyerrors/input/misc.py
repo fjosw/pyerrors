@@ -7,7 +7,7 @@ from ..obs import Obs
 
 
 def read_pbp(path, prefix, **kwargs):
-    """Read pbp format from given folder structure. Returns a list of length nrw
+    """Read pbp format from given folder structure.
 
     Parameters
     ----------

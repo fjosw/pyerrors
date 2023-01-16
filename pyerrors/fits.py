@@ -129,6 +129,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If True, a quantile-quantile plot of the fit result is generated (default False).
     num_grad : bool
         Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
+
+    Returns
+    -------
+    output : Fit_result
+        Parameters and information on the fitted result.
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
@@ -180,7 +185,12 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     Notes
     -----
-    Based on the orthogonal distance regression module of scipy
+    Based on the orthogonal distance regression module of scipy.
+
+    Returns
+    -------
+    output : Fit_result
+        Parameters and information on the fitted result.
     '''
 
     output = Fit_result()
@@ -668,6 +678,11 @@ def fit_lin(x, y, **kwargs):
         a list of Obs, where the dvalues of the Obs are used as xerror for the fit.
     y : list
         List of Obs, the dvalues of the Obs are used as yerror for the fit.
+
+    Returns
+    -------
+    fit_parameters : list[Obs]
+        LIist of fitted observables.
     """
 
     def f(a, x):
@@ -687,6 +702,10 @@ def fit_lin(x, y, **kwargs):
 def qqplot(x, o_y, func, p):
     """Generates a quantile-quantile plot of the fit result which can be used to
        check if the residuals of the fit are gaussian distributed.
+
+    Returns
+    -------
+    None
     """
 
     residuals = []
@@ -711,7 +730,12 @@ def qqplot(x, o_y, func, p):
 
 
 def residual_plot(x, y, func, fit_res):
-    """ Generates a plot which compares the fit to the data and displays the corresponding residuals"""
+    """Generates a plot which compares the fit to the data and displays the corresponding residuals
+    
+    Returns
+    -------
+    None
+    """
     sorted_x = sorted(x)
     xstart = sorted_x[0] - 0.5 * (sorted_x[1] - sorted_x[0])
     xstop = sorted_x[-1] + 0.5 * (sorted_x[-1] - sorted_x[-2])
@@ -741,7 +765,13 @@ def residual_plot(x, y, func, fit_res):
 
 
 def error_band(x, func, beta):
-    """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta."""
+    """Returns the error band for an array of sample values x, for given fit function func with optimized parameters beta.
+    
+    Returns
+    -------
+    err : np.array(Obs)
+        Error band for an array of sample values x
+    """
     cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
@@ -765,6 +795,10 @@ def ks_test(objects=None):
     ----------
     objects : list
         List of fit results to include in the analysis (optional).
+
+    Returns
+    -------
+    None
     """
 
     if objects is None:

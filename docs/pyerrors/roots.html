@@ -102,7 +102,7 @@
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">    Returns</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">    -------</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    Obs</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    res : Obs</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">        `Obs` valued root of the function.</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">d_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
@@ -154,7 +154,7 @@
 </span><span id="find_root-25"><a href="#find_root-25"><span class="linenos">25</span></a>
 </span><span id="find_root-26"><a href="#find_root-26"><span class="linenos">26</span></a><span class="sd">    Returns</span>
 </span><span id="find_root-27"><a href="#find_root-27"><span class="linenos">27</span></a><span class="sd">    -------</span>
-</span><span id="find_root-28"><a href="#find_root-28"><span class="linenos">28</span></a><span class="sd">    Obs</span>
+</span><span id="find_root-28"><a href="#find_root-28"><span class="linenos">28</span></a><span class="sd">    res : Obs</span>
 </span><span id="find_root-29"><a href="#find_root-29"><span class="linenos">29</span></a><span class="sd">        `Obs` valued root of the function.</span>
 </span><span id="find_root-30"><a href="#find_root-30"><span class="linenos">30</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="find_root-31"><a href="#find_root-31"><span class="linenos">31</span></a>    <span class="n">d_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
@@ -198,7 +198,8 @@ Initial guess for the minimization.</p></li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>Obs</strong>: <code>Obs</code> valued root of the function.</li>
+<li><strong>res</strong> (Obs):
+<code>Obs</code> valued root of the function.</li>
 </ul>
 </div>
 

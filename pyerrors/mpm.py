@@ -21,6 +21,11 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
         matrix pencil parameter which filters noise. The optimal value is expected between
         len(data)/3 and 2*len(data)/3. The computation is more expensive the closer p is
         to len(data)/2 but could possibly suppress more noise (default len(data)//2).
+
+    Returns
+    -------
+    energy_levels : list[Obs]
+        Extracted energy levels
     """
     if isinstance(corrs[0], Obs):
         data = [corrs]

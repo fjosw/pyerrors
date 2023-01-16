@@ -42,6 +42,11 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         files performed if given.
     print_err : bool
         Print additional information that is useful for debugging.
+
+    Returns
+    -------
+    rwms : Obs
+        Reweighting factors read
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if not (version in known_oqcd_versions):
@@ -285,6 +290,11 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+
+    Returns
+    -------
+    t0 : Obs
+        Extracted t0
     """
 
     ls = []
@@ -565,6 +575,11 @@ def read_qtop(path, prefix, c, dtr_cnfg=1, version="openQCD", **kwargs):
         for version=='sfqcd' If False, the Wilson flow is used.
     integer_charge : bool
         If True, the charge is rounded towards the nearest integer on each config.
+
+    Returns
+    -------
+    result : Obs
+        Read topological charge
     """
 
     return _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version=version, obspos=0, **kwargs)
@@ -689,6 +704,11 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         for version=='sfqcd' If False, the Wilson flow is used.
     integer_charge : bool
         If True, the charge is rounded towards the nearest integer on each config.
+
+    Returns
+    -------
+    result : Obs
+        flow observable specified
     """
     known_versions = ["openQCD", "sfqcd"]
 
@@ -923,6 +943,11 @@ def qtop_projection(qtop, target=0):
         Topological charge.
     target : int
         Specifies the topological sector to be reweighted to (default 0)
+
+    Returns
+    -------
+    reto : Obs
+        projection to the topological charge sector defined by target
     """
     if qtop.reweighted:
         raise Exception('You can not use a reweighted observable for reweighting!')
@@ -977,6 +1002,11 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     Zeuthen_flow : bool
         (optional) If True, the Zeuthen flow is used for Qtop. Only possible
         for version=='sfqcd' If False, the Wilson flow is used.
+
+    Returns
+    -------
+    reto : Obs
+        projection to the topological charge sector defined by target
     """
 
     if not isinstance(target, int):

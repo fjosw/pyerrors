@@ -106,6 +106,11 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
         A list of symbols that describe the observables to be written. May be empty.
     enstag : str
         Enstag that is written to pobs. If None, the ensemble name is used.
+
+    Returns
+    -------
+    xml_str : str
+        XML formatted string of the input data
     """
 
     od = {}
@@ -196,6 +201,10 @@ def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz
         Enstag that is written to pobs. If None, the ensemble name is used.
     gz : bool
         If True, the output is a gzipped xml. If False, the output is an xml file.
+
+    Returns
+    -------
+    None
     """
     pobsstring = create_pobs_string(obsl, name, spec, origin, symbol, enstag)
 
@@ -305,6 +314,14 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
         by "|%s" % (separator_insertion) when constructing the names of the replica.
         int: Insert the separator "|" at the position given by separator_insertion.
         None (default): Replica names remain unchanged.
+
+    Returns
+    -------
+    res : list[Obs]
+        Imported data
+    or
+    res : dict
+        Imported data and meta-data
     """
 
     if not fname.endswith('.xml') and not fname.endswith('.gz'):
@@ -402,6 +419,14 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
         True (default): separator "|" is inserted after len(ensname), assuming that the
         ensemble name is a prefix to the replica name.
         None or False: No separator is inserted.
+
+    Returns
+    -------
+    res : list[Obs]
+        Imported data
+    or
+    res : dict
+        Imported data and meta-data
     """
 
     root = et.fromstring(content)
@@ -567,6 +592,14 @@ def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insert
         True (default): separator "|" is inserted after len(ensname), assuming that the
         ensemble name is a prefix to the replica name.
         None or False: No separator is inserted.
+
+    Returns
+    -------
+    res : list[Obs]
+        Imported data
+    or
+    res : dict
+        Imported data and meta-data
     """
 
     if not fname.endswith('.xml') and not fname.endswith('.gz'):
@@ -669,6 +702,11 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     enstags : dict
         Provide alternative enstag for ensembles in the form enstags = {ename: enstag}
         Otherwise, the ensemble name is used.
+
+    Returns
+    -------
+    xml_str : str
+        XML string generated from the data
     """
     if enstags is None:
         enstags = {}
@@ -857,6 +895,10 @@ def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=No
         Otherwise, the ensemble name is used.
     gz : bool
         If True, the output is a gzipped XML. If False, the output is a XML file.
+
+    Returns
+    -------
+    None
     """
     if enstags is None:
         enstags = {}

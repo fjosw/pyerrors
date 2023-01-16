@@ -10,6 +10,11 @@ def check_idl(idl, che):
         idl of the current replicum
     che : list
         list of configurations to be checked against
+
+    Returns
+    -------
+    miss_str : str
+        string with integers of which idls are missing
     """
     missing = []
     for c in che:
@@ -22,3 +27,4 @@ def check_idl(idl, che):
         for i in missing[1:]:
             miss_str += "," + str(i)
         print(miss_str)
+    return miss_str

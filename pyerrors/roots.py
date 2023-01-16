@@ -24,7 +24,7 @@ def find_root(d, func, guess=1.0, **kwargs):
 
     Returns
     -------
-    Obs
+    res : Obs
         `Obs` valued root of the function.
     '''
     d_val = np.vectorize(lambda x: x.value)(np.array(d))

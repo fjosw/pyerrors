@@ -4,38 +4,35 @@ import matplotlib.pyplot as plt
 from .obs import Obs
 
 
-def errorbar(x, y, axes=plt, *args, **kwargs):
-    """pyerrors wrapper for the errorbars method fo matplotlib
+def errorbar(x, y, axes=plt, **kwargs):
+    """pyerrors wrapper for the errorbars method of matplotlib
 
     Parameters
     ----------
     x : list
-        A list of x-values. It can be a list of Obs objects or int/float.
+        A list of x-values which can be Obs.
     y : list
-        A list of y-values. It should be a list of Obs objects.
+        A list of y-values which can be Obs.
     axes : (matplotlib.pyplot.axes)
         The axes to plot on. default is plt.
     """
-    if not all(isinstance(o, Obs) for o in y):
-        raise Exception("All entries of 'y' have to be Obs")
+    val = {}
+    err = {}
+    for name, comp in zip(["x", "y"], [x, y]):
+        if all(isinstance(o, Obs) for o in comp):
+            if not all(hasattr(o, 'e_dvalue') for o in comp):
+                [o.gamma_method() for o in comp]
+            val[name] = [o.value for o in comp]
+            err[name] = [o.dvalue for o in comp]
+        else:
+            val[name] = comp
+            err[name] = None
 
-    if all(isinstance(o, Obs) for o in x):
-        if not all(hasattr(o, 'e_dvalue') for o in x):
-            [o.gamma_method() for o in x]
-        xval = [o.value for o in x]
-        xerr = [o.dvalue for o in x]
-    elif all(isinstance(o, (int, float, np.integer)) for o in x):
-        xval = x
-        xerr = None
-    else:
-        raise Exception("All entries of 'x' have to be of the same type (int, float or Obs)")
+        if f"{name}err" in kwargs:
+            err[name] = kwargs.get(f"{name}err")
+            kwargs.pop(f"{name}err", None)
 
-    if not all(hasattr(o, 'e_dvalue') for o in y):
-        [o.gamma_method() for o in y]
-    yval = [o.value for o in y]
-    yerr = [o.dvalue for o in y]
-
-    axes.errorbar(xval, yval, *args, xerr=xerr, yerr=yerr, **kwargs)
+    axes.errorbar(val["x"], val["y"], xerr=err["x"], yerr=err["y"], **kwargs)
 
 
 def dump_object(obj, name, **kwargs):

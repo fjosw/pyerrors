@@ -163,54 +163,57 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
         for diagram in diagrams:
             corr_data[diagram] = []
 
-        for n_file, (hd5_file, n_traj) in enumerate(zip(file_list, list(idx))):
-            h5file = h5py.File(hd5_file)
+        try:
+            for n_file, (hd5_file, n_traj) in enumerate(zip(file_list, list(idx))):
+                h5file = h5py.File(hd5_file)
 
-            if n_file == 0:
-                if h5file["DistillationContraction/Metadata"].attrs.get("TimeSources")[0].decode() != "0...":
-                    raise Exception("Routine is only implemented for files containing inversions on all timeslices.")
+                if n_file == 0:
+                    if h5file["DistillationContraction/Metadata"].attrs.get("TimeSources")[0].decode() != "0...":
+                        raise Exception("Routine is only implemented for files containing inversions on all timeslices.")
 
-                Nt = h5file["DistillationContraction/Metadata"].attrs.get("Nt")[0]
+                    Nt = h5file["DistillationContraction/Metadata"].attrs.get("Nt")[0]
 
-                identifier = []
-                for in_file in range(len(h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.keys()) - 1):
-                    encoded_info = h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.get("DmfInputFiles_" + str(in_file))
-                    full_info = encoded_info[0].decode().split("/")[-1].replace(".h5", "").split("_")
-                    my_tuple = (full_info[0], full_info[1][1:], full_info[2], full_info[3])
-                    identifier.append(my_tuple)
-                identifier = tuple(identifier)
-                # "DistillationContraction/Metadata/DmfSuffix" contains info about different quarks, irrelevant in the SU(3) case.
+                    identifier = []
+                    for in_file in range(len(h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.keys()) - 1):
+                        encoded_info = h5file["DistillationContraction/Metadata/DmfInputFiles"].attrs.get("DmfInputFiles_" + str(in_file))
+                        full_info = encoded_info[0].decode().split("/")[-1].replace(".h5", "").split("_")
+                        my_tuple = (full_info[0], full_info[1][1:], full_info[2], full_info[3])
+                        identifier.append(my_tuple)
+                    identifier = tuple(identifier)
+                    # "DistillationContraction/Metadata/DmfSuffix" contains info about different quarks, irrelevant in the SU(3) case.
+
+                for diagram in diagrams:
+
+                    if diagram == "triangle" and "Identity" not in str(identifier):
+                        part = "im"
+                    else:
+                        part = "re"
+
+                    real_data = np.zeros(Nt)
+                    for x0 in range(Nt):
+                        raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)][:][part].astype(np.double)
+                        real_data += np.roll(raw_data, -x0)
+                    real_data /= Nt
+
+                    corr_data[diagram].append(real_data)
+                h5file.close()
+
+            res_dict[str(identifier)] = {}
 
             for diagram in diagrams:
 
-                if diagram == "triangle" and "Identity" not in str(identifier):
-                    part = "im"
-                else:
-                    part = "re"
+                tmp_data = np.array(corr_data[diagram])
 
-                real_data = np.zeros(Nt)
-                for x0 in range(Nt):
-                    raw_data = h5file["DistillationContraction/Correlators/" + diagram + "/" + str(x0)][:][part].astype(np.double)
-                    real_data += np.roll(raw_data, -x0)
-                real_data /= Nt
+                l_obs = []
+                for c in tmp_data.T:
+                    l_obs.append(Obs([c], [ens_id], idl=[idx]))
 
-                corr_data[diagram].append(real_data)
-            h5file.close()
+                corr = Corr(l_obs)
+                corr.tag = str(identifier)
 
-        res_dict[str(identifier)] = {}
-
-        for diagram in diagrams:
-
-            tmp_data = np.array(corr_data[diagram])
-
-            l_obs = []
-            for c in tmp_data.T:
-                l_obs.append(Obs([c], [ens_id], idl=[idx]))
-
-            corr = Corr(l_obs)
-            corr.tag = str(identifier)
-
-            res_dict[str(identifier)][diagram] = corr
+                res_dict[str(identifier)][diagram] = corr
+        except FileNotFoundError:
+            print("Skip", stem)
 
     return res_dict
 

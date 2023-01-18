@@ -1,6 +1,41 @@
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
 from .obs import Obs
+
+
+def errorbar(x, y, axes=plt, *args, **kwargs):
+    """pyerrors wrapper for the errorbars method fo matplotlib
+
+    Parameters
+    ----------
+    x : list
+        A list of x-values. It can be a list of Obs objects or int/float.
+    y : list
+        A list of y-values. It should be a list of Obs objects.
+    axes : (matplotlib.pyplot.axes)
+        The axes to plot on. default is plt.
+    """
+    if not all(isinstance(o, Obs) for o in y):
+        raise Exception("All entries of 'y' have to be Obs")
+
+    if all(isinstance(o, Obs) for o in x):
+        if not all(hasattr(o, 'e_dvalue') for o in x):
+            [o.gamma_method() for o in x]
+        xval = [o.value for o in x]
+        xerr = [o.dvalue for o in x]
+    elif all(isinstance(o, (int, float, np.integer)) for o in x):
+        xval = x
+        xerr = None
+    else:
+        raise Exception("All entries of 'x' have to be of the same type (int, float or Obs)")
+
+    if not all(hasattr(o, 'e_dvalue') for o in y):
+        [o.gamma_method() for o in y]
+    yval = [o.value for o in y]
+    yerr = [o.dvalue for o in y]
+
+    axes.errorbar(xval, yval, *args, xerr=xerr, yerr=yerr, **kwargs)
 
 
 def dump_object(obj, name, **kwargs):

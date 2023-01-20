@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
-from hypothesis import given, strategies as st
 from .covobs import Covobs
 
 # Improve print output of numpy.ndarrays containing Obs objects.

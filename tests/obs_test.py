@@ -8,10 +8,11 @@ from hypothesis import given, strategies as st
 
 np.random.seed(0)
 
-@given(st.lists(st.floats(allow_nan=False, allow_infinity=False, width=32), min_size=5), st.text())
-def test_fuzzy_obs(data, string):
+@given(st.lists(st.floats(allow_nan=False, allow_infinity=False, width=32), min_size=5), st.text(), st.floats(allow_nan=False, allow_infinity=False, width=32, min_value=0))
+def test_fuzzy_obs(data, string, S):
     my_obs = pe.Obs([data], [string])
     my_obs * my_obs
+    my_obs.gamma_method(S=S)
 
 
 def test_Obs_exceptions():

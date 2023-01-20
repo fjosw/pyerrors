@@ -40,6 +40,7 @@ jobs:
           pip install pytest
           pip install pytest-cov
           pip install pytest-benchmark
+          pip install hypothesis
           pip install py
           pip freeze
 

@@ -26,7 +26,7 @@ setup(name='pyerrors',
       packages=find_packages(),
       python_requires='>=3.7.0',
       install_requires=['numpy>=1.19', 'autograd>=1.5', 'numdifftools>=0.9.41', 'matplotlib>=3.5', 'scipy>=1.7', 'iminuit>=2.17', 'h5py>=3.7', 'lxml>=4.9', 'python-rapidjson>=1.9', 'pandas>=1.1'],
-      extras_require={'test': ['pytest', 'pytest-cov', 'pytest-benchmark']},
+      extras_require={'test': ['pytest', 'pytest-cov', 'pytest-benchmark', 'hypothesis']},
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Science/Research',

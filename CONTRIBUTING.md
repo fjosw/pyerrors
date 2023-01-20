@@ -25,7 +25,9 @@ For all pull requests tests are executed for the most recent python releases via
 pytest -vv --cov=pyerrors
 pytest -vv --nbmake examples/*.ipynb
 ```
-requiring `pytest`, `pytest-cov`, `pytest-benchmark` and `nbmake`. To get a coverage report in html run
+requiring `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis' and `nbmake`. To install the test dependencies one can run `pip install pyerrors[test]`
+
+To get a coverage report in html run
 ```
 pytest --cov=pyerrors --cov-report html
 ```

@@ -153,7 +153,7 @@ It is based on the gamma method <a href="https://arxiv.org/abs/hep-lat/0306017">
 <p><code><a href="">pyerrors</a></code> introduces a new datatype, <code>Obs</code>, which simplifies error propagation and estimation for auto- and cross-correlated data.
 An <code>Obs</code> object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
-The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. <strong>It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See <a href="#Multiple-ensembles/replica">Multiple ensembles/replica</a> for details.</strong></p>
+The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. <strong>It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See <a href="#Multiple-ensemblesreplica">Multiple ensembles/replica</a> for details.</strong></p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
@@ -680,7 +680,7 @@ The following entries are optional:</li>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">`pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">The samples can either be provided as python list or as numpy array.</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. **It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See [Multiple ensembles/replica](#Multiple-ensembles/replica) for details.**</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. **It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See [Multiple ensembles/replica](#Multiple-ensemblesreplica) for details.**</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">```python</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">import pyerrors as pe</span>

@@ -4,8 +4,24 @@ import copy
 import matplotlib.pyplot as plt
 import pyerrors as pe
 import pytest
+from hypothesis import given, strategies as st
 
 np.random.seed(0)
+
+@given(st.lists(st.floats(allow_nan=False, allow_infinity=False, width=32), min_size=5),
+       st.text(),
+       st.floats(allow_nan=False, allow_infinity=False, width=32, min_value=0))
+def test_fuzzy_obs(data, string, S):
+    my_obs = pe.Obs([data], [string])
+    my_obs * my_obs
+    my_obs.gamma_method(S=S)
+
+
+@given(st.floats(allow_nan=False, allow_infinity=False, width=16))
+def test_sin2_cos2(value):
+    Obs = pe.pseudo_Obs(value, value * 0.123, "C0")
+    iamzero = np.sin(Obs) ** 2 + np.cos(Obs) ** 2 - 1
+    assert iamzero.is_zero(atol=1e-6)
 
 
 def test_Obs_exceptions():
@@ -59,7 +75,7 @@ def test_Obs_exceptions():
         one.plot_piechart()
     plt.close('all')
 
-def test_dump():
+def test_dump_pickle():
     value = np.random.normal(5, 10)
     dvalue = np.abs(np.random.normal(0, 1))
     test_obs = pe.pseudo_Obs(value, dvalue, 't')
@@ -68,6 +84,12 @@ def test_dump():
     new_obs = pe.load_object('test_dump.p')
     os.remove('test_dump.p')
     assert test_obs == new_obs
+
+
+def test_dump_json():
+    value = np.random.normal(5, 10)
+    dvalue = np.abs(np.random.normal(0, 1))
+    test_obs = pe.pseudo_Obs(value, dvalue, 't')
     test_obs.dump('test_dump', dataype="json.gz", path=".")
     test_obs.dump('test_dump', dataype="json.gz")
     new_obs = pe.input.json.load_json("test_dump")

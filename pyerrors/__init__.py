@@ -41,7 +41,7 @@ print(my_new_obs)                             # Print the result to stdout
 `pyerrors` introduces a new datatype, `Obs`, which simplifies error propagation and estimation for auto- and cross-correlated data.
 An `Obs` object can be initialized with two arguments, the first is a list containing the samples for an observable from a Monte Carlo chain.
 The samples can either be provided as python list or as numpy array.
-The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble.
+The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. **It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See [Multiple ensembles/replica](#Multiple-ensembles/replica) for details.**
 
 ```python
 import pyerrors as pe
@@ -142,6 +142,8 @@ my_sum.details()
 >   · Ensemble 'ensemble1' : 1000 configurations (from 1 to 1000)
 >   · Ensemble 'ensemble2' : 500 configurations (from 1 to 500)
 ```
+Observables from the **same Monte Carlo chain** have to be initialized with the **same name** for correct error propagation. If different names were used in this case the data would be treated as statistically independent resulting in loss of relevant information and a potential over or under estimate of the statistical error.
+
 
 `pyerrors` identifies multiple replica (independent Markov chains with identical simulation parameters) by the vertical bar `|` in the name of the data set.
 

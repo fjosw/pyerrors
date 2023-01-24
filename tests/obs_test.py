@@ -17,6 +17,13 @@ def test_fuzzy_obs(data, string, S):
     my_obs.gamma_method(S=S)
 
 
+@given(st.floats(allow_nan=False, allow_infinity=False, width=16))
+def test_sin2_cos2(value):
+    Obs = pe.pseudo_Obs(value, value * 0.123, "C0")
+    iamzero = np.sin(Obs) ** 2 + np.cos(Obs) ** 2 - 1
+    assert iamzero.is_zero(atol=1e-6)
+
+
 def test_Obs_exceptions():
     with pytest.raises(Exception):
         pe.Obs([np.random.rand(10)], ['1', '2'])

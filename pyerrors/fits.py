@@ -102,9 +102,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     OR For a combined fit:
 
-    Do not need to use ordered dictionaries: python version >= 3.7: Dictionary order is guaranteed to be insertion order.
-    (https://docs.python.org/3/library/stdtypes.html#dict-views) Ensures that x, y and func values are mapped correctly.
-
     x : dict
         dict of lists.
     y : dict
@@ -142,7 +139,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
     tol: float, optional
-        can only be used for combined fits and methods other than Levenberg-Marquard
+        can be used (only for combined fits and methods other than Levenberg-Marquard) to set the tolerance for convergence
+        to a different value to either speed up convergence at the cost of a larger error on the fitted parameters (and possibly
+        invalid estimates for parameter uncertainties) or smaller values to get more accurate parameter values
+        The stopping criterion depends on the method, e.g. migrad: edm_max = 0.002 * tol * errordef (EDM criterion: edm < edm_max)
     correlated_fit : bool
         If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
@@ -705,8 +705,19 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         jacobian = auto_jacobian
         hessian = auto_hessian
 
-    x_all = np.concatenate([np.array(o) for o in x.values()])
-    y_all = np.concatenate([np.array(o) for o in y.values()])
+    key_ls = sorted(list(x.keys()))
+
+    if sorted(list(y.keys())) != key_ls:
+        raise Exception('x and y dictionaries do not contain the same keys.')
+
+    if sorted(list(func.keys())) != key_ls:
+        raise Exception('x and func dictionaries do not contain the same keys.')
+
+    if sorted(list(func.keys())) != sorted(list(y.keys())):
+        raise Exception('y and func dictionaries do not contain the same keys.')
+
+    x_all = np.concatenate([np.array(x[key]) for key in key_ls])
+    y_all = np.concatenate([np.array(y[key]) for key in key_ls])
 
     y_f = [o.value for o in y_all]
     dy_f = [o.dvalue for o in y_all]
@@ -716,12 +727,12 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     # number of fit parameters
     n_parms_ls = []
-    for key in func.keys():
+    for key in key_ls:
         if not callable(func[key]):
             raise TypeError('func (key=' + key + ') is not a function.')
         if len(x[key]) != len(y[key]):
             raise Exception('x and y input (key=' + key + ') do not have the same length')
-        for i in range(42):
+        for i in range(100):
             try:
                 func[key](np.arange(i), x_all.T[0])
             except TypeError:
@@ -746,15 +757,9 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     def chisqfunc(p):
-        chisq = 0.0
-        for key in func.keys():
-            x_array = np.asarray(x[key])
-            model = anp.array(func[key](p, x_array))
-            y_obs = y[key]
-            y_f = [o.value for o in y_obs]
-            dy_f = [o.dvalue for o in y_obs]
-            C_inv = np.diag(np.diag(np.ones((len(x_array), len(x_array))))) / dy_f / dy_f
-            chisq += anp.sum((y_f - model) @ C_inv @ (y_f - model))
+        func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+        model = anp.array([func_list[i](p, x_all[i]) for i in range(len(x_all))])
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
         return chisq
 
     output.method = kwargs.get('method', 'Levenberg-Marquardt')
@@ -763,7 +768,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
-            tolerance = 1e-4
+            tolerance = 1e-1 # default value set by iminuit
             if 'tol' in kwargs:
                 tolerance = kwargs.get('tol')
             fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
@@ -779,7 +784,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     else:
         def chisqfunc_residuals(p):
-            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in func.keys()])
+            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in key_ls])
             chisq = ((y_f - model) / dy_f)
             return chisq
         if 'tol' in kwargs:
@@ -809,25 +814,14 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         print('fit parameters', fit_result.x)
 
     def chisqfunc_compact(d):
-        chisq = 0.0
-        list_tmp = []
-        c1 = 0
-        c2 = 0
-        for key in func.keys():
-            x_array = np.asarray(x[key])
-            c2 += len(x_array)
-            model = anp.array(func[key](d[:n_parms], x_array))
-            y_obs = y[key]
-            dy_f = [o.dvalue for o in y_obs]
-            C_inv = np.diag(np.diag(np.ones((len(x_array), len(x_array))))) / dy_f / dy_f
-            list_tmp.append(anp.sum((d[n_parms + c1:n_parms + c2] - model) @ C_inv @ (d[n_parms + c1:n_parms + c2] - model)))
-            c1 += len(x_array)
-        chisq = anp.sum(list_tmp)
+        func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+        model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
+        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
         return chisq
 
     def prepare_hat_matrix():
         hat_vector = []
-        for key in func.keys():
+        for key in key_ls:
             x_array = np.asarray(x[key])
             if (len(x_array) != 0):
                 hat_vector.append(jacobian(func[key])(fit_result.x, x_array))

@@ -618,7 +618,7 @@ def test_combined_fit_vs_standard_fit():
         [item.gamma_method() for item in y_const[key]]
     y_const_ls = np.concatenate([np.array(o) for o in y_const.values()])
     x_const_ls = np.arange(0, 20)
-
+    
     def func_const(a,x):
         return  0 * x + a[0]
 
@@ -633,6 +633,35 @@ def test_combined_fit_vs_standard_fit():
         assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
         assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
 
+def test_combined_fit_no_autograd():
+
+    def func_exp1(x):
+        return 0.3*np.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*np.exp(0.8*x)
+
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_a(a,x):
+        return a[0]*np.exp(a[1]*x)
+
+    def func_b(a,x):
+        return a[0]*np.exp(a[2]*x)
+
+    funcs = {'a':func_a, 'b':func_b}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
+        'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
+
+    for key in funcs.keys():
+        [item.gamma_method() for item in ys[key]]
+
+    with pytest.raises(Exception):
+        pe.least_squares(xs, ys, funcs)
+
+    pe.least_squares(xs, ys, funcs, num_grad=True)
 
 def test_combined_fit_invalid_fit_functions():
     def func1(a, x):
@@ -663,6 +692,17 @@ def test_combined_fit_invalid_fit_functions():
         with pytest.raises(Exception):
             pe.least_squares({'a':xvals, 'b':xvals}, {'a':yvals, 'b':yvals}, {'a':func_valid, 'b':func})
 
+def test_combined_fit_invalid_input():
+    xvals =[]
+    yvals =[]
+    err = 0.1
+    def func_valid(a,x):
+        return a[0] + a[1] * x
+    for x in range(1, 8, 2):
+        xvals.append(x)
+        yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+    with pytest.raises(Exception):
+        pe.least_squares({'a':xvals}, {'b':yvals}, {'a':func_valid})
 
 def test_combined_fit_no_autograd():
 
@@ -732,6 +772,66 @@ def test_combined_fit_num_grad():
     assert(num[0] == auto[0])
     assert(num[1] == auto[1])
 
+def test_combined_fit_dictkeys_no_order():
+    def func_exp1(x):
+        return 0.3*np.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*np.exp(0.8*x)
+
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_num_a(a,x):
+        return a[0]*np.exp(a[1]*x)
+
+    def func_num_b(a,x):
+        return a[0]*np.exp(a[2]*x)
+
+    def func_auto_a(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_auto_b(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
+    funcs = {'a':func_auto_a, 'b':func_auto_b}
+    funcs_no_order = {'b':func_auto_b, 'a':func_auto_a}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    xs_no_order = {'b':xvals_b, 'a':xvals_a}
+    yobs_a = [pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)]
+    yobs_b = [pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]
+    ys = {'a': yobs_a, 'b': yobs_b}
+    ys_no_order = {'b': yobs_b, 'a': yobs_a}
+
+    for key in funcs.keys():
+        [item.gamma_method() for item in ys[key]]
+        [item.gamma_method() for item in ys_no_order[key]]
+    for method_kw in ['Levenberg-Marquardt', 'migrad', 'Powell', 'Nelder-Mead']:
+        order = pe.fits.least_squares(xs, ys, funcs,method = method_kw)
+        no_order_func = pe.fits.least_squares(xs, ys, funcs_no_order,method = method_kw)
+        no_order_x = pe.fits.least_squares(xs_no_order, ys, funcs,method = method_kw)
+        no_order_y = pe.fits.least_squares(xs, ys_no_order, funcs,method = method_kw)
+        no_order_func_x = pe.fits.least_squares(xs_no_order, ys, funcs_no_order,method = method_kw)
+        no_order_func_y = pe.fits.least_squares(xs, ys_no_order, funcs_no_order,method = method_kw)
+        no_order_x_y = pe.fits.least_squares(xs_no_order, ys_no_order, funcs,method = method_kw)
+
+        assert(no_order_func[0] == order[0])
+        assert(no_order_func[1] == order[1])
+
+        assert(no_order_x[0] == order[0])
+        assert(no_order_x[1] == order[1])
+
+        assert(no_order_y[0] == order[0])
+        assert(no_order_y[1] == order[1])
+
+        assert(no_order_func_x[0] == order[0])
+        assert(no_order_func_x[1] == order[1])
+
+        assert(no_order_func_y[0] == order[0])
+        assert(no_order_func_y[1] == order[1])
+
+        assert(no_order_x_y[0] == order[0])
+        assert(no_order_x_y[1] == order[1])
 
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.

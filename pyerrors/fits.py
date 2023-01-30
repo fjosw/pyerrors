@@ -713,9 +713,6 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     if sorted(list(func.keys())) != key_ls:
         raise Exception('x and func dictionaries do not contain the same keys.')
 
-    if sorted(list(func.keys())) != sorted(list(y.keys())):
-        raise Exception('y and func dictionaries do not contain the same keys.')
-
     x_all = np.concatenate([np.array(x[key]) for key in key_ls])
     y_all = np.concatenate([np.array(y[key]) for key in key_ls])
 
@@ -768,7 +765,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
-            tolerance = 1e-1 # default value set by iminuit
+            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
             if 'tol' in kwargs:
                 tolerance = kwargs.get('tol')
             fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef

@@ -1066,6 +1066,7 @@ def test_overlapping_missing_cnfgs():
 
     t2 = o1 + a2
     t2.gm(S=0)
+    assert np.isclose(t1.value, t2.value)
     assert np.isclose(t1.dvalue, t2.dvalue, rtol=0.01)
 
 
@@ -1083,6 +1084,7 @@ def test_non_overlapping_missing_cnfgs():
 
     average = (even + odd) / 2
     average.gm(S=0)
+    assert np.isclose(full.value, average.value)
     assert np.isclose(full.dvalue, average.dvalue, rtol=0.01)
 
 
@@ -1112,6 +1114,7 @@ def test_non_overlapping_operations():
         print(res1, res2)
         print((res1.dvalue - res2.dvalue) / res1.dvalue)
 
+        assert np.isclose(res1.value, res2.value)
         assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)
 
 
@@ -1141,4 +1144,5 @@ def test_non_overlapping_operations_different_lengths():
         res2 = func(f2, f2)
         res2.gm(S=0)
 
+        assert np.isclose(res1.value, res2.value)
         assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)

@@ -1086,19 +1086,30 @@ def test_non_overlapping_missing_cnfgs():
     assert np.isclose(full.dvalue, average.dvalue, rtol=0.01)
 
 
-def test_non_overlapping_product():
+def test_non_overlapping_operations():
     length = 100000
 
     samples = np.random.normal(0.93, 0.5, length)
 
     e = pe.Obs([samples[0:length:2]], ["ensemble"], idl=[range(0, length, 2)])
     o = pe.Obs([samples[1:length:2]], ["ensemble"], idl=[range(1, length, 2)])
-    prod1 = e * o
-    prod1.gm(S=0)
+
 
     e2 = pe.Obs([samples[0:length:2]], ["even"])
     o2 = pe.Obs([samples[1:length:2]], ["odd"])
-    prod2 = e2 * o2
-    prod2.gm(S=0)
 
-    assert np.isclose(prod1.dvalue, prod2.dvalue, rtol=0.01)
+    for func in  [lambda a, b: a + b,
+                  lambda a, b: a - b,
+                  lambda a, b: a * b,
+                  lambda a, b: a / b,
+                  lambda a, b: a ** b]:
+
+        res1 = func(e, o)
+        res1.gm(S=0)
+        res2 = func(e2, o2)
+        res2.gm(S=0)
+
+        print(res1, res2)
+        print((res1.dvalue - res2.dvalue) / res1.dvalue)
+
+        assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)

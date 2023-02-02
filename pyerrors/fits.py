@@ -72,9 +72,12 @@ class Fit_result(Sequence):
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     r'''Performs a non-linear fit to y = func(x).
+        ```
 
     Parameters
     ----------
+    For an uncombined fit:
+
     x : list
         list of floats.
     y : list
@@ -96,9 +99,32 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             (x1, x2) = x
             return a[0] * x1 ** 2 + a[1] * x2
         ```
+        It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
+        will not work.
+
+    OR For a combined fit:
+
+    x : dict
+        dict of lists.
+    y : dict
+        dict of lists of Obs.
+    funcs : dict
+        dict of objects
+        fit functions have to be of the form (here a[0] is the common fit parameter)
+        ```python
+        import autograd.numpy as anp
+        funcs = {"a": func_a,
+                "b": func_b}
+
+        def func_a(a, x):
+            return a[1] * anp.exp(-a[0] * x)
+
+        def func_b(a, x):
+            return a[2] * anp.exp(-a[0] * x)
 
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work.
+
     priors : list, optional
         priors has to be a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
@@ -114,6 +140,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         The possible methods are the ones which can be used for scipy.optimize.minimize and
         migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
+    tol: float, optional
+        can be used (only for combined fits and methods other than Levenberg-Marquard) to set the tolerance for convergence
+        to a different value to either speed up convergence at the cost of a larger error on the fitted parameters (and possibly
+        invalid estimates for parameter uncertainties) or smaller values to get more accurate parameter values
+        The stopping criterion depends on the method, e.g. migrad: edm_max = 0.002 * tol * errordef (EDM criterion: edm < edm_max)
     correlated_fit : bool
         If True, use the full inverse covariance matrix in the definition of the chisquare cost function.
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
@@ -137,6 +168,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
+
+    elif (type(x) == dict and type(y) == dict and type(func) == dict):
+        return _combined_fit(x, y, func, silent=silent, **kwargs)
+    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
         return _standard_fit(x, y, func, silent=silent, **kwargs)
 
@@ -474,7 +510,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
 
 def _standard_fit(x, y, func, silent=False, **kwargs):
-
     output = Fit_result()
 
     output.fit_function = func
@@ -664,6 +699,180 @@ def _standard_fit(x, y, func, silent=False, **kwargs):
 
     if kwargs.get('qqplot') is True:
         qqplot(x, y, func, result)
+
+    return output
+
+
+def _combined_fit(x, y, func, silent=False, **kwargs):
+
+    if kwargs.get('correlated_fit') is True:
+        raise Exception("Correlated fit has not been implemented yet")
+
+    output = Fit_result()
+    output.fit_function = func
+
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+        hessian = num_hessian
+    else:
+        jacobian = auto_jacobian
+        hessian = auto_hessian
+
+    key_ls = sorted(list(x.keys()))
+
+    if sorted(list(y.keys())) != key_ls:
+        raise Exception('x and y dictionaries do not contain the same keys.')
+
+    if sorted(list(func.keys())) != key_ls:
+        raise Exception('x and func dictionaries do not contain the same keys.')
+
+    x_all = np.concatenate([np.array(x[key]) for key in key_ls])
+    y_all = np.concatenate([np.array(y[key]) for key in key_ls])
+
+    y_f = [o.value for o in y_all]
+    dy_f = [o.dvalue for o in y_all]
+
+    if len(x_all.shape) > 2:
+        raise Exception('Unknown format for x values')
+
+    # number of fit parameters
+    n_parms_ls = []
+    for key in key_ls:
+        if not callable(func[key]):
+            raise TypeError('func (key=' + key + ') is not a function.')
+        if len(x[key]) != len(y[key]):
+            raise Exception('x and y input (key=' + key + ') do not have the same length')
+        for i in range(100):
+            try:
+                func[key](np.arange(i), x_all.T[0])
+            except TypeError:
+                continue
+            except IndexError:
+                continue
+            else:
+                break
+        else:
+            raise RuntimeError("Fit function (key=" + key + ") is not valid.")
+        n_parms = i
+        n_parms_ls.append(n_parms)
+    n_parms = max(n_parms_ls)
+    if not silent:
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
+
+    if 'initial_guess' in kwargs:
+        x0 = kwargs.get('initial_guess')
+        if len(x0) != n_parms:
+            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+    else:
+        x0 = [0.1] * n_parms
+
+    def chisqfunc(p):
+        func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+        model = anp.array([func_list[i](p, x_all[i]) for i in range(len(x_all))])
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
+        return chisq
+
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
+
+    if output.method != 'Levenberg-Marquardt':
+        if output.method == 'migrad':
+            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
+            output.iterations = fit_result.nfev
+        else:
+            tolerance = 1e-12
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=tolerance)
+            output.iterations = fit_result.nit
+
+        chisquare = fit_result.fun
+
+    else:
+        def chisqfunc_residuals(p):
+            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in key_ls])
+            chisq = ((y_f - model) / dy_f)
+            return chisq
+        if 'tol' in kwargs:
+            print('tol cannot be set for Levenberg-Marquardt')
+        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+
+        chisquare = np.sum(fit_result.fun ** 2)
+        assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
+        output.iterations = fit_result.nfev
+
+    output.message = fit_result.message
+
+    if not fit_result.success:
+        raise Exception('The minimization procedure did not converge.')
+
+    if x_all.shape[-1] - n_parms > 0:
+        output.chisquare = chisquare
+        output.dof = x_all.shape[-1] - n_parms
+        output.chisquare_by_dof = output.chisquare / output.dof
+        output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
+    else:
+        output.chisquare_by_dof = float('nan')
+
+    if not silent:
+        print(fit_result.message)
+        print('chisquare/d.o.f.:', output.chisquare_by_dof)
+        print('fit parameters', fit_result.x)
+
+    def chisqfunc_compact(d):
+        func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+        model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
+        chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
+        return chisq
+
+    def prepare_hat_matrix():
+        hat_vector = []
+        for key in key_ls:
+            x_array = np.asarray(x[key])
+            if (len(x_array) != 0):
+                hat_vector.append(jacobian(func[key])(fit_result.x, x_array))
+        hat_vector = [item for sublist in hat_vector for item in sublist]
+        return hat_vector
+
+    fitp = fit_result.x
+
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+
+    try:
+        hess = hessian(chisqfunc)(fitp)
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
+
+    jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
+
+    # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
+
+    if kwargs.get('expected_chisquare') is True:
+        if kwargs.get('correlated_fit') is not True:
+            W = np.diag(1 / np.asarray(dy_f))
+            cov = covariance(y_all)
+            hat_vector = prepare_hat_matrix()
+            A = W @ hat_vector  # hat_vector = 'jacobian(func)(fit_result.x, x)'
+            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
+            expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
+            if not silent:
+                print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
+
+    result = []
+    for i in range(n_parms):
+        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all), man_grad=list(deriv_y[i])))
+
+    output.fit_parameters = result
 
     return output
 

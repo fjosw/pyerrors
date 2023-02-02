@@ -1139,9 +1139,9 @@ def test_non_overlapping_operations_different_lengths():
                   lambda a, b: a ** b,
                   lambda a, b: a ** 2 + b ** 2 / a]:
 
-        res1 = func(f1, f1)
+        res1 = func(f1, s1)
         res1.gm(S=0)
-        res2 = func(f2, f2)
+        res2 = func(f2, s2)
         res2.gm(S=0)
 
         assert np.isclose(res1.value, res2.value)

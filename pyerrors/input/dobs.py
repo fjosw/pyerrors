@@ -397,7 +397,7 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
 
 
 # this is based on Mattia Bruno's implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py
-def import_dobs_string(content, noempty=False, full_output=False, separator_insertion=True):
+def import_dobs_string(content, full_output=False, separator_insertion=True):
     """Import a list of Obs from a string in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -406,9 +406,6 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
     ----------
     content : str
         XML string containing the data
-    noemtpy : bool
-        If True, ensembles with no contribution to the Obs are not included.
-        If False, ensembles are included as written in the file, possibly with vanishing entries.
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned as list.
@@ -507,7 +504,11 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
 
     for name in names:
         for i in range(len(deltad[name])):
-            deltad[name][i] = np.array(deltad[name][i]) + mean[i]
+            tmp = np.zeros_like(deltad[name][i])
+            for j in range(len(deltad[name][i])):
+                if deltad[name][i][j] != 0.:
+                    tmp[j] = deltad[name][i][j] + mean[i]
+            deltad[name][i] = tmp
 
     res = []
     for i in range(len(mean)):
@@ -516,11 +517,19 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
         obs_names = []
         for name in names:
             h = np.unique(deltad[name][i])
-            if len(h) == 1 and np.all(h == mean[i]) and noempty:
+            if len(h) == 1 and np.all(h == mean[i]):
                 continue
-            deltas.append(deltad[name][i])
-            obs_names.append(name)
-            idl.append(idld[name])
+            repdeltas = []
+            repidl = []
+            for j in range(len(deltad[name][i])):
+                if deltad[name][i][j] != 0.:
+                    repdeltas.append(deltad[name][i][j])
+                    repidl.append(idld[name][j])
+            if len(repdeltas) > 0:
+                obs_names.append(name)
+                deltas.append(repdeltas)
+                idl.append(repidl)
+
         res.append(Obs(deltas, obs_names, idl=idl))
         res[-1]._value = mean[i]
     _check(len(e_names) == ne)
@@ -528,13 +537,10 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
     cnames = list(covd.keys())
     for i in range(len(res)):
         new_covobs = {name: Covobs(0, covd[name], name, grad=gradd[name][i]) for name in cnames}
-        if noempty:
-            for name in cnames:
-                if np.all(new_covobs[name].grad == 0):
-                    del new_covobs[name]
-            cnames_loc = list(new_covobs.keys())
-        else:
-            cnames_loc = cnames
+        for name in cnames:
+            if np.all(new_covobs[name].grad == 0):
+                del new_covobs[name]
+        cnames_loc = list(new_covobs.keys())
         for name in cnames_loc:
             res[i].names.append(name)
             res[i].shape[name] = 1
@@ -546,8 +552,6 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
             res[i].tag = symbol[i]
             if res[i].tag == 'None':
                 res[i].tag = None
-    if not noempty:
-        _check(len(res[0].covobs.keys()) == nc)
     if full_output:
         retd = {}
         tool = file_origin.get('tool', None)
@@ -568,7 +572,7 @@ def import_dobs_string(content, noempty=False, full_output=False, separator_inse
         return res
 
 
-def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insertion=True):
+def read_dobs(fname, full_output=False, gz=True, separator_insertion=True):
     """Import a list of Obs from an xml.gz file in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -577,9 +581,6 @@ def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insert
     ----------
     fname : str
         Filename of the input file.
-    noemtpy : bool
-        If True, ensembles with no contribution to the Obs are not included.
-        If False, ensembles are included as written in the file.
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned as list.
@@ -615,7 +616,7 @@ def read_dobs(fname, noempty=False, full_output=False, gz=True, separator_insert
         with open(fname, 'r') as fin:
             content = fin.read()
 
-    return import_dobs_string(content, noempty, full_output, separator_insertion=separator_insertion)
+    return import_dobs_string(content, full_output, separator_insertion=separator_insertion)
 
 
 def _dobsdict_to_xmlstring(d):
@@ -782,7 +783,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                     o = obsl[oi]
                     if repname in o.idl:
                         if counters[oi] < 0:
-                            num = offsets[oi]
+                            num = 0
                             if num == 0:
                                 data += '0 '
                             else:
@@ -798,7 +799,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                             if counters[oi] >= len(o.idl[repname]):
                                 counters[oi] = -1
                         else:
-                            num = offsets[oi]
+                            num = 0
                             if num == 0:
                                 data += '0 '
                             else:

@@ -566,7 +566,7 @@ def test_intersection_reduce():
     intersection = pe.obs._intersection_idx([o.idl["ens"] for o in [obs1, obs_merge]])
     coll = pe.obs._reduce_deltas(obs_merge.deltas["ens"], obs_merge.idl["ens"], range1)
 
-    assert np.all(coll == obs1.deltas["ens"])
+    assert np.allclose(coll, obs1.deltas["ens"] * (len(obs_merge.idl["ens"]) / len(range1)))
 
 
 def test_irregular_error_propagation():

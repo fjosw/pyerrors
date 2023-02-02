@@ -1113,3 +1113,32 @@ def test_non_overlapping_operations():
         print((res1.dvalue - res2.dvalue) / res1.dvalue)
 
         assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)
+
+
+def test_non_overlapping_operations_different_lengths():
+    length = 100000
+
+    samples = np.random.normal(0.93, 0.5, length)
+    first = samples[:length // 5]
+    second = samples[length // 5:]
+
+    f1 = pe.Obs([first], ["ensemble"], idl=[range(1, length // 5 + 1)])
+    s1 = pe.Obs([second], ["ensemble"], idl=[range(length // 5, length)])
+
+
+    f2 = pe.Obs([first], ["first"])
+    s2 = pe.Obs([second], ["second"])
+
+    for func in  [lambda a, b: a + b,
+                  lambda a, b: a - b,
+                  lambda a, b: a * b,
+                  lambda a, b: a / b,
+                  lambda a, b: a ** b,
+                  lambda a, b: a ** 2 + b ** 2 / a]:
+
+        res1 = func(f1, f1)
+        res1.gm(S=0)
+        res2 = func(f2, f2)
+        res2.gm(S=0)
+
+        assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)

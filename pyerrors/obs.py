@@ -1181,7 +1181,6 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         if multi > 0:
             tmp_values = np.array(tmp_values).reshape(data.shape)
         shiftav = sum([item.r_values.get(name, item.value) * item.shape.get(name, 0) for item in raveled_data]) / sum([item.shape.get(name, 0) for item in raveled_data])
-        print(name, np.array([item.shape.get(name, 0) for item in raveled_data]) / sum([item.shape.get(name, 0) for item in raveled_data]))
         shift_d[name] = [item.r_values[name] - shiftav if name in item.r_values else 0 for item in raveled_data]
         new_r_values[name] = func(tmp_values, **kwargs)
         new_idl_d[name] = _merge_idx(idl)
@@ -1250,10 +1249,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                         new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
                     else:
                         shift = shift_d[name][j_obs[0]]
-                        #shift = deriv[i_val + j_obs] * obs.r_values[name] - new_values[i_val]
-                        print(shift_d, j_obs, shift_d[name][j_obs[0]],)
                         new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name], shift)
-                        #new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name], 0)
 
         new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 

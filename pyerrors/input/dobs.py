@@ -454,7 +454,6 @@ def import_dobs_string(content, full_output=False, separator_insertion=True):
     _check(dobs[4].tag == "ne")
     ne = int(dobs[4].text.strip())
     _check(dobs[5].tag == "nc")
-    nc = int(dobs[5].text.strip())
 
     idld = {}
     deltad = {}

@@ -164,7 +164,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     elif (type(x) == dict and type(y) == dict and type(func) == dict):
         return _combined_fit(x, y, func, silent=silent, **kwargs)
-
+    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
         return _standard_fit(x, y, func, silent=silent, **kwargs)
 

@@ -878,7 +878,7 @@ def test_correlation_intersection_of_idls():
     cov1 = pe.covariance([obs1, obs2_a])
     corr1 = pe.covariance([obs1, obs2_a], correlation=True)
 
-    obs2_b = obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_b = (obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])) / 2
     obs2_b.gamma_method()
 
     cov2 = pe.covariance([obs1, obs2_b])

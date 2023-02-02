@@ -1126,7 +1126,7 @@ def test_non_overlapping_operations_different_lengths():
     second = samples[length // 5:]
 
     f1 = pe.Obs([first], ["ensemble"], idl=[range(1, length // 5 + 1)])
-    s1 = pe.Obs([second], ["ensemble"], idl=[range(length // 5, length)])
+    s1 = pe.Obs([second], ["ensemble"], idl=[range(length // 5 + 1, length + 1)])
 
 
     f2 = pe.Obs([first], ["first"])

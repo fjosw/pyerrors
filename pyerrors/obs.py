@@ -1097,7 +1097,7 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
     ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
     for i in range(shape):
         ret[idx[i] - new_idx[0]] = deltas[i]
-    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))])
+    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx)
 
 
 def derived_observable(func, data, array_mode=False, **kwargs):

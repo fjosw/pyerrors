@@ -566,7 +566,7 @@ def test_intersection_reduce():
     intersection = pe.obs._intersection_idx([o.idl["ens"] for o in [obs1, obs_merge]])
     coll = pe.obs._reduce_deltas(obs_merge.deltas["ens"], obs_merge.idl["ens"], range1)
 
-    assert np.all(coll == obs1.deltas["ens"])
+    assert np.allclose(coll, obs1.deltas["ens"] * (len(obs_merge.idl["ens"]) / len(range1)))
 
 
 def test_irregular_error_propagation():
@@ -878,7 +878,7 @@ def test_correlation_intersection_of_idls():
     cov1 = pe.covariance([obs1, obs2_a])
     corr1 = pe.covariance([obs1, obs2_a], correlation=True)
 
-    obs2_b = obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
+    obs2_b = (obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])) / 2
     obs2_b.gamma_method()
 
     cov2 = pe.covariance([obs1, obs2_b])
@@ -1038,6 +1038,7 @@ def test_hash():
     assert hash(obs) != hash(o1)
     assert hash(o1) != hash(o2)
 
+
 def test_gm_alias():
     samples = np.random.rand(500)
 
@@ -1049,3 +1050,99 @@ def test_gm_alias():
 
     assert np.isclose(tt1.dvalue, tt2.dvalue)
 
+
+def test_overlapping_missing_cnfgs():
+    length = 200000
+
+    l_samp = np.random.normal(2.87, 0.5, length)
+    s_samp = np.random.normal(7.87, 0.7, length // 2)
+
+    o1 = pe.Obs([l_samp], ["test"])
+    o2 = pe.Obs([s_samp], ["test"], idl=[range(1, length, 2)])
+
+    a2 = pe.Obs([s_samp], ["alt"])
+    t1 = o1 + o2
+    t1.gm(S=0)
+
+    t2 = o1 + a2
+    t2.gm(S=0)
+    assert np.isclose(t1.value, t2.value)
+    assert np.isclose(t1.dvalue, t2.dvalue, rtol=0.01)
+
+
+def test_non_overlapping_missing_cnfgs():
+    length = 100000
+
+    xsamp = np.random.normal(1.0, 1.0, length)
+
+
+    full = pe.Obs([xsamp], ["ensemble"], idl=[range(0, length)])
+    full.gm()
+
+    even = pe.Obs([xsamp[0:length:2]], ["ensemble"], idl=[range(0, length, 2)])
+    odd = pe.Obs([xsamp[1:length:2]], ["ensemble"], idl=[range(1, length, 2)])
+
+    average = (even + odd) / 2
+    average.gm(S=0)
+    assert np.isclose(full.value, average.value)
+    assert np.isclose(full.dvalue, average.dvalue, rtol=0.01)
+
+
+def test_non_overlapping_operations():
+    length = 100000
+
+    samples = np.random.normal(0.93, 0.5, length)
+
+    e = pe.Obs([samples[0:length:2]], ["ensemble"], idl=[range(0, length, 2)])
+    o = pe.Obs([samples[1:length:2]], ["ensemble"], idl=[range(1, length, 2)])
+
+
+    e2 = pe.Obs([samples[0:length:2]], ["even"])
+    o2 = pe.Obs([samples[1:length:2]], ["odd"])
+
+    for func in  [lambda a, b: a + b,
+                  lambda a, b: a - b,
+                  lambda a, b: a * b,
+                  lambda a, b: a / b,
+                  lambda a, b: a ** b]:
+
+        res1 = func(e, o)
+        res1.gm(S=0)
+        res2 = func(e2, o2)
+        res2.gm(S=0)
+
+        print(res1, res2)
+        print((res1.dvalue - res2.dvalue) / res1.dvalue)
+
+        assert np.isclose(res1.value, res2.value)
+        assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)
+
+
+def test_non_overlapping_operations_different_lengths():
+    length = 100000
+
+    samples = np.random.normal(0.93, 0.5, length)
+    first = samples[:length // 5]
+    second = samples[length // 5:]
+
+    f1 = pe.Obs([first], ["ensemble"], idl=[range(1, length // 5 + 1)])
+    s1 = pe.Obs([second], ["ensemble"], idl=[range(length // 5, length)])
+
+
+    f2 = pe.Obs([first], ["first"])
+    s2 = pe.Obs([second], ["second"])
+
+    for func in  [lambda a, b: a + b,
+                  lambda a, b: a - b,
+                  lambda a, b: a * b,
+                  lambda a, b: a / b,
+                  lambda a, b: a ** b,
+                  lambda a, b: a ** 2 + b ** 2 / a]:
+
+        res1 = func(f1, f1)
+        res1.gm(S=0)
+        res2 = func(f2, f2)
+        res2.gm(S=0)
+
+        assert np.isclose(res1.value, res2.value)
+        assert np.isclose(res1.dvalue, res2.dvalue, rtol=0.01)

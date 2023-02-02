@@ -339,7 +339,7 @@ def test_dobsio():
 
     dobsio.write_dobs(ol, fname, 'TEST')
 
-    rl = dobsio.read_dobs(fname, noempty=True)
+    rl = dobsio.read_dobs(fname)
     os.remove(fname + '.xml.gz')
     [o.gamma_method() for o in rl]
 

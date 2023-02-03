@@ -703,6 +703,8 @@ def test_combined_fit_invalid_input():
         yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
     with pytest.raises(Exception):
         pe.least_squares({'a':xvals}, {'b':yvals}, {'a':func_valid})
+    with pytest.raises(Exception):
+        pe.least_squares({'a':xvals}, {'a':yvals}, {'a':func_valid})
 
 def test_combined_fit_no_autograd():
 
@@ -832,6 +834,59 @@ def test_combined_fit_dictkeys_no_order():
 
         assert(no_order_x_y[0] == order[0])
         assert(no_order_x_y[1] == order[1])
+
+def test_correlated_combined_fit_vs_correlated_standard_fit():
+
+    x_const = {'a':[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'b':np.arange(10, 20)}
+    y_const = {'a':[pe.Obs([np.random.normal(1, val, 1000)], ['ensemble1']) 
+                for val in [0.25, 0.3, 0.01, 0.2, 0.5, 1.3, 0.26, 0.4, 0.1, 1.0]],
+            'b':[pe.Obs([np.random.normal(1, val, 1000)], ['ensemble1'])
+                for val in [0.5, 1.12, 0.26, 0.25, 0.3, 0.01, 0.2, 1.0, 0.38, 0.1]]}
+    for key in y_const.keys():
+        [item.gamma_method() for item in y_const[key]]
+    y_const_ls = np.concatenate([np.array(o) for o in y_const.values()])
+    x_const_ls = np.arange(0, 20)
+
+    def func_const(a,x):
+        return  0 * x + a[0]
+
+    funcs_const = {"a": func_const,"b": func_const}
+    for method_kw in ['Levenberg-Marquardt', 'migrad', 'Powell', 'Nelder-Mead']:
+        res = []
+        res.append(pe.fits.least_squares(x_const, y_const, funcs_const, method = method_kw, correlated_fit=True))
+        res.append(pe.fits.least_squares(x_const_ls, y_const_ls, func_const, method = method_kw, correlated_fit=True))
+        [item.gamma_method for item in res]
+        assert np.isclose(0.0, (res[0].chisquare_by_dof - res[1].chisquare_by_dof), 1e-14, 1e-8)
+        assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
+        assert np.isclose(0.0, (res[0].t2_p_value - res[1].t2_p_value), 1e-14, 1e-8)
+        assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+
+def test_combined_fit_hotelling_t():
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_exp1(x):
+        return 0.3*np.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*np.exp(0.8*x)
+
+    def func_a(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
+    funcs = {'a':func_a, 'b':func_b}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    yobs_a = [pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)]
+    yobs_b = [pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]
+    ys = {'a': yobs_a, 'b': yobs_b}
+
+    for key in funcs.keys():
+        [item.gamma_method() for item in ys[key]]
+    ft = pe.fits.least_squares(xs, ys, funcs, correlated_fit=True)
+    assert ft.t2_p_value >= ft.p_value
 
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.

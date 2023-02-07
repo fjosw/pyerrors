@@ -1061,6 +1061,10 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     found = []
     files = []
     names = []
+
+    if "names" in kwargs:
+        names = kwargs.get("names")
+
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):
         found.extend(filenames)
         break
@@ -1068,16 +1072,17 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     for f in found:
         if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_" + qc + ".dat"):
             files.append(f)
-            if not sep == "":
-                names.append(prefix + "|r" + f.split(".")[0].split(sep)[1])
-            else:
-                names.append(prefix)
-    files = sorted(files)
+            if "names" not in kwargs:
+                if not sep == "":
+                    se = f.split(".")[0]
+                    for s in f.split(".")[1:-1]:
+                        se += "." + s
+                    names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
+                else:
+                    names.append(prefix)
 
-    if "names" in kwargs:
-        names = kwargs.get("names")
-    else:
-        names = sorted(names)
+    names = sorted(names)
+    files = sorted(files)
 
     cnfgs = []
     realsamples = []

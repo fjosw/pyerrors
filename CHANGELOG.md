@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0] - 2023-02-07
+### Added
+- The fit module now has a new interface to deal with combined fits.
+- `pyerrors` wrapper for matplotlib `errorbar` method added for `Obs` valued lists/arrays.
+- roots module can now determine roots of multi parameter `Obs` valued functions.
+
+### Fixed
+- Bug in treatment of error propagation of non-overlapping configurations fixed.
+- `Corr.symmetric` can now deal with `None` entries.
+- Fix in `ms5_xsf` input routines.
+- Bug in `dobs` output format fixed.
+
 ## [2.5.0] - 2023-01-07
 ### Added
 - Alias `gm` for `Obs.gamma_method` added.

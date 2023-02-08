@@ -12,6 +12,46 @@ from ..obs import CObs
 from ..correlators import Corr
 
 
+def _find_files(path, prefix, postfix, ext, known_files=[]):
+    found = []
+    files = []
+
+    if postfix != "":
+        if postfix[-1] != ".":
+            postfix = postfix + "."
+        if postfix[0] != ".":
+            postfix = "." + postfix
+
+    if ext[0] == ".":
+        ext = ext[1:]
+
+    pattern = prefix + "*" + postfix + ext
+
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if known_files != []:
+        for kf in known_files:
+            if kf not in found:
+                raise FileNotFoundError("Given file " + kf + " does not exist!")
+
+        return known_files
+
+    if not found:
+        raise FileNotFoundError(f"Error, directory '{path}' not found")
+
+    for f in found:
+        if fnmatch.fnmatch(f, pattern):
+            files.append(f)
+
+    if files == []:
+        raise Exception("No files found after pattern filter!")
+
+    files.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+    return files
+
+
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
@@ -56,21 +96,14 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         postfix = kwargs.get('postfix')
     else:
         postfix = ''
-    ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        ls.extend(filenames)
-        break
 
-    if not ls:
-        raise Exception(f"Error, directory '{path}' not found")
     if 'files' in kwargs:
-        ls = kwargs.get('files')
+        known_files = kwargs.get('files')
     else:
-        for exc in ls:
-            if not fnmatch.fnmatch(exc, prefix + '*' + postfix + '.dat'):
-                ls = list(set(ls) - set([exc]))
-        if len(ls) > 1:
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+        known_files = []
+
+    ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
+
     replica = len(ls)
 
     if 'r_start' in kwargs:
@@ -154,7 +187,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 nsrc.append(struct.unpack('i', t)[0])
             if version == '2.0':
                 if not struct.unpack('i', fp.read(4))[0] == 0:
-                    print('something is wrong!')
+                    raise Exception("You are using the input for openQCD version 2.0, this is not correct.")
 
             configlist.append([])
             while True:
@@ -297,22 +330,13 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
         Extracted t0
     """
 
-    ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        ls.extend(filenames)
-        break
-
-    if not ls:
-        raise Exception('Error, directory not found')
-
     if 'files' in kwargs:
-        ls = kwargs.get('files')
+        known_files = kwargs.get('files')
     else:
-        for exc in ls:
-            if not fnmatch.fnmatch(exc, prefix + '*.ms.dat'):
-                ls = list(set(ls) - set([exc]))
-        if len(ls) > 1:
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+        known_files = []
+
+    ls = _find_files(path, prefix, 'ms', 'dat', known_files=known_files)
+
     replica = len(ls)
 
     if 'r_start' in kwargs:
@@ -721,31 +745,23 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
             supposed_L = kwargs.get("L")
         else:
             supposed_L = None
-        postfix = ".gfms.dat"
+        postfix = "gfms"
     else:
         if "L" not in kwargs:
             raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
-        postfix = ".ms.dat"
+        postfix = "ms"
 
     if "postfix" in kwargs:
         postfix = kwargs.get("postfix")
 
     if "files" in kwargs:
-        files = kwargs.get("files")
-        postfix = ''
+        known_files = kwargs.get("files")
     else:
-        found = []
-        files = []
-        for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-            found.extend(filenames)
-            break
-        for f in found:
-            if fnmatch.fnmatch(f, prefix + "*" + postfix):
-                files.append(f)
+        known_files = []
 
-        files = sorted(files)
+    files = _find_files(path, prefix, postfix, "dat", known_files=known_files)
 
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
@@ -1058,28 +1074,34 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         If there is an error unpacking binary data.
     """
 
-    found = []
+    # found = []
     files = []
     names = []
 
+    # test if the input is correct
+    if qc not in ['dd', 'ud', 'du', 'uu']:
+        raise Exception("Unknown quark conbination!")
+
+    if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
+        raise Exception("Unknown correlator!")
+
+    if "files" in kwargs:
+        known_files = kwargs.get("files")
+    else:
+        known_files = []
+    files = _find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files=known_files)
+
     if "names" in kwargs:
         names = kwargs.get("names")
-
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-        found.extend(filenames)
-        break
-
-    for f in found:
-        if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_" + qc + ".dat"):
-            files.append(f)
-            if "names" not in kwargs:
-                if not sep == "":
-                    se = f.split(".")[0]
-                    for s in f.split(".")[1:-1]:
-                        se += "." + s
-                    names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
-                else:
-                    names.append(prefix)
+    else:
+        for f in files:
+            if not sep == "":
+                se = f.split(".")[0]
+                for s in f.split(".")[1:-2]:
+                    se += "." + s
+                names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
+            else:
+                names.append(prefix)
 
     names = sorted(names)
     files = sorted(files)

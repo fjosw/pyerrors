@@ -7,7 +7,7 @@ import pytest
 def test_rwms():
     path = './tests//data/openqcd_test/'
     prefix = 'sfqcd'
-    postfix = '.rwms'
+    postfix = 'rwms'
 
     # sfqcd-1.6: Trajectories instead of confignumbers are printed to file.
     rwfo = pe.input.openQCD.read_rwms(path, prefix, version='1.6', postfix=postfix)
@@ -87,7 +87,7 @@ def test_Qtop():
     assert (np.isclose(2.745865e-01, qtop.r_values[repname] + qtop.deltas[repname][1]))
 
     qtop = pe.input.openQCD.read_qtop(path, prefix, c=0.40, version='sfqcd', Zeuthen_flow=True, r_start=[2])
-    assert(qtop.idl[repname] == range(2, 7))
+    assert (qtop.idl[repname] == range(2, 7))
     assert (np.isclose(2.745865e-01, qtop.r_values[repname] + qtop.deltas[repname][0]))
 
     qtop = pe.input.openQCD.read_qtop(path, prefix, c=0.40, version='sfqcd', Zeuthen_flow=True, r_stop=[5])
@@ -97,7 +97,7 @@ def test_Qtop():
     files = ['sfqcdr1.gfms.dat']
     qs = pe.input.openQCD.read_qtop_sector(path, '', 0.3, target=0, Zeuthen_flow=True, version='sfqcd')
 
-    assert((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
+    assert ((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
 
 
 def test_gf_coupling():
@@ -108,3 +108,60 @@ def test_gf_coupling():
         pe.input.openQCD.read_gf_coupling(path, prefix, c=0.35)
     with pytest.raises(Exception):
         pe.input.openQCD.read_gf_coupling(path, prefix, c=0.3, Zeuthen_flow=False)
+
+
+def test_read_ms5_xsf():
+    path = './tests//data/openqcd_test/'
+    prefix = "ms5_xsf_T24L16"
+    corr = "gA"
+    qc = 'dd'
+
+    c = pe.input.openQCD.read_ms5_xsf(path, prefix, qc, corr)
+
+    assert c.real[12].names == ['ms5_xsf_T24L16|r1', 'ms5_xsf_T24L16|r2', 'ms5_xsf_T24L16|r3']
+
+    assert (c.real[12].shape['ms5_xsf_T24L16|r1'] == 10)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r2'] == 10)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r3'] == 10)
+
+    assert (c.real[12].value == -3.0000000000001923)
+
+    fqc = "rq"
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(path, prefix, fqc, corr)
+
+    fcorr = "gX"
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(path, prefix, qc, fcorr)
+
+
+def test_find_files():
+    path = './tests//data/openqcd_test/'
+    prefix = "ms5_xsf_T24L16"
+    qc = 'dd'
+
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc, "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc + ".", "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", ".dat")
+    assert (len(files) == 3)
+
+    with pytest.raises(FileNotFoundError):
+        pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files="egg")
+
+    fpath = './tests//data/openqc_test/'
+    with pytest.raises(FileNotFoundError):
+        pe.input.openQCD._find_files(fpath, prefix, "ms5_xsf_" + qc, "dat")
+
+    fpre = "tune62"
+    with pytest.raises(Exception):
+        pe.input.openQCD._find_files(path, fpre, "ms5_xsf_" + qc, "dat")

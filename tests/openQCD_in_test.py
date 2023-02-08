@@ -87,7 +87,7 @@ def test_Qtop():
     assert (np.isclose(2.745865e-01, qtop.r_values[repname] + qtop.deltas[repname][1]))
 
     qtop = pe.input.openQCD.read_qtop(path, prefix, c=0.40, version='sfqcd', Zeuthen_flow=True, r_start=[2])
-    assert(qtop.idl[repname] == range(2, 7))
+    assert (qtop.idl[repname] == range(2, 7))
     assert (np.isclose(2.745865e-01, qtop.r_values[repname] + qtop.deltas[repname][0]))
 
     qtop = pe.input.openQCD.read_qtop(path, prefix, c=0.40, version='sfqcd', Zeuthen_flow=True, r_stop=[5])
@@ -97,7 +97,7 @@ def test_Qtop():
     files = ['sfqcdr1.gfms.dat']
     qs = pe.input.openQCD.read_qtop_sector(path, '', 0.3, target=0, Zeuthen_flow=True, version='sfqcd')
 
-    assert((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
+    assert ((pe.input.openQCD.qtop_projection(qi, target=0) - qs).is_zero())
 
 
 def test_gf_coupling():
@@ -108,3 +108,36 @@ def test_gf_coupling():
         pe.input.openQCD.read_gf_coupling(path, prefix, c=0.35)
     with pytest.raises(Exception):
         pe.input.openQCD.read_gf_coupling(path, prefix, c=0.3, Zeuthen_flow=False)
+
+
+def test_read_ms5_xsf():
+    path = './tests//data/openqcd_test/'
+    prefix = "tune66"
+    corr = "gA"
+    qc = 'dd'
+
+    c = pe.input.openQCD.read_ms5_xsf(path, prefix, qc, corr)
+
+    assert c.real[12].names == ['tune66_T24L16|r1', 'tune66_T24L16|r2', 'tune66_T24L16|r3']
+
+    assert (c.real[12].shape['tune66_T24L16|r1'] == 501)
+    assert (c.real[12].shape['tune66_T24L16|r2'] == 501)
+    assert (c.real[12].shape['tune66_T24L16|r3'] == 501)
+
+    assert (c.real[12].value == -0.099301143069214)
+
+    fpre = "tune62"
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(path, fpre, qc, corr)
+
+    fpath = './tests//data/openqc_test/'
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(fpath, prefix, qc, corr)
+
+    fqc = "rq"
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(fpath, prefix, fqc, corr)
+
+    fcorr = "gX"
+    with pytest.raises(Exception):
+        pe.input.openQCD.read_ms5_xsf(fpath, prefix, qc, fcorr)

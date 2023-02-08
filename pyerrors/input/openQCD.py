@@ -17,9 +17,12 @@ def _find_files(path, prefix, postfix, ext, known_files=[]):
     files = []
 
     if postfix != "":
-        postfix = postfix + "."
+        if postfix[-1] != ".":
+            postfix = postfix + "."
+        if postfix[0] != ".":
+            postfix = "." + postfix
 
-    pattern = prefix + "*." + postfix + ext
+    pattern = prefix + "*" + postfix + ext
 
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):
         found.extend(filenames)

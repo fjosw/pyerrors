@@ -22,6 +22,9 @@ def _find_files(path, prefix, postfix, ext, known_files=[]):
         if postfix[0] != ".":
             postfix = "." + postfix
 
+    if ext[0] == ".":
+        ext = ext[1:]
+
     pattern = prefix + "*" + postfix + ext
 
     for (dirpath, dirnames, filenames) in os.walk(path + "/"):

@@ -143,6 +143,18 @@ def test_find_files():
     files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")
     assert (len(files) == 3)
 
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc, "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc + ".", "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", "dat")
+    assert (len(files) == 3)
+
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", ".dat")
+    assert (len(files) == 3)
+
     with pytest.raises(FileNotFoundError):
         pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files="egg")
 

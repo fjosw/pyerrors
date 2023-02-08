@@ -112,19 +112,19 @@ def test_gf_coupling():
 
 def test_read_ms5_xsf():
     path = './tests//data/openqcd_test/'
-    prefix = "tune66"
+    prefix = "ms5_xsf_T24L16"
     corr = "gA"
     qc = 'dd'
 
     c = pe.input.openQCD.read_ms5_xsf(path, prefix, qc, corr)
 
-    assert c.real[12].names == ['tune66_T24L16|r1', 'tune66_T24L16|r2', 'tune66_T24L16|r3']
+    assert c.real[12].names == ['ms5_xsf_T24L16|r1', 'ms5_xsf_T24L16|r2', 'ms5_xsf_T24L16|r3']
 
-    assert (c.real[12].shape['tune66_T24L16|r1'] == 501)
-    assert (c.real[12].shape['tune66_T24L16|r2'] == 501)
-    assert (c.real[12].shape['tune66_T24L16|r3'] == 501)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r1'] == 10)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r2'] == 10)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r3'] == 10)
 
-    assert (c.real[12].value == -0.099301143069214)
+    assert (c.real[12].value == -3.0000000000001923)
 
     fqc = "rq"
     with pytest.raises(Exception):
@@ -137,7 +137,7 @@ def test_read_ms5_xsf():
 
 def test_find_files():
     path = './tests//data/openqcd_test/'
-    prefix = "tune66"
+    prefix = "ms5_xsf_T24L16"
     qc = 'dd'
 
     files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")

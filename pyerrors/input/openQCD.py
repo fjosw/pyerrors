@@ -12,6 +12,24 @@ from ..obs import CObs
 from ..correlators import Corr
 
 
+def _find_files(path, prefix, ext, postfix=""):
+    files = []
+    found = []
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if postfix != "":
+        postfix = postfix + "."
+
+    for f in found:
+        if fnmatch.fnmatch(f, prefix + "*." + postfix + ext):
+            files.append(f)
+
+    files = sorted(files)
+    return files
+
+
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
@@ -1062,6 +1080,13 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     files = []
     names = []
 
+    # test if the input is correct
+    if qc not in ['dd', 'ud', 'du', 'uu']:
+        raise Exception("Unknown quark conbination!")
+
+    if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
+        raise Exception("Unknown correlator!")
+
     if "names" in kwargs:
         names = kwargs.get("names")
 
@@ -1075,7 +1100,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
             if "names" not in kwargs:
                 if not sep == "":
                     se = f.split(".")[0]
-                    for s in f.split(".")[1:-1]:
+                    for s in f.split(".")[1:-2]:
                         se += "." + s
                     names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
                 else:

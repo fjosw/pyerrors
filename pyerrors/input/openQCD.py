@@ -12,21 +12,32 @@ from ..obs import CObs
 from ..correlators import Corr
 
 
-def _find_files(path, prefix, ext, postfix=""):
-    files = []
+def _find_files(path, prefix, postfix, ext, known_files=[]):
     found = []
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-        found.extend(filenames)
-        break
+    files = []
 
     if postfix != "":
         postfix = postfix + "."
 
+    pattern = prefix + "*." + postfix + ext
+
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if known_files != []:
+        for kf in known_files:
+            if kf not in found:
+                raise Exception("Given file does not exist!")
+
+    if not found:
+        raise Exception(f"Error, directory '{path}' not found")
+
     for f in found:
-        if fnmatch.fnmatch(f, prefix + "*." + postfix + ext):
+        if fnmatch.fnmatch(f, pattern):
             files.append(f)
 
-    files = sorted(files)
+    files.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
     return files
 
 
@@ -1076,7 +1087,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         If there is an error unpacking binary data.
     """
 
-    found = []
+    # found = []
     files = []
     names = []
 
@@ -1087,24 +1098,23 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
     if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
         raise Exception("Unknown correlator!")
 
+    if "files" in kwargs:
+        known_files = kwargs.get("files")
+    else:
+        known_files = []
+    files = _find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files=known_files)
+
     if "names" in kwargs:
         names = kwargs.get("names")
-
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-        found.extend(filenames)
-        break
-
-    for f in found:
-        if fnmatch.fnmatch(f, prefix + "*.ms5_xsf_" + qc + ".dat"):
-            files.append(f)
-            if "names" not in kwargs:
-                if not sep == "":
-                    se = f.split(".")[0]
-                    for s in f.split(".")[1:-2]:
-                        se += "." + s
-                    names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
-                else:
-                    names.append(prefix)
+    else:
+        for f in files:
+            if not sep == "":
+                se = f.split(".")[0]
+                for s in f.split(".")[1:-2]:
+                    se += "." + s
+                names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
+            else:
+                names.append(prefix)
 
     names = sorted(names)
     files = sorted(files)

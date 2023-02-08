@@ -141,3 +141,15 @@ def test_read_ms5_xsf():
     fcorr = "gX"
     with pytest.raises(Exception):
         pe.input.openQCD.read_ms5_xsf(fpath, prefix, qc, fcorr)
+
+
+def test_find_files():
+    path = './tests//data/openqcd_test/'
+    prefix = "tune66"
+    qc = 'dd'
+
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")
+    assert (len(files) == 3)
+
+    with pytest.raises(Exception):
+        pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files = "egg")

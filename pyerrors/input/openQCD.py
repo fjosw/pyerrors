@@ -184,7 +184,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 nsrc.append(struct.unpack('i', t)[0])
             if version == '2.0':
                 if not struct.unpack('i', fp.read(4))[0] == 0:
-                    print(' something is wrong!')
+                    raise Exception("You are using the input for openQCD version 2.0, thisi s not correct.")
 
             configlist.append([])
             while True:

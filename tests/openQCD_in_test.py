@@ -7,7 +7,7 @@ import pytest
 def test_rwms():
     path = './tests//data/openqcd_test/'
     prefix = 'sfqcd'
-    postfix = '.rwms'
+    postfix = 'rwms'
 
     # sfqcd-1.6: Trajectories instead of confignumbers are printed to file.
     rwfo = pe.input.openQCD.read_rwms(path, prefix, version='1.6', postfix=postfix)
@@ -126,21 +126,13 @@ def test_read_ms5_xsf():
 
     assert (c.real[12].value == -0.099301143069214)
 
-    fpre = "tune62"
-    with pytest.raises(Exception):
-        pe.input.openQCD.read_ms5_xsf(path, fpre, qc, corr)
-
-    fpath = './tests//data/openqc_test/'
-    with pytest.raises(Exception):
-        pe.input.openQCD.read_ms5_xsf(fpath, prefix, qc, corr)
-
     fqc = "rq"
     with pytest.raises(Exception):
-        pe.input.openQCD.read_ms5_xsf(fpath, prefix, fqc, corr)
+        pe.input.openQCD.read_ms5_xsf(path, prefix, fqc, corr)
 
     fcorr = "gX"
     with pytest.raises(Exception):
-        pe.input.openQCD.read_ms5_xsf(fpath, prefix, qc, fcorr)
+        pe.input.openQCD.read_ms5_xsf(path, prefix, qc, fcorr)
 
 
 def test_find_files():
@@ -151,5 +143,13 @@ def test_find_files():
     files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")
     assert (len(files) == 3)
 
+    with pytest.raises(FileNotFoundError):
+        pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files="egg")
+
+    fpath = './tests//data/openqc_test/'
+    with pytest.raises(FileNotFoundError):
+        pe.input.openQCD._find_files(fpath, prefix, "ms5_xsf_" + qc, "dat")
+
+    fpre = "tune62"
     with pytest.raises(Exception):
-        pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files = "egg")
+        pe.input.openQCD._find_files(path, fpre, "ms5_xsf_" + qc, "dat")

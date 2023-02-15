@@ -48,8 +48,37 @@ def _find_files(path, prefix, postfix, ext, known_files=[]):
     if files == []:
         raise Exception("No files found after pattern filter!")
 
-    files.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+    files = _sort_names(files)
     return files
+
+
+def _sort_names(ll):
+    r_pattern = r'r(\d+)'
+    id_pattern = r'id(\d+)'
+
+    # sort list by id first
+    if all([re.search(id_pattern, entry) for entry in ll]):
+        ll.sort(key=lambda x: int(re.findall(id_pattern, x)[0]))
+    # then by replikum
+    if all([re.search(r_pattern, entry) for entry in ll]):
+        ll.sort(key=lambda x: int(re.findall(r_pattern, x)[0]))
+    # as the rearrangements by one key let the other key untouched, the list is sorted now
+
+    else:
+        # fallback
+        sames = ''
+        if len(ll) > 1:
+            for i in range(len(ll[0])):
+                checking = ll[0][i]
+                for rn in ll[1:]:
+                    is_same = (rn[i] == checking)
+                if is_same:
+                    sames += checking
+                else:
+                    break
+            print(ll[0][len(sames):])
+        ll.sort(key=lambda x: int(re.findall(r'\d+', x[len(sames):])[0]))
+    return ll
 
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
@@ -141,6 +170,8 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
     else:
         rep_names = names
+
+    rep_names = _sort_names(rep_names)
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -936,11 +967,14 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
                 if "names" not in kwargs:
                     raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
             ens_name = truncated_file[:idx]
-            rep_names.append(ens_name + '|' + truncated_file[idx:])
+            rep_names.append(ens_name + '|' + truncated_file[idx:].split(".")[0])
         else:
             names = kwargs.get("names")
             rep_names = names
+
         deltas.append(Q_top)
+
+    rep_names = _sort_names(rep_names)
 
     idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]) + 1, 1) for rep in range(len(deltas))]
     deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep] + 1] for nrep in range(len(deltas))]

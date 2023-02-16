@@ -292,8 +292,8 @@ class Obs:
                 tmp = self.e_rho[e_name][i + 1:w_max] + np.concatenate([self.e_rho[e_name][i - 1::-1], self.e_rho[e_name][1:w_max - 2 * i]]) - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i]
                 self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
 
-            _compute_drho(gapsize)
             if self.tau_exp[e_name] > 0:
+                _compute_drho(gapsize)
                 texp = self.tau_exp[e_name]
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
@@ -321,9 +321,8 @@ class Obs:
                     tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][gapsize::gapsize] + 1) / (2 * self.e_n_tauint[e_name][gapsize::gapsize] - 1))
                     g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
                     for n in range(1, w_max):
-                        if n < w_max // 2 - 2:
-                            _compute_drho(gapsize * n + gapsize)
                         if g_w[n - 1] < 0 or n >= w_max - 1:
+                            _compute_drho(gapsize * n)
                             n *= gapsize
                             self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                             self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]

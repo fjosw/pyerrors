@@ -168,13 +168,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     '''
     if priors is not None:
         return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
-
-    elif (type(x) == dict and type(y) == dict and type(func) == dict):
-        return _combined_fit(x, y, func, silent=silent, **kwargs)
-    elif (type(x) == dict or type(y) == dict or type(func) == dict):
-        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
-        return _standard_fit(x, y, func, silent=silent, **kwargs)
+        return _combined_fit(x, y, func, silent=silent, **kwargs)
 
 
 def total_least_squares(x, y, func, silent=False, **kwargs):
@@ -509,204 +504,22 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
     return output
 
 
-def _standard_fit(x, y, func, silent=False, **kwargs):
-    output = Fit_result()
-
-    output.fit_function = func
-
-    x = np.asarray(x)
-
-    if kwargs.get('num_grad') is True:
-        jacobian = num_jacobian
-        hessian = num_hessian
-    else:
-        jacobian = auto_jacobian
-        hessian = auto_hessian
-
-    if x.shape[-1] != len(y):
-        raise Exception('x and y input have to have the same length')
-
-    if len(x.shape) > 2:
-        raise Exception('Unknown format for x values')
-
-    if not callable(func):
-        raise TypeError('func has to be a function.')
-
-    for i in range(42):
-        try:
-            func(np.arange(i), x.T[0])
-        except TypeError:
-            continue
-        except IndexError:
-            continue
-        else:
-            break
-    else:
-        raise RuntimeError("Fit function is not valid.")
-
-    n_parms = i
-
-    if not silent:
-        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
-
-    y_f = [o.value for o in y]
-    dy_f = [o.dvalue for o in y]
-
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
-        if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
-    else:
-        x0 = [0.1] * n_parms
-
-    if kwargs.get('correlated_fit') is True:
-        corr = covariance(y, correlation=True, **kwargs)
-        covdiag = np.diag(1 / np.asarray(dy_f))
-        condn = np.linalg.cond(corr)
-        if condn > 0.1 / np.finfo(float).eps:
-            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
-        if condn > 1e13:
-            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
-        chol = np.linalg.cholesky(corr)
-        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
-
-        def chisqfunc_corr(p):
-            model = func(p, x)
-            chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
-            return chisq
-
-    def chisqfunc(p):
-        model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-        return chisq
-
-    output.method = kwargs.get('method', 'Levenberg-Marquardt')
-    if not silent:
-        print('Method:', output.method)
-
-    if output.method != 'Levenberg-Marquardt':
-        if output.method == 'migrad':
-            fit_result = iminuit.minimize(chisqfunc, x0, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
-            if kwargs.get('correlated_fit') is True:
-                fit_result = iminuit.minimize(chisqfunc_corr, fit_result.x, tol=1e-4)  # Stopping criterion 0.002 * tol * errordef
-            output.iterations = fit_result.nfev
-        else:
-            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=1e-12)
-            if kwargs.get('correlated_fit') is True:
-                fit_result = scipy.optimize.minimize(chisqfunc_corr, fit_result.x, method=kwargs.get('method'), tol=1e-12)
-            output.iterations = fit_result.nit
-
-        chisquare = fit_result.fun
-
-    else:
-        if kwargs.get('correlated_fit') is True:
-            def chisqfunc_residuals_corr(p):
-                model = func(p, x)
-                chisq = anp.dot(chol_inv, (y_f - model))
-                return chisq
-
-        def chisqfunc_residuals(p):
-            model = func(p, x)
-            chisq = ((y_f - model) / dy_f)
-            return chisq
-
-        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
-        if kwargs.get('correlated_fit') is True:
-            fit_result = scipy.optimize.least_squares(chisqfunc_residuals_corr, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
-
-        chisquare = np.sum(fit_result.fun ** 2)
-        if kwargs.get('correlated_fit') is True:
-            assert np.isclose(chisquare, chisqfunc_corr(fit_result.x), atol=1e-14)
-        else:
-            assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
-
-        output.iterations = fit_result.nfev
-
-    if not fit_result.success:
-        raise Exception('The minimization procedure did not converge.')
-
-    if x.shape[-1] - n_parms > 0:
-        output.chisquare_by_dof = chisquare / (x.shape[-1] - n_parms)
-    else:
-        output.chisquare_by_dof = float('nan')
-
-    output.message = fit_result.message
-    if not silent:
-        print(fit_result.message)
-        print('chisquare/d.o.f.:', output.chisquare_by_dof)
-
-    if kwargs.get('expected_chisquare') is True:
-        if kwargs.get('correlated_fit') is not True:
-            W = np.diag(1 / np.asarray(dy_f))
-            cov = covariance(y)
-            A = W @ jacobian(func)(fit_result.x, x)
-            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(x.shape[-1]) - P_phi) @ W @ cov @ W)
-            output.chisquare_by_expected_chisquare = chisquare / expected_chisquare
-            if not silent:
-                print('chisquare/expected_chisquare:',
-                      output.chisquare_by_expected_chisquare)
-
-    fitp = fit_result.x
-    try:
-        if kwargs.get('correlated_fit') is True:
-            hess = hessian(chisqfunc_corr)(fitp)
-        else:
-            hess = hessian(chisqfunc)(fitp)
-    except TypeError:
-        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
-
-    if kwargs.get('correlated_fit') is True:
-        def chisqfunc_compact(d):
-            model = func(d[:n_parms], x)
-            chisq = anp.sum(anp.dot(chol_inv, (d[n_parms:] - model)) ** 2)
-            return chisq
-
-    else:
-        def chisqfunc_compact(d):
-            model = func(d[:n_parms], x)
-            chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
-            return chisq
-
-    jac_jac = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
-
-    # Compute hess^{-1} @ jac_jac[:n_parms, n_parms:] using LAPACK dgesv
-    try:
-        deriv = -scipy.linalg.solve(hess, jac_jac[:n_parms, n_parms:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
-
-    result = []
-    for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * fit_result.x[i], list(y), man_grad=list(deriv[i])))
-
-    output.fit_parameters = result
-
-    output.chisquare = chisquare
-    output.dof = x.shape[-1] - n_parms
-    output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
-    # Hotelling t-squared p-value for correlated fits.
-    if kwargs.get('correlated_fit') is True:
-        n_cov = np.min(np.vectorize(lambda x: x.N)(y))
-        output.t2_p_value = 1 - scipy.stats.f.cdf((n_cov - output.dof) / (output.dof * (n_cov - 1)) * output.chisquare,
-                                                  output.dof, n_cov - output.dof)
-
-    if kwargs.get('resplot') is True:
-        residual_plot(x, y, func, result)
-
-    if kwargs.get('qqplot') is True:
-        qqplot(x, y, func, result)
-
-    return output
-
-
 def _combined_fit(x, y, func, silent=False, **kwargs):
 
     output = Fit_result()
-    output.fit_function = func
+
+    if (type(x) == dict and type(y) == dict and type(func) == dict):
+        xd = x
+        yd = y
+        funcd = func
+        output.fit_function = func
+    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
+    else:
+        xd = {"a": x}
+        yd = {"a": y}
+        funcd = {"a": func}
+        output.fit_function = func
 
     if kwargs.get('num_grad') is True:
         jacobian = num_jacobian
@@ -715,16 +528,16 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         jacobian = auto_jacobian
         hessian = auto_hessian
 
-    key_ls = sorted(list(x.keys()))
+    key_ls = sorted(list(xd.keys()))
 
-    if sorted(list(y.keys())) != key_ls:
+    if sorted(list(yd.keys())) != key_ls:
         raise Exception('x and y dictionaries do not contain the same keys.')
 
-    if sorted(list(func.keys())) != key_ls:
+    if sorted(list(funcd.keys())) != key_ls:
         raise Exception('x and func dictionaries do not contain the same keys.')
 
-    x_all = np.concatenate([np.array(x[key]) for key in key_ls])
-    y_all = np.concatenate([np.array(y[key]) for key in key_ls])
+    x_all = np.concatenate([np.array(xd[key]) for key in key_ls])
+    y_all = np.concatenate([np.array(yd[key]) for key in key_ls])
 
     y_f = [o.value for o in y_all]
     dy_f = [o.dvalue for o in y_all]
@@ -738,13 +551,13 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     # number of fit parameters
     n_parms_ls = []
     for key in key_ls:
-        if not callable(func[key]):
+        if not callable(funcd[key]):
             raise TypeError('func (key=' + key + ') is not a function.')
-        if len(x[key]) != len(y[key]):
+        if len(xd[key]) != len(yd[key]):
             raise Exception('x and y input (key=' + key + ') do not have the same length')
         for i in range(100):
             try:
-                func[key](np.arange(i), x_all.T[0])
+                funcd[key](np.arange(i), x_all.T[0])
             except TypeError:
                 continue
             except IndexError:
@@ -778,12 +591,12 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
         def chisqfunc_corr(p):
-            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in key_ls])
+            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
             chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
             return chisq
 
     def chisqfunc(p):
-        func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+        func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
         model = anp.array([func_list[i](p, x_all[i]) for i in range(len(x_all))])
         chisq = anp.sum(((y_f - model) / dy_f) ** 2)
         return chisq
@@ -815,12 +628,12 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     else:
         if kwargs.get('correlated_fit') is True:
             def chisqfunc_residuals_corr(p):
-                model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in key_ls])
+                model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
                 chisq = anp.dot(chol_inv, (y_f - model))
                 return chisq
 
         def chisqfunc_residuals(p):
-            model = np.concatenate([np.array(func[key](p, np.asarray(x[key]))) for key in key_ls])
+            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
             chisq = ((y_f - model) / dy_f)
             return chisq
 
@@ -859,9 +672,9 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     def prepare_hat_matrix():
         hat_vector = []
         for key in key_ls:
-            x_array = np.asarray(x[key])
+            x_array = np.asarray(xd[key])
             if (len(x_array) != 0):
-                hat_vector.append(jacobian(func[key])(fit_result.x, x_array))
+                hat_vector.append(jacobian(funcd[key])(fit_result.x, x_array))
         hat_vector = [item for sublist in hat_vector for item in sublist]
         return hat_vector
 
@@ -870,7 +683,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
             W = np.diag(1 / np.asarray(dy_f))
             cov = covariance(y_all)
             hat_vector = prepare_hat_matrix()
-            A = W @ hat_vector  # hat_vector = 'jacobian(func)(fit_result.x, x)'
+            A = W @ hat_vector
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
             expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
@@ -891,13 +704,13 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     if kwargs.get('correlated_fit') is True:
         def chisqfunc_compact(d):
-            func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+            func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
             model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
             chisq = anp.sum(anp.dot(chol_inv, (d[n_parms:] - model)) ** 2)
             return chisq
     else:
         def chisqfunc_compact(d):
-            func_list = np.concatenate([[func[k]] * len(x[k]) for k in key_ls])
+            func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
             model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
             chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
             return chisq
@@ -916,10 +729,17 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
 
     output.fit_parameters = result
 
+    # Hotelling t-squared p-value for correlated fits.
     if kwargs.get('correlated_fit') is True:
         n_cov = np.min(np.vectorize(lambda x_all: x_all.N)(y_all))
         output.t2_p_value = 1 - scipy.stats.f.cdf((n_cov - output.dof) / (output.dof * (n_cov - 1)) * output.chisquare,
                                                   output.dof, n_cov - output.dof)
+
+    if kwargs.get('resplot') is True:
+        residual_plot(x, y, func, result)
+
+    if kwargs.get('qqplot') is True:
+        qqplot(x, y, func, result)
 
     return output
 

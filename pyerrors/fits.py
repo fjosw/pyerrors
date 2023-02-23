@@ -516,6 +516,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     elif (type(x) == dict or type(y) == dict or type(func) == dict):
         raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
+        x = np.asarray(x)
         xd = {"a": x}
         yd = {"a": y}
         funcd = {"a": func}

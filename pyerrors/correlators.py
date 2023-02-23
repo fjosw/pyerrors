@@ -732,8 +732,8 @@ class Corr:
             if len(fitrange) != 2:
                 raise Exception("fitrange has to have exactly two elements [fit_start, fit_stop]")
 
-        xs = [x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
-        ys = [self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None]
+        xs = np.array([x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
+        ys = np.array([self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         return result
 

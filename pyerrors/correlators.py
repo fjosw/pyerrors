@@ -23,6 +23,8 @@ class Corr:
 
     """
 
+    __slots__ = ["content", "N", "T", "tag", "prange"]
+
     def __init__(self, data_input, padding=[0, 0], prange=None):
         """ Initialize a Corr object.
 

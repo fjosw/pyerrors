@@ -21,6 +21,6 @@ jobs:
       - name: flake8 Lint
         uses: py-actions/flake8@v2
         with:
-          ignore: "E501,E121,E123,E126,E226,E24,E704,W503,W504"
+          ignore: "E501,W503"
           exclude: "__init__.py, input/__init__.py"
           path: "pyerrors"

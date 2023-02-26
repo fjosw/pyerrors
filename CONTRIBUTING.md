@@ -33,6 +33,6 @@ pytest --cov=pyerrors --cov-report html
 ```
 The linter `flake8` is executed with the command
 ```
-flake8 --ignore=E501 --exclude=__init__.py pyerrors
+flake8 --extend-ignore=E501 --exclude=__init__.py pyerrors
 ```
 Please make sure that all tests are passed for a new pull requests.

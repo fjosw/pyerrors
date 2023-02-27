@@ -36,6 +36,7 @@ jobs:
           pip install .
           pip install pytest
           pip install nbmake
+          pip install -U matplotlib!=3.7.0 # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.
 
       - name: Run tests
         run: pytest -vv --nbmake examples/*.ipynb

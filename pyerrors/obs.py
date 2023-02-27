@@ -323,8 +323,8 @@ class Obs:
                     # Standard automatic windowing procedure
                     tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][gapsize::gapsize] + 1) / (2 * self.e_n_tauint[e_name][gapsize::gapsize] - 1))
                     g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
-                    for n in range(1, w_max):
-                        if g_w[n - 1] < 0 or n >= w_max - 1:
+                    for n in range(1, w_max // gapsize):
+                        if g_w[n - 1] < 0 or n >= w_max // gapsize - 1:
                             _compute_drho(gapsize * n)
                             n *= gapsize
                             self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)

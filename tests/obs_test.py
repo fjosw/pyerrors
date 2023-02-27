@@ -1152,3 +1152,7 @@ def test_nan_obs():
     o = pe.pseudo_Obs(1, .1, 'test')
     no = np.nan * o
     no.gamma_method()
+
+    o.idl['test'] = [1, 5] + list(range(7, 2002, 2))
+    no = np.NaN * o
+    no.gamma_method()

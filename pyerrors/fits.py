@@ -517,9 +517,9 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
         x = np.asarray(x)
-        xd = {"a": x}
-        yd = {"a": y}
-        funcd = {"a": func}
+        xd = {"": x}
+        yd = {"": y}
+        funcd = {"": func}
         output.fit_function = func
 
     if kwargs.get('num_grad') is True:
@@ -737,10 +737,12 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
                                                   output.dof, n_cov - output.dof)
 
     if kwargs.get('resplot') is True:
-        residual_plot(x, y, func, result)
+        for key in key_ls:
+            residual_plot(xd[key], yd[key], funcd[key], result, title=key)
 
     if kwargs.get('qqplot') is True:
-        qqplot(x, y, func, result)
+        for key in key_ls:
+            qqplot(xd[key], yd[key], funcd[key], result, title=key)
 
     return output
 
@@ -776,7 +778,7 @@ def fit_lin(x, y, **kwargs):
         raise Exception('Unsupported types for x')
 
 
-def qqplot(x, o_y, func, p):
+def qqplot(x, o_y, func, p, title=""):
     """Generates a quantile-quantile plot of the fit result which can be used to
        check if the residuals of the fit are gaussian distributed.
 
@@ -802,11 +804,11 @@ def qqplot(x, o_y, func, p):
 
     plt.xlabel('Theoretical quantiles')
     plt.ylabel('Ordered Values')
-    plt.legend()
+    plt.legend(title=title)
     plt.draw()
 
 
-def residual_plot(x, y, func, fit_res):
+def residual_plot(x, y, func, fit_res, title=""):
     """Generates a plot which compares the fit to the data and displays the corresponding residuals
 
     Returns
@@ -826,7 +828,7 @@ def residual_plot(x, y, func, fit_res):
     ax0.set_xticklabels([])
     ax0.set_xlim([xstart, xstop])
     ax0.set_xticklabels([])
-    ax0.legend()
+    ax0.legend(title=title)
 
     residuals = (np.asarray([o.value for o in y]) - func([o.value for o in fit_res], x)) / np.asarray([o.dvalue for o in y])
     ax1 = plt.subplot(gs[1])

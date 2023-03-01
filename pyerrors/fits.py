@@ -581,6 +581,17 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         x0 = [0.1] * n_parms
 
     if kwargs.get('correlated_fit') is True:
+        def chisqfunc_residuals_corr(p):
+            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            chisq = anp.dot(chol_inv, (y_f - model))
+            return chisq
+
+    def chisqfunc_residuals(p):
+        model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
+        chisq = ((y_f - model) / dy_f)
+        return chisq
+
+    if kwargs.get('correlated_fit') is True:
         corr = covariance(y_all, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
@@ -592,15 +603,10 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
         def chisqfunc_corr(p):
-            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
-            return chisq
+            return anp.sum(chisqfunc_residuals_corr(p) ** 2)
 
     def chisqfunc(p):
-        func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
-        model = anp.array([func_list[i](p, x_all[i]) for i in range(len(x_all))])
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-        return chisq
+        return anp.sum(chisqfunc_residuals(p) ** 2)
 
     output.method = kwargs.get('method', 'Levenberg-Marquardt')
     if not silent:
@@ -627,17 +633,6 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         chisquare = fit_result.fun
 
     else:
-        if kwargs.get('correlated_fit') is True:
-            def chisqfunc_residuals_corr(p):
-                model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-                chisq = anp.dot(chol_inv, (y_f - model))
-                return chisq
-
-        def chisqfunc_residuals(p):
-            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            chisq = ((y_f - model) / dy_f)
-            return chisq
-
         if 'tol' in kwargs:
             print('tol cannot be set for Levenberg-Marquardt')
 

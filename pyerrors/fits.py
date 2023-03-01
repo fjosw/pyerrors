@@ -811,6 +811,8 @@ def qqplot(x, o_y, func, p, title=""):
 def residual_plot(x, y, func, fit_res, title=""):
     """Generates a plot which compares the fit to the data and displays the corresponding residuals
 
+    For uncorrelated data the residuals are expected to be distributed ~N(0,1).
+
     Returns
     -------
     None

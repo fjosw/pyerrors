@@ -1,5 +1,6 @@
 import numpy as np
 import autograd.numpy as anp
+import matplotlib.pyplot as plt
 import math
 import scipy.optimize
 from scipy.odr import ODR, Model, RealData
@@ -618,7 +619,7 @@ def test_combined_fit_vs_standard_fit():
         [item.gamma_method() for item in y_const[key]]
     y_const_ls = np.concatenate([np.array(o) for o in y_const.values()])
     x_const_ls = np.arange(0, 20)
-    
+
     def func_const(a,x):
         return  0 * x + a[0]
 
@@ -632,6 +633,7 @@ def test_combined_fit_vs_standard_fit():
         assert np.isclose(0.0, (res[0].chisquare_by_expected_chisquare - res[1].chisquare_by_expected_chisquare), 1e-14, 1e-8)
         assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
         assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+
 
 def test_combined_fit_no_autograd():
 
@@ -663,6 +665,7 @@ def test_combined_fit_no_autograd():
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 
+
 def test_combined_fit_invalid_fit_functions():
     def func1(a, x):
         return a[0] + a[1] * x + a[2] * anp.sinh(x) + a[199]
@@ -692,6 +695,7 @@ def test_combined_fit_invalid_fit_functions():
         with pytest.raises(Exception):
             pe.least_squares({'a':xvals, 'b':xvals}, {'a':yvals, 'b':yvals}, {'a':func_valid, 'b':func})
 
+
 def test_combined_fit_invalid_input():
     xvals =[]
     yvals =[]
@@ -705,6 +709,7 @@ def test_combined_fit_invalid_input():
         pe.least_squares({'a':xvals}, {'b':yvals}, {'a':func_valid})
     with pytest.raises(Exception):
         pe.least_squares({'a':xvals}, {'a':yvals}, {'a':func_valid})
+
 
 def test_combined_fit_no_autograd():
 
@@ -774,6 +779,7 @@ def test_combined_fit_num_grad():
     assert(num[0] == auto[0])
     assert(num[1] == auto[1])
 
+
 def test_combined_fit_dictkeys_no_order():
     def func_exp1(x):
         return 0.3*np.exp(0.5*x)
@@ -835,6 +841,7 @@ def test_combined_fit_dictkeys_no_order():
         assert(no_order_x_y[0] == order[0])
         assert(no_order_x_y[1] == order[1])
 
+
 def test_correlated_combined_fit_vs_correlated_standard_fit():
 
     x_const = {'a':[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'b':np.arange(10, 20)}
@@ -860,6 +867,7 @@ def test_correlated_combined_fit_vs_correlated_standard_fit():
         assert np.isclose(0.0, (res[0].p_value - res[1].p_value), 1e-14, 1e-8)
         assert np.isclose(0.0, (res[0].t2_p_value - res[1].t2_p_value), 1e-14, 1e-8)
         assert (res[0][0] - res[1][0]).is_zero(atol=1e-8)
+
 
 def test_combined_fit_hotelling_t():
     xvals_b = np.arange(0,6)
@@ -887,6 +895,23 @@ def test_combined_fit_hotelling_t():
         [item.gamma_method() for item in ys[key]]
     ft = pe.fits.least_squares(xs, ys, funcs, correlated_fit=True)
     assert ft.t2_p_value >= ft.p_value
+
+
+def test_combined_resplot_qqplot():
+    x = np.arange(3)
+    y1 = [pe.pseudo_Obs(2 * o + np.random.normal(0, 0.1), 0.1, "test") for o in x]
+    y2 = [pe.pseudo_Obs(3 * o ** 2 + np.random.normal(0, 0.1), 0.1, "test") for o in x]
+    fr = pe.least_squares(x, y1, lambda a, x: a[0] + a[1] * x, resplot=True, qqplot=True)
+
+    xd = {"1": x,
+          "2": x}
+    yd = {"1": y1,
+          "2": y2}
+    fd = {"1": lambda a, x: a[0] + a[1] * x,
+          "2": lambda a, x: a[0] + a[2] * x ** 2}
+    fr = pe.least_squares(xd, yd, fd, resplot=True, qqplot=True)
+    plt.close('all')
+
 
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.

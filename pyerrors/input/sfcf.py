@@ -6,6 +6,80 @@ from ..obs import Obs
 from . import utils
 
 
+def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
+    if version == "0.0":
+        pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
+        if b2b:
+            pattern += ", wf_2 " + str(wf2)
+        qs = quarks.split(" ")
+        pattern += " : " + qs[0] + " - " + qs[1]
+    else:
+        pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
+        if b2b:
+            pattern += '\nwf_2      ' + str(wf2)
+    return pattern
+
+def _find_correlator(file_name, version, pattern, b2b):
+    T = 0
+
+    file = open(file_name, "r")
+
+    content = file.read()
+    match = re.search(pattern, content)
+    if match:
+        if version == "0.0":
+                start_read = content.count('\n', 0, match.start()) + 1
+                T = content.count('\n', start_read)
+        else:
+            start_read = content.count('\n', 0, match.start()) + 5 + b2b
+            end_match = re.search(r'\n\s*\n', content[match.start():])
+            T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
+        if not T > 0:
+            raise Exception("Correlator is empty!")
+        print(T, 'entries, starting to read in line', start_read)
+
+    else:
+        file.close()
+        raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
+
+    file.close()
+    return start_read, T
+
+
+def _read_compact_file(rep_path, config_file, start_read, T, b2b, name, im):
+    with open(rep_path + config_file) as fp:
+        lines = fp.readlines()
+        # check, if the correlator is in fact
+        # printed completely
+        if (start_read + T + 1 > len(lines)):
+            raise Exception("EOF before end of correlator data! Maybe " + rep_path + config_file + " is corrupted?")
+        corr_lines = lines[start_read - 6: start_read + T]
+        del lines
+        t_vals  = []
+
+        if corr_lines[1 - b2b].strip() != 'name      ' + name:
+            raise Exception('Wrong format in file', config_file)
+
+        for k in range(6,T+6):
+            floats = list(map(float, corr_lines[k].split()))
+            t_vals.append(floats[-2:][im])
+    return t_vals
+
+def _read_compact_rep(path, rep, sub_ls, start_read, T, b2b, name, im):
+    rep_path = path + '/' + rep + '/'
+    no_cfg = len(sub_ls)
+    deltas = []
+    for t in range(T):
+        deltas.append(np.zeros(no_cfg))
+    for cfg in range(no_cfg):
+        cfg_file = sub_ls[cfg]
+        cfg_data = _read_compact_file(rep_path, cfg_file, start_read, T, b2b, name, im)
+        for t in range(T):
+            deltas[t][cfg] = cfg_data[t]
+    print(deltas)
+    return deltas
+
+
 def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", **kwargs):
     """Read sfcf c format from given folder structure.
 
@@ -99,9 +173,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     else:
         compact = False
         appended = False
-    read = 0
-    T = 0
-    start = 0
     ls = []
     if "replica" in kwargs:
         ls = reps
@@ -209,83 +280,32 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                 # to do so, the pattern needed is put together
                 # from the input values
                 if version == "0.0":
-                    pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
-                    # if b2b, a second wf is needed
-                    if b2b:
-                        pattern += ", wf_2 " + str(wf2)
-                    qs = quarks.split(" ")
-                    pattern += " : " + qs[0] + " - " + qs[1]
-                    file = open(path + '/' + item + '/' + sub_ls[0] + '/' + name, "r")
-                    for k, line in enumerate(file):
-                        if read == 1 and not line.strip() and k > start + 1:
-                            break
-                        if read == 1 and k >= start:
-                            T += 1
-                        if pattern in line:
-                            read = 1
-                            start = k + 1
-                    print(str(T) + " entries found.")
-                    file.close()
+                    file = path + '/' + item + '/' + sub_ls[0] + '/' + name
                 else:
-                    pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
-                    if b2b:
-                        pattern += '\nwf_2      ' + str(wf2)
-                    # and the file is parsed through to find the pattern
                     if compact:
-                        file = open(path + '/' + item + '/' + sub_ls[0], "r")
+                        file = path + '/' + item + '/' + sub_ls[0]
                     else:
-                        # for non-compactified versions of the files
-                        file = open(path + '/' + item + '/' + sub_ls[0] + '/' + name, "r")
+                        file = path + '/' + item + '/' + sub_ls[0] + '/' + name
+                
+                pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
+                start_read, T = _find_correlator(file, version, pattern, b2b)
 
-                    content = file.read()
-                    match = re.search(pattern, content)
-                    if match:
-                        start_read = content.count('\n', 0, match.start()) + 5 + b2b
-                        end_match = re.search(r'\n\s*\n', content[match.start():])
-                        T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
-                        assert T > 0
-                        print(T, 'entries, starting to read in line', start_read)
-                        file.close()
-                    else:
-                        file.close()
-                        raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
-
-                # we found where the correlator
-                # that is to be read is in the files
-                # after preparing the datastructure
+                # preparing the datastructure
                 # the correlators get parsed into...
                 deltas = []
                 for j in range(T):
                     deltas.append([])
 
-            for t in range(T):
-                deltas[t].append(np.zeros(no_cfg))
             if compact:
-                for cfg in range(no_cfg):
-                    with open(path + '/' + item + '/' + sub_ls[cfg]) as fp:
-                        lines = fp.readlines()
-                        # check, if the correlator is in fact
-                        # printed completely
-                        if (start_read + T > len(lines)):
-                            raise Exception("EOF before end of correlator data! Maybe " + path + '/' + item + '/' + sub_ls[cfg] + " is corrupted?")
-                        # and start to read the correlator.
-                        # the range here is chosen like this,
-                        # since this allows for implementing
-                        # a security check for every read correlator later...
-                        for k in range(start_read - 6, start_read + T):
-                            if k == start_read - 5 - b2b:
-                                if lines[k].strip() != 'name      ' + name:
-                                    raise Exception('Wrong format', sub_ls[cfg])
-                            if (k >= start_read and k < start_read + T):
-                                floats = list(map(float, lines[k].split()))
-                                deltas[k - start_read][i][cfg] = floats[-2:][im]
+                rep_deltas = _read_compact_rep(path, item, sub_ls, start_read, T, b2b, name, im)
+                
+                for t in range(T):
+                    deltas[t].append(rep_deltas[t])
             else:
+                for t in range(T):
+                    deltas[t].append(np.zeros(no_cfg))
                 for cnfg, subitem in enumerate(sub_ls):
                     with open(path + '/' + item + '/' + subitem + '/' + name) as fp:
-                        # since the non-compatified files
-                        # are typically not so long,
-                        # we can iterate over the whole file.
-                        # here one can also implement the chekc from above.
                         for k, line in enumerate(fp):
                             if (k >= start_read and k < start_read + T):
                                 floats = list(map(float, line.split()))
@@ -302,9 +322,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                 if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
                 ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
-        pattern = 'name      ' + name + '\nquarks    ' + quarks + '\noffset    ' + str(noffset) + '\nwf        ' + str(wf)
-        if b2b:
-            pattern += '\nwf_2      ' + str(wf2)
+        pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
         for rep, file in enumerate(ls):
             rep_idl = []
             with open(path + '/' + file, 'r') as fp:

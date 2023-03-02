@@ -73,21 +73,21 @@ class Obs:
 
         if kwargs.get("means") is None and len(samples):
             if len(samples) != len(names):
-                raise Exception('Length of samples and names incompatible.')
+                raise ValueError('Length of samples and names incompatible.')
             if idl is not None:
                 if len(idl) != len(names):
-                    raise Exception('Length of idl incompatible with samples and names.')
+                    raise ValueError('Length of idl incompatible with samples and names.')
             name_length = len(names)
             if name_length > 1:
                 if name_length != len(set(names)):
-                    raise Exception('names are not unique.')
+                    raise ValueError('Names are not unique.')
                 if not all(isinstance(x, str) for x in names):
                     raise TypeError('All names have to be strings.')
             else:
                 if not isinstance(names[0], str):
                     raise TypeError('All names have to be strings.')
             if min(len(x) for x in samples) <= 4:
-                raise Exception('Samples have to have at least 5 entries.')
+                raise ValueError('Samples have to have at least 5 entries.')
 
         self.names = sorted(names)
         self.shape = {}
@@ -105,13 +105,13 @@ class Obs:
                 elif isinstance(idx, (list, np.ndarray)):
                     dc = np.unique(np.diff(idx))
                     if np.any(dc < 0):
-                        raise Exception("Unsorted idx for idl[%s]" % (name))
+                        raise ValueError("Unsorted idx for idl[%s]" % (name))
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
                         self.idl[name] = list(idx)
                 else:
-                    raise Exception('incompatible type for idl[%s].' % (name))
+                    raise TypeError('incompatible type for idl[%s].' % (name))
         else:
             for name, sample in sorted(zip(names, samples)):
                 self.idl[name] = range(1, len(sample) + 1)
@@ -127,7 +127,7 @@ class Obs:
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 if len(sample) != self.shape[name]:
-                    raise Exception('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                    raise ValueError('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                 self.r_values[name] = np.mean(sample)
                 self.deltas[name] = sample - self.r_values[name]
                 self._value += self.shape[name] * self.r_values[name]

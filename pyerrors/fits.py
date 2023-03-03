@@ -580,6 +580,13 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     else:
         x0 = [0.1] * n_parms
 
+    def general_chisqfunc_uncorr(p, ivars):
+        model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+        return ((ivars - model) / dy_f)
+
+    def chisqfunc_uncorr(p):
+        return anp.sum(general_chisqfunc_uncorr(p, y_f) ** 2)
+
     if kwargs.get('correlated_fit') is True:
         corr = covariance(y_all, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
@@ -591,16 +598,15 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         chol = np.linalg.cholesky(corr)
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
-        def chisqfunc_corr(p):
-            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            chisq = anp.sum(anp.dot(chol_inv, (y_f - model)) ** 2)
-            return chisq
+        def general_chisqfunc(p, ivars):
+            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            return anp.dot(chol_inv, (ivars - model))
 
-    def chisqfunc(p):
-        func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
-        model = anp.array([func_list[i](p, x_all[i]) for i in range(len(x_all))])
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2)
-        return chisq
+        def chisqfunc(p):
+            return anp.sum(general_chisqfunc(p, y_f) ** 2)
+    else:
+        general_chisqfunc = general_chisqfunc_uncorr
+        chisqfunc = chisqfunc_uncorr
 
     output.method = kwargs.get('method', 'Levenberg-Marquardt')
     if not silent:
@@ -611,45 +617,38 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
             tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
             if 'tol' in kwargs:
                 tolerance = kwargs.get('tol')
-            fit_result = iminuit.minimize(chisqfunc, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
+            fit_result = iminuit.minimize(chisqfunc_uncorr, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
             if kwargs.get('correlated_fit') is True:
-                fit_result = iminuit.minimize(chisqfunc_corr, fit_result.x, tol=tolerance)
+                fit_result = iminuit.minimize(chisqfunc, fit_result.x, tol=tolerance)
             output.iterations = fit_result.nfev
         else:
             tolerance = 1e-12
             if 'tol' in kwargs:
                 tolerance = kwargs.get('tol')
-            fit_result = scipy.optimize.minimize(chisqfunc, x0, method=kwargs.get('method'), tol=tolerance)
+            fit_result = scipy.optimize.minimize(chisqfunc_uncorr, x0, method=kwargs.get('method'), tol=tolerance)
             if kwargs.get('correlated_fit') is True:
-                fit_result = scipy.optimize.minimize(chisqfunc_corr, fit_result.x, method=kwargs.get('method'), tol=tolerance)
+                fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=tolerance)
             output.iterations = fit_result.nit
 
         chisquare = fit_result.fun
 
     else:
-        if kwargs.get('correlated_fit') is True:
-            def chisqfunc_residuals_corr(p):
-                model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-                chisq = anp.dot(chol_inv, (y_f - model))
-                return chisq
-
-        def chisqfunc_residuals(p):
-            model = np.concatenate([np.array(funcd[key](p, np.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            chisq = ((y_f - model) / dy_f)
-            return chisq
-
         if 'tol' in kwargs:
             print('tol cannot be set for Levenberg-Marquardt')
 
-        fit_result = scipy.optimize.least_squares(chisqfunc_residuals, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+        def chisqfunc_residuals_uncorr(p):
+            return general_chisqfunc_uncorr(p, y_f)
+
+        fit_result = scipy.optimize.least_squares(chisqfunc_residuals_uncorr, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
         if kwargs.get('correlated_fit') is True:
-            fit_result = scipy.optimize.least_squares(chisqfunc_residuals_corr, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+
+            def chisqfunc_residuals(p):
+                return general_chisqfunc(p, y_f)
+
+            fit_result = scipy.optimize.least_squares(chisqfunc_residuals, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 
         chisquare = np.sum(fit_result.fun ** 2)
-        if kwargs.get('correlated_fit') is True:
-            assert np.isclose(chisquare, chisqfunc_corr(fit_result.x), atol=1e-14)
-        else:
-            assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
+        assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
 
         output.iterations = fit_result.nfev
 
@@ -696,25 +695,12 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
         raise Exception('No y errors available, run the gamma method first.')
 
     try:
-        if kwargs.get('correlated_fit') is True:
-            hess = hessian(chisqfunc_corr)(fitp)
-        else:
-            hess = hessian(chisqfunc)(fitp)
+        hess = hessian(chisqfunc)(fitp)
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
-    if kwargs.get('correlated_fit') is True:
-        def chisqfunc_compact(d):
-            func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
-            model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
-            chisq = anp.sum(anp.dot(chol_inv, (d[n_parms:] - model)) ** 2)
-            return chisq
-    else:
-        def chisqfunc_compact(d):
-            func_list = np.concatenate([[funcd[k]] * len(xd[k]) for k in key_ls])
-            model = anp.array([func_list[i](d[:n_parms], x_all[i]) for i in range(len(x_all))])
-            chisq = anp.sum(((d[n_parms:] - model) / dy_f) ** 2)
-            return chisq
+    def chisqfunc_compact(d):
+        return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms:]) ** 2)
 
     jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
 

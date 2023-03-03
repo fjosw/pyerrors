@@ -166,10 +166,266 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     output : Fit_result
         Parameters and information on the fitted result.
     '''
-    if priors is not None:
-        return _prior_fit(x, y, func, priors, silent=silent, **kwargs)
+    output = Fit_result()
+
+    if (type(x) == dict and type(y) == dict and type(func) == dict):
+        xd = x
+        yd = y
+        funcd = func
+        output.fit_function = func
+    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
-        return _combined_fit(x, y, func, silent=silent, **kwargs)
+        x = np.asarray(x)
+        xd = {"": x}
+        yd = {"": y}
+        funcd = {"": func}
+        output.fit_function = func
+
+    if kwargs.get('num_grad') is True:
+        jacobian = num_jacobian
+        hessian = num_hessian
+    else:
+        jacobian = auto_jacobian
+        hessian = auto_hessian
+
+    key_ls = sorted(list(xd.keys()))
+
+    if sorted(list(yd.keys())) != key_ls:
+        raise Exception('x and y dictionaries do not contain the same keys.')
+
+    if sorted(list(funcd.keys())) != key_ls:
+        raise Exception('x and func dictionaries do not contain the same keys.')
+
+    x_all = np.concatenate([np.array(xd[key]) for key in key_ls])
+    y_all = np.concatenate([np.array(yd[key]) for key in key_ls])
+
+    y_f = [o.value for o in y_all]
+    dy_f = [o.dvalue for o in y_all]
+
+    if len(x_all.shape) > 2:
+        raise Exception('Unknown format for x values')
+
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+
+    # number of fit parameters
+    n_parms_ls = []
+    for key in key_ls:
+        if not callable(funcd[key]):
+            raise TypeError('func (key=' + key + ') is not a function.')
+        if np.asarray(xd[key]).shape[-1] != len(yd[key]):
+            raise Exception('x and y input (key=' + key + ') do not have the same length')
+        for i in range(100):
+            try:
+                funcd[key](np.arange(i), x_all.T[0])
+            except TypeError:
+                continue
+            except IndexError:
+                continue
+            else:
+                break
+        else:
+            raise RuntimeError("Fit function (key=" + key + ") is not valid.")
+        n_parms = i
+        n_parms_ls.append(n_parms)
+    n_parms = max(n_parms_ls)
+    if not silent:
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
+
+    if priors is not None:
+        if isinstance(priors, (list, np.array)):
+            if n_parms != len(priors):
+                raise Exception('Priors does not have the correct length.')
+
+            def _extract_val_and_dval(string):
+                split_string = string.split('(')
+                if '.' in split_string[0] and '.' not in split_string[1][:-1]:
+                    factor = 10 ** -len(split_string[0].partition('.')[2])
+                else:
+                    factor = 1
+                return float(split_string[0]), float(split_string[1][:-1]) * factor
+
+            loc_priors = []
+            for i_n, i_prior in enumerate(priors):
+                if isinstance(i_prior, Obs):
+                    loc_priors.append(i_prior)
+                else:
+                    loc_val, loc_dval = _extract_val_and_dval(i_prior)
+                    loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
+
+            prior_mask = np.arange(len(priors))
+
+        output.priors = loc_priors
+
+        p_f = [o.value for o in loc_priors]
+        dp_f = [o.dvalue for o in loc_priors]
+        if np.any(np.asarray(dp_f) <= 0.0):
+            raise Exception('No prior errors available, run the gamma method first.')
+    else:
+        p_f = dp_f = np.array([])
+        prior_mask = []
+
+    if 'initial_guess' in kwargs:
+        x0 = kwargs.get('initial_guess')
+        if len(x0) != n_parms:
+            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+    else:
+        x0 = [0.1] * n_parms
+
+    def general_chisqfunc_uncorr(p, ivars, pr):
+        model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+        # anp.sum(((p_f - p) / dp_f) ** 2)
+        return anp.concatenate(((ivars - model) / dy_f, (p[prior_mask] - pr) / dp_f))
+
+    def chisqfunc_uncorr(p):
+        return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
+
+    if kwargs.get('correlated_fit') is True:
+        corr = covariance(y_all, correlation=True, **kwargs)
+        covdiag = np.diag(1 / np.asarray(dy_f))
+        condn = np.linalg.cond(corr)
+        if condn > 0.1 / np.finfo(float).eps:
+            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+        if condn > 1e13:
+            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+        chol = np.linalg.cholesky(corr)
+        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+
+        def general_chisqfunc(p, ivars):
+            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            return anp.dot(chol_inv, (ivars - model))
+
+        def chisqfunc(p):
+            return anp.sum(general_chisqfunc(p, y_f) ** 2)
+    else:
+        general_chisqfunc = general_chisqfunc_uncorr
+        chisqfunc = chisqfunc_uncorr
+
+    output.method = kwargs.get('method', 'Levenberg-Marquardt')
+    if not silent:
+        print('Method:', output.method)
+
+    if output.method != 'Levenberg-Marquardt':
+        if output.method == 'migrad':
+            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = iminuit.minimize(chisqfunc_uncorr, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
+            if kwargs.get('correlated_fit') is True:
+                fit_result = iminuit.minimize(chisqfunc, fit_result.x, tol=tolerance)
+            output.iterations = fit_result.nfev
+        else:
+            tolerance = 1e-12
+            if 'tol' in kwargs:
+                tolerance = kwargs.get('tol')
+            fit_result = scipy.optimize.minimize(chisqfunc_uncorr, x0, method=kwargs.get('method'), tol=tolerance)
+            if kwargs.get('correlated_fit') is True:
+                fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=tolerance)
+            output.iterations = fit_result.nit
+
+        chisquare = fit_result.fun
+
+    else:
+        if 'tol' in kwargs:
+            print('tol cannot be set for Levenberg-Marquardt')
+
+        def chisqfunc_residuals_uncorr(p):
+            return general_chisqfunc_uncorr(p, y_f, p_f)
+
+        fit_result = scipy.optimize.least_squares(chisqfunc_residuals_uncorr, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+        if kwargs.get('correlated_fit') is True:
+
+            def chisqfunc_residuals(p):
+                return general_chisqfunc(p, y_f)
+
+            fit_result = scipy.optimize.least_squares(chisqfunc_residuals, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
+
+        chisquare = np.sum(fit_result.fun ** 2)
+        assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
+
+        output.iterations = fit_result.nfev
+
+    if not fit_result.success:
+        raise Exception('The minimization procedure did not converge.')
+
+    if x_all.shape[-1] - n_parms > 0:
+        output.chisquare = chisquare
+        output.dof = x_all.shape[-1] - n_parms
+        output.chisquare_by_dof = output.chisquare / output.dof
+        output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
+    else:
+        output.chisquare_by_dof = float('nan')
+
+    output.message = fit_result.message
+    if not silent:
+        print(fit_result.message)
+        print('chisquare/d.o.f.:', output.chisquare_by_dof)
+        print('fit parameters', fit_result.x)
+
+    def prepare_hat_matrix():
+        hat_vector = []
+        for key in key_ls:
+            x_array = np.asarray(xd[key])
+            if (len(x_array) != 0):
+                hat_vector.append(jacobian(funcd[key])(fit_result.x, x_array))
+        hat_vector = [item for sublist in hat_vector for item in sublist]
+        return hat_vector
+
+    if kwargs.get('expected_chisquare') is True:
+        if kwargs.get('correlated_fit') is not True:
+            W = np.diag(1 / np.asarray(dy_f))
+            cov = covariance(y_all)
+            hat_vector = prepare_hat_matrix()
+            A = W @ hat_vector
+            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
+            expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
+            if not silent:
+                print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
+
+    fitp = fit_result.x
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+
+    try:
+        hess = hessian(chisqfunc)(fitp)
+    except TypeError:
+        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
+
+    def chisqfunc_compact(d):
+        # Add priors to arguments here!
+        return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms:], p_f) ** 2)
+
+    jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
+
+    # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
+    try:
+        deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
+    except np.linalg.LinAlgError:
+        raise Exception("Cannot invert hessian matrix.")
+
+    result = []
+    for i in range(n_parms):
+        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all), man_grad=list(deriv_y[i])))
+
+    output.fit_parameters = result
+
+    # Hotelling t-squared p-value for correlated fits.
+    if kwargs.get('correlated_fit') is True:
+        n_cov = np.min(np.vectorize(lambda x_all: x_all.N)(y_all))
+        output.t2_p_value = 1 - scipy.stats.f.cdf((n_cov - output.dof) / (output.dof * (n_cov - 1)) * output.chisquare,
+                                                  output.dof, n_cov - output.dof)
+
+    if kwargs.get('resplot') is True:
+        for key in key_ls:
+            residual_plot(xd[key], yd[key], funcd[key], result, title=key)
+
+    if kwargs.get('qqplot') is True:
+        for key in key_ls:
+            qqplot(xd[key], yd[key], funcd[key], result, title=key)
+
+    return output
 
 
 def total_least_squares(x, y, func, silent=False, **kwargs):
@@ -500,235 +756,6 @@ def _prior_fit(x, y, func, priors, silent=False, **kwargs):
 
     if kwargs.get('qqplot') is True:
         qqplot(x, y, func, result)
-
-    return output
-
-
-def _combined_fit(x, y, func, silent=False, **kwargs):
-
-    output = Fit_result()
-
-    if (type(x) == dict and type(y) == dict and type(func) == dict):
-        xd = x
-        yd = y
-        funcd = func
-        output.fit_function = func
-    elif (type(x) == dict or type(y) == dict or type(func) == dict):
-        raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
-    else:
-        x = np.asarray(x)
-        xd = {"": x}
-        yd = {"": y}
-        funcd = {"": func}
-        output.fit_function = func
-
-    if kwargs.get('num_grad') is True:
-        jacobian = num_jacobian
-        hessian = num_hessian
-    else:
-        jacobian = auto_jacobian
-        hessian = auto_hessian
-
-    key_ls = sorted(list(xd.keys()))
-
-    if sorted(list(yd.keys())) != key_ls:
-        raise Exception('x and y dictionaries do not contain the same keys.')
-
-    if sorted(list(funcd.keys())) != key_ls:
-        raise Exception('x and func dictionaries do not contain the same keys.')
-
-    x_all = np.concatenate([np.array(xd[key]) for key in key_ls])
-    y_all = np.concatenate([np.array(yd[key]) for key in key_ls])
-
-    y_f = [o.value for o in y_all]
-    dy_f = [o.dvalue for o in y_all]
-
-    if len(x_all.shape) > 2:
-        raise Exception('Unknown format for x values')
-
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
-
-    # number of fit parameters
-    n_parms_ls = []
-    for key in key_ls:
-        if not callable(funcd[key]):
-            raise TypeError('func (key=' + key + ') is not a function.')
-        if np.asarray(xd[key]).shape[-1] != len(yd[key]):
-            raise Exception('x and y input (key=' + key + ') do not have the same length')
-        for i in range(100):
-            try:
-                funcd[key](np.arange(i), x_all.T[0])
-            except TypeError:
-                continue
-            except IndexError:
-                continue
-            else:
-                break
-        else:
-            raise RuntimeError("Fit function (key=" + key + ") is not valid.")
-        n_parms = i
-        n_parms_ls.append(n_parms)
-    n_parms = max(n_parms_ls)
-    if not silent:
-        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
-        if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
-    else:
-        x0 = [0.1] * n_parms
-
-    def general_chisqfunc_uncorr(p, ivars):
-        model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-        return ((ivars - model) / dy_f)
-
-    def chisqfunc_uncorr(p):
-        return anp.sum(general_chisqfunc_uncorr(p, y_f) ** 2)
-
-    if kwargs.get('correlated_fit') is True:
-        corr = covariance(y_all, correlation=True, **kwargs)
-        covdiag = np.diag(1 / np.asarray(dy_f))
-        condn = np.linalg.cond(corr)
-        if condn > 0.1 / np.finfo(float).eps:
-            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
-        if condn > 1e13:
-            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
-        chol = np.linalg.cholesky(corr)
-        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
-
-        def general_chisqfunc(p, ivars):
-            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            return anp.dot(chol_inv, (ivars - model))
-
-        def chisqfunc(p):
-            return anp.sum(general_chisqfunc(p, y_f) ** 2)
-    else:
-        general_chisqfunc = general_chisqfunc_uncorr
-        chisqfunc = chisqfunc_uncorr
-
-    output.method = kwargs.get('method', 'Levenberg-Marquardt')
-    if not silent:
-        print('Method:', output.method)
-
-    if output.method != 'Levenberg-Marquardt':
-        if output.method == 'migrad':
-            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
-            fit_result = iminuit.minimize(chisqfunc_uncorr, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
-            if kwargs.get('correlated_fit') is True:
-                fit_result = iminuit.minimize(chisqfunc, fit_result.x, tol=tolerance)
-            output.iterations = fit_result.nfev
-        else:
-            tolerance = 1e-12
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
-            fit_result = scipy.optimize.minimize(chisqfunc_uncorr, x0, method=kwargs.get('method'), tol=tolerance)
-            if kwargs.get('correlated_fit') is True:
-                fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=tolerance)
-            output.iterations = fit_result.nit
-
-        chisquare = fit_result.fun
-
-    else:
-        if 'tol' in kwargs:
-            print('tol cannot be set for Levenberg-Marquardt')
-
-        def chisqfunc_residuals_uncorr(p):
-            return general_chisqfunc_uncorr(p, y_f)
-
-        fit_result = scipy.optimize.least_squares(chisqfunc_residuals_uncorr, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
-        if kwargs.get('correlated_fit') is True:
-
-            def chisqfunc_residuals(p):
-                return general_chisqfunc(p, y_f)
-
-            fit_result = scipy.optimize.least_squares(chisqfunc_residuals, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
-
-        chisquare = np.sum(fit_result.fun ** 2)
-        assert np.isclose(chisquare, chisqfunc(fit_result.x), atol=1e-14)
-
-        output.iterations = fit_result.nfev
-
-    if not fit_result.success:
-        raise Exception('The minimization procedure did not converge.')
-
-    if x_all.shape[-1] - n_parms > 0:
-        output.chisquare = chisquare
-        output.dof = x_all.shape[-1] - n_parms
-        output.chisquare_by_dof = output.chisquare / output.dof
-        output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
-    else:
-        output.chisquare_by_dof = float('nan')
-
-    output.message = fit_result.message
-    if not silent:
-        print(fit_result.message)
-        print('chisquare/d.o.f.:', output.chisquare_by_dof)
-        print('fit parameters', fit_result.x)
-
-    def prepare_hat_matrix():
-        hat_vector = []
-        for key in key_ls:
-            x_array = np.asarray(xd[key])
-            if (len(x_array) != 0):
-                hat_vector.append(jacobian(funcd[key])(fit_result.x, x_array))
-        hat_vector = [item for sublist in hat_vector for item in sublist]
-        return hat_vector
-
-    if kwargs.get('expected_chisquare') is True:
-        if kwargs.get('correlated_fit') is not True:
-            W = np.diag(1 / np.asarray(dy_f))
-            cov = covariance(y_all)
-            hat_vector = prepare_hat_matrix()
-            A = W @ hat_vector
-            P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
-            output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
-            if not silent:
-                print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
-
-    fitp = fit_result.x
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
-
-    try:
-        hess = hessian(chisqfunc)(fitp)
-    except TypeError:
-        raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
-
-    def chisqfunc_compact(d):
-        return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms:]) ** 2)
-
-    jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
-
-    # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
-    try:
-        deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
-
-    result = []
-    for i in range(n_parms):
-        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all), man_grad=list(deriv_y[i])))
-
-    output.fit_parameters = result
-
-    # Hotelling t-squared p-value for correlated fits.
-    if kwargs.get('correlated_fit') is True:
-        n_cov = np.min(np.vectorize(lambda x_all: x_all.N)(y_all))
-        output.t2_p_value = 1 - scipy.stats.f.cdf((n_cov - output.dof) / (output.dof * (n_cov - 1)) * output.chisquare,
-                                                  output.dof, n_cov - output.dof)
-
-    if kwargs.get('resplot') is True:
-        for key in key_ls:
-            residual_plot(xd[key], yd[key], funcd[key], result, title=key)
-
-    if kwargs.get('qqplot') is True:
-        for key in key_ls:
-            qqplot(xd[key], yd[key], funcd[key], result, title=key)
 
     return output
 

@@ -913,6 +913,17 @@ def test_combined_resplot_qqplot():
     plt.close('all')
 
 
+def test_x_multidim_fit():
+    x1 = np.arange(1, 10)
+    x = np.array([[xi, xi] for xi in x1]).T
+    y = [pe.pseudo_Obs(i + 2 / i, .1 * i, 't') for i in x[0]]
+    [o.gm() for o in y]
+    def fitf(a, x):
+        return a[0] * x[0] + a[1] / x[1]
+
+    pe.fits.least_squares(x, y, fitf)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

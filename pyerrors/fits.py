@@ -554,7 +554,7 @@ def _combined_fit(x, y, func, silent=False, **kwargs):
     for key in key_ls:
         if not callable(funcd[key]):
             raise TypeError('func (key=' + key + ') is not a function.')
-        if len(xd[key]) != len(yd[key]):
+        if np.asarray(xd[key]).shape[-1] != len(yd[key]):
             raise Exception('x and y input (key=' + key + ') do not have the same length')
         for i in range(100):
             try:

@@ -940,6 +940,67 @@ def test_x_multidim_fit():
     pe.fits.least_squares(x, y, fitf)
 
 
+def test_priors_dict_vs_list():
+    x = np.arange(1, 5)
+    y = [pe.pseudo_Obs(2 * i + 1.1 + np.random.normal(0.0, 0.01), .01, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0] * x + a[1]
+    priors = [pe.cov_Obs(1.0, 0.0001 ** 2, "p0"), pe.cov_Obs(1.1, 0.8 ** 2, "p1")]
+    pr1 = pe.fits.least_squares(x, y, fitf, priors=priors)
+    prd = {0: priors[0],
+           1: priors[1]}
+
+    pr2 = pe.fits.least_squares(x, y, fitf, priors=prd)
+
+    prd = {1: priors[1],
+           0: priors[0]}
+
+    pr3 = pe.fits.least_squares(x, y, fitf, priors=prd)
+    assert (pr1[0] - pr2[0]).is_zero(1e-6)
+    assert (pr1[1] - pr2[1]).is_zero(1e-6)
+    assert (pr1[0] - pr3[0]).is_zero(1e-6)
+    assert (pr1[1] - pr3[1]).is_zero(1e-6)
+
+
+def test_not_all_priors_set():
+    x = np.arange(1, 5)
+    y = [pe.pseudo_Obs(2 * i + 1.1 + np.random.normal(0.0, 0.01), .01, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0] * x + a[1] + a[2] * x ** 2
+    priors = [pe.cov_Obs(2.0, 0.1 ** 2, "p0"), pe.cov_Obs(2, 0.8 ** 2, "p2")]
+    prd = {0: priors[0],
+           2: priors[1]}
+
+    pr1 = pe.fits.least_squares(x, y, fitf, priors=prd)
+
+    prd = {2: priors[1],
+           0: priors[0]}
+
+    pr2 = pe.fits.least_squares(x, y, fitf, priors=prd)
+    assert (pr1[0] - pr2[0]).is_zero(1e-6)
+    assert (pr1[1] - pr2[1]).is_zero(1e-6)
+    assert (pr1[2] - pr2[2]).is_zero(1e-6)
+
+
+def test_force_fit_on_prior():
+    x = np.arange(1, 10)
+    y = [pe.pseudo_Obs(2 + np.random.normal(0.0, 0.1), .1, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0]
+
+    prd = {0: pe.cov_Obs(0.0, 0.0000001 ** 2, "prior0")}
+
+    pr = pe.fits.least_squares(x, y, fitf, priors=prd)
+    pr.gm()
+
+    diff = prd[0] - pr[0]
+    diff.gm()
+    assert diff.is_zero_within_error(5)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

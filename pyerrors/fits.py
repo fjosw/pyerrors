@@ -234,21 +234,45 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
 
     if priors is not None:
-        if isinstance(priors, (list, np.array)):
+        if isinstance(priors, (list, np.ndarray)):
             if n_parms != len(priors):
-                raise Exception('Priors does not have the correct length.')
+                raise ValueError("'priors' does not have the correct length.")
 
             loc_priors = []
             for i_n, i_prior in enumerate(priors):
                 if isinstance(i_prior, Obs):
                     loc_priors.append(i_prior)
-                else:
+                elif isinstance(i_prior, str):
                     loc_val, loc_dval = _extract_val_and_dval(i_prior)
                     loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
+                else:
+                    raise TypeError("Prior entries need to be 'Obs' or 'str'.")
 
             prior_mask = np.arange(len(priors))
+            output.priors = loc_priors
 
-        output.priors = loc_priors
+        elif isinstance(priors, dict):
+            loc_priors = []
+            prior_mask = []
+            output.priors = {}
+            for pos, prior in priors.items():
+                if isinstance(pos, int):
+                    prior_mask.append(pos)
+                else:
+                    raise TypeError("Prior position needs to be an integer.")
+                if isinstance(prior, Obs):
+                    loc_priors.append(prior)
+                elif isinstance(prior, str):
+                    loc_val, loc_dval = _extract_val_and_dval(prior)
+                    loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(pos) + f"_{np.random.randint(2147483647):010d}"))
+                else:
+                    raise TypeError("Prior entries need to be 'Obs' or 'str'.")
+                output.priors[pos] = loc_priors[-1]
+            if max(prior_mask) >= n_parms:
+                raise ValueError("Prior position out of range.")
+        else:
+            raise TypeError("Unkown type for `priors`.")
+
 
         p_f = [o.value for o in loc_priors]
         dp_f = [o.dvalue for o in loc_priors]

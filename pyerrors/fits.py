@@ -388,7 +388,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     len_y = len(y_f)
 
     def chisqfunc_compact(d):
-        # Add priors to arguments here!
         return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms: n_parms + len_y], d[n_parms + len_y:]) ** 2)
 
     jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f, p_f)))

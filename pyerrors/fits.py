@@ -238,14 +238,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             if n_parms != len(priors):
                 raise Exception('Priors does not have the correct length.')
 
-            def _extract_val_and_dval(string):
-                split_string = string.split('(')
-                if '.' in split_string[0] and '.' not in split_string[1][:-1]:
-                    factor = 10 ** -len(split_string[0].partition('.')[2])
-                else:
-                    factor = 1
-                return float(split_string[0]), float(split_string[1][:-1]) * factor
-
             loc_priors = []
             for i_n, i_prior in enumerate(priors):
                 if isinstance(i_prior, Obs):
@@ -798,3 +790,13 @@ def ks_test(objects=None):
     plt.draw()
 
     print(scipy.stats.kstest(p_values, 'uniform'))
+
+
+def _extract_val_and_dval(string):
+    split_string = string.split('(')
+    if '.' in split_string[0] and '.' not in split_string[1][:-1]:
+        factor = 10 ** -len(split_string[0].partition('.')[2])
+    else:
+        factor = 1
+    return float(split_string[0]), float(split_string[1][:-1]) * factor
+

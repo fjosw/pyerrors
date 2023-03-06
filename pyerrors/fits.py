@@ -292,12 +292,13 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         chol = np.linalg.cholesky(corr)
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
-        def general_chisqfunc(p, ivars):
+        def general_chisqfunc(p, ivars, pr):
             model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            return anp.dot(chol_inv, (ivars - model))
+            # return anp.dot(chol_inv, (ivars - model))
+            return anp.concatenate((anp.dot(chol_inv, (ivars - model)), (p[prior_mask] - pr) / dp_f))
 
         def chisqfunc(p):
-            return anp.sum(general_chisqfunc(p, y_f) ** 2)
+            return anp.sum(general_chisqfunc(p, y_f, p_f) ** 2)
     else:
         general_chisqfunc = general_chisqfunc_uncorr
         chisqfunc = chisqfunc_uncorr
@@ -337,7 +338,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         if kwargs.get('correlated_fit') is True:
 
             def chisqfunc_residuals(p):
-                return general_chisqfunc(p, y_f)
+                return general_chisqfunc(p, y_f, p_f)
 
             fit_result = scipy.optimize.least_squares(chisqfunc_residuals, fit_result.x, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
 

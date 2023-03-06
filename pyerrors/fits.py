@@ -276,7 +276,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     def general_chisqfunc_uncorr(p, ivars, pr):
         model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-        # anp.sum(((p_f - p) / dp_f) ** 2)
         return anp.concatenate(((ivars - model) / dy_f, (p[prior_mask] - pr) / dp_f))
 
     def chisqfunc_uncorr(p):
@@ -295,7 +294,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
         def general_chisqfunc(p, ivars, pr):
             model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-            # return anp.dot(chol_inv, (ivars - model))
             return anp.concatenate((anp.dot(chol_inv, (ivars - model)), (p[prior_mask] - pr) / dp_f))
 
         def chisqfunc(p):
@@ -632,134 +630,6 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
     output.dof = x.shape[-1] - n_parms
     output.p_value = 1 - scipy.stats.chi2.cdf(output.odr_chisquare, output.dof)
-
-    return output
-
-
-def prior_fit(x, y, func, priors, silent=False, **kwargs):
-    output = Fit_result()
-
-    output.fit_function = func
-
-    x = np.asarray(x)
-
-    if kwargs.get('num_grad') is True:
-        hessian = num_hessian
-    else:
-        hessian = auto_hessian
-
-    if not callable(func):
-        raise TypeError('func has to be a function.')
-
-    for i in range(100):
-        try:
-            func(np.arange(i), 0)
-        except TypeError:
-            continue
-        except IndexError:
-            continue
-        else:
-            break
-    else:
-        raise RuntimeError("Fit function is not valid.")
-
-    n_parms = i
-
-    if n_parms != len(priors):
-        raise Exception('Priors does not have the correct length.')
-
-    def extract_val_and_dval(string):
-        split_string = string.split('(')
-        if '.' in split_string[0] and '.' not in split_string[1][:-1]:
-            factor = 10 ** -len(split_string[0].partition('.')[2])
-        else:
-            factor = 1
-        return float(split_string[0]), float(split_string[1][:-1]) * factor
-
-    loc_priors = []
-    for i_n, i_prior in enumerate(priors):
-        if isinstance(i_prior, Obs):
-            loc_priors.append(i_prior)
-        else:
-            loc_val, loc_dval = extract_val_and_dval(i_prior)
-            loc_priors.append(cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
-
-    output.priors = loc_priors
-
-    if not silent:
-        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
-
-    y_f = [o.value for o in y]
-    dy_f = [o.dvalue for o in y]
-
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
-
-    p_f = [o.value for o in loc_priors]
-    dp_f = [o.dvalue for o in loc_priors]
-
-    if np.any(np.asarray(dp_f) <= 0.0):
-        raise Exception('No prior errors available, run the gamma method first.')
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
-        if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length.')
-    else:
-        x0 = p_f
-
-    def chisqfunc(p):
-        model = func(p, x)
-        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((p_f - p) / dp_f) ** 2)
-        return chisq
-
-    if not silent:
-        print('Method: migrad')
-
-    m = iminuit.Minuit(chisqfunc, x0)
-    m.errordef = 1
-    m.print_level = 0
-    if 'tol' in kwargs:
-        m.tol = kwargs.get('tol')
-    else:
-        m.tol = 1e-4
-    m.migrad()
-    params = np.asarray(m.values)
-
-    output.chisquare_by_dof = m.fval / len(x)
-
-    output.method = 'migrad'
-
-    if not silent:
-        print('chisquare/d.o.f.:', output.chisquare_by_dof)
-
-    if not m.fmin.is_valid:
-        raise Exception('The minimization procedure did not converge.')
-
-    hess = hessian(chisqfunc)(params)
-    hess_inv = np.linalg.pinv(hess)
-
-    def chisqfunc_compact(d):
-        model = func(d[:n_parms], x)
-        chisq = anp.sum(((d[n_parms: n_parms + len(x)] - model) / dy_f) ** 2) + anp.sum(((d[n_parms + len(x):] - d[:n_parms]) / dp_f) ** 2)
-        return chisq
-
-    jac_jac = hessian(chisqfunc_compact)(np.concatenate((params, y_f, p_f)))
-
-    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
-
-    result = []
-    for i in range(n_parms):
-        result.append(derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
-
-    output.fit_parameters = result
-    output.chisquare = chisqfunc(np.asarray(params))
-
-    if kwargs.get('resplot') is True:
-        residual_plot(x, y, func, result)
-
-    if kwargs.get('qqplot') is True:
-        qqplot(x, y, func, result)
 
     return output
 

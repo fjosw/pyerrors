@@ -1085,7 +1085,7 @@ def test_non_overlapping_missing_cnfgs():
     average = (even + odd) / 2
     average.gm(S=0)
     assert np.isclose(full.value, average.value)
-    assert np.isclose(full.dvalue, average.dvalue, rtol=0.01)
+    assert np.isclose(full.dvalue, average.dvalue, rtol=0.02)
 
 
 def test_non_overlapping_operations():

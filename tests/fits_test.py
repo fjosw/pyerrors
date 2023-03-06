@@ -1001,6 +1001,46 @@ def test_force_fit_on_prior():
     assert diff.is_zero_within_error(5)
 
 
+def test_constrained_and_prior_fit():
+
+    for my_constant in [pe.pseudo_Obs(5.0, 0.00000001, "test"),
+                        pe.pseudo_Obs(6.5, 0.00000001, "test"),
+                        pe.pseudo_Obs(6.5, 0.00000001, "another_ensmble")]:
+        dim = 10
+        x = np.arange(dim)
+        y = -0.06 * x + 5 + np.random.normal(0.0, 0.3, dim)
+        yerr = [0.3] * dim
+
+        oy = []
+        for i, item in enumerate(x):
+            oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+        def func(a, x):
+            y = a[0] * x + a[1]
+            return y
+
+        my_constant = pe.pseudo_Obs(6.5, 0.00000001, "test")
+
+        # Fit with constrained parameter
+        out = pe.least_squares(x, oy, func, priors={1: my_constant}, silent=True)
+        out.gm()
+
+        def alt_func(a, x):
+            y = a[0] * x
+            return y
+
+        alt_y = np.array(oy) - my_constant
+        [o.gm() for o in alt_y]
+
+        # Fit with the constant subtracted from the data
+        alt_out = pe.least_squares(x, alt_y, alt_func, silent=True)
+        alt_out.gm()
+
+        assert np.isclose(out[0].value, alt_out[0].value, atol=1e-5, rtol=1e-6)
+        assert np.isclose(out[0].dvalue, alt_out[0].dvalue, atol=1e-5, rtol=1e-6)
+        assert np.isclose(out.chisquare_by_dof, alt_out.chisquare_by_dof, atol=1e-5, rtol=1e-6)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

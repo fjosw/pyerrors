@@ -274,7 +274,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         else:
             raise TypeError("Unkown type for `priors`.")
 
-
         p_f = [o.value for o in loc_priors]
         dp_f = [o.dvalue for o in loc_priors]
         if np.any(np.asarray(dp_f) <= 0.0):
@@ -823,4 +822,3 @@ def _extract_val_and_dval(string):
     else:
         factor = 1
     return float(split_string[0]), float(split_string[1][:-1]) * factor
-

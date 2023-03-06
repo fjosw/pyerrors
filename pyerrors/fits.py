@@ -125,8 +125,9 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work.
 
-    priors : list, optional
-        priors has to be a list with an entry for every parameter in the fit. The entries can either be
+    priors : dict or list, optional
+        priors can either be a dictionary with integer keys and the corresponding priors as values or
+        a list with an entry for every parameter in the fit. The entries can either be
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
         0.548(23), 500(40) or 0.5(0.4)
     silent : bool, optional

@@ -265,6 +265,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     else:
         p_f = dp_f = np.array([])
         prior_mask = []
+        loc_priors = []
 
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
@@ -352,7 +353,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     if x_all.shape[-1] - n_parms > 0:
         output.chisquare = chisquare
-        output.dof = x_all.shape[-1] - n_parms
+        output.dof = x_all.shape[-1] - n_parms + len(loc_priors)
         output.chisquare_by_dof = output.chisquare / output.dof
         output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     else:
@@ -394,11 +395,13 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
+    len_y = len(y_f)
+
     def chisqfunc_compact(d):
         # Add priors to arguments here!
-        return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms:], p_f) ** 2)
+        return anp.sum(general_chisqfunc(d[:n_parms], d[n_parms: n_parms + len_y], d[n_parms + len_y:]) ** 2)
 
-    jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f)))
+    jac_jac_y = hessian(chisqfunc_compact)(np.concatenate((fitp, y_f, p_f)))
 
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
@@ -408,7 +411,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all), man_grad=list(deriv_y[i])))
+        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all) + loc_priors, man_grad=list(deriv_y[i])))
 
     output.fit_parameters = result
 
@@ -633,7 +636,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     return output
 
 
-def _prior_fit(x, y, func, priors, silent=False, **kwargs):
+def prior_fit(x, y, func, priors, silent=False, **kwargs):
     output = Fit_result()
 
     output.fit_function = func

@@ -738,7 +738,7 @@ def residual_plot(x, y, func, fit_res, title=""):
     ax0.set_xticklabels([])
     ax0.legend(title=title)
 
-    residuals = (np.asarray([o.value for o in y]) - func([o.value for o in fit_res], x)) / np.asarray([o.dvalue for o in y])
+    residuals = (np.asarray([o.value for o in y]) - func([o.value for o in fit_res], np.asarray(x))) / np.asarray([o.dvalue for o in y])
     ax1 = plt.subplot(gs[1])
     ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
     ax1.tick_params(direction='out')

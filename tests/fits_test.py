@@ -1039,6 +1039,24 @@ def test_constrained_and_prior_fit():
         assert np.isclose(out.chisquare_by_dof, alt_out.chisquare_by_dof, atol=1e-5, rtol=1e-6)
 
 
+def test_resplot_lists_in_dict():
+    xd = {
+        'a': [1, 2, 3],
+        'b': [1, 2, 3],
+    }
+    yd = {
+        'a': [pe.pseudo_Obs(i, .1*i, 't') for i in range(1, 4)],
+        'b': [pe.pseudo_Obs(2*i**2, .1*i**2, 't') for i in range(1, 4)]
+    }
+    [[o.gamma_method() for o in y] for y in yd.values()]
+    fd = {
+        'a': lambda a, x: a[0] + a[1] * x,
+        'b': lambda a, x: a[0] + a[2] * x**2,
+    }
+
+    fitp = pe.fits.least_squares(xd, yd, fd, resplot=True)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

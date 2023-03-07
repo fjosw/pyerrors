@@ -290,9 +290,14 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     else:
         x0 = [0.1] * n_parms
 
-    def general_chisqfunc_uncorr(p, ivars, pr):
-        model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
-        return anp.concatenate(((ivars - model) / dy_f, (p[prior_mask] - pr) / dp_f))
+    if priors is None:
+        def general_chisqfunc_uncorr(p, ivars, pr):
+            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            return (ivars - model) / dy_f
+    else:
+        def general_chisqfunc_uncorr(p, ivars, pr):
+            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            return anp.concatenate(((ivars - model) / dy_f, (p[prior_mask] - pr) / dp_f))
 
     def chisqfunc_uncorr(p):
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)

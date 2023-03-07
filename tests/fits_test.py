@@ -1019,8 +1019,6 @@ def test_constrained_and_prior_fit():
             y = a[0] * x + a[1]
             return y
 
-        my_constant = pe.pseudo_Obs(6.5, 0.00000001, "test")
-
         # Fit with constrained parameter
         out = pe.least_squares(x, oy, func, priors={1: my_constant}, silent=True)
         out.gm()

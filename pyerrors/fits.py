@@ -170,7 +170,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     output = Fit_result()
 
     if (type(x) == dict and type(y) == dict and type(func) == dict):
-        xd = x
+        xd = {key: anp.asarray(x[key]) for key in x}
         yd = y
         funcd = func
         output.fit_function = func
@@ -292,11 +292,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     if priors is None:
         def general_chisqfunc_uncorr(p, ivars, pr):
-            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])
             return (ivars - model) / dy_f
     else:
         def general_chisqfunc_uncorr(p, ivars, pr):
-            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])
             return anp.concatenate(((ivars - model) / dy_f, (p[prior_mask] - pr) / dp_f))
 
     def chisqfunc_uncorr(p):
@@ -314,7 +314,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
         def general_chisqfunc(p, ivars, pr):
-            model = anp.concatenate([anp.array(funcd[key](p, anp.asarray(xd[key]))).reshape(-1) for key in key_ls])
+            model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])
             return anp.concatenate((anp.dot(chol_inv, (ivars - model)), (p[prior_mask] - pr) / dp_f))
 
         def chisqfunc(p):
@@ -387,9 +387,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     def prepare_hat_matrix():
         hat_vector = []
         for key in key_ls:
-            x_array = np.asarray(xd[key])
-            if (len(x_array) != 0):
-                hat_vector.append(jacobian(funcd[key])(fit_result.x, x_array))
+            if (len(xd[key]) != 0):
+                hat_vector.append(jacobian(funcd[key])(fit_result.x, xd[key]))
         hat_vector = [item for sublist in hat_vector for item in sublist]
         return hat_vector
 

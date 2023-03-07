@@ -151,7 +151,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
-        At the moment this option only works for `prior==None` and when no `method` is given.
     expected_chisquare : bool
         If True estimates the expected chisquare which is
         corrected by effects caused by correlated input data (default False).

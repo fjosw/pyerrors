@@ -192,10 +192,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     key_ls = sorted(list(xd.keys()))
 
     if sorted(list(yd.keys())) != key_ls:
-        raise Exception('x and y dictionaries do not contain the same keys.')
+        raise ValueError('x and y dictionaries do not contain the same keys.')
 
     if sorted(list(funcd.keys())) != key_ls:
-        raise Exception('x and func dictionaries do not contain the same keys.')
+        raise ValueError('x and func dictionaries do not contain the same keys.')
 
     x_all = np.concatenate([np.array(xd[key]) for key in key_ls])
     y_all = np.concatenate([np.array(yd[key]) for key in key_ls])
@@ -215,7 +215,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         if not callable(funcd[key]):
             raise TypeError('func (key=' + key + ') is not a function.')
         if np.asarray(xd[key]).shape[-1] != len(yd[key]):
-            raise Exception('x and y input (key=' + key + ') do not have the same length')
+            raise ValueError('x and y input (key=' + key + ') do not have the same length')
         for i in range(100):
             try:
                 funcd[key](np.arange(i), x_all.T[0])
@@ -680,7 +680,7 @@ def fit_lin(x, y, **kwargs):
         out = least_squares(x, y, f, **kwargs)
         return out.fit_parameters
     else:
-        raise Exception('Unsupported types for x')
+        raise TypeError('Unsupported types for x')
 
 
 def qqplot(x, o_y, func, p, title=""):

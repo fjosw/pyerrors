@@ -713,15 +713,15 @@ def test_combined_fit_invalid_fit_functions():
 
 
 def test_combined_fit_invalid_input():
-    xvals =[]
-    yvals =[]
+    xvals = []
+    yvals = []
     err = 0.1
     def func_valid(a,x):
         return a[0] + a[1] * x
     for x in range(1, 8, 2):
         xvals.append(x)
         yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.least_squares({'a':xvals}, {'b':yvals}, {'a':func_valid})
     with pytest.raises(Exception):
         pe.least_squares({'a':xvals}, {'a':yvals}, {'a':func_valid})

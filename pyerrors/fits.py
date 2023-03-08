@@ -204,10 +204,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     dy_f = [o.dvalue for o in y_all]
 
     if len(x_all.shape) > 2:
-        raise Exception('Unknown format for x values')
+        raise ValueError("Unknown format for x values")
 
     if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
+        raise Exception("No y errors available, run the gamma method first.")
 
     # number of fit parameters
     n_parms_ls = []
@@ -276,7 +276,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         p_f = [o.value for o in loc_priors]
         dp_f = [o.dvalue for o in loc_priors]
         if np.any(np.asarray(dp_f) <= 0.0):
-            raise Exception('No prior errors available, run the gamma method first.')
+            raise Exception("No prior errors available, run the gamma method first.")
     else:
         p_f = dp_f = np.array([])
         prior_mask = []
@@ -285,7 +285,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
         if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+            raise ValueError('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
         x0 = [0.1] * n_parms
 
@@ -404,8 +404,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
 
     fitp = fit_result.x
-    if np.any(np.asarray(dy_f) <= 0.0):
-        raise Exception('No y errors available, run the gamma method first.')
 
     try:
         hess = hessian(chisqfunc)(fitp)

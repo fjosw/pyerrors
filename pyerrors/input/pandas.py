@@ -172,5 +172,8 @@ def _deserialize_df(df, auto_gamma=False):
             if '"program":' in df[column][0][:20]:
                 df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
                 if auto_gamma is True:
-                    df[column].apply(lambda x: x.gamma_method())
+                    if isinstance(df[column][0], list):
+                        df[column].apply(lambda x: [o.gm() for o in x])
+                    else:
+                        df[column].apply(lambda x: x.gamma_method())
     return df

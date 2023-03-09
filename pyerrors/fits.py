@@ -358,11 +358,11 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')
 
-    if x_all.shape[-1] - n_parms > 0:
-        output.chisquare = chisquare
-        output.dof = x_all.shape[-1] - n_parms + len(loc_priors)
+    output.chisquare = chisquare
+    output.dof = x_all.shape[-1] - n_parms + len(loc_priors)
+    output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
+    if output.dof > 0:
         output.chisquare_by_dof = output.chisquare / output.dof
-        output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     else:
         output.chisquare_by_dof = float('nan')
 

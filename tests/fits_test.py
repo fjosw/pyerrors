@@ -1039,6 +1039,29 @@ def test_constrained_and_prior_fit():
         assert np.isclose(out.chisquare_by_dof, alt_out.chisquare_by_dof, atol=1e-5, rtol=1e-6)
 
 
+def test_prior_fit_different_methods():
+    dim = 5
+    x = np.arange(dim)
+    y = 2 * x + 0.5 + np.random.normal(0.0, 0.3, dim) + 0.02 * x ** 5
+    yerr = [0.3] * dim
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    def func(a, x):
+        return a[0] * x + a[1] + a[2] * x ** 5
+
+    for priors in [None, {1: "0.5(4)"}, ["2(1)", "0.6(3)", "0(5)"]]:
+        chisquare_list = []
+        for method in ["Levenberg-Marquardt", "migrad", "Powell"]:
+            fr = pe.least_squares(x, oy, func, silent=True, priors=priors, method=method)
+            print(fr.iterations)
+            chisquare_list.append(fr.chisquare)
+
+        assert np.allclose(chisquare_list[0], chisquare_list[1:])
+
+
 def test_resplot_lists_in_dict():
     xd = {
         'a': [1, 2, 3],

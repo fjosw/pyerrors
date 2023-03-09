@@ -1080,6 +1080,33 @@ def test_resplot_lists_in_dict():
     fitp = pe.fits.least_squares(xd, yd, fd, resplot=True)
 
 
+def test_fit_dof():
+
+    def func(a, x):
+        return a[1] * anp.exp(-x * a[0])
+
+    dof = []
+    cd = []
+    for dim in [2, 3]:
+
+        x = np.arange(dim)
+        y = 2 * np.exp(-0.3 * x) + np.random.normal(0.0, 0.3, dim)
+        yerr = [0.3] * dim
+
+        oy = []
+        for i, item in enumerate(x):
+            oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+        for priors in [None, {0: "0(2)"}]:
+            fr = pe.least_squares(x, oy, func, silent=True, priors=priors)
+            dof.append(fr.dof)
+            cd.append(fr.chisquare_by_dof)
+
+    assert np.allclose(dof, [0, 1, 1, 2])
+    assert cd[0] != cd[0]  # Check for nan
+    assert np.all(np.array(cd[1:]) > 0)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

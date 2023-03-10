@@ -135,7 +135,14 @@ def _serialize_df(df, gz=False):
     """
     out = df.copy()
     for column in out:
+        serialize = False
         if isinstance(out[column][0], (Obs, Corr)):
+            serialize = True
+        elif isinstance(out[column][0], list):
+            if all(isinstance(o, Obs) for o in out[column][0]):
+                serialize = True
+
+        if serialize is True:
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
             if gz is True:
                 out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
@@ -165,5 +172,8 @@ def _deserialize_df(df, auto_gamma=False):
             if '"program":' in df[column][0][:20]:
                 df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
                 if auto_gamma is True:
-                    df[column].apply(lambda x: x.gamma_method())
+                    if isinstance(df[column][0], list):
+                        df[column].apply(lambda x: [o.gm() for o in x])
+                    else:
+                        df[column].apply(lambda x: x.gamma_method())
     return df

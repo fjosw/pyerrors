@@ -11,7 +11,8 @@ from .version import __version__
 
 def print_config():
     """Print information about version of python, pyerrors and dependencies."""
-    config = {"python": platform.python_version(),
+    config = {"system": platform.system(),
+              "python": platform.python_version(),
               "pyerrors": __version__,
               "numpy": np.__version__,
               "scipy": scipy.__version__,

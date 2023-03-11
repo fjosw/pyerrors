@@ -1,6 +1,6 @@
 name: Bug report
 description: Report a bug.
-title: ""
+title: "<insert title>"
 labels: [bug]
 
 body:

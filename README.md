@@ -4,7 +4,6 @@
 
 - **Documentation:** https://fjosw.github.io/pyerrors/pyerrors.html
 - **Examples:** https://github.com/fjosw/pyerrors/tree/develop/examples
-- **Contributing:** https://github.com/fjosw/pyerrors/blob/develop/CONTRIBUTING.md
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
@@ -17,3 +16,6 @@ to install the current `develop` version run
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@develop
 ```
+
+## Contributing
+We appreciate all contributions to the code, the documentation and the examples. If you want to get involved please have a look at our [contribution guideline](https://github.com/fjosw/pyerrors/blob/develop/CONTRIBUTING.md).

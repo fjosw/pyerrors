@@ -465,4 +465,4 @@ from . import linalg
 from . import mpm
 from . import roots
 
-from .version import __version__, print_config
+from .version import __version__

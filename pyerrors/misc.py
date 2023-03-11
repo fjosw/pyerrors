@@ -1,7 +1,25 @@
-import pickle
+import platform
 import numpy as np
+import scipy
+import matplotlib
 import matplotlib.pyplot as plt
+import pandas as pd
+import pickle
 from .obs import Obs
+from .version import __version__
+
+
+def print_config():
+    """Print information about version of python, pyerrors and dependencies."""
+    config = {"python": platform.python_version(),
+              "pyerrors": __version__,
+              "numpy": np.__version__,
+              "scipy": scipy.__version__,
+              "matplotlib": matplotlib.__version__,
+              "pandas": pd.__version__}
+
+    for key, value in config.items():
+        print(f"{key : <10}\t {value}")
 
 
 def errorbar(x, y, axes=plt, **kwargs):

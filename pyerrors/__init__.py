@@ -35,6 +35,10 @@ Install the most recent release using conda and [conda-forge](https://anaconda.o
 conda install -c conda-forge pyerrors  # Fresh install
 conda update -c conda-forge pyerrors   # Update
 ```
+Install the current `develop` version:
+```bash
+pip install git+https://github.com/fjosw/pyerrors.git@develop
+```
 
 ## Basic example
 

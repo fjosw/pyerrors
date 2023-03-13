@@ -17,10 +17,6 @@ Install the most recent release using conda and [conda-forge](https://anaconda.o
 conda install -c conda-forge pyerrors  # Fresh install
 conda update -c conda-forge pyerrors   # Update
 ```
-Install the current `develop` version:
-```bash
-pip install git+https://github.com/fjosw/pyerrors.git@develop
-```
 
 ## Contributing
 We appreciate all contributions to the code, the documentation and the examples. If you want to get involved please have a look at our [contribution guideline](https://github.com/fjosw/pyerrors/blob/develop/CONTRIBUTING.md).

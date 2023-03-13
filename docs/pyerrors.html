@@ -576,6 +576,8 @@ Details about how the required covariance matrix is estimated can be found in <c
 
 <h1 id="export-data">Export data</h1>
 
+<p><a href="https://xkcd.com/927/"><img src="https://imgs.xkcd.com/comics/standards_2x.png" alt="xkcd/927" /></a></p>
+
 <p>The preferred exported file format within <code><a href="">pyerrors</a></code> is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:</p>
 
 <ul>
@@ -1074,80 +1076,82 @@ The following entries are optional:</li>
 </span><span id="L-409"><a href="#L-409"><span class="linenos">409</span></a>
 </span><span id="L-410"><a href="#L-410"><span class="linenos">410</span></a><span class="sd"># Export data</span>
 </span><span id="L-411"><a href="#L-411"><span class="linenos">411</span></a>
-</span><span id="L-412"><a href="#L-412"><span class="linenos">412</span></a><span class="sd">The preferred exported file format within `pyerrors` is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:</span>
-</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a><span class="sd">- What observables are stored? Possibly: How exactly are they defined.</span>
-</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a><span class="sd">- How does each single ensemble or external quantity contribute to the error of the observable?</span>
-</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a><span class="sd">- Who did write the file when and on which machine?</span>
-</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a>
-</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a><span class="sd">This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically as described in the following example</span>
-</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a><span class="sd">```python</span>
-</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a><span class="sd">my_obs = pe.Obs([samples], [&quot;test_ensemble&quot;])</span>
-</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">my_obs.tag = &quot;My observable&quot;</span>
-</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a>
-</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a><span class="sd">pe.input.json.dump_to_json(my_obs, &quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
-</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a><span class="sd"># For a single observable one can equivalently use the class method dump</span>
-</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a><span class="sd">my_obs.dump(&quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
-</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a>
-</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a><span class="sd">check = pe.input.json.load_json(&quot;test_output_file&quot;)</span>
+</span><span id="L-412"><a href="#L-412"><span class="linenos">412</span></a><span class="sd">[![xkcd/927](https://imgs.xkcd.com/comics/standards_2x.png)](https://xkcd.com/927/)</span>
+</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a>
+</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a><span class="sd">The preferred exported file format within `pyerrors` is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:</span>
+</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a><span class="sd">- What observables are stored? Possibly: How exactly are they defined.</span>
+</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a><span class="sd">- How does each single ensemble or external quantity contribute to the error of the observable?</span>
+</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a><span class="sd">- Who did write the file when and on which machine?</span>
+</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a>
+</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a><span class="sd">This can be achieved by storing all information in one single file. The export routines of `pyerrors` are written such that as much information as possible is written automatically as described in the following example</span>
+</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">```python</span>
+</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a><span class="sd">my_obs = pe.Obs([samples], [&quot;test_ensemble&quot;])</span>
+</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a><span class="sd">my_obs.tag = &quot;My observable&quot;</span>
+</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a>
+</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a><span class="sd">pe.input.json.dump_to_json(my_obs, &quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
+</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a><span class="sd"># For a single observable one can equivalently use the class method dump</span>
+</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a><span class="sd">my_obs.dump(&quot;test_output_file&quot;, description=&quot;This file contains a test observable&quot;)</span>
 </span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a>
-</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a><span class="sd">print(my_obs == check)</span>
-</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a><span class="sd">&gt; True</span>
-</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a><span class="sd">```</span>
-</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a><span class="sd">The format also allows to directly write out the content of `Corr` objects or lists and arrays of `Obs` objects by passing the desired data to `pyerrors.input.json.dump_to_json`.</span>
-</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>
-</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a><span class="sd">## json.gz format specification</span>
-</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="sd">The first entries of the file provide optional auxiliary information:</span>
-</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="sd">- `program` is a string that indicates which program was used to write the file.</span>
-</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="sd">- `version` is a string that specifies the version of the format.</span>
-</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="sd">- `who` is a string that specifies the user name of the creator of the file.</span>
-</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="sd">- `date` is a string and contains the creation date of the file.</span>
-</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">- `host` is a string and contains the hostname of the machine where the file has been written.</span>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">- `description` contains information on the content of the file. This field is not filled automatically in `pyerrors`. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.</span>
-</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>
-</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">The only necessary entry of the file is the field</span>
-</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a><span class="sd">-`obsdata`, an array that contains the actual data.</span>
-</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>
-</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a><span class="sd">Each entry of the array belongs to a single structure of observables. Currently, these structures can be either of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:</span>
-</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a><span class="sd">- `type` is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.</span>
-</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a><span class="sd">- `value` is an array that contains the mean values of the Obs inside the structure.</span>
-</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a><span class="sd">The following entries are optional:</span>
-</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a><span class="sd">- `layout` is a string that specifies the layout of multi-dimensional structures. Examples are &quot;2, 2&quot; for a 2x2 dimensional matrix or  &quot;64, 4, 4&quot; for a Corr with $T=64$ and 4x4 matrices on each time slices. &quot;1&quot; denotes a single Obs. Multi-dimensional structures are stored in row-major format (see below).</span>
-</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a><span class="sd">- `tag` is any JSON type. It contains additional information concerning the structure. The `tag` of an `Obs` in `pyerrors` is written here.</span>
-</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a><span class="sd">- `reweighted` is a Bool that may be used to specify, whether the `Obs` in the structure have been reweighted.</span>
-</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a><span class="sd">- `data` is an array that contains the data from MC chains. We will define it below.</span>
-</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a><span class="sd">- `cdata` is an array that contains the data from external quantities with an error (`Covobs` in `pyerrors`). We will define it below.</span>
-</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>
-</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a><span class="sd">The array `data` contains the data from MC chains. Each entry of the array corresponds to one ensemble and contains:</span>
-</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a><span class="sd">- `id`, a string that contains the name of the ensemble</span>
-</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a><span class="sd">- `replica`, an array that contains an entry per replica of the ensemble.</span>
-</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a>
-</span><span id="L-459"><a href="#L-459"><span class="linenos">459</span></a><span class="sd">Each entry of `replica` contains</span>
-</span><span id="L-460"><a href="#L-460"><span class="linenos">460</span></a><span class="sd">`name`, a string that contains the name of the replica</span>
-</span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a><span class="sd">`deltas`, an array that contains the actual data.</span>
-</span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a>
-</span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a><span class="sd">Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.</span>
+</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a><span class="sd">check = pe.input.json.load_json(&quot;test_output_file&quot;)</span>
+</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a>
+</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a><span class="sd">print(my_obs == check)</span>
+</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a><span class="sd">&gt; True</span>
+</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a><span class="sd">```</span>
+</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a><span class="sd">The format also allows to directly write out the content of `Corr` objects or lists and arrays of `Obs` objects by passing the desired data to `pyerrors.input.json.dump_to_json`.</span>
+</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a>
+</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="sd">## json.gz format specification</span>
+</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="sd">The first entries of the file provide optional auxiliary information:</span>
+</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="sd">- `program` is a string that indicates which program was used to write the file.</span>
+</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="sd">- `version` is a string that specifies the version of the format.</span>
+</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">- `who` is a string that specifies the user name of the creator of the file.</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">- `date` is a string and contains the creation date of the file.</span>
+</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a><span class="sd">- `host` is a string and contains the hostname of the machine where the file has been written.</span>
+</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">- `description` contains information on the content of the file. This field is not filled automatically in `pyerrors`. The user is advised to provide as detailed information as possible in this field. Examples are: Input files of measurements or simulations, LaTeX formulae or references to publications to specify how the observables have been computed, details on the analysis strategy, ... This field may be any valid JSON type. Strings, arrays or objects (equivalent to dicts in python) are well suited to provide information.</span>
+</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>
+</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a><span class="sd">The only necessary entry of the file is the field</span>
+</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a><span class="sd">-`obsdata`, an array that contains the actual data.</span>
+</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>
+</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a><span class="sd">Each entry of the array belongs to a single structure of observables. Currently, these structures can be either of `Obs`, `list`, `numpy.ndarray`, `Corr`. All `Obs` inside a structure (with dimension &gt; 0) have to be defined on the same set of configurations. Different structures, that are represented by entries of the array `obsdata`, are treated independently. Each entry of the array `obsdata` has the following required entries:</span>
+</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a><span class="sd">- `type` is a string that specifies the type of the structure. This allows to parse the content to the correct form after reading the file. It is always possible to interpret the content as list of Obs.</span>
+</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a><span class="sd">- `value` is an array that contains the mean values of the Obs inside the structure.</span>
+</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a><span class="sd">The following entries are optional:</span>
+</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a><span class="sd">- `layout` is a string that specifies the layout of multi-dimensional structures. Examples are &quot;2, 2&quot; for a 2x2 dimensional matrix or  &quot;64, 4, 4&quot; for a Corr with $T=64$ and 4x4 matrices on each time slices. &quot;1&quot; denotes a single Obs. Multi-dimensional structures are stored in row-major format (see below).</span>
+</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a><span class="sd">- `tag` is any JSON type. It contains additional information concerning the structure. The `tag` of an `Obs` in `pyerrors` is written here.</span>
+</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a><span class="sd">- `reweighted` is a Bool that may be used to specify, whether the `Obs` in the structure have been reweighted.</span>
+</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a><span class="sd">- `data` is an array that contains the data from MC chains. We will define it below.</span>
+</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a><span class="sd">- `cdata` is an array that contains the data from external quantities with an error (`Covobs` in `pyerrors`). We will define it below.</span>
+</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a>
+</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a><span class="sd">The array `data` contains the data from MC chains. Each entry of the array corresponds to one ensemble and contains:</span>
+</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a><span class="sd">- `id`, a string that contains the name of the ensemble</span>
+</span><span id="L-459"><a href="#L-459"><span class="linenos">459</span></a><span class="sd">- `replica`, an array that contains an entry per replica of the ensemble.</span>
+</span><span id="L-460"><a href="#L-460"><span class="linenos">460</span></a>
+</span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a><span class="sd">Each entry of `replica` contains</span>
+</span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a><span class="sd">`name`, a string that contains the name of the replica</span>
+</span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a><span class="sd">`deltas`, an array that contains the actual data.</span>
 </span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a>
-</span><span id="L-465"><a href="#L-465"><span class="linenos">465</span></a><span class="sd">The array `cdata` contains information about the contribution of auxiliary observables, represented by `Covobs` in `pyerrors`, to the total error of the observables. Each entry of the array belongs to one auxiliary covariance matrix and contains:</span>
-</span><span id="L-466"><a href="#L-466"><span class="linenos">466</span></a><span class="sd">- `id`, a string that identifies the covariance matrix</span>
-</span><span id="L-467"><a href="#L-467"><span class="linenos">467</span></a><span class="sd">- `layout`, a string that defines the dimensions of the $M\times M$ covariance matrix (has to be &quot;M, M&quot; or &quot;1&quot;).</span>
-</span><span id="L-468"><a href="#L-468"><span class="linenos">468</span></a><span class="sd">- `cov`, an array that contains the $M\times M$ many entries of the covariance matrix, stored in row-major format.</span>
-</span><span id="L-469"><a href="#L-469"><span class="linenos">469</span></a><span class="sd">- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.</span>
-</span><span id="L-470"><a href="#L-470"><span class="linenos">470</span></a>
-</span><span id="L-471"><a href="#L-471"><span class="linenos">471</span></a><span class="sd">A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.</span>
+</span><span id="L-465"><a href="#L-465"><span class="linenos">465</span></a><span class="sd">Each entry in `deltas` corresponds to one configuration of the replica and has $1+N$ many entries. The first entry is an integer that specifies the configuration number that, together with ensemble and replica name, may be used to uniquely identify the configuration on which the data has been obtained. The following N entries specify the deltas, i.e., the deviation of the observable from the mean value on this configuration, of each `Obs` inside the structure. Multi-dimensional structures are stored in a row-major format. For primary observables, such as correlation functions, $value + delta_i$ matches the primary data obtained on the configuration.</span>
+</span><span id="L-466"><a href="#L-466"><span class="linenos">466</span></a>
+</span><span id="L-467"><a href="#L-467"><span class="linenos">467</span></a><span class="sd">The array `cdata` contains information about the contribution of auxiliary observables, represented by `Covobs` in `pyerrors`, to the total error of the observables. Each entry of the array belongs to one auxiliary covariance matrix and contains:</span>
+</span><span id="L-468"><a href="#L-468"><span class="linenos">468</span></a><span class="sd">- `id`, a string that identifies the covariance matrix</span>
+</span><span id="L-469"><a href="#L-469"><span class="linenos">469</span></a><span class="sd">- `layout`, a string that defines the dimensions of the $M\times M$ covariance matrix (has to be &quot;M, M&quot; or &quot;1&quot;).</span>
+</span><span id="L-470"><a href="#L-470"><span class="linenos">470</span></a><span class="sd">- `cov`, an array that contains the $M\times M$ many entries of the covariance matrix, stored in row-major format.</span>
+</span><span id="L-471"><a href="#L-471"><span class="linenos">471</span></a><span class="sd">- `grad`, an array that contains N entries, one for each `Obs` inside the structure. Each entry itself is an array, that contains the M gradients of the Nth observable  with respect to the quantity that corresponds to the Mth diagonal entry of the covariance matrix.</span>
 </span><span id="L-472"><a href="#L-472"><span class="linenos">472</span></a>
-</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a><span class="sd">Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).</span>
-</span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a><span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a><span class="kn">from</span> <span class="nn">.correlators</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a><span class="kn">from</span> <span class="nn">.fits</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a><span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-479"><a href="#L-479"><span class="linenos">479</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dirac</span>
-</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="nb">input</span>
-</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">linalg</span>
-</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">mpm</span>
-</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">roots</span>
-</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a>
-</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a><span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span>
+</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a><span class="sd">A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.</span>
+</span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a>
+</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a><span class="sd">Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).</span>
+</span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a><span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a><span class="kn">from</span> <span class="nn">.correlators</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-479"><a href="#L-479"><span class="linenos">479</span></a><span class="kn">from</span> <span class="nn">.fits</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a><span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dirac</span>
+</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="nb">input</span>
+</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">linalg</span>
+</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">mpm</span>
+</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">roots</span>
+</span><span id="L-486"><a href="#L-486"><span class="linenos">486</span></a>
+</span><span id="L-487"><a href="#L-487"><span class="linenos">487</span></a><span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 </span></pre></div>
 
 

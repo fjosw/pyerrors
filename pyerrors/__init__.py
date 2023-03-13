@@ -409,7 +409,7 @@ For the full API see `pyerrors.linalg`.
 
 # Export data
 
-[![xkcd/927](https://imgs.xkcd.com/comics/standards_2x.png)](https://xkcd.com/927/)
+[<img src="https://imgs.xkcd.com/comics/standards_2x.png" width="30%" height="30%">](https://xkcd.com/927/)
 
 The preferred exported file format within `pyerrors` is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:
 - What observables are stored? Possibly: How exactly are they defined.

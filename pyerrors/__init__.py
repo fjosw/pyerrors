@@ -23,6 +23,19 @@ where applicable.
 
 There exist similar publicly available implementations of gamma method error analysis suites in [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors), [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl) and [Python](https://github.com/mbruno46/pyobs).
 
+## Installation
+
+Install the most recent release using pip and [pypi](https://pypi.org/project/pyerrors/):
+```bash
+pip install pyerrors     # Fresh install
+pip install -U pyerrors  # Update
+```
+Install the most recent release using conda and [conda-forge](https://anaconda.org/conda-forge/pyerrors):
+```bash
+conda install -c conda-forge pyerrors  # Fresh install
+conda update -c conda-forge pyerrors   # Update
+```
+
 ## Basic example
 
 ```python

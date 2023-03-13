@@ -7,12 +7,17 @@
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 
 ## Installation
-To install the most recent release (via [pypi](https://pypi.org/project/pyerrors/)) run
+Install the most recent release using pip and [pypi](https://pypi.org/project/pyerrors/):
 ```bash
 pip install pyerrors     # Fresh install
-pip install -U pyerrors  # Upgrade
+pip install -U pyerrors  # Update
 ```
-to install the current `develop` version run
+Install the most recent release using conda and [conda-forge](https://anaconda.org/conda-forge/pyerrors):
+```bash
+conda install -c conda-forge pyerrors  # Fresh install
+conda update -c conda-forge pyerrors   # Update
+```
+Install the current `develop` version:
 ```bash
 pip install git+https://github.com/fjosw/pyerrors.git@develop
 ```

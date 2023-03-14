@@ -4,6 +4,7 @@ import inspect
 import pyerrors as pe
 import pyerrors.input.sfcf as sfin
 import shutil
+import pytest
 
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -122,3 +123,28 @@ def test_a_bib():
     assert f_V0[0] == 683.6776090085115
     assert f_V0[1] == 661.3188585582334
     assert f_V0[2] == 683.6776090081005
+
+def test_find_corr():
+    pattern = 'name      ' + "f_A" + '\nquarks    ' + "lquark lquark" + '\noffset    ' + str(0) + '\nwf        ' + str(0)
+    start_read, T = sfin._find_correlator("tests/data/sfcf_test/data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
+    assert start_read == 21
+    assert T == 3
+    
+    pattern = 'name      ' + "f_X" + '\nquarks    ' + "lquark lquark" + '\noffset    ' + str(0) + '\nwf        ' + str(0)
+    with pytest.raises(Exception):
+        sfin._find_correlator("tests/data/sfcf_test/data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
+    
+    pattern = 'name      ' + "f_A" + '\nquarks    ' + "lquark lquark" + '\noffset    ' + str(0) + '\nwf        ' + str(0)
+    with pytest.raises(Exception):
+        sfin._find_correlator("tests/data/sfcf_test/broken_data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
+    
+def test_read_compact_file():
+    rep_path = "tests/data/sfcf_test/broken_data_c/data_c_r0/"
+    config_file = "data_c_r0_n1"
+    start_read = 469
+    T = 3
+    b2b = False
+    name = "F_V0"
+    im = False
+    with pytest.raises(Exception):
+        sfin._read_compact_file(rep_path, config_file, start_read, T, b2b, name, im)

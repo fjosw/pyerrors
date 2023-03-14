@@ -1,6 +1,5 @@
 import os
 import fnmatch
-import re
 import struct
 import warnings
 import numpy as np  # Thinly-wrapped numpy
@@ -10,7 +9,48 @@ from ..obs import Obs
 from ..fits import fit_lin
 from ..obs import CObs
 from ..correlators import Corr
-from .utils import *
+from .utils import sort_names
+
+
+def _find_files(path, prefix, postfix, ext, known_files=[]):
+    found = []
+    files = []
+
+    if postfix != "":
+        if postfix[-1] != ".":
+            postfix = postfix + "."
+        if postfix[0] != ".":
+            postfix = "." + postfix
+
+    if ext[0] == ".":
+        ext = ext[1:]
+
+    pattern = prefix + "*" + postfix + ext
+
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if known_files != []:
+        for kf in known_files:
+            if kf not in found:
+                raise FileNotFoundError("Given file " + kf + " does not exist!")
+
+        return known_files
+
+    if not found:
+        raise FileNotFoundError(f"Error, directory '{path}' not found")
+
+    for f in found:
+        if fnmatch.fnmatch(f, pattern):
+            files.append(f)
+
+    if files == []:
+        raise Exception("No files found after pattern filter!")
+
+    files = sort_names(files)
+    return files
+
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
@@ -62,7 +102,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     else:
         known_files = []
 
-    ls = find_files(path, prefix, postfix, 'dat', known_files=known_files)
+    ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
 
     replica = len(ls)
 
@@ -297,7 +337,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     else:
         known_files = []
 
-    ls = find_files(path, prefix, 'ms', 'dat', known_files=known_files)
+    ls = _find_files(path, prefix, 'ms', 'dat', known_files=known_files)
 
     replica = len(ls)
 
@@ -723,7 +763,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     else:
         known_files = []
 
-    files = find_files(path, prefix, postfix, "dat", known_files=known_files)
+    files = _find_files(path, prefix, postfix, "dat", known_files=known_files)
 
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
@@ -1054,7 +1094,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         known_files = kwargs.get("files")
     else:
         known_files = []
-    files = find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files=known_files)
+    files = _find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files=known_files)
 
     if "names" in kwargs:
         names = kwargs.get("names")

@@ -3,7 +3,7 @@ import fnmatch
 import re
 import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
-from . import utils
+from .utils import sort_names, check_idl
 
 
 def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
@@ -19,6 +19,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
             pattern += '\nwf_2      ' + str(wf2)
     return pattern
 
+
 def _find_correlator(file_name, version, pattern, b2b):
     T = 0
 
@@ -28,8 +29,8 @@ def _find_correlator(file_name, version, pattern, b2b):
     match = re.search(pattern, content)
     if match:
         if version == "0.0":
-                start_read = content.count('\n', 0, match.start()) + 1
-                T = content.count('\n', start_read)
+            start_read = content.count('\n', 0, match.start()) + 1
+            T = content.count('\n', start_read)
         else:
             start_read = content.count('\n', 0, match.start()) + 5 + b2b
             end_match = re.search(r'\n\s*\n', content[match.start():])
@@ -55,15 +56,16 @@ def _read_compact_file(rep_path, config_file, start_read, T, b2b, name, im):
             raise Exception("EOF before end of correlator data! Maybe " + rep_path + config_file + " is corrupted?")
         corr_lines = lines[start_read - 6: start_read + T]
         del lines
-        t_vals  = []
+        t_vals = []
 
         if corr_lines[1 - b2b].strip() != 'name      ' + name:
             raise Exception('Wrong format in file', config_file)
 
-        for k in range(6,T+6):
+        for k in range(6, T+6):
             floats = list(map(float, corr_lines[k].split()))
             t_vals.append(floats[-2:][im])
     return t_vals
+
 
 def _read_compact_rep(path, rep, sub_ls, start_read, T, b2b, name, im):
     rep_path = path + '/' + rep + '/'
@@ -78,6 +80,7 @@ def _read_compact_rep(path, rep, sub_ls, start_read, T, b2b, name, im):
             deltas[t][cfg] = cfg_data[t]
     print(deltas)
     return deltas
+
 
 def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single):
     try:
@@ -94,6 +97,7 @@ def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, patte
             floats = list(map(float, line.split()))
             data.append(floats[im + 1 - single])
     return idl, data
+
 
 def _read_append_rep(filename, pattern, b2b, rep_nr, cfg_separator, im, single):
     with open(filename, 'r') as fp:
@@ -120,20 +124,19 @@ def _read_append_rep(filename, pattern, b2b, rep_nr, cfg_separator, im, single):
         while not chunk[endline] == "\n":
             endline += 1
         T = endline - start_read
-        
+
         # all other chunks should follow the same structure
         rep_idl = []
         rep_data = []
-            
+
         for cnfg in range(len(data_starts)):
             start = data_starts[cnfg]
             stop = start + data_starts[1]
             chunk = content[start:stop]
-        
             idl, data = _read_chunk(chunk, gauge_line, cfg_separator, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)
-        
+
         data = []
 
         for t in range(T):
@@ -143,8 +146,43 @@ def _read_append_rep(filename, pattern, b2b, rep_nr, cfg_separator, im, single):
         return T, rep_idl, data
 
 
+def _get_rep_names(ls, ens_name=None):
+    new_names = []
+    for entry in ls:
+        try:
+            idx = entry.index('r')
+        except Exception:
+            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+
+        if ens_name:
+            new_names.append('ens_name' + '|' + entry[idx:])
+        else:
+            new_names.append(entry[:idx] + '|' + entry[idx:])
+    return new_names
+
+
+def _get_appended_rep_names(ls, prefix, name, ens_name=None):
+    new_names = []
+    for exc in ls:
+        if not fnmatch.fnmatch(exc, prefix + '*.' + name):
+            ls = list(set(ls) - set([exc]))
+    ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+    for entry in ls:
+        myentry = entry[:-len(name) - 1]
+        try:
+            idx = myentry.index('r')
+        except Exception:
+            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+
+        if ens_name:
+            new_names.append('ens_name' + '|' + entry[idx:])
+        else:
+            new_names.append(myentry[:idx] + '|' + myentry[idx:])
+    return new_names
+
+
 def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", **kwargs):
-    """Read sfcf c format from given folder structure.
+    """Read sfcf files from given folder structure.
 
     Parameters
     ----------
@@ -254,50 +292,28 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                 ls = list(set(ls) - set([exc]))
 
     if not appended:
-        if len(ls) > 1:
-            # New version, to cope with ids, etc.
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
+        ls = sort_names(ls)
         replica = len(ls)
+
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
-    print('Read', part, 'part of', name, 'from', prefix[:-1],
-          ',', replica, 'replica')
+    print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
+
     if 'names' in kwargs:
         new_names = kwargs.get('names')
         if len(new_names) != len(set(new_names)):
             raise Exception("names are not unique!")
         if len(new_names) != replica:
-            raise Exception('Names does not have the required length', replica)
+            raise Exception('names should have the length', replica)
+
     else:
-        new_names = []
+        ens_name = kwargs.get("ens_name")
         if not appended:
-            for entry in ls:
-                try:
-                    idx = entry.index('r')
-                except Exception:
-                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
-
-                if 'ens_name' in kwargs:
-                    new_names.append(kwargs.get('ens_name') + '|' + entry[idx:])
-                else:
-                    new_names.append(entry[:idx] + '|' + entry[idx:])
+            new_names = _get_rep_names(ls, ens_name)
         else:
+            new_names = _get_appended_rep_names(ls, prefix, name, ens_name)
+        new_names = sort_names(new_names)
 
-            for exc in ls:
-                if not fnmatch.fnmatch(exc, prefix + '*.' + name):
-                    ls = list(set(ls) - set([exc]))
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
-            for entry in ls:
-                myentry = entry[:-len(name) - 1]
-                try:
-                    idx = myentry.index('r')
-                except Exception:
-                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
-
-                if 'ens_name' in kwargs:
-                    new_names.append(kwargs.get('ens_name') + '|' + myentry[idx:])
-                else:
-                    new_names.append(myentry[:idx] + '|' + myentry[idx:])
     idl = []
     if not appended:
         for i, item in enumerate(ls):
@@ -349,7 +365,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         file = path + '/' + item + '/' + sub_ls[0]
                     else:
                         file = path + '/' + item + '/' + sub_ls[0] + '/' + name
-                
+
                 pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
                 start_read, T = _find_correlator(file, version, pattern, b2b)
 
@@ -361,7 +377,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
 
             if compact:
                 rep_deltas = _read_compact_rep(path, item, sub_ls, start_read, T, b2b, name, im)
-                
+
                 for t in range(T):
                     deltas[t].append(rep_deltas[t])
             else:
@@ -373,7 +389,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                             if (k >= start_read and k < start_read + T):
                                 floats = list(map(float, line.split()))
                                 if version == "0.0":
-                                    deltas[k - start][i][cnfg] = floats[im - single]
+                                    deltas[k - start_read][i][cnfg] = floats[im - single]
                                 else:
                                     deltas[k - start_read][i][cnfg] = floats[1 + im - single]
 
@@ -406,7 +422,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             raise Exception("check_configs has to be the same length as replica!")
         for r in range(len(idl)):
             print("checking " + new_names[r])
-            utils.check_idl(idl[r], che[r])
+            check_idl(idl[r], che[r])
         print("Done")
     result = []
     for t in range(T):

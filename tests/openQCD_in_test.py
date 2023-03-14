@@ -136,40 +136,33 @@ def test_read_ms5_xsf():
 
 
 def test_find_files():
-    path = './tests//data/openqcd_test/'
+    path = './tests/data/openqcd_test/'
     prefix = "ms5_xsf_T24L16"
     qc = 'dd'
 
-    files = pe.input.utils.find_files(path, prefix, "ms5_xsf_" + qc, "dat")
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat")
     assert (len(files) == 3)
 
-    files = pe.input.utils.find_files(path, prefix, ".ms5_xsf_" + qc, "dat")
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc, "dat")
     assert (len(files) == 3)
 
-    files = pe.input.utils.find_files(path, prefix, "ms5_xsf_" + qc + ".", "dat")
+    files = pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc + ".", "dat")
     assert (len(files) == 3)
 
-    files = pe.input.utils.find_files(path, prefix, ".ms5_xsf_" + qc + ".", "dat")
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", "dat")
     assert (len(files) == 3)
 
-    files = pe.input.utils.find_files(path, prefix, ".ms5_xsf_" + qc + ".", ".dat")
+    files = pe.input.openQCD._find_files(path, prefix, ".ms5_xsf_" + qc + ".", ".dat")
     assert (len(files) == 3)
 
     with pytest.raises(FileNotFoundError):
-        pe.input.utils.find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files="egg")
+        pe.input.openQCD._find_files(path, prefix, "ms5_xsf_" + qc, "dat", known_files="egg")
 
     fpath = './tests//data/openqc_test/'
     with pytest.raises(FileNotFoundError):
-        pe.input.utils.find_files(fpath, prefix, "ms5_xsf_" + qc, "dat")
+        pe.input.openQCD._find_files(fpath, prefix, "ms5_xsf_" + qc, "dat")
 
     fpre = "tune62"
     with pytest.raises(Exception):
-        pe.input.utils.find_files(path, fpre, "ms5_xsf_" + qc, "dat")
+        pe.input.openQCD._find_files(path, fpre, "ms5_xsf_" + qc, "dat")
 
-
-def test_sort_names():
-    my_list = ['sfqcd_r1_id5', 'sfqcd_r10_id5', 'sfqcd_r7_id5', 'sfqcd_r2_id5', 'sfqcd_r2_id9', 'sfqcd_r10_id4']
-    presorted_list = ['sfqcd_r1_id5', 'sfqcd_r2_id5', 'sfqcd_r2_id9', 'sfqcd_r7_id5', 'sfqcd_r10_id4', 'sfqcd_r10_id5']
-
-    sorted_list = pe.input.utils.sort_names(my_list)
-    assert (all([sorted_list[i] == presorted_list[i] for i in range(len(sorted_list))]))

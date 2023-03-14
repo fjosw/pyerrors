@@ -12,46 +12,6 @@ from ..correlators import Corr
 from .utils import sort_names
 
 
-def _find_files(path, prefix, postfix, ext, known_files=[]):
-    found = []
-    files = []
-
-    if postfix != "":
-        if postfix[-1] != ".":
-            postfix = postfix + "."
-        if postfix[0] != ".":
-            postfix = "." + postfix
-
-    if ext[0] == ".":
-        ext = ext[1:]
-
-    pattern = prefix + "*" + postfix + ext
-
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-        found.extend(filenames)
-        break
-
-    if known_files != []:
-        for kf in known_files:
-            if kf not in found:
-                raise FileNotFoundError("Given file " + kf + " does not exist!")
-
-        return known_files
-
-    if not found:
-        raise FileNotFoundError(f"Error, directory '{path}' not found")
-
-    for f in found:
-        if fnmatch.fnmatch(f, pattern):
-            files.append(f)
-
-    if files == []:
-        raise Exception("No files found after pattern filter!")
-
-    files = sort_names(files)
-    return files
-
-
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """Read rwms format from given folder structure. Returns a list of length nrw
 
@@ -530,6 +490,46 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
         raise Exception('Only two-dimensional arrays supported!')
 
     return arr
+
+
+def _find_files(path, prefix, postfix, ext, known_files=[]):
+    found = []
+    files = []
+
+    if postfix != "":
+        if postfix[-1] != ".":
+            postfix = postfix + "."
+        if postfix[0] != ".":
+            postfix = "." + postfix
+
+    if ext[0] == ".":
+        ext = ext[1:]
+
+    pattern = prefix + "*" + postfix + ext
+
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if known_files != []:
+        for kf in known_files:
+            if kf not in found:
+                raise FileNotFoundError("Given file " + kf + " does not exist!")
+
+        return known_files
+
+    if not found:
+        raise FileNotFoundError(f"Error, directory '{path}' not found")
+
+    for f in found:
+        if fnmatch.fnmatch(f, pattern):
+            files.append(f)
+
+    if files == []:
+        raise Exception("No files found after pattern filter!")
+
+    files = sort_names(files)
+    return files
 
 
 def _read_array_openQCD2(fp):

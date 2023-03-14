@@ -79,6 +79,69 @@ def _read_compact_rep(path, rep, sub_ls, start_read, T, b2b, name, im):
     print(deltas)
     return deltas
 
+def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single):
+    try:
+        idl = int(chunk[gauge_line].split(cfg_sep)[-1])
+    except Exception:
+        raise Exception("Couldn't parse idl from directory, problem with chunk around line ", gauge_line)
+
+    found_pat = ""
+    data = []
+    for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
+        found_pat += li
+    if re.search(pattern, found_pat):
+        for t, line in enumerate(chunk[start_read:start_read + T]):
+            floats = list(map(float, line.split()))
+            data.append(floats[im + 1 - single])
+    return idl, data
+
+def _read_append_rep(filename, pattern, b2b, rep_nr, cfg_separator, im, single):
+    with open(filename, 'r') as fp:
+        content = fp.readlines()
+        data_starts = []
+        for linenumber, line in enumerate(content):
+            if "[run]" in line:
+                data_starts.append(linenumber)
+        if len(set([data_starts[i] - data_starts[i - 1] for i in range(1, len(data_starts))])) > 1:
+            raise Exception("Irregularities in file structure found, not all runs have the same output length")
+        chunk = content[:data_starts[1]]
+        for linenumber, line in enumerate(chunk):
+            if line.startswith("gauge_name"):
+                gauge_line = linenumber
+            elif line.startswith("[correlator]"):
+                corr_line = linenumber
+                found_pat = ""
+                for li in chunk[corr_line + 1: corr_line + 6 + b2b]:
+                    found_pat += li
+                if re.search(pattern, found_pat):
+                    start_read = corr_line + 7 + b2b
+                    break
+        endline = corr_line + 6 + b2b
+        while not chunk[endline] == "\n":
+            endline += 1
+        T = endline - start_read
+        
+        # all other chunks should follow the same structure
+        rep_idl = []
+        rep_data = []
+            
+        for cnfg in range(len(data_starts)):
+            start = data_starts[cnfg]
+            stop = start + data_starts[1]
+            chunk = content[start:stop]
+        
+            idl, data = _read_chunk(chunk, gauge_line, cfg_separator, start_read, T, corr_line, b2b, pattern, im, single)
+            rep_idl.append(idl)
+            rep_data.append(data)
+        
+        data = []
+
+        for t in range(T):
+            data.append([])
+            for c in range(len(rep_data)):
+                data[t].append(rep_data[c][t])
+        return T, rep_idl, data
+
 
 def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", **kwargs):
     """Read sfcf c format from given folder structure.
@@ -323,55 +386,17 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     ls = list(set(ls) - set([exc]))
                 ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
         pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
+        deltas = []
         for rep, file in enumerate(ls):
             rep_idl = []
-            with open(path + '/' + file, 'r') as fp:
-                content = fp.readlines()
-                data_starts = []
-                for linenumber, line in enumerate(content):
-                    if "[run]" in line:
-                        data_starts.append(linenumber)
-                if len(set([data_starts[i] - data_starts[i - 1] for i in range(1, len(data_starts))])) > 1:
-                    raise Exception("Irregularities in file structure found, not all runs have the same output length")
-                chunk = content[:data_starts[1]]
-                for linenumber, line in enumerate(chunk):
-                    if line.startswith("gauge_name"):
-                        gauge_line = linenumber
-                    elif line.startswith("[correlator]"):
-                        corr_line = linenumber
-                        found_pat = ""
-                        for li in chunk[corr_line + 1: corr_line + 6 + b2b]:
-                            found_pat += li
-                        if re.search(pattern, found_pat):
-                            start_read = corr_line + 7 + b2b
-                            break
-                endline = corr_line + 6 + b2b
-                while not chunk[endline] == "\n":
-                    endline += 1
-                T = endline - start_read
-                if rep == 0:
-                    deltas = []
-                    for t in range(T):
-                        deltas.append([])
+            filename = path + '/' + file
+            T, rep_idl, rep_data = _read_append_rep(filename, pattern, b2b, rep, cfg_separator, im, single)
+            if rep == 0:
                 for t in range(T):
-                    deltas[t].append(np.zeros(len(data_starts)))
-                # all other chunks should follow the same structure
-                for cnfg in range(len(data_starts)):
-                    start = data_starts[cnfg]
-                    stop = start + data_starts[1]
-                    chunk = content[start:stop]
-                    try:
-                        rep_idl.append(int(chunk[gauge_line].split(cfg_separator)[-1]))
-                    except Exception:
-                        raise Exception("Couldn't parse idl from directory, problem with chunk around line ", gauge_line)
-
-                    found_pat = ""
-                    for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
-                        found_pat += li
-                    if re.search(pattern, found_pat):
-                        for t, line in enumerate(chunk[start_read:start_read + T]):
-                            floats = list(map(float, line.split()))
-                            deltas[t][rep][cnfg] = floats[im + 1 - single]
+                    deltas.append([])
+            for t in range(T):
+                deltas[t].append(rep_data[t])
+            print(deltas)
             idl.append(rep_idl)
 
     if "check_configs" in kwargs:

@@ -6,6 +6,32 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 
 
+def _find_files(rep_path, prefix, compact, files = []):
+    sub_ls = []
+    if not files == []:
+        files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+    else:
+        for (dirpath, dirnames, filenames) in os.walk(rep_path):
+            if compact:
+                sub_ls.extend(filenames)
+            else:
+                sub_ls.extend(dirnames)
+            break
+        if compact:
+            for exc in sub_ls:
+                if not fnmatch.fnmatch(exc, prefix + '*'):
+                    sub_ls = list(set(sub_ls) - set([exc]))
+            sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+        else:
+            for exc in sub_ls:
+                if not fnmatch.fnmatch(exc, 'cfg*'):
+                    sub_ls = list(set(sub_ls) - set([exc]))
+            sub_ls.sort(key=lambda x: int(x[3:]))
+        files = sub_ls
+
+    return files
+
+
 def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
     if version == "0.0":
         pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
@@ -317,27 +343,12 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     idl = []
     if not appended:
         for i, item in enumerate(ls):
-            sub_ls = []
+            rep_path = path + '/' + item
             if "files" in kwargs:
-                sub_ls = kwargs.get("files")
-                sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+                files = kwargs.get("files")
             else:
-                for (dirpath, dirnames, filenames) in os.walk(path + '/' + item):
-                    if compact:
-                        sub_ls.extend(filenames)
-                    else:
-                        sub_ls.extend(dirnames)
-                    break
-                if compact:
-                    for exc in sub_ls:
-                        if not fnmatch.fnmatch(exc, prefix + '*'):
-                            sub_ls = list(set(sub_ls) - set([exc]))
-                    sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
-                else:
-                    for exc in sub_ls:
-                        if not fnmatch.fnmatch(exc, 'cfg*'):
-                            sub_ls = list(set(sub_ls) - set([exc]))
-                    sub_ls.sort(key=lambda x: int(x[3:]))
+                files = []
+            sub_ls = _find_files(rep_path, prefix, compact,files)
             rep_idl = []
             no_cfg = len(sub_ls)
             for cfg in sub_ls:

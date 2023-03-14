@@ -216,9 +216,9 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             raise TypeError('func (key=' + key + ') is not a function.')
         if np.asarray(xd[key]).shape[-1] != len(yd[key]):
             raise ValueError('x and y input (key=' + key + ') do not have the same length')
-        for i in range(100):
+        for n_loc in range(100):
             try:
-                funcd[key](np.arange(i), x_all.T[0])
+                funcd[key](np.arange(n_loc), x_all.T[0])
             except TypeError:
                 continue
             except IndexError:
@@ -227,8 +227,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
                 break
         else:
             raise RuntimeError("Fit function (key=" + key + ") is not valid.")
-        n_parms = i
-        n_parms_ls.append(n_parms)
+        n_parms_ls.append(n_loc)
+
     n_parms = max(n_parms_ls)
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))

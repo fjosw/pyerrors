@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a bug.
+title: "<insert title>"
+labels: [bug]
+
+body:
+- type: markdown
+  attributes:
+    value: >
+      Thank you for taking the time to file a bug report.
+
+- type: textarea
+  attributes:
+    label: "Describe the issue:"
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Code example:"
+    description: >
+      A short, self-contained code example that reproduces the problem.
+    placeholder: |
+      import pyerrors as pe
+      << your code here >>
+    render: python
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Error message:"
+    description: >
+      Please include full error message, if any.
+    placeholder: |
+      << Full traceback starting from `Traceback: ...` >>
+    render: shell
+
+- type: textarea
+  attributes:
+    label: "Runtime information:"
+    description: >
+      Output of `pe.print_config()` (available from pyerrors 2.7).
+      For earlier versions please provide the python and pyerrors version.
+  validations:
+    required: true

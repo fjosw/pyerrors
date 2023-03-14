@@ -23,6 +23,23 @@ where applicable.
 
 There exist similar publicly available implementations of gamma method error analysis suites in [Fortran](https://gitlab.ift.uam-csic.es/alberto/aderrors), [Julia](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl) and [Python](https://github.com/mbruno46/pyobs).
 
+## Installation
+
+Install the most recent release using pip and [pypi](https://pypi.org/project/pyerrors/):
+```bash
+pip install pyerrors     # Fresh install
+pip install -U pyerrors  # Update
+```
+Install the most recent release using conda and [conda-forge](https://anaconda.org/conda-forge/pyerrors):
+```bash
+conda install -c conda-forge pyerrors  # Fresh install
+conda update -c conda-forge pyerrors   # Update
+```
+Install the current `develop` version:
+```bash
+pip install git+https://github.com/fjosw/pyerrors.git@develop
+```
+
 ## Basic example
 
 ```python
@@ -391,6 +408,8 @@ For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding r
 For the full API see `pyerrors.linalg`.
 
 # Export data
+
+[<img src="https://imgs.xkcd.com/comics/standards_2x.png" width="75%" height="75%">](https://xkcd.com/927/)
 
 The preferred exported file format within `pyerrors` is json.gz. Files written to this format are valid JSON files that have been compressed using gzip. The structure of the content is inspired by the dobs format of the ALPHA collaboration. The aim of the format is to facilitate the storage of data in a self-contained way such that, even years after the creation of the file, it is possible to extract all necessary information:
 - What observables are stored? Possibly: How exactly are they defined.

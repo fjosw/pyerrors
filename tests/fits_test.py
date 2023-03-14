@@ -6,6 +6,9 @@ import scipy.optimize
 from scipy.odr import ODR, Model, RealData
 from scipy.linalg import cholesky
 from scipy.stats import norm
+import iminuit
+from autograd import jacobian
+from autograd import hessian
 import pyerrors as pe
 import pytest
 
@@ -410,6 +413,19 @@ def test_prior_fit():
     fitp = pe.fits.least_squares([0, 1], y, f, priors=y, resplot=True, qqplot=True)
 
 
+def test_vs_old_prior_implementation():
+    x = np.arange(1, 5)
+    y = [pe.pseudo_Obs(2 * i + 1.1 + np.random.normal(0.0, 0.1), .1, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0] * x + a[1]
+    priors = [pe.cov_Obs(1.10, 0.01 ** 2, "p0"), pe.cov_Obs(1.1, 0.3 ** 2, "p1")]
+    pr = pe.fits.least_squares(x, y, fitf, priors=priors, method="migrad")
+    fr = old_prior_fit(x, y, fitf, priors=priors)
+    assert pr[0] == fr[0]
+    assert pr[1] == fr[1]
+
+
 def test_correlated_fit_covobs():
     x1 = pe.cov_Obs(1.01, 0.01 ** 2, 'test1')
     x2 = pe.cov_Obs(2.01, 0.01 ** 2, 'test2')
@@ -697,15 +713,15 @@ def test_combined_fit_invalid_fit_functions():
 
 
 def test_combined_fit_invalid_input():
-    xvals =[]
-    yvals =[]
+    xvals = []
+    yvals = []
     err = 0.1
     def func_valid(a,x):
         return a[0] + a[1] * x
     for x in range(1, 8, 2):
         xvals.append(x)
         yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.least_squares({'a':xvals}, {'b':yvals}, {'a':func_valid})
     with pytest.raises(Exception):
         pe.least_squares({'a':xvals}, {'a':yvals}, {'a':func_valid})
@@ -913,6 +929,184 @@ def test_combined_resplot_qqplot():
     plt.close('all')
 
 
+def test_x_multidim_fit():
+    x1 = np.arange(1, 10)
+    x = np.array([[xi, xi] for xi in x1]).T
+    y = [pe.pseudo_Obs(i + 2 / i, .1 * i, 't') for i in x[0]]
+    [o.gm() for o in y]
+    def fitf(a, x):
+        return a[0] * x[0] + a[1] / x[1]
+
+    pe.fits.least_squares(x, y, fitf)
+
+
+def test_priors_dict_vs_list():
+    x = np.arange(1, 5)
+    y = [pe.pseudo_Obs(2 * i + 1.1 + np.random.normal(0.0, 0.01), .01, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0] * x + a[1]
+    priors = [pe.cov_Obs(1.0, 0.0001 ** 2, "p0"), pe.cov_Obs(1.1, 0.8 ** 2, "p1")]
+    pr1 = pe.fits.least_squares(x, y, fitf, priors=priors)
+    prd = {0: priors[0],
+           1: priors[1]}
+
+    pr2 = pe.fits.least_squares(x, y, fitf, priors=prd)
+
+    prd = {1: priors[1],
+           0: priors[0]}
+
+    pr3 = pe.fits.least_squares(x, y, fitf, priors=prd)
+    assert (pr1[0] - pr2[0]).is_zero(1e-6)
+    assert (pr1[1] - pr2[1]).is_zero(1e-6)
+    assert (pr1[0] - pr3[0]).is_zero(1e-6)
+    assert (pr1[1] - pr3[1]).is_zero(1e-6)
+
+
+def test_not_all_priors_set():
+    x = np.arange(1, 5)
+    y = [pe.pseudo_Obs(2 * i + 1.1 + np.random.normal(0.0, 0.01), .01, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0] * x + a[1] + a[2] * x ** 2
+    priors = [pe.cov_Obs(2.0, 0.1 ** 2, "p0"), pe.cov_Obs(2, 0.8 ** 2, "p2")]
+    prd = {0: priors[0],
+           2: priors[1]}
+
+    pr1 = pe.fits.least_squares(x, y, fitf, priors=prd)
+
+    prd = {2: priors[1],
+           0: priors[0]}
+
+    pr2 = pe.fits.least_squares(x, y, fitf, priors=prd)
+    assert (pr1[0] - pr2[0]).is_zero(1e-6)
+    assert (pr1[1] - pr2[1]).is_zero(1e-6)
+    assert (pr1[2] - pr2[2]).is_zero(1e-6)
+
+
+def test_force_fit_on_prior():
+    x = np.arange(1, 10)
+    y = [pe.pseudo_Obs(2 + np.random.normal(0.0, 0.1), .1, 't') for i in x]
+    [o.gm() for o in y];
+    def fitf(a, x):
+        return a[0]
+
+    prd = {0: pe.cov_Obs(0.0, 0.0000001 ** 2, "prior0")}
+
+    pr = pe.fits.least_squares(x, y, fitf, priors=prd)
+    pr.gm()
+
+    diff = prd[0] - pr[0]
+    diff.gm()
+    assert diff.is_zero_within_error(5)
+
+
+def test_constrained_and_prior_fit():
+
+    for my_constant in [pe.pseudo_Obs(5.0, 0.00000001, "test"),
+                        pe.pseudo_Obs(6.5, 0.00000001, "test"),
+                        pe.pseudo_Obs(6.5, 0.00000001, "another_ensmble")]:
+        dim = 10
+        x = np.arange(dim)
+        y = -0.06 * x + 5 + np.random.normal(0.0, 0.3, dim)
+        yerr = [0.3] * dim
+
+        oy = []
+        for i, item in enumerate(x):
+            oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+        def func(a, x):
+            y = a[0] * x + a[1]
+            return y
+
+        # Fit with constrained parameter
+        out = pe.least_squares(x, oy, func, priors={1: my_constant}, silent=True)
+        out.gm()
+
+        def alt_func(a, x):
+            y = a[0] * x
+            return y
+
+        alt_y = np.array(oy) - my_constant
+        [o.gm() for o in alt_y]
+
+        # Fit with the constant subtracted from the data
+        alt_out = pe.least_squares(x, alt_y, alt_func, silent=True)
+        alt_out.gm()
+
+        assert np.isclose(out[0].value, alt_out[0].value, atol=1e-5, rtol=1e-6)
+        assert np.isclose(out[0].dvalue, alt_out[0].dvalue, atol=1e-5, rtol=1e-6)
+        assert np.isclose(out.chisquare_by_dof, alt_out.chisquare_by_dof, atol=1e-5, rtol=1e-6)
+
+
+def test_prior_fit_different_methods():
+    dim = 5
+    x = np.arange(dim)
+    y = 2 * x + 0.5 + np.random.normal(0.0, 0.3, dim) + 0.02 * x ** 5
+    yerr = [0.3] * dim
+
+    oy = []
+    for i, item in enumerate(x):
+        oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+    def func(a, x):
+        return a[0] * x + a[1] + a[2] * x ** 5
+
+    for priors in [None, {1: "0.5(4)"}, ["2(1)", "0.6(3)", "0(5)"]]:
+        chisquare_list = []
+        for method in ["Levenberg-Marquardt", "migrad", "Powell"]:
+            fr = pe.least_squares(x, oy, func, silent=True, priors=priors, method=method)
+            print(fr.iterations)
+            chisquare_list.append(fr.chisquare)
+
+        assert np.allclose(chisquare_list[0], chisquare_list[1:])
+
+
+def test_resplot_lists_in_dict():
+    xd = {
+        'a': [1, 2, 3],
+        'b': [1, 2, 3],
+    }
+    yd = {
+        'a': [pe.pseudo_Obs(i, .1*i, 't') for i in range(1, 4)],
+        'b': [pe.pseudo_Obs(2*i**2, .1*i**2, 't') for i in range(1, 4)]
+    }
+    [[o.gamma_method() for o in y] for y in yd.values()]
+    fd = {
+        'a': lambda a, x: a[0] + a[1] * x,
+        'b': lambda a, x: a[0] + a[2] * x**2,
+    }
+
+    fitp = pe.fits.least_squares(xd, yd, fd, resplot=True)
+
+
+def test_fit_dof():
+
+    def func(a, x):
+        return a[1] * anp.exp(-x * a[0])
+
+    dof = []
+    cd = []
+    for dim in [2, 3]:
+
+        x = np.arange(dim)
+        y = 2 * np.exp(-0.3 * x) + np.random.normal(0.0, 0.3, dim)
+        yerr = [0.3] * dim
+
+        oy = []
+        for i, item in enumerate(x):
+            oy.append(pe.pseudo_Obs(y[i], yerr[i], 'test'))
+
+        for priors in [None, {0: "0(2)"}]:
+            fr = pe.least_squares(x, oy, func, silent=True, priors=priors)
+            dof.append(fr.dof)
+            cd.append(fr.chisquare_by_dof)
+
+    assert np.allclose(dof, [0, 1, 1, 2])
+    assert cd[0] != cd[0]  # Check for nan
+    assert np.all(np.array(cd[1:]) > 0)
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
@@ -1010,3 +1204,126 @@ def fit_general(x, y, func, silent=False, **kwargs):
     for n in range(n_parms):
         res.append(pe.derived_observable(do_the_fit, obs, function=func, xerr=xerr, yerr=yerr, x_constants=x_constants, num_grad=True, n=n, **kwargs))
     return res
+
+
+def old_prior_fit(x, y, func, priors, silent=False, **kwargs):
+    output = pe.fits.Fit_result()
+
+    output.fit_function = func
+
+    x = np.asarray(x)
+
+    if not callable(func):
+        raise TypeError('func has to be a function.')
+
+    for i in range(100):
+        try:
+            func(np.arange(i), 0)
+        except TypeError:
+            continue
+        except IndexError:
+            continue
+        else:
+            break
+    else:
+        raise RuntimeError("Fit function is not valid.")
+
+    n_parms = i
+
+    if n_parms != len(priors):
+        raise Exception('Priors does not have the correct length.')
+
+    def extract_val_and_dval(string):
+        split_string = string.split('(')
+        if '.' in split_string[0] and '.' not in split_string[1][:-1]:
+            factor = 10 ** -len(split_string[0].partition('.')[2])
+        else:
+            factor = 1
+        return float(split_string[0]), float(split_string[1][:-1]) * factor
+
+    loc_priors = []
+    for i_n, i_prior in enumerate(priors):
+        if isinstance(i_prior, pe.Obs):
+            loc_priors.append(i_prior)
+        else:
+            loc_val, loc_dval = extract_val_and_dval(i_prior)
+            loc_priors.append(pe.cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}"))
+
+    output.priors = loc_priors
+
+    if not silent:
+        print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
+
+    y_f = [o.value for o in y]
+    dy_f = [o.dvalue for o in y]
+
+    if np.any(np.asarray(dy_f) <= 0.0):
+        raise Exception('No y errors available, run the gamma method first.')
+
+    p_f = [o.value for o in loc_priors]
+    dp_f = [o.dvalue for o in loc_priors]
+
+    if np.any(np.asarray(dp_f) <= 0.0):
+        raise Exception('No prior errors available, run the gamma method first.')
+
+    if 'initial_guess' in kwargs:
+        x0 = kwargs.get('initial_guess')
+        if len(x0) != n_parms:
+            raise Exception('Initial guess does not have the correct length.')
+    else:
+        x0 = p_f
+
+    def chisqfunc(p):
+        model = func(p, x)
+        chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((p_f - p) / dp_f) ** 2)
+        return chisq
+
+    if not silent:
+        print('Method: migrad')
+
+    m = iminuit.Minuit(chisqfunc, x0)
+    m.errordef = 1
+    m.print_level = 0
+    if 'tol' in kwargs:
+        m.tol = kwargs.get('tol')
+    else:
+        m.tol = 1e-4
+    m.migrad()
+    params = np.asarray(m.values)
+
+    output.chisquare_by_dof = m.fval / len(x)
+
+    output.method = 'migrad'
+
+    if not silent:
+        print('chisquare/d.o.f.:', output.chisquare_by_dof)
+
+    if not m.fmin.is_valid:
+        raise Exception('The minimization procedure did not converge.')
+
+    hess = hessian(chisqfunc)(params)
+    hess_inv = np.linalg.pinv(hess)
+
+    def chisqfunc_compact(d):
+        model = func(d[:n_parms], x)
+        chisq = anp.sum(((d[n_parms: n_parms + len(x)] - model) / dy_f) ** 2) + anp.sum(((d[n_parms + len(x):] - d[:n_parms]) / dp_f) ** 2)
+        return chisq
+
+    jac_jac = hessian(chisqfunc_compact)(np.concatenate((params, y_f, p_f)))
+
+    deriv = -hess_inv @ jac_jac[:n_parms, n_parms:]
+
+    result = []
+    for i in range(n_parms):
+        result.append(pe.derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (y[0].value + np.finfo(np.float64).eps) * params[i], list(y) + list(loc_priors), man_grad=list(deriv[i])))
+
+    output.fit_parameters = result
+    output.chisquare = chisqfunc(np.asarray(params))
+
+    if kwargs.get('resplot') is True:
+        residual_plot(x, y, func, result)
+
+    if kwargs.get('qqplot') is True:
+        qqplot(x, y, func, result)
+
+    return output

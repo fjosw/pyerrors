@@ -383,6 +383,8 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
                 if re.search(pattern, found_pat):
                     start_read = corr_line + 7 + b2b
                     break
+                else:
+                    raise ValueError("Did not find pattern", pattern, "in", filename)
         endline = corr_line + 6 + b2b
         while not chunk[endline] == "\n":
             endline += 1

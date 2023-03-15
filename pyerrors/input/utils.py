@@ -1,4 +1,49 @@
+import re
 """Utilities for the input"""
+
+
+def sort_names(ll):
+    """Sorts a list of names of replika with searches for `r` and `id` in the replikum string.
+    If this search fails, a fallback method is used,
+    where the strings are simply compared and the first diffeing numeral is used for differentiation.
+
+    Parameters
+    ----------
+    ll: list
+        list to sort
+
+    Returns
+    -------
+    ll: list
+        sorted list
+    """
+    if len(ll) > 1:
+        r_pattern = r'r(\d+)'
+        id_pattern = r'id(\d+)'
+
+        # sort list by id first
+        if all([re.search(id_pattern, entry) for entry in ll]):
+            ll.sort(key=lambda x: int(re.findall(id_pattern, x)[0]))
+        # then by replikum
+        if all([re.search(r_pattern, entry) for entry in ll]):
+            ll.sort(key=lambda x: int(re.findall(r_pattern, x)[0]))
+        # as the rearrangements by one key let the other key untouched, the list is sorted now
+
+        else:
+            # fallback
+            sames = ''
+            if len(ll) > 1:
+                for i in range(len(ll[0])):
+                    checking = ll[0][i]
+                    for rn in ll[1:]:
+                        is_same = (rn[i] == checking)
+                    if is_same:
+                        sames += checking
+                    else:
+                        break
+                print("Using prefix:", ll[0][len(sames):])
+            ll.sort(key=lambda x: int(re.findall(r'\d+', x[len(sames):])[0]))
+    return ll
 
 
 def check_idl(idl, che):

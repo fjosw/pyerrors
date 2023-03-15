@@ -1,6 +1,5 @@
 import os
 import fnmatch
-import re
 import struct
 import warnings
 import numpy as np  # Thinly-wrapped numpy
@@ -10,75 +9,7 @@ from ..obs import Obs
 from ..fits import fit_lin
 from ..obs import CObs
 from ..correlators import Corr
-
-
-def _find_files(path, prefix, postfix, ext, known_files=[]):
-    found = []
-    files = []
-
-    if postfix != "":
-        if postfix[-1] != ".":
-            postfix = postfix + "."
-        if postfix[0] != ".":
-            postfix = "." + postfix
-
-    if ext[0] == ".":
-        ext = ext[1:]
-
-    pattern = prefix + "*" + postfix + ext
-
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
-        found.extend(filenames)
-        break
-
-    if known_files != []:
-        for kf in known_files:
-            if kf not in found:
-                raise FileNotFoundError("Given file " + kf + " does not exist!")
-
-        return known_files
-
-    if not found:
-        raise FileNotFoundError(f"Error, directory '{path}' not found")
-
-    for f in found:
-        if fnmatch.fnmatch(f, pattern):
-            files.append(f)
-
-    if files == []:
-        raise Exception("No files found after pattern filter!")
-
-    files = _sort_names(files)
-    return files
-
-
-def _sort_names(ll):
-    r_pattern = r'r(\d+)'
-    id_pattern = r'id(\d+)'
-
-    # sort list by id first
-    if all([re.search(id_pattern, entry) for entry in ll]):
-        ll.sort(key=lambda x: int(re.findall(id_pattern, x)[0]))
-    # then by replikum
-    if all([re.search(r_pattern, entry) for entry in ll]):
-        ll.sort(key=lambda x: int(re.findall(r_pattern, x)[0]))
-    # as the rearrangements by one key let the other key untouched, the list is sorted now
-
-    else:
-        # fallback
-        sames = ''
-        if len(ll) > 1:
-            for i in range(len(ll[0])):
-                checking = ll[0][i]
-                for rn in ll[1:]:
-                    is_same = (rn[i] == checking)
-                if is_same:
-                    sames += checking
-                else:
-                    break
-            print(ll[0][len(sames):])
-        ll.sort(key=lambda x: int(re.findall(r'\d+', x[len(sames):])[0]))
-    return ll
+from .utils import sort_names
 
 
 def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
@@ -171,7 +102,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     else:
         rep_names = names
 
-    rep_names = _sort_names(rep_names)
+    rep_names = sort_names(rep_names)
 
     print_err = 0
     if 'print_err' in kwargs:
@@ -559,6 +490,46 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
         raise Exception('Only two-dimensional arrays supported!')
 
     return arr
+
+
+def _find_files(path, prefix, postfix, ext, known_files=[]):
+    found = []
+    files = []
+
+    if postfix != "":
+        if postfix[-1] != ".":
+            postfix = postfix + "."
+        if postfix[0] != ".":
+            postfix = "." + postfix
+
+    if ext[0] == ".":
+        ext = ext[1:]
+
+    pattern = prefix + "*" + postfix + ext
+
+    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+        found.extend(filenames)
+        break
+
+    if known_files != []:
+        for kf in known_files:
+            if kf not in found:
+                raise FileNotFoundError("Given file " + kf + " does not exist!")
+
+        return known_files
+
+    if not found:
+        raise FileNotFoundError(f"Error, directory '{path}' not found")
+
+    for f in found:
+        if fnmatch.fnmatch(f, pattern):
+            files.append(f)
+
+    if files == []:
+        raise Exception("No files found after pattern filter!")
+
+    files = sort_names(files)
+    return files
 
 
 def _read_array_openQCD2(fp):
@@ -974,7 +945,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
 
         deltas.append(Q_top)
 
-    rep_names = _sort_names(rep_names)
+    rep_names = sort_names(rep_names)
 
     idl = [range(int(configlist[rep][r_start_index[rep]]), int(configlist[rep][r_stop_index[rep]]) + 1, 1) for rep in range(len(deltas))]
     deltas = [deltas[nrep][r_start_index[nrep]:r_stop_index[nrep] + 1] for nrep in range(len(deltas))]

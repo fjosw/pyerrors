@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pyerrors as pe
 import pytest
@@ -136,7 +135,7 @@ def test_read_ms5_xsf():
 
 
 def test_find_files():
-    path = './tests//data/openqcd_test/'
+    path = './tests/data/openqcd_test/'
     prefix = "ms5_xsf_T24L16"
     qc = 'dd'
 
@@ -166,10 +165,3 @@ def test_find_files():
     with pytest.raises(Exception):
         pe.input.openQCD._find_files(path, fpre, "ms5_xsf_" + qc, "dat")
 
-
-def test_sort_names():
-    my_list = ['sfqcd_r1_id5', 'sfqcd_r10_id5', 'sfqcd_r7_id5', 'sfqcd_r2_id5', 'sfqcd_r2_id9', 'sfqcd_r10_id4']
-    presorted_list = ['sfqcd_r1_id5', 'sfqcd_r2_id5', 'sfqcd_r2_id9', 'sfqcd_r7_id5', 'sfqcd_r10_id4', 'sfqcd_r10_id5']
-
-    sorted_list = pe.input.openQCD._sort_names(my_list)
-    assert (all([sorted_list[i] == presorted_list[i] for i in range(len(sorted_list))]))

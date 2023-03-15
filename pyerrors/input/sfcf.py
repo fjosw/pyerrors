@@ -222,7 +222,6 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     deltas.append([])
             for t in range(T):
                 deltas[t].append(rep_data[t])
-            print(deltas)
             idl.append(rep_idl)
 
     if "check_configs" in kwargs:
@@ -338,7 +337,6 @@ def _read_compact_rep(path, rep, sub_ls, start_read, T, b2b, name, im):
         cfg_data = _read_compact_file(rep_path, cfg_file, start_read, T, b2b, name, im)
         for t in range(T):
             deltas[t][cfg] = cfg_data[t]
-    print(deltas)
     return deltas
 
 

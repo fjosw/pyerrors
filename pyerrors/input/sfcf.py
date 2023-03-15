@@ -6,7 +6,7 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent = False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -71,8 +71,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     else:
         im = 0
         part = 'real'
-    if "replica" in kwargs:
-        reps = kwargs.get("replica")
+
     if corr_type == 'bb':
         b2b = True
         single = True
@@ -82,8 +81,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
     else:
         b2b = False
         single = False
-    compact = True
-    appended = False
+
     known_versions = ["0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a", "2.0a"]
 
     if version not in known_versions:
@@ -101,7 +99,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         appended = False
     ls = []
     if "replica" in kwargs:
-        ls = reps
+        ls = kwargs.get("replica")
     else:
         for (dirpath, dirnames, filenames) in os.walk(path):
             if not appended:
@@ -122,7 +120,8 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
 
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
-    print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
+    if not silent:
+        print('Read', part, 'part of', name, 'from', prefix[:-1], ',', replica, 'replica')
 
     if 'names' in kwargs:
         new_names = kwargs.get('names')
@@ -160,7 +159,8 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                     raise Exception("Couldn't parse idl from directroy, problem with file " + cfg)
             rep_idl.sort()
             # maybe there is a better way to print the idls
-            print(item, ':', no_cfg, ' configurations')
+            if not silent:
+                print(item, ':', no_cfg, ' configurations')
             idl.append(rep_idl)
             # here we have found all the files we need to look into.
             if i == 0:
@@ -177,7 +177,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
                         file = path + '/' + item + '/' + sub_ls[0] + '/' + name
 
                 pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
-                start_read, T = _find_correlator(file, version, pattern, b2b)
+                start_read, T = _find_correlator(file, version, pattern, b2b, silent=silent)
 
                 # preparing the datastructure
                 # the correlators get parsed into...
@@ -216,7 +216,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         for rep, file in enumerate(ls):
             rep_idl = []
             filename = path + '/' + file
-            T, rep_idl, rep_data = _read_append_rep(filename, pattern, b2b, rep, cfg_separator, im, single)
+            T, rep_idl, rep_data = _read_append_rep(filename, pattern, b2b, cfg_separator, im, single)
             if rep == 0:
                 for t in range(T):
                     deltas.append([])
@@ -225,14 +225,17 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             idl.append(rep_idl)
 
     if "check_configs" in kwargs:
-        print("Checking for missing configs...")
+        if not silent:
+            print("Checking for missing configs...")
         che = kwargs.get("check_configs")
         if not (len(che) == len(idl)):
             raise Exception("check_configs has to be the same length as replica!")
         for r in range(len(idl)):
-            print("checking " + new_names[r])
+            if not silent:
+                print("checking " + new_names[r])
             check_idl(idl[r], che[r])
-        print("Done")
+        if not silent:
+            print("Done")
     result = []
     for t in range(T):
         result.append(Obs(deltas[t], new_names, idl=idl))
@@ -261,7 +264,8 @@ def _find_files(rep_path, prefix, compact, files=[]):
                     sub_ls = list(set(sub_ls) - set([exc]))
             sub_ls.sort(key=lambda x: int(x[3:]))
         files = sub_ls
-
+    if len(files) == 0:
+        raise FileNotFoundError("Did not find files in", rep_path, "with prefix", prefix, "and the given structure.")
     return files
 
 
@@ -279,7 +283,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
     return pattern
 
 
-def _find_correlator(file_name, version, pattern, b2b):
+def _find_correlator(file_name, version, pattern, b2b, silent = False):
     T = 0
 
     file = open(file_name, "r")
@@ -295,12 +299,13 @@ def _find_correlator(file_name, version, pattern, b2b):
             end_match = re.search(r'\n\s*\n', content[match.start():])
             T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
         if not T > 0:
-            raise Exception("Correlator is empty!")
-        print(T, 'entries, starting to read in line', start_read)
+            raise ValueError("Correlator with pattern\n" + pattern + "\nis empty!")
+        if not silent:
+            print(T, 'entries, starting to read in line', start_read)
 
     else:
         file.close()
-        raise Exception('Correlator with pattern\n' + pattern + '\nnot found.')
+        raise ValueError('Correlator with pattern\n' + pattern + '\nnot found.')
 
     file.close()
     return start_read, T
@@ -357,7 +362,7 @@ def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, patte
     return idl, data
 
 
-def _read_append_rep(filename, pattern, b2b, rep_nr, cfg_separator, im, single):
+def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []

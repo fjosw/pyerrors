@@ -210,7 +210,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             for exc in ls:
                 if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
-                ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+            ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
         pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
         deltas = []
         for rep, file in enumerate(ls):
@@ -384,7 +384,7 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
                     start_read = corr_line + 7 + b2b
                     break
                 else:
-                    raise ValueError("Did not find pattern", pattern, "in", filename)
+                    raise ValueError("Did not find pattern\n", pattern, "\nin\n", filename)
         endline = corr_line + 6 + b2b
         while not chunk[endline] == "\n":
             endline += 1

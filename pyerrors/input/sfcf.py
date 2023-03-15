@@ -210,7 +210,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
             for exc in ls:
                 if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                     ls = list(set(ls) - set([exc]))
-            ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
+            ls = sort_names(ls)
         pattern = _make_pattern(version, name, noffset, wf, wf2, b2b, quarks)
         deltas = []
         for rep, file in enumerate(ls):

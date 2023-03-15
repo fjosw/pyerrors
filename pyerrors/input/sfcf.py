@@ -320,7 +320,7 @@ def _read_compact_file(rep_path, config_file, start_read, T, b2b, name, im):
         if corr_lines[1 - b2b].strip() != 'name      ' + name:
             raise Exception('Wrong format in file', config_file)
 
-        for k in range(6, T+6):
+        for k in range(6, T + 6):
             floats = list(map(float, corr_lines[k].split()))
             t_vals.append(floats[-2:][im])
     return t_vals

@@ -6,7 +6,7 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent = False, **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -283,7 +283,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
     return pattern
 
 
-def _find_correlator(file_name, version, pattern, b2b, silent = False):
+def _find_correlator(file_name, version, pattern, b2b, silent=False):
     T = 0
 
     file = open(file_name, "r")

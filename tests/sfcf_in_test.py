@@ -104,15 +104,15 @@ def test_find_corr(tmp_path):
     start_read, T = sfin._find_correlator("tests/data/sfcf_test/data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
     assert start_read == 21
     assert T == 3
-    
+
     pattern = 'name      ' + "f_X" + '\nquarks    ' + "lquark lquark" + '\noffset    ' + str(0) + '\nwf        ' + str(0)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         sfin._find_correlator("tests/data/sfcf_test/data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
-    
+
     pattern = 'name      ' + "f_A" + '\nquarks    ' + "lquark lquark" + '\noffset    ' + str(0) + '\nwf        ' + str(0)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         sfin._find_correlator("tests/data/sfcf_test/broken_data_c/data_c_r0/data_c_r0_n1", "2.0c", pattern, False)
-    
+
 def test_read_compact_file(tmp_path):
     rep_path = "tests/data/sfcf_test/broken_data_c/data_c_r0/"
     config_file = "data_c_r0_n1"

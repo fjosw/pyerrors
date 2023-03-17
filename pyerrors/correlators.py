@@ -885,8 +885,11 @@ class Corr:
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
-            if fit_key:
-                ax1.plot(x_samples, fit_res.fit_function[fit_key]([o.value for o in fit_res.fit_parameters], x_samples), ls='-', marker=',', lw=2)
+            if isinstance(fit_res.fit_function, dict):
+                if fit_key:
+                    ax1.plot(x_samples, fit_res.fit_function[fit_key]([o.value for o in fit_res.fit_parameters], x_samples), ls='-', marker=',', lw=2)
+                else:
+                    raise ValueError("Please provide a 'fit_key' for visualizing combined fits.")
             else:
                 ax1.plot(x_samples, fit_res.fit_function([o.value for o in fit_res.fit_parameters], x_samples), ls='-', marker=',', lw=2)
 

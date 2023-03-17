@@ -698,18 +698,24 @@ def test_plot_combined_fit_function():
     def func_b(a,x):
         return a[0]*anp.exp(a[2]*x)
 
+    corr_a = pe.Corr([pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)])
+    corr_b = pe.Corr([pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)])
+
     funcs = {'a':func_a, 'b':func_b}
     xs = {'a':xvals_a, 'b':xvals_b}
-    ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
-        'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
+    ys = {'a': [o[0] for o in corr_a.content],
+          'b': [o[0] for o in corr_b.content]}
 
-    for key in funcs.keys():
-        [item.gamma_method() for item in ys[key]]
+    corr_a.gm()
+    corr_b.gm()
 
     comb_fit = pe.least_squares(xs, ys, funcs)
 
-    for key in funcs.keys():
-        ys[key].show(x_range=[xs[key][0],xs[key][-1]],fit_res=comb_fit,fit_key=key)
+    with pytest.raises(ValueError):
+        corr_a.show(x_range=[xs["a"][0], xs["a"][-1]], fit_res=comb_fit)
+
+    corr_a.show(x_range=[xs["a"][0], xs["a"][-1]], fit_res=comb_fit, fit_key="a")
+    corr_b.show(x_range=[xs["b"][0], xs["b"][-1]], fit_res=comb_fit, fit_key="b")
 
 
 def test_combined_fit_invalid_fit_functions():

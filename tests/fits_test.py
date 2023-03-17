@@ -681,6 +681,36 @@ def test_combined_fit_no_autograd():
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 
+def test_plot_combined_fit_function():
+
+    def func_exp1(x):
+        return 0.3*anp.exp(0.5*x)
+
+    def func_exp2(x):
+        return 0.3*anp.exp(0.8*x)
+
+    xvals_b = np.arange(0,6)
+    xvals_a = np.arange(0,8)
+
+    def func_a(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
+    funcs = {'a':func_a, 'b':func_b}
+    xs = {'a':xvals_a, 'b':xvals_b}
+    ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
+        'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
+
+    for key in funcs.keys():
+        [item.gamma_method() for item in ys[key]]
+
+    comb_fit = pe.least_squares(xs, ys, funcs)
+
+    for key in funcs.keys():
+        ys[key].show(x_range=[xs[key][0],xs[key][-1]],fit_res=comb_fit,fit_key=key)
+
 
 def test_combined_fit_invalid_fit_functions():
     def func1(a, x):

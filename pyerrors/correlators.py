@@ -788,7 +788,7 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None, title=None):
+    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, fit_key=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None, title=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
@@ -804,6 +804,8 @@ class Corr:
             Plateau value to be visualized in the figure.
         fit_res : Fit_result
             Fit_result object to be visualized.
+        fit_key : str
+            Key for the fit function in Fit_result.fit_function (for combined fits).
         ylabel : str
             Label for the y-axis.
         save : str
@@ -883,9 +885,10 @@ class Corr:
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)
-            ax1.plot(x_samples,
-                     fit_res.fit_function([o.value for o in fit_res.fit_parameters], x_samples),
-                     ls='-', marker=',', lw=2)
+            if fit_key:
+                ax1.plot(x_samples, fit_res.fit_function[fit_key]([o.value for o in fit_res.fit_parameters], x_samples), ls='-', marker=',', lw=2)
+            else:
+                ax1.plot(x_samples, fit_res.fit_function([o.value for o in fit_res.fit_parameters], x_samples), ls='-', marker=',', lw=2)
 
         ax1.set_xlabel(r'$x_0 / a$')
         if ylabel:

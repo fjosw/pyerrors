@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.0] - 2023-03-21
+### Added
+- Alternative way of specifying priors in `least_squares` added.
+- Correlated fits now also work with priors.
+- Lists of `Obs` can now be serialized and deserialized in pandas.to_sql
+- `print_config` function for debugging purposes added.
+- `Corr.show` can now visualize results of combined fits.
+
+### Changed
+- Fit routines refactored and simplified.
+- sfcf input routines refactored.
+- drho is not automatically computed for all windows in the automatic windowing procedure. This change speeds up the `gamma_method` for very long Monte Carlo histories.
+- `__slots__` added to `Corr` class.
+
 ## [2.6.0] - 2023-02-07
 ### Added
 - The fit module now has a new interface to deal with combined fits.

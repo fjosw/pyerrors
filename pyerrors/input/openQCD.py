@@ -231,7 +231,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix = 'ms', **kwargs):
     """Extract t0 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have
@@ -263,6 +263,8 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     fit_range : int
         Number of data points left and right of the zero
         crossing to be included in the linear fit. (Default: 5)
+    postfix : str
+        Postfix of measurement file (Default: ms)
     r_start : list
         list which contains the first config to be read for each replicum.
     r_stop : list
@@ -297,7 +299,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     else:
         known_files = []
 
-    ls = _find_files(path, prefix, 'ms', 'dat', known_files=known_files)
+    ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
 
     replica = len(ls)
 

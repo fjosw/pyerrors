@@ -231,7 +231,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix = 'ms', **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', **kwargs):
     """Extract t0 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have

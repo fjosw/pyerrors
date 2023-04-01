@@ -271,7 +271,7 @@ class Obs:
             gaps = []
             for r_name in e_content[e_name]:
                 if isinstance(self.idl[r_name], range):
-                    gaps.append(1)
+                    gaps.append(self.idl[r_name].step)
                 else:
                     gaps.append(np.min(np.diff(self.idl[r_name])))
 

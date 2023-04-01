@@ -690,6 +690,10 @@ def test_gamma_method_irregular():
 
     assert np.isclose(tau_a, tau_b)
 
+    dat = [np.random.normal(loc=1., size=10) for i in range(2)]
+    idl = [[0, 2, 4, 8, 10, 12, 14, 16, 18, 20], np.arange(0, 20, 2)]
+    o = pe.Obs(dat, ['A|r1', 'A|r2'], idl=idl)
+    o.gm()
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))

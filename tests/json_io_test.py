@@ -331,7 +331,7 @@ def test_dobsio():
 
     tt.tag = 'Test Obs: Ä'
 
-    tt4 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(1, 101, 1), range(2, 202, 2)])
+    tt4 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(1, 201, 2), range(2, 202, 2)])
 
     ol = [o2, o3, o4, do, o5, tt, tt4, np.log(tt4 / o5**2), np.exp(o5 + np.log(co3 / tt3 + o4) / tt)]
     print(ol)

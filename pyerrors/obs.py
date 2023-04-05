@@ -238,14 +238,7 @@ class Obs:
         _parse_kwarg('N_sigma')
 
         for e, e_name in enumerate(self.mc_names):
-            gaps = []
-            for r_name in e_content[e_name]:
-                if isinstance(self.idl[r_name], range):
-                    gaps.append(self.idl[r_name].step)
-                else:
-                    gaps.append(np.min(np.diff(self.idl[r_name])))
-
-            gapsize = np.min(gaps)
+            gapsize = _determine_gap(self, e_content, e_name)
 
             r_length = []
             for r_name in e_content[e_name]:
@@ -405,10 +398,7 @@ class Obs:
                 print(' Ensemble errors:')
             e_content = self.e_content
             for e_name in self.mc_names:
-                if isinstance(self.idl[e_content[e_name][0]], range):
-                    gap = self.idl[e_content[e_name][0]].step
-                else:
-                    gap = np.min(np.diff(self.idl[e_content[e_name][0]]))
+                gap = _determine_gap(self, e_content, e_name)
 
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.6e +/- %3.6e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
@@ -1632,3 +1622,14 @@ def cov_Obs(means, cov, name, grad=None):
     if len(ol) == 1:
         return ol[0]
     return ol
+
+
+def _determine_gap(o, e_content, e_name):
+    gaps = []
+    for r_name in e_content[e_name]:
+        if isinstance(o.idl[r_name], range):
+            gaps.append(o.idl[r_name].step)
+        else:
+            gaps.append(np.min(np.diff(o.idl[r_name])))
+
+    return np.min(gaps)

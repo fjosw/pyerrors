@@ -701,6 +701,12 @@ def test_gamma_method_irregular():
     idl = [[0, 2, 4, 8, 10, 12, 14, 16, 18, 20], np.arange(0, 20, 2)]
     o = pe.Obs(dat, ['A|r1', 'A|r2'], idl=idl)
     o.gm()
+    assert(pe.obs._determine_gap(o, o.e_content, 'A') == 2)
+    dat = [np.random.normal(loc=1., size=10) for i in range(3)]
+    idl = [[0, 2, 4, 8, 10, 12, 14, 16, 18, 20], np.arange(0, 20, 2), range(10)]
+    o = pe.Obs(dat, ['A|r1', 'A|r2', 'A|r5'], idl=idl)
+    o.gm()
+    assert(pe.obs._determine_gap(o, o.e_content, 'A') == 1)
 
 
 def test_irregular_gapped_dtauint():

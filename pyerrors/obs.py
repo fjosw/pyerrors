@@ -245,10 +245,7 @@ class Obs:
                 else:
                     gaps.append(np.min(np.diff(self.idl[r_name])))
 
-            if all([isinstance(self.idl[r_name], range) for r_name in e_content[e_name]]) and np.all([gi == gaps[0] for gi in gaps]):
-                gapsize = np.min(gaps)
-            else:
-                gapsize = np.min(gaps)
+            gapsize = np.min(gaps)
 
             r_length = []
             for r_name in e_content[e_name]:
@@ -326,7 +323,6 @@ class Obs:
                     for n in range(1, w_max):
                         if g_w[n - 1] < 0 or n >= w_max - 1:
                             _compute_drho(n)
-                            n *= 1
                             self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                             self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)

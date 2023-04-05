@@ -246,11 +246,9 @@ class Obs:
                     gaps.append(np.min(np.diff(self.idl[r_name])))
 
             if all([isinstance(self.idl[r_name], range) for r_name in e_content[e_name]]) and np.all([gi == gaps[0] for gi in gaps]):
-                gapsize = 1
-                gapsize_expansion = np.min(gaps)
+                gapsize = np.min(gaps)
             else:
                 gapsize = np.min(gaps)
-                gapsize_expansion = gapsize
 
             r_length = []
             for r_name in e_content[e_name]:
@@ -266,11 +264,11 @@ class Obs:
             self.e_drho[e_name] = np.zeros(w_max)
 
             for r_name in e_content[e_name]:
-                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft, gapsize_expansion)
+                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
 
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
-                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft, gapsize_expansion)
+                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
             gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 

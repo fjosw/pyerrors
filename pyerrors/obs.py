@@ -370,6 +370,9 @@ class Obs:
         fft : bool
             determines whether the fft algorithm is used for the computation
             of the autocorrelation function.
+        gapsize : int
+            The target distance between two configurations. If longer distances
+            are found in idx, the data is expanded.
         """
         gamma = np.zeros(w_max)
         deltas = _expand_deltas(deltas, idx, shape, gapsize)
@@ -996,8 +999,9 @@ def _format_uncertainty(value, dvalue):
 
 
 def _expand_deltas(deltas, idx, shape, gapsize):
-    """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-       If idx is of type range, the deltas are not changed
+    """Expand deltas defined on idx to a regular range with spacing gapsize between two
+       configurations and where holes are filled by 0.
+       If idx is of type range, the deltas are not changed if the idx.step == gapsize.
 
     Parameters
     ----------
@@ -1007,6 +1011,9 @@ def _expand_deltas(deltas, idx, shape, gapsize):
         List or range of configs on which the deltas are defined, has to be sorted in ascending order.
     shape : int
         Number of configs in idx.
+    gapsize : int
+        The target distance between two configurations. If longer distances
+        are found in idx, the data is expanded.
     """
     if isinstance(idx, range):
         if (idx.step == gapsize):

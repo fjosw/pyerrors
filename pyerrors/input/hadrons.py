@@ -121,6 +121,67 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
     return corr
 
 
+def _extract_real_arrays(path, files, tree, keys):
+    corr_data = {}
+    for key in keys:
+        corr_data[key] = []
+    for hd5_file in files:
+        h5file = h5py.File(path + '/' + hd5_file, "r")
+        for key in keys:
+            if not tree + '/' + key in h5file:
+                raise Exception("Entry '" + key + "' not contained in the files.")
+            raw_data = h5file[tree + '/' + key + '/data']
+            real_data = raw_data[:].astype(np.double)
+            corr_data[key].append(real_data)
+        h5file.close()
+    for key in keys:
+        corr_data[key] = np.array(corr_data[key])
+    return corr_data
+
+
+def read_flow_observables_hd5(path, filestem, ens_id, obs='Clover energy density', idl=None):
+    r'''Read hadrons meson hdf5 file and extract the meson labeled 'meson'
+
+    Parameters
+    -----------------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    obs : str
+        label of the observable to be extracted.
+    idl : range
+        If specified only configurations in the given range are read in.
+
+    '''
+
+    files, idx = _get_files(path, filestem, idl)
+    tree = "FlowObservables"
+
+    h5file = h5py.File(path + '/' + files[0], "r")
+    obs_key = None
+    for key in h5file[tree].keys():
+        if obs == h5file[tree][key].attrs["description"][0].decode():
+            obs_key = key
+            break
+    h5file.close()
+    if obs_key is None:
+        raise Exception(f"Observable {obs} not found.")
+
+    corr_data = _extract_real_arrays(path, files, tree, ["FlowObservables_0", obs_key])
+
+    if not np.allclose(corr_data["FlowObservables_0"][0], corr_data["FlowObservables_0"][:]):
+        raise Exception("Not all flow times were equal.")
+
+    l_obs = []
+    for c in corr_data[obs_key].T:
+        l_obs.append(Obs([c], [ens_id], idl=[idx]))
+
+    return corr_data["FlowObservables_0"][0], l_obs
+
+
 def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):
     """Read hadrons DistillationContraction hdf5 files in given directory structure
 

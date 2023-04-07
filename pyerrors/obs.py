@@ -311,7 +311,7 @@ class Obs:
                     self.e_windowsize[e_name] = 0
                 else:
                     # Standard automatic windowing procedure
-                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name] + 1) / (2 * self.e_n_tauint[e_name] - 1))
+                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
                     g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
                     for n in range(1, w_max):
                         if g_w[n - 1] < 0 or n >= w_max - 1:

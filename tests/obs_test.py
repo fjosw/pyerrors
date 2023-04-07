@@ -708,6 +708,16 @@ def test_gamma_method_irregular():
     o.gm()
     assert(pe.obs._determine_gap(o, o.e_content, 'A') == 1)
 
+    dat = np.sin(np.arange(100) / 100)
+    for idl in [np.arange(100), np.arange(0, 1000, 10)]:
+        my_obs = pe.Obs([dat], ["test_ens"], idl=[idl])
+        assert np.isclose(my_obs.value, 0.4554865083873183)
+
+        my_obs.gm(S=0)
+        assert np.isclose(my_obs.dvalue, 0.02495954189079061)
+        my_obs.gm()
+        assert np.isclose(my_obs.dvalue, 0.11817931680985193)
+
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))

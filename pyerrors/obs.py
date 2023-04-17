@@ -243,9 +243,9 @@ class Obs:
             r_length = []
             for r_name in e_content[e_name]:
                 if isinstance(self.idl[r_name], range):
-                    r_length.append(len(self.idl[r_name]))
+                    r_length.append(len(self.idl[r_name]) * self.idl[r_name].step // gapsize)
                 else:
-                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
+                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1) // gapsize)
 
             e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
             w_max = max(r_length) // 2
@@ -292,7 +292,7 @@ class Obs:
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")
                 for n in range(1, w_max // 2):
-                    _compute_drho(n)
+                    _compute_drho(n + 1)
                     if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
                         self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
@@ -1632,4 +1632,8 @@ def _determine_gap(o, e_content, e_name):
         else:
             gaps.append(np.min(np.diff(o.idl[r_name])))
 
-    return np.min(gaps)
+    gap = min(gaps)
+    if not np.all([gi % gap == 0 for gi in gaps]):
+        raise Exception(f"Replica for ensemble {e_name} do not have a common spacing.", gaps)
+
+    return gap

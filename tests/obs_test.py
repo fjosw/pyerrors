@@ -718,6 +718,17 @@ def test_gamma_method_irregular():
         my_obs.gm()
         assert np.isclose(my_obs.dvalue, 0.11817931680985193)
 
+    idl = [np.arange(100), np.arange(0, 1000, 10), list(np.arange(0, 100, 10)) + list(np.arange(180, 1080, 10)), range(1, 500, 5)]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    my_obs.gm()
+    idl = idl[1:]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    my_obs.gm()
+    idl += [range(1, 400, 4)]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    with pytest.raises(Exception):
+        my_obs.gm()
+
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))
@@ -725,33 +736,36 @@ def test_irregular_gapped_dtauint():
     my_idl2 = list(range(0, 501, 1))
     my_idl2.remove(40)
 
-    my_data = np.random.normal(1.1, 0.2, 500)
-    obs = pe.Obs([my_data], ["B1"], idl=[my_idl])
-    obs.gamma_method()
+    for i in range(42):
+        my_data = np.random.normal(1.1, 0.2, 500)
+        obs = pe.Obs([my_data], ["B1"], idl=[my_idl])
+        obs.gamma_method()
 
-    obs2 = pe.Obs([my_data], ["B2"], idl=[my_idl2])
-    obs2.gamma_method()
+        obs2 = pe.Obs([my_data], ["B2"], idl=[my_idl2])
+        obs2.gamma_method()
 
-    assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
-    assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
-    assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
-    assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert len(obs.e_rho["B1"]) == len(obs2.e_rho["B2"])
 
-    obs.gamma_method(tau_exp=1)
-    obs2.gamma_method(tau_exp=1)
+        obs.gamma_method(tau_exp=1)
+        obs2.gamma_method(tau_exp=1)
 
-    assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
-    assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
-    assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
-    assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert len(obs.e_rho["B1"]) == len(obs2.e_rho["B2"])
 
-    obs.gamma_method(S=0)
-    obs2.gamma_method(S=0)
+        obs.gamma_method(S=0)
+        obs2.gamma_method(S=0)
 
-    assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
-    assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
-    assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
-    assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
 
 
 def test_covariance_is_variance():

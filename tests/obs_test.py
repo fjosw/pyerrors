@@ -592,6 +592,18 @@ def test_irregular_error_propagation():
             assert obs1 == obs1 + (obs2 - obs2)
 
 
+def test_gamma_method_consistent():
+    dat = np.sin(np.arange(100) / 100)
+    for idl in [np.arange(100), np.arange(0, 1000, 10)]:
+        my_obs = pe.Obs([dat], ["test_ens"], idl=[idl])
+        assert np.isclose(my_obs.value, 0.4554865083873183)
+
+        my_obs.gm(S=0)
+        assert np.isclose(my_obs.dvalue, 0.02495954189079061)
+        my_obs.gm()
+        assert np.isclose(my_obs.dvalue, 0.11817931680985193)
+
+
 def test_gamma_method_irregular():
     N = 20000
     arr = np.random.normal(1, .2, size=N)
@@ -709,14 +721,6 @@ def test_gamma_method_irregular():
     assert(pe.obs._determine_gap(o, o.e_content, 'A') == 1)
 
     dat = np.sin(np.arange(100) / 100)
-    for idl in [np.arange(100), np.arange(0, 1000, 10)]:
-        my_obs = pe.Obs([dat], ["test_ens"], idl=[idl])
-        assert np.isclose(my_obs.value, 0.4554865083873183)
-
-        my_obs.gm(S=0)
-        assert np.isclose(my_obs.dvalue, 0.02495954189079061)
-        my_obs.gm()
-        assert np.isclose(my_obs.dvalue, 0.11817931680985193)
 
     idl = [np.arange(100), np.arange(0, 1000, 10), list(np.arange(0, 100, 10)) + list(np.arange(180, 1080, 10)), range(1, 500, 5)]
     my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)

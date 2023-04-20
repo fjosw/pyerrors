@@ -711,7 +711,7 @@ class Obs:
                                      significance=int(float(format_type.replace("+", "").replace("-", ""))))
         if format_type.startswith(("+", "-")):
             if my_str[0] != "-":
-                my_str = " " + my_str
+                my_str = "+" + my_str
         return my_str
 
     def __hash__(self):

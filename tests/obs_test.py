@@ -1167,5 +1167,5 @@ def test_format_uncertainty():
 
 def test_format():
     o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
-    assert o1.__format__("+3") == ' 0.3480(123)'
-    assert o1.__format__("-2") == ' 0.348(12)'
+    assert o1.__format__("+3") == '+0.3480(123)'
+    assert o1.__format__("-2") == '+0.348(12)'

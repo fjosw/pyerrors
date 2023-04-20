@@ -695,6 +695,15 @@ class Obs:
     def __str__(self):
         return _format_uncertainty(self.value, self._dvalue)
 
+    def __format__(self, format_type):
+        my_str = _format_uncertainty(self.value, self._dvalue,
+                                     significance=int(float(format_type.replace("+", "").replace("-", ""))))
+        for char in ["+", " "]:
+            if format_type.startswith(char):
+                if my_str[0] != "-":
+                    my_str = char + my_str
+        return my_str
+
     def __hash__(self):
         hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
         hash_tuple += tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()])
@@ -969,17 +978,21 @@ class CObs:
         return 'CObs[' + str(self) + ']'
 
 
-def _format_uncertainty(value, dvalue):
+def _format_uncertainty(value, dvalue, significance=2):
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
     if dvalue == 0.0:
         return str(value)
+    if not isinstance(significance, int):
+        raise TypeError("significance needs to be an integer.")
+    if significance < 1:
+        raise ValueError("significance needs to be larger than zero.")
     fexp = np.floor(np.log10(dvalue))
     if fexp < 0.0:
-        return '{:{form}}({:2.0f})'.format(value, dvalue * 10 ** (-fexp + 1), form='.' + str(-int(fexp) + 1) + 'f')
+        return '{:{form}}({:1.0f})'.format(value, dvalue * 10 ** (-fexp + significance - 1), form='.' + str(-int(fexp) + significance - 1) + 'f')
     elif fexp == 0.0:
-        return '{:.1f}({:1.1f})'.format(value, dvalue)
+        return f"{value:.{significance - 1}f}({dvalue:1.{significance - 1}f})"
     else:
-        return '{:.0f}({:2.0f})'.format(value, dvalue)
+        return f"{value:.{max(0, int(significance - fexp - 1))}f}({dvalue:2.{max(0, int(significance - fexp - 1))}f})"
 
 
 def _expand_deltas(deltas, idx, shape, gapsize):

@@ -1213,3 +1213,17 @@ def test_nan_obs():
     o.idl['test'] = [1, 5] + list(range(7, 2002, 2))
     no = np.NaN * o
     no.gamma_method()
+
+
+def test_format_uncertainty():
+    assert pe.obs._format_uncertainty(0.548, 0.248976, 4) == '0.5480(2490)'
+    assert pe.obs._format_uncertainty(0.548, 2.48497, 2) == '0.5(2.5)'
+    assert pe.obs._format_uncertainty(0.548, 2.48497, 4) == '0.548(2.485)'
+    assert pe.obs._format_uncertainty(0.548, 20078.3, 9) == '0.5480(20078.3000)'
+
+
+def test_format():
+    o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
+    assert o1.__format__("+3") == '+0.3480(123)'
+    assert o1.__format__("+2") == '+0.348(12)'
+    assert o1.__format__(" 2") == ' 0.348(12)'

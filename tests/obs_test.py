@@ -539,6 +539,12 @@ def test_merge_idx():
     assert pe.obs._merge_idx([range(10, 1010, 10), range(10, 1010, 50)]) == range(10, 1010, 10)
     assert pe.obs._merge_idx([range(500, 6050, 50), range(500, 6250, 250)]) == range(500, 6250, 50)
 
+    idl = [list(np.arange(1, 14)) + list(range(16, 100, 4)), range(4, 604, 4), [2, 4, 5, 6, 8, 9, 12, 24], range(1, 20, 1), range(50, 789, 7)]
+    new_idx = pe.obs._merge_idx(idl)
+    assert(new_idx[-1] > new_idx[0])
+    for i in range(1, len(new_idx)):
+        assert(new_idx[i - 1] < new_idx[i])
+
 
 def test_intersection_idx():
     assert pe.obs._intersection_idx([range(1, 100), range(1, 100), range(1, 100)]) == range(1, 100)
@@ -548,6 +554,7 @@ def test_intersection_idx():
 
     for ids in [[list(range(1, 80, 3)), list(range(1, 100, 2))], [range(1, 80, 3), range(1, 100, 2), range(1, 100, 7)]]:
         assert list(pe.obs._intersection_idx(ids)) == pe.obs._intersection_idx([list(o) for o in ids])
+
 
 def test_merge_intersection():
     for idl_list in [[range(1, 100), range(1, 100), range(1, 100)],
@@ -583,6 +590,18 @@ def test_irregular_error_propagation():
             assert obs1 == obs1 * (obs2 / obs2)
             assert obs1 == (obs1 + obs2) - obs2
             assert obs1 == obs1 + (obs2 - obs2)
+
+
+def test_gamma_method_consistent():
+    dat = np.sin(np.arange(100) / 100)
+    for idl in [np.arange(100), np.arange(0, 1000, 10)]:
+        my_obs = pe.Obs([dat], ["test_ens"], idl=[idl])
+        assert np.isclose(my_obs.value, 0.4554865083873183)
+
+        my_obs.gm(S=0)
+        assert np.isclose(my_obs.dvalue, 0.02495954189079061)
+        my_obs.gm()
+        assert np.isclose(my_obs.dvalue, 0.11817931680985193)
 
 
 def test_gamma_method_irregular():
@@ -690,6 +709,30 @@ def test_gamma_method_irregular():
 
     assert np.isclose(tau_a, tau_b)
 
+    dat = [np.random.normal(loc=1., size=10) for i in range(2)]
+    idl = [[0, 2, 4, 8, 10, 12, 14, 16, 18, 20], np.arange(0, 20, 2)]
+    o = pe.Obs(dat, ['A|r1', 'A|r2'], idl=idl)
+    o.gm()
+    assert(pe.obs._determine_gap(o, o.e_content, 'A') == 2)
+    dat = [np.random.normal(loc=1., size=10) for i in range(3)]
+    idl = [[0, 2, 4, 8, 10, 12, 14, 16, 18, 20], np.arange(0, 20, 2), range(10)]
+    o = pe.Obs(dat, ['A|r1', 'A|r2', 'A|r5'], idl=idl)
+    o.gm()
+    assert(pe.obs._determine_gap(o, o.e_content, 'A') == 1)
+
+    dat = np.sin(np.arange(100) / 100)
+
+    idl = [np.arange(100), np.arange(0, 1000, 10), list(np.arange(0, 100, 10)) + list(np.arange(180, 1080, 10)), range(1, 500, 5)]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    my_obs.gm()
+    idl = idl[1:]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    my_obs.gm()
+    idl += [range(1, 400, 4)]
+    my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
+    with pytest.raises(Exception):
+        my_obs.gm()
+
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))
@@ -697,15 +740,36 @@ def test_irregular_gapped_dtauint():
     my_idl2 = list(range(0, 501, 1))
     my_idl2.remove(40)
 
-    my_data = np.random.normal(1.1, 0.2, 500)
-    obs = pe.Obs([my_data], ["B1"], idl=[my_idl])
-    obs.gamma_method()
+    for i in range(42):
+        my_data = np.random.normal(1.1, 0.2, 500)
+        obs = pe.Obs([my_data], ["B1"], idl=[my_idl])
+        obs.gamma_method()
 
-    obs2 = pe.Obs([my_data], ["B2"], idl=[my_idl2])
-    obs2.gamma_method()
+        obs2 = pe.Obs([my_data], ["B2"], idl=[my_idl2])
+        obs2.gamma_method()
 
-    assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
-    assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert len(obs.e_rho["B1"]) == len(obs2.e_rho["B2"])
+
+        obs.gamma_method(tau_exp=1)
+        obs2.gamma_method(tau_exp=1)
+
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
+        assert len(obs.e_rho["B1"]) == len(obs2.e_rho["B2"])
+
+        obs.gamma_method(S=0)
+        obs2.gamma_method(S=0)
+
+        assert np.isclose(obs.e_tauint["B1"], obs2.e_tauint["B2"])
+        assert np.isclose(obs.e_dtauint["B1"], obs2.e_dtauint["B2"])
+        assert np.isclose(obs.e_dvalue["B1"], obs2.e_dvalue["B2"])
+        assert np.isclose(obs.e_ddvalue["B1"], obs2.e_ddvalue["B2"])
 
 
 def test_covariance_is_variance():
@@ -854,6 +918,7 @@ def test_covariance_rank_deficient():
     with pytest.warns(RuntimeWarning):
         pe.covariance(obs)
 
+
 def test_covariance_idl():
     range1 = range(10, 1010, 10)
     range2 = range(10, 1010, 50)
@@ -998,14 +1063,6 @@ def test_reduce_deltas():
         new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
         print(new)
         assert(np.alltrue([float(i) for i in idx_new] == new))
-
-
-def test_merge_idx():
-    idl = [list(np.arange(1, 14)) + list(range(16, 100, 4)), range(4, 604, 4), [2, 4, 5, 6, 8, 9, 12, 24], range(1, 20, 1), range(50, 789, 7)]
-    new_idx = pe.obs._merge_idx(idl)
-    assert(new_idx[-1] > new_idx[0])
-    for i in range(1, len(new_idx)):
-        assert(new_idx[i - 1] < new_idx[i])
 
 
 def test_cobs_array():

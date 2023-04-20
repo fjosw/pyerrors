@@ -238,12 +238,14 @@ class Obs:
         _parse_kwarg('N_sigma')
 
         for e, e_name in enumerate(self.mc_names):
+            gapsize = _determine_gap(self, e_content, e_name)
+
             r_length = []
             for r_name in e_content[e_name]:
                 if isinstance(self.idl[r_name], range):
-                    r_length.append(len(self.idl[r_name]))
+                    r_length.append(len(self.idl[r_name]) * self.idl[r_name].step // gapsize)
                 else:
-                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1))
+                    r_length.append((self.idl[r_name][-1] - self.idl[r_name][0] + 1) // gapsize)
 
             e_N = np.sum([self.shape[r_name] for r_name in e_content[e_name]])
             w_max = max(r_length) // 2
@@ -252,11 +254,11 @@ class Obs:
             self.e_drho[e_name] = np.zeros(w_max)
 
             for r_name in e_content[e_name]:
-                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft)
+                e_gamma[e_name] += self._calc_gamma(self.deltas[r_name], self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
 
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
-                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft)
+                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
             gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
@@ -268,24 +270,12 @@ class Obs:
                 self.e_windowsize[e_name] = 0
                 continue
 
-            gaps = []
-            for r_name in e_content[e_name]:
-                if isinstance(self.idl[r_name], range):
-                    gaps.append(1)
-                else:
-                    gaps.append(np.min(np.diff(self.idl[r_name])))
-
-            if not np.all([gi == gaps[0] for gi in gaps]):
-                raise Exception(f"Replica for ensemble {e_name} are not equally spaced.", gaps)
-            else:
-                gapsize = gaps[0]
-
             self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
             self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
             # Make sure no entry of tauint is smaller than 0.5
             self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
             # hep-lat/0306017 eq. (42)
-            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) / gapsize + 0.5 - self.e_n_tauint[e_name]) / e_N)
+            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
             self.e_n_dtauint[e_name][0] = 0.0
 
             def _compute_drho(i):
@@ -296,20 +286,20 @@ class Obs:
                 self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
 
             if self.tau_exp[e_name] > 0:
-                _compute_drho(gapsize)
+                _compute_drho(1)
                 texp = self.tau_exp[e_name]
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
                     raise Exception("Need at least 8 samples for tau_exp error analysis")
-                for n in range(gapsize, w_max // 2, gapsize):
-                    _compute_drho(n + gapsize)
+                for n in range(1, w_max // 2):
+                    _compute_drho(n + 1)
                     if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
                         # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
                         self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
                         # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n / gapsize + 0.5) / e_N)
+                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
                         self.e_windowsize[e_name] = n
                         break
             else:
@@ -321,16 +311,15 @@ class Obs:
                     self.e_windowsize[e_name] = 0
                 else:
                     # Standard automatic windowing procedure
-                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][gapsize::gapsize] + 1) / (2 * self.e_n_tauint[e_name][gapsize::gapsize] - 1))
+                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
                     g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
-                    for n in range(1, w_max // gapsize):
-                        if g_w[n - 1] < 0 or n >= w_max // gapsize - 1:
-                            _compute_drho(gapsize * n)
-                            n *= gapsize
-                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n / gapsize + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                    for n in range(1, w_max):
+                        if g_w[n - 1] < 0 or n >= w_max - 1:
+                            _compute_drho(n)
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                             self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n / gapsize + 0.5) / e_N)
+                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
                             self.e_windowsize[e_name] = n
                             break
 
@@ -351,7 +340,7 @@ class Obs:
 
     gm = gamma_method
 
-    def _calc_gamma(self, deltas, idx, shape, w_max, fft):
+    def _calc_gamma(self, deltas, idx, shape, w_max, fft, gapsize):
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
 
@@ -368,9 +357,12 @@ class Obs:
         fft : bool
             determines whether the fft algorithm is used for the computation
             of the autocorrelation function.
+        gapsize : int
+            The target distance between two configurations. If longer distances
+            are found in idx, the data is expanded.
         """
         gamma = np.zeros(w_max)
-        deltas = _expand_deltas(deltas, idx, shape)
+        deltas = _expand_deltas(deltas, idx, shape, gapsize)
         new_shape = len(deltas)
         if fft:
             max_gamma = min(new_shape, w_max)
@@ -406,10 +398,7 @@ class Obs:
                 print(' Ensemble errors:')
             e_content = self.e_content
             for e_name in self.mc_names:
-                if isinstance(self.idl[e_content[e_name][0]], range):
-                    gap = self.idl[e_content[e_name][0]].step
-                else:
-                    gap = np.min(np.diff(self.idl[e_content[e_name][0]]))
+                gap = _determine_gap(self, e_content, e_name)
 
                 if len(self.e_names) > 1:
                     print('', e_name, '\t %3.6e +/- %3.6e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
@@ -602,7 +591,7 @@ class Obs:
             for r, r_name in enumerate(self.e_content[e_name]):
                 tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 if expand:
-                    tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name]) + self.r_values[r_name])
+                    tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name], 1) + self.r_values[r_name])
                     r_length.append(len(tmp_expanded[-1]))
                 else:
                     r_length.append(len(tmp[-1]))
@@ -993,9 +982,10 @@ def _format_uncertainty(value, dvalue):
         return '{:.0f}({:2.0f})'.format(value, dvalue)
 
 
-def _expand_deltas(deltas, idx, shape):
-    """Expand deltas defined on idx to a regular, contiguous range, where holes are filled by 0.
-       If idx is of type range, the deltas are not changed
+def _expand_deltas(deltas, idx, shape, gapsize):
+    """Expand deltas defined on idx to a regular range with spacing gapsize between two
+       configurations and where holes are filled by 0.
+       If idx is of type range, the deltas are not changed if the idx.step == gapsize.
 
     Parameters
     ----------
@@ -1005,14 +995,17 @@ def _expand_deltas(deltas, idx, shape):
         List or range of configs on which the deltas are defined, has to be sorted in ascending order.
     shape : int
         Number of configs in idx.
+    gapsize : int
+        The target distance between two configurations. If longer distances
+        are found in idx, the data is expanded.
     """
     if isinstance(idx, range):
-        return deltas
-    else:
-        ret = np.zeros(idx[-1] - idx[0] + 1)
-        for i in range(shape):
-            ret[idx[i] - idx[0]] = deltas[i]
-        return ret
+        if (idx.step == gapsize):
+            return deltas
+    ret = np.zeros((idx[-1] - idx[0] + gapsize) // gapsize)
+    for i in range(shape):
+        ret[(idx[i] - idx[0]) // gapsize] = deltas[i]
+    return ret
 
 
 def _merge_idx(idl):
@@ -1629,3 +1622,18 @@ def cov_Obs(means, cov, name, grad=None):
     if len(ol) == 1:
         return ol[0]
     return ol
+
+
+def _determine_gap(o, e_content, e_name):
+    gaps = []
+    for r_name in e_content[e_name]:
+        if isinstance(o.idl[r_name], range):
+            gaps.append(o.idl[r_name].step)
+        else:
+            gaps.append(np.min(np.diff(o.idl[r_name])))
+
+    gap = min(gaps)
+    if not np.all([gi % gap == 0 for gi in gaps]):
+        raise Exception(f"Replica for ensemble {e_name} do not have a common spacing.", gaps)
+
+    return gap

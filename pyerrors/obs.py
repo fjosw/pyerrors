@@ -709,9 +709,10 @@ class Obs:
     def __format__(self, format_type):
         my_str = _format_uncertainty(self.value, self._dvalue,
                                      significance=int(float(format_type.replace("+", "").replace("-", ""))))
-        if format_type.startswith("+"):
-            if my_str[0] != "-":
-                my_str = "+" + my_str
+        for char in ["+", " "]:
+            if format_type.startswith(char):
+                if my_str[0] != "-":
+                    my_str = char + my_str
         return my_str
 
     def __hash__(self):

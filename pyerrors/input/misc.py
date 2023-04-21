@@ -3,7 +3,58 @@ import fnmatch
 import re
 import struct
 import numpy as np  # Thinly-wrapped numpy
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from ..obs import Obs
+from ..fits import fit_lin
+
+
+def fit_t0(t2E_dict, fit_range, plot_fit=False):
+    zero_crossing = np.argmax(np.array(
+        [o.value for o in t2E_dict.values()]) > 0.0)
+
+    x = list(t2E_dict.keys())[zero_crossing - fit_range:
+                              zero_crossing + fit_range]
+    y = list(t2E_dict.values())[zero_crossing - fit_range:
+                                zero_crossing + fit_range]
+    [o.gamma_method() for o in y]
+
+    fit_result = fit_lin(x, y)
+
+    if plot_fit is True:
+        plt.figure()
+        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
+        ax0 = plt.subplot(gs[0])
+        xmore = list(t2E_dict.keys())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
+        ymore = list(t2E_dict.values())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
+        [o.gamma_method() for o in ymore]
+        ax0.errorbar(xmore, [yi.value for yi in ymore], yerr=[yi.dvalue for yi in ymore], fmt='x')
+        xplot = np.linspace(np.min(x), np.max(x))
+        yplot = [fit_result[0] + fit_result[1] * xi for xi in xplot]
+        [yi.gamma_method() for yi in yplot]
+        ax0.fill_between(xplot, y1=[yi.value - yi.dvalue for yi in yplot], y2=[yi.value + yi.dvalue for yi in yplot])
+        retval = (-fit_result[0] / fit_result[1])
+        retval.gamma_method()
+        ylim = ax0.get_ylim()
+        ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
+        ax0.set_ylim(ylim)
+        ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        xlim = ax0.get_xlim()
+
+        fit_res = [fit_result[0] + fit_result[1] * xi for xi in x]
+        residuals = (np.asarray([o.value for o in y]) - [o.value for o in fit_res]) / np.asarray([o.dvalue for o in y])
+        ax1 = plt.subplot(gs[1])
+        ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
+        ax1.tick_params(direction='out')
+        ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
+        ax1.axhline(y=0.0, ls='--', color='k')
+        ax1.fill_between(xlim, -1.0, 1.0, alpha=0.1, facecolor='k')
+        ax1.set_xlim(xlim)
+        ax1.set_ylabel('Residuals')
+        ax1.set_xlabel(r'$t/a^2$')
+
+        plt.draw()
+    return -fit_result[0] / fit_result[1]
 
 
 def read_pbp(path, prefix, **kwargs):

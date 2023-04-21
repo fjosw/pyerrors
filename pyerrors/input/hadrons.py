@@ -6,6 +6,7 @@ import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
 from ..dirac import epsilon_tensor_rank4
+from .misc import fit_t0
 
 
 def _get_files(path, filestem, idl):
@@ -139,8 +140,8 @@ def _extract_real_arrays(path, files, tree, keys):
     return corr_data
 
 
-def read_flow_observables_hd5(path, filestem, ens_id, obs='Clover energy density', idl=None):
-    r'''Read hadrons meson hdf5 file and extract the meson labeled 'meson'
+def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_range=5, idl=None, **kwargs):
+    r'''Read hadrons FlowObservables hdf5 file and extract t0
 
     Parameters
     -----------------
@@ -151,10 +152,15 @@ def read_flow_observables_hd5(path, filestem, ens_id, obs='Clover energy density
     ens_id : str
         name of the ensemble, required for internal bookkeeping
     obs : str
-        label of the observable to be extracted.
+        label of the observable from which t0 should be extracted.
+        Options: 'Clover energy density' and 'Plaquette energy density'
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit. (Default: 5)
     idl : range
         If specified only configurations in the given range are read in.
-
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data.
     '''
 
     files, idx = _get_files(path, filestem, idl)
@@ -175,11 +181,11 @@ def read_flow_observables_hd5(path, filestem, ens_id, obs='Clover energy density
     if not np.allclose(corr_data["FlowObservables_0"][0], corr_data["FlowObservables_0"][:]):
         raise Exception("Not all flow times were equal.")
 
-    l_obs = []
-    for c in corr_data[obs_key].T:
-        l_obs.append(Obs([c], [ens_id], idl=[idx]))
+    t2E_dict = {}
+    for t2, dat in zip(corr_data["FlowObservables_0"][0], corr_data[obs_key].T):
+        t2E_dict[t2] = Obs([dat], [ens_id], idl=[idx]) - 0.3
 
-    return corr_data["FlowObservables_0"][0], l_obs
+    return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
 def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):

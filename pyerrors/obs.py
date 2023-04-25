@@ -1022,7 +1022,7 @@ def _expand_deltas(deltas, idx, shape, gapsize):
 
 
 def _merge_idx(idl):
-    """Returns the union of all lists in idl as sorted list
+    """Returns the union of all lists in idl as range or sorted list
 
     Parameters
     ----------
@@ -1038,30 +1038,29 @@ def _merge_idx(idl):
     except Exception:
         pass
 
-    if np.all([type(idx) is range for idx in idl]):
-        if len(set([idx[0] for idx in idl])) == 1:
-            idstart = min([idx.start for idx in idl])
-            idstop = max([idx.stop for idx in idl])
-            idstep = min([idx.step for idx in idl])
-            return range(idstart, idstop, idstep)
+    idunion = sorted(set().union(*idl))
 
-    return sorted(set().union(*idl))
+    # Use groupby to efficiently check whether idunion can be expressed as range
+    try:
+        idrange = range(idunion[0], idunion[-1] + 1, idunion[1] - idunion[0])
+        idtest = [list(idrange), idunion]
+        g = groupby(idtest)
+        if next(g, True) and not next(g, False):
+            return idrange
+    except Exception:
+        pass
+
+    return idunion
 
 
 def _intersection_idx(idl):
-    """Returns the intersection of all lists in idl as sorted list
+    """Returns the intersection of all lists in idl as range or sorted list
 
     Parameters
     ----------
     idl : list
         List of lists or ranges.
     """
-
-    def _lcm(*args):
-        """Returns the lowest common multiple of args.
-
-        From python 3.9 onwards the math library contains an lcm function."""
-        return reduce(lambda a, b: a * b // gcd(a, b), args)
 
     # Use groupby to efficiently check whether all elements of idl are identical
     try:
@@ -1071,14 +1070,19 @@ def _intersection_idx(idl):
     except Exception:
         pass
 
-    if np.all([type(idx) is range for idx in idl]):
-        if len(set([idx[0] for idx in idl])) == 1:
-            idstart = max([idx.start for idx in idl])
-            idstop = min([idx.stop for idx in idl])
-            idstep = _lcm(*[idx.step for idx in idl])
-            return range(idstart, idstop, idstep)
+    idinter = sorted(set.intersection(*[set(o) for o in idl]))
 
-    return sorted(set.intersection(*[set(o) for o in idl]))
+    # Use groupby to efficiently check whether idinter can be expressed as range
+    try:
+        idrange = range(idinter[0], idinter[-1] + 1, idinter[1] - idinter[0])
+        idtest = [list(idrange), idinter]
+        g = groupby(idtest)
+        if next(g, True) and not next(g, False):
+            return idrange
+    except Exception:
+        pass
+
+    return idinter
 
 
 def _expand_deltas_for_merge(deltas, idx, shape, new_idx):

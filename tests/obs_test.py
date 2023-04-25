@@ -758,6 +758,15 @@ def test_gamma_method_irregular():
     with pytest.raises(Exception):
         my_obs.gm()
 
+    # check cases where tau is large compared to the chain length
+    N = 15
+    for i in range(10):
+        arr = np.random.normal(1, .2, size=N)
+        for rho in .1 * np.arange(20):
+            carr = gen_autocorrelated_array(arr, rho)
+            a = pe.Obs([carr], ['a'])
+            a.gm()
+
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))

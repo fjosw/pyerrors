@@ -1,8 +1,6 @@
 import warnings
 import hashlib
 import pickle
-from math import gcd
-from functools import reduce
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from autograd import jacobian

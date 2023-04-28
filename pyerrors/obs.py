@@ -1028,25 +1028,16 @@ def _merge_idx(idl):
         List of lists or ranges.
     """
 
-    # Use groupby to efficiently check whether all elements of idl are identical
-    try:
-        g = groupby(idl)
-        if next(g, True) and not next(g, False):
-            return idl[0]
-    except Exception:
-        pass
+    if _check_lists_equal(idl):
+        return idl[0]
 
     idunion = sorted(set().union(*idl))
 
-    # Use groupby to efficiently check whether idunion can be expressed as range
-    try:
-        idrange = range(idunion[0], idunion[-1] + 1, idunion[1] - idunion[0])
-        idtest = [list(idrange), idunion]
-        g = groupby(idtest)
-        if next(g, True) and not next(g, False):
-            return idrange
-    except Exception:
-        pass
+    # Check whether idunion can be expressed as range
+    idrange = range(idunion[0], idunion[-1] + 1, idunion[1] - idunion[0])
+    idtest = [list(idrange), idunion]
+    if _check_lists_equal(idtest):
+        return idrange
 
     return idunion
 
@@ -1060,24 +1051,18 @@ def _intersection_idx(idl):
         List of lists or ranges.
     """
 
-    # Use groupby to efficiently check whether all elements of idl are identical
-    try:
-        g = groupby(idl)
-        if next(g, True) and not next(g, False):
-            return idl[0]
-    except Exception:
-        pass
+    if _check_lists_equal(idl):
+        return idl[0]
 
     idinter = sorted(set.intersection(*[set(o) for o in idl]))
 
-    # Use groupby to efficiently check whether idinter can be expressed as range
+    # Check whether idinter can be expressed as range
     try:
         idrange = range(idinter[0], idinter[-1] + 1, idinter[1] - idinter[0])
         idtest = [list(idrange), idinter]
-        g = groupby(idtest)
-        if next(g, True) and not next(g, False):
+        if _check_lists_equal(idtest):
             return idrange
-    except Exception:
+    except IndexError:
         pass
 
     return idinter
@@ -1301,13 +1286,8 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas
-    # Use groupby to efficiently check whether all elements of idx_old and idx_new are identical
-    try:
-        g = groupby([idx_old, idx_new])
-        if next(g, True) and not next(g, False):
-            return deltas
-    except Exception:
-        pass
+    if _check_lists_equal([idx_old, idx_new]):
+        return deltas
     indices = np.intersect1d(idx_old, idx_new, assume_unique=True, return_indices=True)[1]
     if len(indices) < len(idx_new):
         raise Exception('Error in _reduce_deltas: Config of idx_new not in idx_old')
@@ -1652,3 +1632,18 @@ def _determine_gap(o, e_content, e_name):
         raise Exception(f"Replica for ensemble {e_name} do not have a common spacing.", gaps)
 
     return gap
+
+
+def _check_lists_equal(idl):
+    '''
+    Use groupby to efficiently check whether all elements of idl are identical.
+    Returns True if all elements are equal, otherwise False.
+
+    Parameters
+    ----------
+    idl : list of lists, ranges or np.ndarrays
+    '''
+    g = groupby([np.nditer(el) if isinstance(el, np.ndarray) else el for el in idl])
+    if next(g, True) and not next(g, False):
+        return True
+    return False

@@ -35,9 +35,8 @@ preferred-citation:
     orcid: 'https://orcid.org/0000-0001-6177-7014'
   doi: "10.1016/j.cpc.2023.108750"
   journal: "Computer Physics Communications"
-  month: 9
+  month: 7
   start: 108750
   title: "pyerrors: A python framework for error analysis of Monte Carlo data"
-  issue: 1
   volume: 288
   year: 2023

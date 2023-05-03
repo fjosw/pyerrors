@@ -162,6 +162,8 @@ def create_json_string(ol, description='', indent=1):
             dat['tag']['prange'] = my_corr.prange
         return dat
 
+    if ol is None:
+        return "NONE"
     if not isinstance(ol, list):
         ol = [ol]
 
@@ -479,8 +481,10 @@ def import_json_string(json_string, verbose=True, full_output=False):
     result : dict
         if full_output=True
     """
-
-    return _parse_json_dict(json.loads(json_string), verbose, full_output)
+    if json_string != "NONE":
+        return _parse_json_dict(json.loads(json_string), verbose, full_output)
+    else:
+        return None
 
 
 def load_json(fname, verbose=True, gz=True, full_output=False):

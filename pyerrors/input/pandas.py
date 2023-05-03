@@ -172,11 +172,14 @@ def _deserialize_df(df, auto_gamma=False):
             if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
         if isinstance(df[column][0], str):
-            if '"program":' in df[column][0][:20]:
+            i = 0
+            while df[column][i] == "NONE":
+                i += 1
+            if '"program":' in df[column][i][:20]:
                 df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
                 if auto_gamma is True:
-                    if isinstance(df[column][0], list):
-                        df[column].apply(lambda x: [o.gm() for o in x])
+                    if isinstance(df[column][i], list):
+                        df[column].apply(lambda x: [o.gm() if o is not None else o for o in x])
                     else:
-                        df[column].apply(lambda x: x.gamma_method())
+                        df[column].apply(lambda x: x.gm() if x is not None else x)
     return df

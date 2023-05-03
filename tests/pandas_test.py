@@ -18,6 +18,23 @@ def test_df_export_import(tmp_path):
         pe.input.pandas.load_df((tmp_path / 'df_output.csv').as_posix(), gz=gz)
 
 
+def test_null_df_export_import(tmp_path):
+    my_dict = {"int": 1,
+            "float": -0.01,
+            "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+            "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    for gz in [True, False]:
+        my_df = pd.DataFrame([my_dict] * 10)
+        my_df.loc[0, "Obs1"] = None
+        my_df.loc[2, "Obs1"] = None
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
+        assert reconstructed_df.loc[0, "Obs1"] is None
+        assert reconstructed_df.loc[2, "Obs1"] is None
+        assert np.all(reconstructed_df.loc[1]) == np.all(my_df.loc[1])
+        assert np.all(reconstructed_df.loc[3:]) == np.all(my_df.loc[3:])
+
+
 def test_df_Corr(tmp_path):
 
     my_corr = pe.Corr([pe.pseudo_Obs(-0.48, 0.04, "test"), pe.pseudo_Obs(-0.154, 0.03, "test")])

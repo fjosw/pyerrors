@@ -136,15 +136,18 @@ def _serialize_df(df, gz=False):
     out = df.copy()
     for column in out:
         serialize = False
-        if isinstance(out[column][0], (Obs, Corr)):
+        i = 0
+        while out[column][i] is None:
+            i += 1
+        if isinstance(out[column][i], (Obs, Corr)):
             serialize = True
-        elif isinstance(out[column][0], list):
-            if all(isinstance(o, Obs) for o in out[column][0]):
+        elif isinstance(out[column][i], list):
+            if all(isinstance(o, Obs) for o in out[column][i]):
                 serialize = True
 
-        if serialize is True:
+        if serialize:
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
-            if gz is True:
+            if gz:
                 out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
     return out
 

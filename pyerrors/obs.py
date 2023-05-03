@@ -978,7 +978,7 @@ class CObs:
 
 def _format_uncertainty(value, dvalue, significance=2):
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
-    if dvalue == 0.0:
+    if dvalue == 0.0 or (not np.isfinite(dvalue)):
         return str(value)
     if not isinstance(significance, int):
         raise TypeError("significance needs to be an integer.")

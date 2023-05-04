@@ -6,6 +6,7 @@ import numpy as np
 from ..obs import Obs, CObs
 from ..correlators import Corr
 from ..dirac import epsilon_tensor_rank4
+from .misc import fit_t0
 
 
 def _get_files(path, filestem, idl):
@@ -119,6 +120,72 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
     return corr
+
+
+def _extract_real_arrays(path, files, tree, keys):
+    corr_data = {}
+    for key in keys:
+        corr_data[key] = []
+    for hd5_file in files:
+        h5file = h5py.File(path + '/' + hd5_file, "r")
+        for key in keys:
+            if not tree + '/' + key in h5file:
+                raise Exception("Entry '" + key + "' not contained in the files.")
+            raw_data = h5file[tree + '/' + key + '/data']
+            real_data = raw_data[:].astype(np.double)
+            corr_data[key].append(real_data)
+        h5file.close()
+    for key in keys:
+        corr_data[key] = np.array(corr_data[key])
+    return corr_data
+
+
+def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_range=5, idl=None, **kwargs):
+    r'''Read hadrons FlowObservables hdf5 file and extract t0
+
+    Parameters
+    -----------------
+    path : str
+        path to the files to read
+    filestem : str
+        namestem of the files to read
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    obs : str
+        label of the observable from which t0 should be extracted.
+        Options: 'Clover energy density' and 'Plaquette energy density'
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit. (Default: 5)
+    idl : range
+        If specified only configurations in the given range are read in.
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data.
+    '''
+
+    files, idx = _get_files(path, filestem, idl)
+    tree = "FlowObservables"
+
+    h5file = h5py.File(path + '/' + files[0], "r")
+    obs_key = None
+    for key in h5file[tree].keys():
+        if obs == h5file[tree][key].attrs["description"][0].decode():
+            obs_key = key
+            break
+    h5file.close()
+    if obs_key is None:
+        raise Exception(f"Observable {obs} not found.")
+
+    corr_data = _extract_real_arrays(path, files, tree, ["FlowObservables_0", obs_key])
+
+    if not np.allclose(corr_data["FlowObservables_0"][0], corr_data["FlowObservables_0"][:]):
+        raise Exception("Not all flow times were equal.")
+
+    t2E_dict = {}
+    for t2, dat in zip(corr_data["FlowObservables_0"][0], corr_data[obs_key].T):
+        t2E_dict[t2] = Obs([dat], [ens_id], idl=[idx]) - 0.3
+
+    return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
 def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):

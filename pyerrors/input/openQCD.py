@@ -3,12 +3,10 @@ import fnmatch
 import struct
 import warnings
 import numpy as np  # Thinly-wrapped numpy
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
 from ..obs import Obs
-from ..fits import fit_lin
 from ..obs import CObs
 from ..correlators import Corr
+from .misc import fit_t0
 from .utils import sort_names
 
 
@@ -231,7 +229,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', **kwargs):
     """Extract t0 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have
@@ -263,6 +261,8 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     fit_range : int
         Number of data points left and right of the zero
         crossing to be included in the linear fit. (Default: 5)
+    postfix : str
+        Postfix of measurement file (Default: ms)
     r_start : list
         list which contains the first config to be read for each replicum.
     r_stop : list
@@ -297,7 +297,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
     else:
         known_files = []
 
-    ls = _find_files(path, prefix, 'ms', 'dat', known_files=known_files)
+    ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
 
     replica = len(ls)
 
@@ -426,51 +426,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, **kwar
         new_obs = Obs(samples, rep_names, idl=idl)
         t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
 
-    zero_crossing = np.argmax(np.array(
-        [o.value for o in t2E_dict.values()]) > 0.0)
-
-    x = list(t2E_dict.keys())[zero_crossing - fit_range:
-                              zero_crossing + fit_range]
-    y = list(t2E_dict.values())[zero_crossing - fit_range:
-                                zero_crossing + fit_range]
-    [o.gamma_method() for o in y]
-
-    fit_result = fit_lin(x, y)
-
-    if kwargs.get('plot_fit'):
-        plt.figure()
-        gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
-        ax0 = plt.subplot(gs[0])
-        xmore = list(t2E_dict.keys())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
-        ymore = list(t2E_dict.values())[zero_crossing - fit_range - 2: zero_crossing + fit_range + 2]
-        [o.gamma_method() for o in ymore]
-        ax0.errorbar(xmore, [yi.value for yi in ymore], yerr=[yi.dvalue for yi in ymore], fmt='x')
-        xplot = np.linspace(np.min(x), np.max(x))
-        yplot = [fit_result[0] + fit_result[1] * xi for xi in xplot]
-        [yi.gamma_method() for yi in yplot]
-        ax0.fill_between(xplot, y1=[yi.value - yi.dvalue for yi in yplot], y2=[yi.value + yi.dvalue for yi in yplot])
-        retval = (-fit_result[0] / fit_result[1])
-        retval.gamma_method()
-        ylim = ax0.get_ylim()
-        ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
-        ax0.set_ylim(ylim)
-        ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
-        xlim = ax0.get_xlim()
-
-        fit_res = [fit_result[0] + fit_result[1] * xi for xi in x]
-        residuals = (np.asarray([o.value for o in y]) - [o.value for o in fit_res]) / np.asarray([o.dvalue for o in y])
-        ax1 = plt.subplot(gs[1])
-        ax1.plot(x, residuals, 'ko', ls='none', markersize=5)
-        ax1.tick_params(direction='out')
-        ax1.tick_params(axis="x", bottom=True, top=True, labelbottom=True)
-        ax1.axhline(y=0.0, ls='--', color='k')
-        ax1.fill_between(xlim, -1.0, 1.0, alpha=0.1, facecolor='k')
-        ax1.set_xlim(xlim)
-        ax1.set_ylabel('Residuals')
-        ax1.set_xlabel(r'$t/a^2$')
-
-        plt.draw()
-    return -fit_result[0] / fit_result[1]
+    return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
 def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):

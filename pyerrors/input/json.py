@@ -163,7 +163,7 @@ def create_json_string(ol, description='', indent=1):
         return dat
 
     if ol is None:
-        return "NONE"
+        return None
     if not isinstance(ol, list):
         ol = [ol]
 

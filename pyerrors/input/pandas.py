@@ -5,7 +5,6 @@ import pandas as pd
 from ..obs import Obs
 from ..correlators import Corr
 from .json import create_json_string, import_json_string
-import numpy as np
 
 
 def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
@@ -146,9 +145,9 @@ def _serialize_df(df, gz=False):
             if all(isinstance(o, Obs) for o in out[column][i]):
                 serialize = True
 
-        if serialize:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
-            if gz:
+        if serialize is True:
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else x)
+            if gz is True:
                 out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
     return out
 
@@ -169,18 +168,18 @@ def _deserialize_df(df, auto_gamma=False):
     In case any column of the DataFrame is gzipped it is gunzipped in the process.
     """
     for column in df.select_dtypes(include="object"):
-        if isinstance(df[column][0], bytes):
-            if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
+        i = 0
+        while df[column][i] is None:
+            i += 1
+        if isinstance(df[column][i], bytes):
+            if df[column][i].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
-        if isinstance(df[column][0], str):
-            i = 0
-            while df[column][i] is None:
-                i += 1
+        if isinstance(df[column][i], str):
             if '"program":' in df[column][i][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else x)
                 if auto_gamma is True:
                     if isinstance(df[column][i], list):
-                        df[column].apply(lambda x: [o.gm() if o is not None else np.nan for o in x])
+                        df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
                     else:
-                        df[column].apply(lambda x: x.gm() if x is not None else np.nan)
+                        df[column].apply(lambda x: x.gm() if x is not None else x)
     return df

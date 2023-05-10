@@ -9,7 +9,7 @@ from ..obs import Obs
 from ..fits import fit_lin
 
 
-def fit_t0(t2E_dict, fit_range, plot_fit=False):
+def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
     zero_crossing = np.argmax(np.array(
         [o.value for o in t2E_dict.values()]) > 0.0)
 
@@ -38,7 +38,10 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False):
         ylim = ax0.get_ylim()
         ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
         ax0.set_ylim(ylim)
-        ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        if observable == 't0':
+            ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        elif observable == 'w0':
+            ax0.set_ylabel(r'$t d(t^2 \langle E(t) \rangle)/dt - 0.3 $')
         xlim = ax0.get_xlim()
 
         fit_res = [fit_result[0] + fit_result[1] * xi for xi in x]

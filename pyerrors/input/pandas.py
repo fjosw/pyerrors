@@ -114,11 +114,11 @@ def load_df(fname, auto_gamma=False, gz=True):
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname) as f:
-            re_import = pd.read_csv(f)
+            re_import = pd.read_csv(f, keep_default_na=False)
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        re_import = pd.read_csv(fname)
+        re_import = pd.read_csv(fname, keep_default_na=False)
 
     return _deserialize_df(re_import, auto_gamma=auto_gamma)
 
@@ -146,9 +146,9 @@ def _serialize_df(df, gz=False):
                 serialize = True
 
         if serialize is True:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else x)
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else '')
             if gz is True:
-                out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
+                out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
     return out
 
 
@@ -168,12 +168,13 @@ def _deserialize_df(df, auto_gamma=False):
     In case any column of the DataFrame is gzipped it is gunzipped in the process.
     """
     for column in df.select_dtypes(include="object"):
+        if isinstance(df[column][0], bytes):
+            if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
+                df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
+        df = df.replace(r'^\s*$', None, regex=True)
         i = 0
         while df[column][i] is None:
             i += 1
-        if isinstance(df[column][i], bytes):
-            if df[column][i].startswith(b"\x1f\x8b\x08\x00"):
-                df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
         if isinstance(df[column][i], str):
             if '"program":' in df[column][i][:20]:
                 df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else x)

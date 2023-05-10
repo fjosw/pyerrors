@@ -567,7 +567,7 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
     tdtt2E_dict = {}
     tdtt2E_dict[ftimes[0]] = ftimes[0] * (t2E_dict[ftimes[1]] - t2E_dict[ftimes[0]]) / (ftimes[1] - ftimes[0]) - .3
     for i in range(1, len(ftimes) - 1):
-        tdtt2E_dict[np.round(ftimes[i], 10)] = ftimes[i] * (t2E_dict[ftimes[i + 1]] - t2E_dict[ftimes[i - 1]]) / (ftimes[i + 1] - ftimes[i - 1]) - .3
+        tdtt2E_dict[ftimes[i]] = ftimes[i] * (t2E_dict[ftimes[i + 1]] - t2E_dict[ftimes[i - 1]]) / (ftimes[i + 1] - ftimes[i - 1]) - .3
     tdtt2E_dict[ftimes[-1]] = ftimes[-1] * (t2E_dict[ftimes[-1]] - t2E_dict[ftimes[-2]]) / (ftimes[-1] - ftimes[-2]) - .3
 
     return np.sqrt(fit_t0(tdtt2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'), observable='w0'))

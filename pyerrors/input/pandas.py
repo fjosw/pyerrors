@@ -27,7 +27,11 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
     -------
     None
     """
-    se_df = _serialize_df(df, gz=gz)
+    se_df = _serialize_df(df, gz=False)
+    for column in se_df:
+        serialize = _need_to_serialize(se_df[column])
+        if gz and serialize:
+            se_df[column] = se_df[column].transform(lambda x: gzip.compress((x).encode('utf-8')))
     con = sqlite3.connect(db)
     se_df.to_sql(table_name, con, if_exists=if_exists, index=False, **kwargs)
     con.close()
@@ -76,7 +80,7 @@ def dump_df(df, fname, gz=True):
     -------
     None
     """
-    out = _serialize_df(df, gz=False)
+    out = _serialize_df(df)
 
     if not fname.endswith('.csv'):
         fname += '.csv'
@@ -135,20 +139,12 @@ def _serialize_df(df, gz=False):
     """
     out = df.copy()
     for column in out:
-        serialize = False
-        i = 0
-        while out[column][i] is None:
-            i += 1
-        if isinstance(out[column][i], (Obs, Corr)):
-            serialize = True
-        elif isinstance(out[column][i], list):
-            if all(isinstance(o, Obs) for o in out[column][i]):
-                serialize = True
+        serialize = _need_to_serialize(out[column])
 
         if serialize is True:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0)if x is not None else None)
             if gz is True:
-                out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
+                out[column] = out[column].transform(lambda x: gzip.compress((x).encode('utf-8')))
     return out
 
 
@@ -177,10 +173,23 @@ def _deserialize_df(df, auto_gamma=False):
             i += 1
         if isinstance(df[column][i], str):
             if '"program":' in df[column][i][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False)if x is not None else None)
                 if auto_gamma is True:
                     if isinstance(df[column][i], list):
                         df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
                     else:
                         df[column].apply(lambda x: x.gm() if x is not None else x)
     return df
+
+
+def _need_to_serialize(col):
+    serialize = False
+    i = 0
+    while col[i] is None:
+        i += 1
+    if isinstance(col[i], (Obs, Corr)):
+        serialize = True
+    elif isinstance(col[i], list):
+        if all(isinstance(o, Obs) for o in col[i]):
+            serialize = True
+    return serialize

@@ -146,7 +146,7 @@ def _serialize_df(df, gz=False):
                 serialize = True
 
         if serialize is True:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else '')
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
             if gz is True:
                 out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
     return out
@@ -177,7 +177,7 @@ def _deserialize_df(df, auto_gamma=False):
             i += 1
         if isinstance(df[column][i], str):
             if '"program":' in df[column][i][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else x)
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
                 if auto_gamma is True:
                     if isinstance(df[column][i], list):
                         df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])

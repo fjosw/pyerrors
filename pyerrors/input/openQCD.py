@@ -422,12 +422,12 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     return E_dict
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', **kwargs):
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
     """Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
-    The data around the zero crossing of t^2<E> - 0.3
+    The data around the zero crossing of t^2<E> - c (where c=0.3 by default)
     is fitted with a linear function
     from which the exact root is extracted.
 
@@ -456,6 +456,8 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         crossing to be included in the linear fit. (Default: 5)
     postfix : str
         Postfix of measurement file (Default: ms)
+    c: float
+        Constant that defines the flow scale. Default 0.3 for t_0, choose 2./3 for t_1.
     r_start : list
         list which contains the first config to be read for each replicum.
     r_stop : list
@@ -488,17 +490,17 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
     E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix, **kwargs)
     t2E_dict = {}
     for t in sorted(E_dict.keys()):
-        t2E_dict[t] = t ** 2 * E_dict[t] - 0.3
+        t2E_dict[t] = t ** 2 * E_dict[t] - c
 
     return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
-def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', **kwargs):
+def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
     """Extract w0/a from given .ms.dat files. Returns w0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
-    The data around the zero crossing of t d(t^2<E>)/dt - 0.3
+    The data around the zero crossing of t d(t^2<E>)/dt -  (where c=0.3 by default)
     is fitted with a linear function
     from which the exact root is extracted.
 
@@ -527,6 +529,8 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         crossing to be included in the linear fit. (Default: 5)
     postfix : str
         Postfix of measurement file (Default: ms)
+    c: float
+        Constant that defines the flow scale. Default 0.3 for w_0, choose 2./3 for w_1.
     r_start : list
         list which contains the first config to be read for each replicum.
     r_stop : list
@@ -565,10 +569,10 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         t2E_dict[t] = t ** 2 * E_dict[t]
 
     tdtt2E_dict = {}
-    tdtt2E_dict[ftimes[0]] = ftimes[0] * (t2E_dict[ftimes[1]] - t2E_dict[ftimes[0]]) / (ftimes[1] - ftimes[0]) - .3
+    tdtt2E_dict[ftimes[0]] = ftimes[0] * (t2E_dict[ftimes[1]] - t2E_dict[ftimes[0]]) / (ftimes[1] - ftimes[0]) - c
     for i in range(1, len(ftimes) - 1):
-        tdtt2E_dict[ftimes[i]] = ftimes[i] * (t2E_dict[ftimes[i + 1]] - t2E_dict[ftimes[i - 1]]) / (ftimes[i + 1] - ftimes[i - 1]) - .3
-    tdtt2E_dict[ftimes[-1]] = ftimes[-1] * (t2E_dict[ftimes[-1]] - t2E_dict[ftimes[-2]]) / (ftimes[-1] - ftimes[-2]) - .3
+        tdtt2E_dict[ftimes[i]] = ftimes[i] * (t2E_dict[ftimes[i + 1]] - t2E_dict[ftimes[i - 1]]) / (ftimes[i + 1] - ftimes[i - 1]) - c
+    tdtt2E_dict[ftimes[-1]] = ftimes[-1] * (t2E_dict[ftimes[-1]] - t2E_dict[ftimes[-2]]) / (ftimes[-1] - ftimes[-2]) - c
 
     return np.sqrt(fit_t0(tdtt2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'), observable='w0'))
 

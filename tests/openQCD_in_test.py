@@ -65,10 +65,15 @@ def test_rwms():
 
     pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
 
+    with pytest.raises(Exception):
+        pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, c=14)
     # w0
 
     w0 = pe.input.openQCD.extract_w0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
     assert(np.isclose(w0.value, 0.5220124285820434))
+
+    with pytest.raises(Exception):
+        pe.input.openQCD.extract_w0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, c=14)
 
 
 def test_Qtop():

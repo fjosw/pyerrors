@@ -2,6 +2,7 @@ import os
 import fnmatch
 import re
 import struct
+import warnings
 import numpy as np  # Thinly-wrapped numpy
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
@@ -13,11 +14,17 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
     zero_crossing = np.argmax(np.array(
         [o.value for o in t2E_dict.values()]) > 0.0)
 
+    if zero_crossing == 0:
+        raise Exception('Desired flow time not in data')
+
     x = list(t2E_dict.keys())[zero_crossing - fit_range:
                               zero_crossing + fit_range]
     y = list(t2E_dict.values())[zero_crossing - fit_range:
                                 zero_crossing + fit_range]
     [o.gamma_method() for o in y]
+
+    if len(x) < 2 * fit_range:
+        warnings.warn('Fit range smaller than expected! Fitting from %1.2e to %1.2e' % (x[0], x[-1]))
 
     fit_result = fit_lin(x, y)
 

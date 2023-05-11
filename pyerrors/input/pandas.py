@@ -167,7 +167,7 @@ def _deserialize_df(df, auto_gamma=False):
         if isinstance(df[column][0], bytes):
             if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
-        df = df.replace(r'^$', None, regex=True)
+        df = df.replace({r'^$': None}, regex=True)
         i = 0
         while df[column][i] is None:
             i += 1

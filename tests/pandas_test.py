@@ -19,7 +19,7 @@ def test_df_export_import(tmp_path):
         pe.input.pandas.load_df((tmp_path / 'df_output.csv').as_posix(), gz=gz)
 
 
-def test_null_df_export_import(tmp_path):
+def test_null_first_line_df_export_import(tmp_path):
     my_dict = {"int": 1,
                "float": -0.01,
                "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
@@ -36,7 +36,22 @@ def test_null_df_export_import(tmp_path):
         assert np.all(reconstructed_df.loc[3] == my_df.loc[3])
 
 
-def test_null_df_gzsql_export_import(tmp_path):
+def test_null_second_line_df_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "Obs1"] = None
+    for gz in [True, False]:
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
+        assert reconstructed_df.loc[1, "Obs1"] is None
+        assert np.all(reconstructed_df.loc[0] == my_df.loc[0])
+        assert np.all(reconstructed_df.loc[2:] == my_df.loc[2:])
+
+
+def test_null_first_line_df_gzsql_export_import(tmp_path):
     my_dict = {"int": 1,
                "float": -0.01,
                "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
@@ -54,7 +69,23 @@ def test_null_df_gzsql_export_import(tmp_path):
     assert np.all(reconstructed_df.loc[3] == my_df.loc[3])
 
 
-def test_null_df_sql_export_import(tmp_path):
+def test_null_second_line_df_gzsql_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "Obs1"] = None
+    gz = True
+    pe.input.pandas.to_sql(my_df, 'test', (tmp_path / 'test.db').as_posix(), gz=gz)
+    reconstructed_df = pe.input.pandas.read_sql('SELECT * FROM test', (tmp_path / 'test.db').as_posix(), auto_gamma=True)
+    assert reconstructed_df.loc[1, "Obs1"] is None
+    assert np.all(reconstructed_df.loc[0] == my_df.loc[0])
+    assert np.all(reconstructed_df.loc[2:] == my_df.loc[2:])
+
+
+def test_null_first_line_df_sql_export_import(tmp_path):
     my_dict = {"int": 1,
                "float": -0.01,
                "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
@@ -70,6 +101,22 @@ def test_null_df_sql_export_import(tmp_path):
     assert reconstructed_df.loc[2, "Obs1"] is None
     assert np.all(reconstructed_df.loc[1] == my_df.loc[1])
     assert np.all(reconstructed_df.loc[3] == my_df.loc[3])
+
+
+def test_null_second_line_df_sql_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "Obs1"] = None
+    gz = False
+    pe.input.pandas.to_sql(my_df, 'test', (tmp_path / 'test.db').as_posix(), gz=gz)
+    reconstructed_df = pe.input.pandas.read_sql('SELECT * FROM test', (tmp_path / 'test.db').as_posix(), auto_gamma=True)
+    assert reconstructed_df.loc[1, "Obs1"] is None
+    assert np.all(reconstructed_df.loc[0] == my_df.loc[0])
+    assert np.all(reconstructed_df.loc[2:] == my_df.loc[2:])
 
 
 def test_df_Corr(tmp_path):

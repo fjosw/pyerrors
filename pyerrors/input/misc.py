@@ -11,6 +11,36 @@ from ..fits import fit_lin
 
 
 def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
+    """Compute the root of (flow-based) data based on a dictionary that contains
+    the necessary information in key-value pairs a la (flow time: observable at flow time).
+
+    It is assumed that the data is monotonically increasing and passes zero from below.
+    No exception is thrown if this is not the case (several roots, no monotonic increase).
+    An exception is thrown if no root can be found in the data.
+
+    A linear fit in the vicinity of the root is performed to exctract the root from the
+    two fit parameters.
+
+    Parameters
+    ----------
+    t2E_dict : dict
+        Dictionary with pairs of (flow time: observable at flow time) where the flow times
+        are of type float and the observables of type Obs.
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit.
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data. (Default: False)
+    observable: str
+        Keyword to identify the observable to print the correct ylabel (if plot_fit is True)
+        for the observables 't0' and 'w0'. No y label is printed otherwise. (Default: 't0')
+
+    Returns
+    -------
+    root : Obs
+        The root of the data series.
+    """
+
     zero_crossing = np.argmax(np.array(
         [o.value for o in t2E_dict.values()]) > 0.0)
 

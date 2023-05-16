@@ -27,11 +27,7 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
     -------
     None
     """
-    se_df = _serialize_df(df, gz=False)
-    for column in se_df:
-        serialize = _need_to_serialize(se_df[column])
-        if gz and serialize:
-            se_df[column] = se_df[column].transform(lambda x: gzip.compress((x).encode('utf-8')))
+    se_df = _serialize_df(df, gz=gz)
     con = sqlite3.connect(db)
     se_df.to_sql(table_name, con, if_exists=if_exists, index=False, **kwargs)
     con.close()
@@ -142,9 +138,9 @@ def _serialize_df(df, gz=False):
         serialize = _need_to_serialize(out[column])
 
         if serialize is True:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0)if x is not None else None)
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else None)
             if gz is True:
-                out[column] = out[column].transform(lambda x: gzip.compress((x).encode('utf-8')))
+                out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
     return out
 
 
@@ -173,7 +169,7 @@ def _deserialize_df(df, auto_gamma=False):
             i += 1
         if isinstance(df[column][i], str):
             if '"program":' in df[column][i][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False)if x is not None else None)
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else None)
                 if auto_gamma is True:
                     if isinstance(df[column][i], list):
                         df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])

@@ -32,16 +32,15 @@ def sort_names(ll):
         else:
             # fallback
             sames = ''
-            if len(ll) > 1:
-                for i in range(len(ll[0])):
-                    checking = ll[0][i]
-                    for rn in ll[1:]:
-                        is_same = (rn[i] == checking)
-                    if is_same:
-                        sames += checking
-                    else:
-                        break
-                print("Using prefix:", ll[0][len(sames):])
+            for i in range(len(ll[0])):
+                checking = ll[0][i]
+                for rn in ll[1:]:
+                    is_same = (rn[i] == checking)
+                if is_same:
+                    sames += checking
+                else:
+                    break
+            print("Using prefix:", sames)
             ll.sort(key=lambda x: int(re.findall(r'\d+', x[len(sames):])[0]))
     return ll
 

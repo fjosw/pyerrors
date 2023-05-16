@@ -76,7 +76,7 @@ def dump_df(df, fname, gz=True):
     -------
     None
     """
-    out = _serialize_df(df)
+    out = _serialize_df(df, gz=False)
 
     if not fname.endswith('.csv'):
         fname += '.csv'

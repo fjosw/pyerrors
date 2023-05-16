@@ -18,18 +18,21 @@ def sort_names(ll):
         sorted list
     """
     if len(ll) > 1:
+        sorted = False
         r_pattern = r'r(\d+)'
         id_pattern = r'id(\d+)'
 
         # sort list by id first
         if all([re.search(id_pattern, entry) for entry in ll]):
             ll.sort(key=lambda x: int(re.findall(id_pattern, x)[0]))
+            sorted = True
         # then by replikum
         if all([re.search(r_pattern, entry) for entry in ll]):
             ll.sort(key=lambda x: int(re.findall(r_pattern, x)[0]))
+            sorted = True
         # as the rearrangements by one key let the other key untouched, the list is sorted now
 
-        else:
+        if not sorted:
             # fallback
             sames = ''
             for i in range(len(ll[0])):

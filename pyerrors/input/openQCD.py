@@ -229,14 +229,12 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', **kwargs):
-    """Extract t0 from given .ms.dat files. Returns t0 as Obs.
+def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix='ms', **kwargs):
+    """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
+    Returns a dictionary with Obs as values and flow times as keys.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
-    The data around the zero crossing of t^2<E> - 0.3
-    is fitted with a linear function
-    from which the exact root is extracted.
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
@@ -258,9 +256,6 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         effects have sufficiently decayed.
     spatial_extent : int
         spatial extent of the lattice, required for normalization.
-    fit_range : int
-        Number of data points left and right of the zero
-        crossing to be included in the linear fit. (Default: 5)
     postfix : str
         Postfix of measurement file (Default: ms)
     r_start : list
@@ -278,8 +273,6 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
     files : list
         list which contains the filenames to be read. No automatic detection of
         files performed if given.
-    plot_fit : bool
-        If true, the fit for the extraction of t0 is shown together with the data.
     assume_thermalization : bool
         If True: If the first record divided by the distance between two measurements is larger than
         1, it is assumed that this is due to thermalization and the first measurement belongs
@@ -288,8 +281,8 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
     Returns
     -------
-    t0 : Obs
-        Extracted t0
+    E_dict : dictionary
+        Dictionary with the flowed action density at flow times t
     """
 
     if 'files' in kwargs:
@@ -321,7 +314,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
     else:
         r_step = 1
 
-    print('Extract t0 from', prefix, ',', replica, 'replica')
+    print('Extract flowed Yang-Mills action density from', prefix, ',', replica, 'replica')
 
     if 'names' in kwargs:
         rep_names = kwargs.get('names')
@@ -415,7 +408,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
 
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
-    t2E_dict = {}
+    E_dict = {}
     for n in range(nn + 1):
         samples = []
         for nrep, rep in enumerate(Ysum):
@@ -424,9 +417,164 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep] + 1][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)
-        t2E_dict[n * dn * eps] = (n * dn * eps) ** 2 * new_obs / (spatial_extent ** 3) - 0.3
+        E_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
+
+    return E_dict
+
+
+def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
+    """Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
+
+    It is assumed that all boundary effects have
+    sufficiently decayed at x0=xmin.
+    The data around the zero crossing of t^2<E> - c (where c=0.3 by default)
+    is fitted with a linear function
+    from which the exact root is extracted.
+
+    It is assumed that one measurement is performed for each config.
+    If this is not the case, the resulting idl, as well as the handling
+    of r_start, r_stop and r_step is wrong and the user has to correct
+    this in the resulting observable.
+
+    Parameters
+    ----------
+    path : str
+        Path to .ms.dat files
+    prefix : str
+        Ensemble prefix
+    dtr_read : int
+        Determines how many trajectories should be skipped
+        when reading the ms.dat files.
+        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
+    xmin : int
+        First timeslice where the boundary
+        effects have sufficiently decayed.
+    spatial_extent : int
+        spatial extent of the lattice, required for normalization.
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit. (Default: 5)
+    postfix : str
+        Postfix of measurement file (Default: ms)
+    c: float
+        Constant that defines the flow scale. Default 0.3 for t_0, choose 2./3 for t_1.
+    r_start : list
+        list which contains the first config to be read for each replicum.
+    r_stop : list
+        list which contains the last config to be read for each replicum.
+    r_step : int
+        integer that defines a fixed step size between two measurements (in units of configs)
+        If not given, r_step=1 is assumed.
+    plaquette : bool
+        If true extract the plaquette estimate of t0 instead.
+    names : list
+        list of names that is assigned to the data according according
+        to the order in the file list. Use careful, if you do not provide file names!
+    files : list
+        list which contains the filenames to be read. No automatic detection of
+        files performed if given.
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data.
+    assume_thermalization : bool
+        If True: If the first record divided by the distance between two measurements is larger than
+        1, it is assumed that this is due to thermalization and the first measurement belongs
+        to the first config (default).
+        If False: The config numbers are assumed to be traj_number // difference
+
+    Returns
+    -------
+    t0 : Obs
+        Extracted t0
+    """
+
+    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix, **kwargs)
+    t2E_dict = {}
+    for t in sorted(E_dict.keys()):
+        t2E_dict[t] = t ** 2 * E_dict[t] - c
 
     return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
+
+
+def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
+    """Extract w0/a from given .ms.dat files. Returns w0 as Obs.
+
+    It is assumed that all boundary effects have
+    sufficiently decayed at x0=xmin.
+    The data around the zero crossing of t d(t^2<E>)/dt -  (where c=0.3 by default)
+    is fitted with a linear function
+    from which the exact root is extracted.
+
+    It is assumed that one measurement is performed for each config.
+    If this is not the case, the resulting idl, as well as the handling
+    of r_start, r_stop and r_step is wrong and the user has to correct
+    this in the resulting observable.
+
+    Parameters
+    ----------
+    path : str
+        Path to .ms.dat files
+    prefix : str
+        Ensemble prefix
+    dtr_read : int
+        Determines how many trajectories should be skipped
+        when reading the ms.dat files.
+        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
+    xmin : int
+        First timeslice where the boundary
+        effects have sufficiently decayed.
+    spatial_extent : int
+        spatial extent of the lattice, required for normalization.
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit. (Default: 5)
+    postfix : str
+        Postfix of measurement file (Default: ms)
+    c: float
+        Constant that defines the flow scale. Default 0.3 for w_0, choose 2./3 for w_1.
+    r_start : list
+        list which contains the first config to be read for each replicum.
+    r_stop : list
+        list which contains the last config to be read for each replicum.
+    r_step : int
+        integer that defines a fixed step size between two measurements (in units of configs)
+        If not given, r_step=1 is assumed.
+    plaquette : bool
+        If true extract the plaquette estimate of w0 instead.
+    names : list
+        list of names that is assigned to the data according according
+        to the order in the file list. Use careful, if you do not provide file names!
+    files : list
+        list which contains the filenames to be read. No automatic detection of
+        files performed if given.
+    plot_fit : bool
+        If true, the fit for the extraction of w0 is shown together with the data.
+    assume_thermalization : bool
+        If True: If the first record divided by the distance between two measurements is larger than
+        1, it is assumed that this is due to thermalization and the first measurement belongs
+        to the first config (default).
+        If False: The config numbers are assumed to be traj_number // difference
+
+    Returns
+    -------
+    w0 : Obs
+        Extracted w0
+    """
+
+    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix, **kwargs)
+
+    ftimes = sorted(E_dict.keys())
+
+    t2E_dict = {}
+    for t in ftimes:
+        t2E_dict[t] = t ** 2 * E_dict[t]
+
+    tdtt2E_dict = {}
+    tdtt2E_dict[ftimes[0]] = ftimes[0] * (t2E_dict[ftimes[1]] - t2E_dict[ftimes[0]]) / (ftimes[1] - ftimes[0]) - c
+    for i in range(1, len(ftimes) - 1):
+        tdtt2E_dict[ftimes[i]] = ftimes[i] * (t2E_dict[ftimes[i + 1]] - t2E_dict[ftimes[i - 1]]) / (ftimes[i + 1] - ftimes[i - 1]) - c
+    tdtt2E_dict[ftimes[-1]] = ftimes[-1] * (t2E_dict[ftimes[-1]] - t2E_dict[ftimes[-2]]) / (ftimes[-1] - ftimes[-2]) - c
+
+    return np.sqrt(fit_t0(tdtt2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'), observable='w0'))
 
 
 def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):

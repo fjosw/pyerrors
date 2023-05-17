@@ -2,6 +2,7 @@ import os
 import fnmatch
 import re
 import struct
+import warnings
 import numpy as np  # Thinly-wrapped numpy
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
@@ -9,15 +10,51 @@ from ..obs import Obs
 from ..fits import fit_lin
 
 
-def fit_t0(t2E_dict, fit_range, plot_fit=False):
+def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
+    """Compute the root of (flow-based) data based on a dictionary that contains
+    the necessary information in key-value pairs a la (flow time: observable at flow time).
+
+    It is assumed that the data is monotonically increasing and passes zero from below.
+    No exception is thrown if this is not the case (several roots, no monotonic increase).
+    An exception is thrown if no root can be found in the data.
+
+    A linear fit in the vicinity of the root is performed to exctract the root from the
+    two fit parameters.
+
+    Parameters
+    ----------
+    t2E_dict : dict
+        Dictionary with pairs of (flow time: observable at flow time) where the flow times
+        are of type float and the observables of type Obs.
+    fit_range : int
+        Number of data points left and right of the zero
+        crossing to be included in the linear fit.
+    plot_fit : bool
+        If true, the fit for the extraction of t0 is shown together with the data. (Default: False)
+    observable: str
+        Keyword to identify the observable to print the correct ylabel (if plot_fit is True)
+        for the observables 't0' and 'w0'. No y label is printed otherwise. (Default: 't0')
+
+    Returns
+    -------
+    root : Obs
+        The root of the data series.
+    """
+
     zero_crossing = np.argmax(np.array(
         [o.value for o in t2E_dict.values()]) > 0.0)
+
+    if zero_crossing == 0:
+        raise Exception('Desired flow time not in data')
 
     x = list(t2E_dict.keys())[zero_crossing - fit_range:
                               zero_crossing + fit_range]
     y = list(t2E_dict.values())[zero_crossing - fit_range:
                                 zero_crossing + fit_range]
     [o.gamma_method() for o in y]
+
+    if len(x) < 2 * fit_range:
+        warnings.warn('Fit range smaller than expected! Fitting from %1.2e to %1.2e' % (x[0], x[-1]))
 
     fit_result = fit_lin(x, y)
 
@@ -38,7 +75,10 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False):
         ylim = ax0.get_ylim()
         ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
         ax0.set_ylim(ylim)
-        ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        if observable == 't0':
+            ax0.set_ylabel(r'$t^2 \langle E(t) \rangle - 0.3 $')
+        elif observable == 'w0':
+            ax0.set_ylabel(r'$t d(t^2 \langle E(t) \rangle)/dt - 0.3 $')
         xlim = ax0.get_xlim()
 
         fit_res = [fit_result[0] + fit_result[1] * xi for xi in x]

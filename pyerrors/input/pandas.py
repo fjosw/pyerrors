@@ -77,12 +77,15 @@ def dump_df(df, fname, gz=True):
     -------
     None
     """
-    out = _serialize_df(df, gz=False)
-    for column in out:
-        serialize = _need_to_serialize(out[column])
+    for column in df:
+        serialize = _need_to_serialize(df[column])
         if not serialize:
-            if any([np.isnan(entry) for entry in out[column]]):
-                warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
+            if all(isinstance(entry, (int, np.integer, np.floating)) for entry in df[column]):
+                if any([np.isnan(entry) for entry in df[column]]):
+                    warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
+
+    out = _serialize_df(df, gz=False)
+
     if not fname.endswith('.csv'):
         fname += '.csv'
 

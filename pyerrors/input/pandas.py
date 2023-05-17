@@ -78,7 +78,11 @@ def dump_df(df, fname, gz=True):
     None
     """
     out = _serialize_df(df, gz=False)
-
+    for column in out:
+        serialize = _need_to_serialize(out[column])
+        if not serialize:
+            if any([np.isnan(entry) for entry in out[column]]):
+                warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
     if not fname.endswith('.csv'):
         fname += '.csv'
 
@@ -142,9 +146,6 @@ def _serialize_df(df, gz=False):
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else None)
             if gz is True:
                 out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
-        else:
-            if any([np.isnan(entry) for entry in out[column]]):
-                warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
     return out
 
 

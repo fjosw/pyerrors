@@ -39,9 +39,9 @@ def test_null_first_line_df_export_import(tmp_path):
 
 def test_nan_df_export_import(tmp_path):
     my_dict = {"int": 1,
-                "float": -0.01,
-                "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
-                "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
     my_df = pd.DataFrame([my_dict] * 4)
     my_df.loc[1, "int"] = np.nan
 
@@ -121,6 +121,40 @@ def test_null_first_line_df_sql_export_import(tmp_path):
     assert reconstructed_df.loc[2, "Obs1"] is None
     assert np.all(reconstructed_df.loc[1] == my_df.loc[1])
     assert np.all(reconstructed_df.loc[3] == my_df.loc[3])
+
+
+def test_nan_sql_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "int"] = np.nan
+    gz = False
+    pe.input.pandas.to_sql(my_df, 'test', (tmp_path / 'test.db').as_posix(), gz=gz)
+    reconstructed_df = pe.input.pandas.read_sql('SELECT * FROM test', (tmp_path / 'test.db').as_posix(), auto_gamma=True)
+    with pytest.warns(UserWarning, match="nan value in column int will be replaced by None"):
+        warnings.warn("nan value in column int will be replaced by None", UserWarning)
+    assert np.isnan(reconstructed_df.loc[1, "int"])
+    assert np.all(reconstructed_df.loc[:, "float"] == my_df.loc[:, "float"])
+    assert np.all(reconstructed_df.loc[:, "Obs1"] == my_df.loc[:, "Obs1"])
+    assert np.all(reconstructed_df.loc[:, "Obs2"] == my_df.loc[:, "Obs2"])
+
+
+def test_nan_gzsql_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "int"] = np.nan
+    gz = True
+    pe.input.pandas.to_sql(my_df, 'test', (tmp_path / 'test.db').as_posix(), gz=gz)
+    reconstructed_df = pe.input.pandas.read_sql('SELECT * FROM test', (tmp_path / 'test.db').as_posix(), auto_gamma=True)
+    assert np.isnan(reconstructed_df.loc[1, "int"])
+    assert np.all(reconstructed_df.loc[:, "float"] == my_df.loc[:, "float"])
+    assert np.all(reconstructed_df.loc[:, "Obs1"] == my_df.loc[:, "Obs1"])
+    assert np.all(reconstructed_df.loc[:, "Obs2"] == my_df.loc[:, "Obs2"])
 
 
 def test_null_second_line_df_sql_export_import(tmp_path):

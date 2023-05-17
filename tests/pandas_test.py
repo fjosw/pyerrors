@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pyerrors as pe
 import pytest
+import warnings
 
 
 def test_df_export_import(tmp_path):
@@ -34,6 +35,25 @@ def test_null_first_line_df_export_import(tmp_path):
         assert reconstructed_df.loc[2, "Obs1"] is None
         assert np.all(reconstructed_df.loc[1] == my_df.loc[1])
         assert np.all(reconstructed_df.loc[3] == my_df.loc[3])
+
+
+def test_nan_df_export_import(tmp_path):
+    my_dict = {"int": 1,
+                "float": -0.01,
+                "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+                "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df.loc[1, "int"] = np.nan
+
+    for gz in [True, False]:
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
+        with pytest.warns(UserWarning, match="nan value in column int will be replaced by None"):
+            warnings.warn("nan value in column int will be replaced by None", UserWarning)
+        assert reconstructed_df.loc[1, "int"] is None
+        assert np.all(reconstructed_df.loc[:, "float"] == my_df.loc[:, "float"])
+        assert np.all(reconstructed_df.loc[:, "Obs1"] == my_df.loc[:, "Obs1"])
+        assert np.all(reconstructed_df.loc[:, "Obs2"] == my_df.loc[:, "Obs2"])
 
 
 def test_null_second_line_df_export_import(tmp_path):

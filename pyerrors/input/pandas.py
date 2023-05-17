@@ -5,6 +5,7 @@ import pandas as pd
 from ..obs import Obs
 from ..correlators import Corr
 from .json import create_json_string, import_json_string
+import numpy as np
 
 
 def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
@@ -141,6 +142,9 @@ def _serialize_df(df, gz=False):
             out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else None)
             if gz is True:
                 out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
+        else:
+            if any([np.isnan(entry) for entry in out[column]]):
+                warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
     return out
 
 

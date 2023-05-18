@@ -80,7 +80,7 @@ def dump_df(df, fname, gz=True):
     for column in df:
         serialize = _need_to_serialize(df[column])
         if not serialize:
-            if all(isinstance(entry, (int, np.integer, np.floating)) for entry in df[column]):
+            if all(isinstance(entry, (int, np.integer, float, np.floating)) for entry in df[column]):
                 if any([np.isnan(entry) for entry in df[column]]):
                     warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
 

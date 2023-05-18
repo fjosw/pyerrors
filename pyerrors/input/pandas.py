@@ -5,6 +5,7 @@ import pandas as pd
 from ..obs import Obs
 from ..correlators import Corr
 from .json import create_json_string, import_json_string
+import numpy as np
 
 
 def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
@@ -76,6 +77,13 @@ def dump_df(df, fname, gz=True):
     -------
     None
     """
+    for column in df:
+        serialize = _need_to_serialize(df[column])
+        if not serialize:
+            if all(isinstance(entry, (int, np.integer, float, np.floating)) for entry in df[column]):
+                if any([np.isnan(entry) for entry in df[column]]):
+                    warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
+
     out = _serialize_df(df, gz=False)
 
     if not fname.endswith('.csv'):
@@ -114,11 +122,11 @@ def load_df(fname, auto_gamma=False, gz=True):
         if not fname.endswith('.gz'):
             fname += '.gz'
         with gzip.open(fname) as f:
-            re_import = pd.read_csv(f)
+            re_import = pd.read_csv(f, keep_default_na=False)
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        re_import = pd.read_csv(fname)
+        re_import = pd.read_csv(fname, keep_default_na=False)
 
     return _deserialize_df(re_import, auto_gamma=auto_gamma)
 
@@ -135,17 +143,12 @@ def _serialize_df(df, gz=False):
     """
     out = df.copy()
     for column in out:
-        serialize = False
-        if isinstance(out[column][0], (Obs, Corr)):
-            serialize = True
-        elif isinstance(out[column][0], list):
-            if all(isinstance(o, Obs) for o in out[column][0]):
-                serialize = True
+        serialize = _need_to_serialize(out[column])
 
         if serialize is True:
-            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0))
+            out[column] = out[column].transform(lambda x: create_json_string(x, indent=0) if x is not None else None)
             if gz is True:
-                out[column] = out[column].transform(lambda x: gzip.compress(x.encode('utf-8')))
+                out[column] = out[column].transform(lambda x: gzip.compress((x if x is not None else '').encode('utf-8')))
     return out
 
 
@@ -168,12 +171,29 @@ def _deserialize_df(df, auto_gamma=False):
         if isinstance(df[column][0], bytes):
             if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
-        if isinstance(df[column][0], str):
-            if '"program":' in df[column][0][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False))
+        df = df.replace({r'^$': None}, regex=True)
+        i = 0
+        while df[column][i] is None:
+            i += 1
+        if isinstance(df[column][i], str):
+            if '"program":' in df[column][i][:20]:
+                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else None)
                 if auto_gamma is True:
-                    if isinstance(df[column][0], list):
-                        df[column].apply(lambda x: [o.gm() for o in x])
+                    if isinstance(df[column][i], list):
+                        df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
                     else:
-                        df[column].apply(lambda x: x.gamma_method())
+                        df[column].apply(lambda x: x.gm() if x is not None else x)
     return df
+
+
+def _need_to_serialize(col):
+    serialize = False
+    i = 0
+    while col[i] is None:
+        i += 1
+    if isinstance(col[i], (Obs, Corr)):
+        serialize = True
+    elif isinstance(col[i], list):
+        if all(isinstance(o, Obs) for o in col[i]):
+            serialize = True
+    return serialize

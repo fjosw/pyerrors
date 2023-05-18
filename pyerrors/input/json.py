@@ -479,7 +479,6 @@ def import_json_string(json_string, verbose=True, full_output=False):
     result : dict
         if full_output=True
     """
-
     return _parse_json_dict(json.loads(json_string), verbose, full_output)
 
 

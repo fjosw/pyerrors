@@ -880,8 +880,8 @@ class Corr:
                 raise Exception("'references' must be a list of floating pint values.")
 
         if self.prange:
-            ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',')
-            ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',')
+            ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',', color="black", zorder=0)
+            ax1.axvline(self.prange[1], 0, 1, ls='-', marker=',', color="black", zorder=0)
 
         if fit_res:
             x_samples = np.arange(x_range[0], x_range[1] + 1, 0.05)

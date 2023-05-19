@@ -188,10 +188,27 @@ def create_json_string(ol, description='', indent=1):
         else:
             raise Exception("Unkown datatype.")
 
-    def _jsonifier(o):
-        if isinstance(o, np.int64):
-            return int(o)
-        raise TypeError('%r is not JSON serializable' % o)
+    def _jsonifier(obj):
+        if isinstance(obj, dict):
+            result = {}
+            for key in obj:
+                if key is True:
+                    result['true'] = obj[key]
+                elif key is False:
+                    result['false'] = obj[key]
+                elif key is None:
+                    result['null'] = obj[key]
+                elif isinstance(key, (int, float, np.floating, np.integer)):
+                    result[str(key)] = obj[key]
+                else:
+                    raise TypeError('keys must be str, int, float, bool or None')
+            return result
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        else:
+            raise ValueError('%r is not JSON serializable' % (obj,))
 
     if indent:
         return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_SINGLE_LINE_ARRAY)
@@ -200,7 +217,8 @@ def create_json_string(ol, description='', indent=1):
 
 
 def dump_to_json(ol, fname, description='', indent=1, gz=True):
-    """Export a list of Obs or structures containing Obs to a .json(.gz) file
+    """Export a list of Obs or structures containing Obs to a .json(.gz) file.
+    Dict keys that are not JSON-serializable such as floats are converted to strings.
 
     Parameters
     ----------
@@ -565,7 +583,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 counter += 1
             elif isinstance(v, str):
                 if bool(re.match(r'%s[0-9]+' % (reps), v)):
-                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be savely exported.' % (v, reps))
+                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be safely exported.' % (v, reps))
             x[k] = v
         return x
 
@@ -586,7 +604,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 counter += 1
             elif isinstance(e, str):
                 if bool(re.match(r'%s[0-9]+' % (reps), e)):
-                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be savely exported.' % (e, reps))
+                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be safely exported.' % (e, reps))
             x.append(e)
         return x
 

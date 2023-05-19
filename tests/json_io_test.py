@@ -249,6 +249,10 @@ def test_json_dict_io():
     with pytest.raises(Exception):
         jsonio.dump_dict_to_json(od, fname, description=desc)
 
+    od = {1: 'test', False: 'True', None: 'None'}
+    jsonio.dump_dict_to_json(od, fname, description={np.int64(1): np.float64(2.444444)})
+    jsonio.dump_dict_to_json(od, fname, description=np.float32(2.444444))
+
     os.remove(fname + '.json.gz')
 
 

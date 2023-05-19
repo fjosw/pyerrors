@@ -198,12 +198,12 @@ def create_json_string(ol, description='', indent=1):
                     result['false'] = obj[key]
                 elif key is None:
                     result['null'] = obj[key]
-                elif isinstance(key, (int, float, np.floating, np.int64)):
+                elif isinstance(key, (int, float, np.floating, np.integer)):
                     result[str(key)] = obj[key]
                 else:
                     raise TypeError('keys must be str, int, float, bool or None')
             return result
-        elif isinstance(obj, np.int):
+        elif isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)

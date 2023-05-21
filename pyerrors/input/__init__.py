@@ -6,6 +6,7 @@ For comparison with other analysis workflows `pyerrors` can also generate jackkn
 See `pyerrors.obs.Obs.export_jackknife` and `pyerrors.obs.import_jackknife` for details.
 '''
 from . import bdio
+from . import dobs
 from . import hadrons
 from . import json
 from . import misc

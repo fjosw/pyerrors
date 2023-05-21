@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.0] - 2023-05-21
+### Added
+- `pyerrors` can now deal with replica with different gapsizes.
+- String formatting method for `Obs` added.
+- `t0` can now be extracted from hadrons files.
+- `w0` can now be extracted from openQCD files.
+- `pandas` SQL export can now deal with `None` entries in columns with `pyerrors` datatypes.
+
+
+### Fixed
+- `dobs` submodule is now correctly imported.
+- Bug in merging of `Obs` fixed.
+- Bug in `rapidjson` dict output fixed.
+- String conversion of `Obs` can now handle special `dvalue`s
+- Bug in sfcf name sorting fixed.
+
 ## [2.7.0] - 2023-03-21
 ### Added
 - Alternative way of specifying priors in `least_squares` added.

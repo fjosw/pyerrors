@@ -171,26 +171,30 @@ def _deserialize_df(df, auto_gamma=False):
         if isinstance(df[column][0], bytes):
             if df[column][0].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8'))
-        df = df.replace({r'^$': None}, regex=True)
-        i = 0
-        while df[column][i] is None:
-            i += 1
-        if isinstance(df[column][i], str):
-            if '"program":' in df[column][i][:20]:
-                df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else None)
-                if auto_gamma is True:
-                    if isinstance(df[column][i], list):
-                        df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
-                    else:
-                        df[column].apply(lambda x: x.gm() if x is not None else x)
+
+        if not all([e is None for e in df[column]]):
+            df[column] = df[column].replace({r'^$': None}, regex=True)
+            i = 0
+            while df[column][i] is None:
+                i += 1
+            if isinstance(df[column][i], str):
+                if '"program":' in df[column][i][:20]:
+                    df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if x is not None else None)
+                    if auto_gamma is True:
+                        if isinstance(df[column][i], list):
+                            df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
+                        else:
+                            df[column].apply(lambda x: x.gm() if x is not None else x)
     return df
 
 
 def _need_to_serialize(col):
     serialize = False
     i = 0
-    while col[i] is None:
+    while i < len(col) and col[i] is None:
         i += 1
+    if i == len(col):
+        return serialize
     if isinstance(col[i], (Obs, Corr)):
         serialize = True
     elif isinstance(col[i], list):

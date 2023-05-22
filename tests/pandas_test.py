@@ -173,6 +173,22 @@ def test_null_second_line_df_sql_export_import(tmp_path):
     assert np.all(reconstructed_df.loc[2:] == my_df.loc[2:])
 
 
+def test_null_col_df_gzsql_export_import(tmp_path):
+    my_dict = {"int": 1,
+               "float": -0.01,
+               "Noneval": None,
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble"),
+               "Obs2": pe.pseudo_Obs(-87, 21, "test_ensemble2")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    pe.input.pandas.to_sql(my_df, 'test', (tmp_path / 'test.db').as_posix(), gz=True)
+    reconstructed_df = pe.input.pandas.read_sql('SELECT * FROM test', (tmp_path / 'test.db').as_posix(), auto_gamma=True)
+    assert np.all(reconstructed_df["int"] == my_df["int"])
+    assert np.all(reconstructed_df["float"] == my_df["float"])
+    assert np.all([e is None for e in reconstructed_df["Noneval"]])
+    assert np.all(reconstructed_df["Obs1"] == my_df["Obs1"])
+    assert np.all(reconstructed_df["Obs2"] == my_df["Obs2"])
+
+
 def test_df_Corr(tmp_path):
 
     my_corr = pe.Corr([pe.pseudo_Obs(-0.48, 0.04, "test"), pe.pseudo_Obs(-0.154, 0.03, "test")])

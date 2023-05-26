@@ -1257,7 +1257,8 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
             for t in range(tmax):
                 realsamples[repnum].append([])
                 imagsamples[repnum].append([])
-
+            if 'idl' in kwargs:
+                left_idl = set(expected_idl[repnum])
             while True:
                 cnfgt = fp.read(chunksize)
                 if not cnfgt:
@@ -1267,6 +1268,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                 idl_wanted = True
                 if 'idl' in kwargs:
                     idl_wanted = (cnfg in expected_idl[repnum])
+                    left_idl = left_idl - set([cnfg])
                 if idl_wanted:
                     cnfgs[repnum].append(cnfg)
 
@@ -1282,12 +1284,14 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                         realsamples[repnum][t].append(corrres[0][t])
                     for t in range(int(len(tmpcorr) / 2)):
                         imagsamples[repnum][t].append(corrres[1][t])
+            if 'idl' in kwargs:
+                left_idl = list(left_idl)
+                if len(left_idl) > 0:
+                    warnings.warn('Could not find idls ' + str(left_idl) + ' in replikum of file ' + file, UserWarning)
         repnum += 1
-
-    s = "Read correlator " + corr + " from " + str(repnum) + " replika with " + str(len(realsamples[0][t]))
+    s = "Read correlator " + corr + " from " + str(repnum) + " replika with idls" + str(realsamples[0][t])
     for rep in range(1, repnum):
-        s += ", " + str(len(realsamples[rep][t]))
-    s += " samples"
+        s += ", " + str(realsamples[rep][t])
     print(s)
     print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF, "bnd:", bnd)
 

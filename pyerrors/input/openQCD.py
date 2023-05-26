@@ -1163,6 +1163,8 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         Additional keyword arguments. The following keyword arguments are recognized:
 
         - names (List[str]): A list of names to use for the replicas.
+        - files (List[str]): A list of files to read data from.
+        - idl (List[List[int]]): A list of idls per replicum, resticting data to the idls given.
 
     Returns
     -------
@@ -1211,7 +1213,8 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                 names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
             else:
                 names.append(prefix)
-
+    if 'idl' in kwargs:
+        expected_idl = kwargs.get('idl')
     names = sorted(names)
     files = sorted(files)
 
@@ -1254,33 +1257,41 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
             for t in range(tmax):
                 realsamples[repnum].append([])
                 imagsamples[repnum].append([])
-
+            if 'idl' in kwargs:
+                left_idl = set(expected_idl[repnum])
             while True:
                 cnfgt = fp.read(chunksize)
                 if not cnfgt:
                     break
                 asascii = struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                cnfgs[repnum].append(cnfg)
+                idl_wanted = True
+                if 'idl' in kwargs:
+                    idl_wanted = (cnfg in expected_idl[repnum])
+                    left_idl = left_idl - set([cnfg])
+                if idl_wanted:
+                    cnfgs[repnum].append(cnfg)
 
-                if corr not in placesBB:
-                    tmpcorr = asascii[1 + 2 * tmax * placesBI.index(corr):1 + 2 * tmax * placesBI.index(corr) + 2 * tmax]
-                else:
-                    tmpcorr = asascii[1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr):1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr) + 2]
+                    if corr not in placesBB:
+                        tmpcorr = asascii[1 + 2 * tmax * placesBI.index(corr):1 + 2 * tmax * placesBI.index(corr) + 2 * tmax]
+                    else:
+                        tmpcorr = asascii[1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr):1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr) + 2]
 
-                corrres = [[], []]
-                for i in range(len(tmpcorr)):
-                    corrres[i % 2].append(tmpcorr[i])
-                for t in range(int(len(tmpcorr) / 2)):
-                    realsamples[repnum][t].append(corrres[0][t])
-                for t in range(int(len(tmpcorr) / 2)):
-                    imagsamples[repnum][t].append(corrres[1][t])
+                    corrres = [[], []]
+                    for i in range(len(tmpcorr)):
+                        corrres[i % 2].append(tmpcorr[i])
+                    for t in range(int(len(tmpcorr) / 2)):
+                        realsamples[repnum][t].append(corrres[0][t])
+                    for t in range(int(len(tmpcorr) / 2)):
+                        imagsamples[repnum][t].append(corrres[1][t])
+            if 'idl' in kwargs:
+                left_idl = list(left_idl)
+                if len(left_idl) > 0:
+                    warnings.warn('Could not find idls ' + str(left_idl) + ' in replikum of file ' + file, UserWarning)
         repnum += 1
-
-    s = "Read correlator " + corr + " from " + str(repnum) + " replika with " + str(len(realsamples[0][t]))
+    s = "Read correlator " + corr + " from " + str(repnum) + " replika with idls" + str(realsamples[0][t])
     for rep in range(1, repnum):
-        s += ", " + str(len(realsamples[rep][t]))
-    s += " samples"
+        s += ", " + str(realsamples[rep][t])
     print(s)
     print("Asserted run parameters:\n T:", tmax, "kappa:", kappa, "csw:", csw, "dF:", dF, "zF:", zF, "bnd:", bnd)
 

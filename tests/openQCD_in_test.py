@@ -121,7 +121,7 @@ def test_gf_coupling():
 
 
 def test_read_ms5_xsf():
-    path = './tests//data/openqcd_test/'
+    path = './tests/data/openqcd_test/'
     prefix = "ms5_xsf_T24L16"
     corr = "gA"
     qc = 'dd'
@@ -143,6 +143,37 @@ def test_read_ms5_xsf():
     fcorr = "gX"
     with pytest.raises(Exception):
         pe.input.openQCD.read_ms5_xsf(path, prefix, qc, fcorr)
+
+
+def test_read_ms5_xsf_idl():
+    path = './tests/data/openqcd_test/'
+    prefix = "ms5_xsf_T24L16"
+    corr = "gA"
+    qc = 'dd'
+
+    c = pe.input.openQCD.read_ms5_xsf(path, prefix, qc, corr, idl=[range(1, 6), range(1, 7), range(1, 8)])
+
+    assert c.real[12].names == ['ms5_xsf_T24L16|r1', 'ms5_xsf_T24L16|r2', 'ms5_xsf_T24L16|r3']
+
+    assert (c.real[12].shape['ms5_xsf_T24L16|r1'] == 5)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r2'] == 6)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r3'] == 7)
+
+    assert (c.real[12].idl['ms5_xsf_T24L16|r1'] == range(1, 6))
+    assert (c.real[12].idl['ms5_xsf_T24L16|r2'] == range(1, 7))
+    assert (c.real[12].idl['ms5_xsf_T24L16|r3'] == range(1, 8))
+
+    c = pe.input.openQCD.read_ms5_xsf(path, prefix, qc, corr, idl=[range(1, 11, 2), range(1, 11, 2), range(1, 11, 2)])
+
+    assert c.real[12].names == ['ms5_xsf_T24L16|r1', 'ms5_xsf_T24L16|r2', 'ms5_xsf_T24L16|r3']
+
+    assert (c.real[12].shape['ms5_xsf_T24L16|r1'] == 5)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r2'] == 5)
+    assert (c.real[12].shape['ms5_xsf_T24L16|r3'] == 5)
+
+    assert (c.real[12].idl['ms5_xsf_T24L16|r1'] == range(1, 11, 2))
+    assert (c.real[12].idl['ms5_xsf_T24L16|r2'] == range(1, 11, 2))
+    assert (c.real[12].idl['ms5_xsf_T24L16|r3'] == range(1, 11, 2))
 
 
 def test_find_files():

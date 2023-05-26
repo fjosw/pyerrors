@@ -1163,6 +1163,8 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
         Additional keyword arguments. The following keyword arguments are recognized:
 
         - names (List[str]): A list of names to use for the replicas.
+        - files (List[str]): A list of files to read data from.
+        - idl (List[List[int]]): A list of idls per replicum, resticting data to the idls given.
 
     Returns
     -------
@@ -1211,7 +1213,8 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                 names.append(se.split(sep)[0] + "|r" + se.split(sep)[1])
             else:
                 names.append(prefix)
-
+    if 'idl' in kwargs:
+        expected_idl = kwargs.get('idl')
     names = sorted(names)
     files = sorted(files)
 
@@ -1261,20 +1264,24 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                     break
                 asascii = struct.unpack(packstr, cnfgt)
                 cnfg = asascii[0]
-                cnfgs[repnum].append(cnfg)
+                idl_wanted = True
+                if 'idl' in kwargs:
+                    idl_wanted = (cnfg in expected_idl[repnum])
+                if idl_wanted:
+                    cnfgs[repnum].append(cnfg)
 
-                if corr not in placesBB:
-                    tmpcorr = asascii[1 + 2 * tmax * placesBI.index(corr):1 + 2 * tmax * placesBI.index(corr) + 2 * tmax]
-                else:
-                    tmpcorr = asascii[1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr):1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr) + 2]
+                    if corr not in placesBB:
+                        tmpcorr = asascii[1 + 2 * tmax * placesBI.index(corr):1 + 2 * tmax * placesBI.index(corr) + 2 * tmax]
+                    else:
+                        tmpcorr = asascii[1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr):1 + 2 * tmax * len(placesBI) + 2 * placesBB.index(corr) + 2]
 
-                corrres = [[], []]
-                for i in range(len(tmpcorr)):
-                    corrres[i % 2].append(tmpcorr[i])
-                for t in range(int(len(tmpcorr) / 2)):
-                    realsamples[repnum][t].append(corrres[0][t])
-                for t in range(int(len(tmpcorr) / 2)):
-                    imagsamples[repnum][t].append(corrres[1][t])
+                    corrres = [[], []]
+                    for i in range(len(tmpcorr)):
+                        corrres[i % 2].append(tmpcorr[i])
+                    for t in range(int(len(tmpcorr) / 2)):
+                        realsamples[repnum][t].append(corrres[0][t])
+                    for t in range(int(len(tmpcorr) / 2)):
+                        imagsamples[repnum][t].append(corrres[1][t])
         repnum += 1
 
     s = "Read correlator " + corr + " from " + str(repnum) + " replika with " + str(len(realsamples[0][t]))

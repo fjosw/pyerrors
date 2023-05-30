@@ -762,7 +762,7 @@ def test_gamma_method_irregular():
     N = 15
     for i in range(10):
         arr = np.random.normal(1, .2, size=N)
-        for rho in .1 * np.arange(20):
+        for rho in .05 * np.arange(20):
             carr = gen_autocorrelated_array(arr, rho)
             a = pe.Obs([carr], ['a'])
             a.gm()

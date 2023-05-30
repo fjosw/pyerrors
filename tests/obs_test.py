@@ -762,10 +762,21 @@ def test_gamma_method_irregular():
     N = 15
     for i in range(10):
         arr = np.random.normal(1, .2, size=N)
-        for rho in .1 * np.arange(20):
+        for rho in .05 * np.arange(20):
             carr = gen_autocorrelated_array(arr, rho)
             a = pe.Obs([carr], ['a'])
             a.gm()
+
+    arr = np.random.normal(1, .2, size=999)
+    carr = gen_autocorrelated_array(arr, .8)
+    o = pe.Obs([carr], ['test'])
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
+    o.idl['test'] = range(1, 1998, 2)
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
 
 
 def test_irregular_gapped_dtauint():
@@ -1096,7 +1107,7 @@ def test_reduce_deltas():
     for idx_new in idl:
         new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
         print(new)
-        assert(np.alltrue([float(i) for i in idx_new] == new))
+        assert(np.all([float(i) for i in idx_new] == new))
 
 
 def test_cobs_array():

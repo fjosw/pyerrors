@@ -1096,7 +1096,7 @@ def test_reduce_deltas():
     for idx_new in idl:
         new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
         print(new)
-        assert(np.alltrue([float(i) for i in idx_new] == new))
+        assert(np.all([float(i) for i in idx_new] == new))
 
 
 def test_cobs_array():

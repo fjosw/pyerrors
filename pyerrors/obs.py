@@ -694,8 +694,12 @@ class Obs:
         return _format_uncertainty(self.value, self._dvalue)
 
     def __format__(self, format_type):
+        if format_type == "":
+            significance = 2
+        else:
+            significance = int(float(format_type.replace("+", "").replace("-", "")))
         my_str = _format_uncertainty(self.value, self._dvalue,
-                                     significance=int(float(format_type.replace("+", "").replace("-", ""))))
+                                     significance=significance)
         for char in ["+", " "]:
             if format_type.startswith(char):
                 if my_str[0] != "-":

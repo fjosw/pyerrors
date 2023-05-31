@@ -850,7 +850,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             for i in range(ncov):
                 for o in obsl:
                     if cname in o.covobs:
-                        val = o.covobs[cname].grad[i]
+                        val = o.covobs[cname].grad[i].item()
                         if val != 0:
                             ds += '%1.14e ' % (val)
                         else:

@@ -767,6 +767,17 @@ def test_gamma_method_irregular():
             a = pe.Obs([carr], ['a'])
             a.gm()
 
+    arr = np.random.normal(1, .2, size=999)
+    carr = gen_autocorrelated_array(arr, .8)
+    o = pe.Obs([carr], ['test'])
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
+    o.idl['test'] = range(1, 1998, 2)
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
+
 
 def test_irregular_gapped_dtauint():
     my_idl = list(range(0, 5010, 10))

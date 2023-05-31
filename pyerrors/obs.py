@@ -1521,7 +1521,7 @@ def _covariance_element(obs1, obs2):
         if e_name not in obs2.cov_names:
             continue
 
-        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
+        dvalue += np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)).item()
 
     return dvalue
 

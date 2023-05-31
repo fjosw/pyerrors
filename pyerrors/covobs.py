@@ -42,7 +42,7 @@ class Covobs:
     def errsq(self):
         """ Return the variance (= square of the error) of the Covobs
         """
-        return float(np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)))
+        return np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)).item()
 
     def _set_cov(self, cov):
         """ Set the covariance matrix of the covobs

@@ -46,10 +46,9 @@ def test_nan_df_export_import(tmp_path):
     my_df.loc[1, "int"] = np.nan
 
     for gz in [True, False]:
-        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
-        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
         with pytest.warns(UserWarning, match="nan value in column int will be replaced by None"):
-            warnings.warn("nan value in column int will be replaced by None", UserWarning)
+            pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
         assert reconstructed_df.loc[1, "int"] is None
         assert np.all(reconstructed_df.loc[:, "float"] == my_df.loc[:, "float"])
         assert np.all(reconstructed_df.loc[:, "Obs1"] == my_df.loc[:, "Obs1"])

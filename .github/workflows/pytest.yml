@@ -45,4 +45,4 @@ jobs:
           pip freeze
 
       - name: Run tests
-        run: pytest --cov=pyerrors -vv
+        run: pytest --cov=pyerrors -vv -Werror

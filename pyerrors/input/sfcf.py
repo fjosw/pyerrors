@@ -286,28 +286,26 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
 def _find_correlator(file_name, version, pattern, b2b, silent=False):
     T = 0
 
-    file = open(file_name, "r")
+    with open(file_name, "r") as my_file:
 
-    content = file.read()
-    match = re.search(pattern, content)
-    if match:
-        if version == "0.0":
-            start_read = content.count('\n', 0, match.start()) + 1
-            T = content.count('\n', start_read)
+        content = my_file.read()
+        match = re.search(pattern, content)
+        if match:
+            if version == "0.0":
+                start_read = content.count('\n', 0, match.start()) + 1
+                T = content.count('\n', start_read)
+            else:
+                start_read = content.count('\n', 0, match.start()) + 5 + b2b
+                end_match = re.search(r'\n\s*\n', content[match.start():])
+                T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
+            if not T > 0:
+                raise ValueError("Correlator with pattern\n" + pattern + "\nis empty!")
+            if not silent:
+                print(T, 'entries, starting to read in line', start_read)
+
         else:
-            start_read = content.count('\n', 0, match.start()) + 5 + b2b
-            end_match = re.search(r'\n\s*\n', content[match.start():])
-            T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
-        if not T > 0:
-            raise ValueError("Correlator with pattern\n" + pattern + "\nis empty!")
-        if not silent:
-            print(T, 'entries, starting to read in line', start_read)
+            raise ValueError('Correlator with pattern\n' + pattern + '\nnot found.')
 
-    else:
-        file.close()
-        raise ValueError('Correlator with pattern\n' + pattern + '\nnot found.')
-
-    file.close()
     return start_read, T
 
 

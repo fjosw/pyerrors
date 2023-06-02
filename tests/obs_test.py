@@ -1286,3 +1286,4 @@ def test_f_string_obs():
 def test_compute_drho_fails():
     obs = pe.input.json.load_json("tests/data/compute_drho_fails.json.gz")
     obs.gm()
+    assert np.isclose(obs.dvalue, 0.0022150779611891094)

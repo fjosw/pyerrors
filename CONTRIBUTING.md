@@ -21,7 +21,7 @@ Please add docstrings to any new function, class or method you implement. The do
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
 For all pull requests tests are executed for the most recent python releases via
 ```
-pytest
+pytest -vv -Werror
 pytest --nbmake examples/*.ipynb
 ```
 requiring `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis` and `nbmake`. To install the test dependencies one can run `pip install pyerrors[test]`

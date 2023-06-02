@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.2] - 2023-06-02
+### Fixed
+- Another bug appearing in an edge case of `_compute_drho` fixed.
+
 ## [2.8.1] - 2023-06-01
 ### Fixed
 - `input.pandas` can now deal with columns that only have `None` entries.

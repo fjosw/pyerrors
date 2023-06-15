@@ -8,6 +8,7 @@ from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
 from .roots import find_root
+from .linalg import cholesky, inv, eigh
 
 
 class Corr:
@@ -342,6 +343,36 @@ class Corr:
             return reordered_vecs[kwargs.get("state")]
         else:
             return reordered_vecs
+
+    def error_gevp(self, t0):
+        """Solves the GEVP with statistical errors.
+        Due to numerical instabilities and sign conventions the result does not necessarily agree with the standard GEVP method.
+
+        Parameters
+        ----------
+        t0 : int
+            The time t0 for the right hand side of the GEVP
+
+        The returned value is in the same form as the one of corr.GEVP(), but the entries are now Obs.
+        """
+        output = [[[] for i in range(self.T)] for j in range(self.N)]
+        G0 = np.vectorize(lambda x: x)(self[t0])
+        chol = cholesky(G0)  # This will automatically report if the matrix is not pos-def
+        chol_inv = inv(chol)
+        for ts in range(self.T):
+            try:
+                Gt = np.vectorize(lambda x: x)(self[ts])
+                new_matrix = chol_inv @ Gt @ chol_inv.T
+                for state in range(self.N):
+                    ev = chol_inv.T @ eigh(new_matrix)[1][:, state]
+                    ev = np.array([e / np.sqrt(ev @ G0 @ ev.T) for e in ev])
+                    [e.gamma_method() for e in ev]  # While this is slow, there is a large risk a user will project without calculating the errors
+                    output[state][ts] = ev
+            except Exception:  # The above code can fail because of linalg-errors or because the entry of the corr is None
+                for s in range(self.N):
+                    output[s][ts] = None
+        output.reverse()  # To match the ordering of the states from the GEVP method
+        return output
 
     def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue"):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator

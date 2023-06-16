@@ -344,7 +344,7 @@ class Corr:
         else:
             return reordered_vecs
 
-    def error_gevp(self, t0):
+    def error_GEVP(self, t0):
         """Solves the GEVP with statistical errors.
         Due to numerical instabilities and sign conventions the result does not necessarily agree with the standard GEVP method.
 
@@ -366,7 +366,6 @@ class Corr:
                 for state in range(self.N):
                     ev = chol_inv.T @ eigh(new_matrix)[1][:, state]
                     ev = np.array([e / np.sqrt(ev @ G0 @ ev.T) for e in ev])
-                    [e.gamma_method() for e in ev]  # While this is slow, there is a large risk a user will project without calculating the errors
                     output[state][ts] = ev
             except Exception:  # The above code can fail because of linalg-errors or because the entry of the corr is None
                 for s in range(self.N):

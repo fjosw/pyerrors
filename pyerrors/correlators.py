@@ -374,7 +374,7 @@ class Corr:
                     if auto_gamma:
                         [e.gamma_method() for e in ev]
                     output[state][ts] = ev
-            except (np.linalg.LinAlgError, TypeError):  # The above code can fail because of linalg-errors or because the entry of the corr is None
+            except (np.linalg.LinAlgError, TypeError, ValueError):  # The above code can fail because of linalg-errors or because the entry of the corr is None
                 for s in range(self.N):
                     output[s][ts] = None
         output.reverse()  # To match the ordering of the states from the GEVP method

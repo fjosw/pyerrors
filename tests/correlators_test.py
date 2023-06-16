@@ -567,31 +567,9 @@ def test_corr_symmetric():
         assert scorr[2] == corr[2]
         assert scorr[0] == corr[0]
 
-def _gen_matrix():
-    np.random.seed(41)
-    N=3
-    T=18
-    masses=[1.0,1.5,2.0]
-    Zs=[[np.random.random() for n in range(N)] for n in range(N)]
-    ls=list(range(96))
-    corrs=np.empty([N,N],dtype="object")
-    for i in range(N):
-        for j in range(N):
-            corr=[]
-            for t in range(96):
-                val=np.sum([Zs[n][i]*Zs[n][j]*(np.exp(-masses[n]*t)+np.exp(-masses[n]*(T-t))) for n in range(N)]) 
-                obs=pe.Obs([[val]*100],["pseudodata"])
-                obs=pe.pseudo_Obs(val,val*0.005,"100",20)
-                corr.append(obs)
-            
-            corrs[i,j]=pe.Corr(corr)
-    matrix=pe.Corr(corrs)
-    matrix.content[42]=None
-    matrix.gamma_method()
-    return matrix
 
 def test_error_GEVP():
-    corr=_gen_matrix()
+    corr=pe.input.json.load_json("tests/data/test_matrix_corr.json.gz")
     t0,ts,state=3,6,0
     vec_regular=corr.GEVP(t0=3)[state][ts]
     vec_errors=corr.error_GEVP(t0,auto_gamma=True)[0][ts]

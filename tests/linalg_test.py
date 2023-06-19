@@ -1,3 +1,4 @@
+from packaging import version
 import numpy as np
 import autograd.numpy as anp
 import math
@@ -291,23 +292,26 @@ def test_matrix_functions():
         diff = entry - sym[i, j]
         assert diff.is_zero()
 
-    # Check eigh
-    e, v = pe.linalg.eigh(sym)
-    for i in range(dim):
-        tmp = sym @ v[:, i] - v[:, i] * e[i]
-        for j in range(dim):
-            assert tmp[j].is_zero()
+    # These linalg functions don't work with numpy>=1.25 and autograd==1.5.
+    # Remove this guard once this is fixed in autograd.
+    if version.parse(np.__version__) < version.parse("1.25.0"):
+        # Check eigh
+        e, v = pe.linalg.eigh(sym)
+        for i in range(dim):
+            tmp = sym @ v[:, i] - v[:, i] * e[i]
+            for j in range(dim):
+                assert tmp[j].is_zero()
 
-    # Check eig function
-    e2 = pe.linalg.eig(sym)
-    assert np.all(np.sort(e) == np.sort(e2))
+        # Check eig function
+        e2 = pe.linalg.eig(sym)
+        assert np.all(np.sort(e) == np.sort(e2))
 
-    # Check svd
-    u, v, vh = pe.linalg.svd(sym)
-    diff = sym - u @ np.diag(v) @ vh
+        # Check svd
+        u, v, vh = pe.linalg.svd(sym)
+        diff = sym - u @ np.diag(v) @ vh
 
-    for (i, j), entry in np.ndenumerate(diff):
-        assert entry.is_zero()
+        for (i, j), entry in np.ndenumerate(diff):
+            assert entry.is_zero()
 
     # Check determinant
     assert pe.linalg.det(np.diag(np.diag(matrix))) == np.prod(np.diag(matrix))

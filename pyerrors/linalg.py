@@ -262,7 +262,7 @@ def _mat_mat_op(op, obs, **kwargs):
 def eigh(obs, **kwargs):
     """Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     if version.parse(np.__version__) >= version.parse("1.25.0"):
-        raise  NotImplementedError("eigh error propagation is not working with numpy>=1.25 and autograd==1.5.")
+        raise NotImplementedError("eigh error propagation is not working with numpy>=1.25 and autograd==1.5.")
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return w, v
@@ -271,7 +271,7 @@ def eigh(obs, **kwargs):
 def eig(obs, **kwargs):
     """Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig."""
     if version.parse(np.__version__) >= version.parse("1.25.0"):
-        raise  NotImplementedError("eig error propagation is not working with numpy>=1.25 and autograd==1.5.")
+        raise NotImplementedError("eig error propagation is not working with numpy>=1.25 and autograd==1.5.")
     w = derived_observable(lambda x, **kwargs: anp.real(anp.linalg.eig(x)[0]), obs)
     return w
 
@@ -284,7 +284,7 @@ def pinv(obs, **kwargs):
 def svd(obs, **kwargs):
     """Computes the singular value decomposition of a matrix of Obs."""
     if version.parse(np.__version__) >= version.parse("1.25.0"):
-        raise  NotImplementedError("svd error propagation is not working with numpy>=1.25 and autograd==1.5.")
+        raise NotImplementedError("svd error propagation is not working with numpy>=1.25 and autograd==1.5.")
     u = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[0], obs)
     s = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[1], obs)
     vh = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[2], obs)

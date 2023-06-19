@@ -312,6 +312,13 @@ def test_matrix_functions():
 
         for (i, j), entry in np.ndenumerate(diff):
             assert entry.is_zero()
+    else:
+        with pytest.raises(NotImplementedError):
+            pe.linalg.eigh(sym)
+        with pytest.raises(NotImplementedError):
+            pe.linalg.eig(sym)
+        with pytest.raises(NotImplementedError):
+            pe.linalg.svd(sym)
 
     # Check determinant
     assert pe.linalg.det(np.diag(np.diag(matrix))) == np.prod(np.diag(matrix))

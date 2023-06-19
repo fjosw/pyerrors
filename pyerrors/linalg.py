@@ -270,6 +270,8 @@ def eigh(obs, **kwargs):
 
 def eig(obs, **kwargs):
     """Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig."""
+    if version.parse(np.__version__) >= version.parse("1.25.0"):
+        raise  NotImplementedError("eig error propagation is not working with numpy>=1.25 and autograd==1.5.")
     w = derived_observable(lambda x, **kwargs: anp.real(anp.linalg.eig(x)[0]), obs)
     return w
 

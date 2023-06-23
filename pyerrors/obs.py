@@ -627,7 +627,7 @@ class Obs:
         if save:
             fig1.savefig(save)
 
-        return dict(zip(self.e_names, sizes))
+        return dict(zip(labels, sizes))
 
     def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.

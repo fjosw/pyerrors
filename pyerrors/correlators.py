@@ -597,6 +597,16 @@ class Corr:
             if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
+        elif variant == "big_symmetric":
+            newcontent = []
+            for t in range(2, self.T - 2):
+                if (self.content[t - 2] is None) or (self.content[t + 2] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append((self.content[t + 2] - 2 * self.content[t] + self.content[t - 2])/4)
+            if (all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[2, 2])
         elif variant == "improved":
             newcontent = []
             for t in range(2, self.T - 2):

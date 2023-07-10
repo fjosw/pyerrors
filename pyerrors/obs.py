@@ -278,7 +278,7 @@ class Obs:
 
             def _compute_drho(i):
                 tmp = (self.e_rho[e_name][i + 1:w_max]
-                       + np.concatenate([self.e_rho[e_name][i - 1:None if i - w_max // 2 <= 0 else 2 * (i - w_max // 2):-1],
+                       + np.concatenate([self.e_rho[e_name][i - 1:None if i - (w_max - 1) // 2 <= 0 else (2 * i - (2 * w_max) // 2):-1],
                                          self.e_rho[e_name][1:max(1, w_max - 2 * i)]])
                        - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i])
                 self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
@@ -627,7 +627,7 @@ class Obs:
         if save:
             fig1.savefig(save)
 
-        return dict(zip(self.e_names, sizes))
+        return dict(zip(labels, sizes))
 
     def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
@@ -694,8 +694,12 @@ class Obs:
         return _format_uncertainty(self.value, self._dvalue)
 
     def __format__(self, format_type):
+        if format_type == "":
+            significance = 2
+        else:
+            significance = int(float(format_type.replace("+", "").replace("-", "")))
         my_str = _format_uncertainty(self.value, self._dvalue,
-                                     significance=int(float(format_type.replace("+", "").replace("-", ""))))
+                                     significance=significance)
         for char in ["+", " "]:
             if format_type.startswith(char):
                 if my_str[0] != "-":
@@ -1521,7 +1525,7 @@ def _covariance_element(obs1, obs2):
         if e_name not in obs2.cov_names:
             continue
 
-        dvalue += float(np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)))
+        dvalue += np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)).item()
 
     return dvalue
 

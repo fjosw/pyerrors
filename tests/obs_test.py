@@ -762,10 +762,21 @@ def test_gamma_method_irregular():
     N = 15
     for i in range(10):
         arr = np.random.normal(1, .2, size=N)
-        for rho in .1 * np.arange(20):
+        for rho in .05 * np.arange(20):
             carr = gen_autocorrelated_array(arr, rho)
             a = pe.Obs([carr], ['a'])
             a.gm()
+
+    arr = np.random.normal(1, .2, size=999)
+    carr = gen_autocorrelated_array(arr, .8)
+    o = pe.Obs([carr], ['test'])
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
+    o.idl['test'] = range(1, 1998, 2)
+    o.gamma_method()
+    no = np.NaN * o
+    no.gamma_method()
 
 
 def test_irregular_gapped_dtauint():
@@ -1096,7 +1107,7 @@ def test_reduce_deltas():
     for idx_new in idl:
         new = pe.obs._reduce_deltas(deltas, idx_old, idx_new)
         print(new)
-        assert(np.alltrue([float(i) for i in idx_new] == new))
+        assert(np.all([float(i) for i in idx_new] == new))
 
 
 def test_cobs_array():
@@ -1263,3 +1274,16 @@ def test_format():
     assert o1.__format__("+3") == '+0.3480(123)'
     assert o1.__format__("+2") == '+0.348(12)'
     assert o1.__format__(" 2") == ' 0.348(12)'
+
+def test_f_string_obs():
+    o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
+    print(f"{o1}")
+    print(f"{o1:3}")
+    print(f"{o1:+3}")
+    print(f"{o1:-1}")
+    print(f"{o1: 8}")
+
+def test_compute_drho_fails():
+    obs = pe.input.json.load_json("tests/data/compute_drho_fails.json.gz")
+    obs.gm()
+    assert np.isclose(obs.dvalue, 0.0022150779611891094)

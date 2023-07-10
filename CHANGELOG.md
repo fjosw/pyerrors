@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.2] - 2023-06-02
+### Fixed
+- Another bug appearing in an edge case of `_compute_drho` fixed.
+
+## [2.8.1] - 2023-06-01
+### Fixed
+- `input.pandas` can now deal with columns that only have `None` entries.
+- Bug in f-string conversion of `Obs` fixed.
+- Bug in edge case of `_compute_drho` fixed.
+- Several numpy 1.25 deprecations fixed.
+
+
 ## [2.8.0] - 2023-05-21
 ### Added
 - `pyerrors` can now deal with replica with different gapsizes.

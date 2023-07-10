@@ -577,13 +577,21 @@ class Corr:
             raise Exception("Unknown variant.")
 
     def second_deriv(self, variant="symmetric"):
-        """Return the second derivative of the correlator with respect to x0.
+        r"""Return the second derivative of the correlator with respect to x0.
 
         Parameters
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, improved, log, default: symmetric
+            Available choice:
+                - symmetric (default)
+                    $$\tilde{\partial}^2_0 f(x_0) = f(x_0+1)-2f(x_0)+f(x_0-1)$$
+                - big_symmetric
+                    $$\partial^2_0 f(x_0) = \frac{f(x_0+2)-2f(x_0)+f(x_0-2)}{4}$$
+                - improved
+                    $$\partial^2_0 f(x_0) = \frac{-f(x_0+2) + 16 * f(x_0+1) - 30 * f(x_0) + 16 * f(x_0-1) - f(x_0-2)}{12}$$
+                - log
+                    $$f(x) = \tilde{\partial}^2_0 log(f(x_0))+(\tilde{\partial}_0 log(f(x_0)))^2$$
         """
         if self.N != 1:
             raise Exception("second_deriv only implemented for one-dimensional correlators.")
@@ -597,6 +605,16 @@ class Corr:
             if (all([x is None for x in newcontent])):
                 raise Exception("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
+        elif variant == "big_symmetric":
+            newcontent = []
+            for t in range(2, self.T - 2):
+                if (self.content[t - 2] is None) or (self.content[t + 2] is None):
+                    newcontent.append(None)
+                else:
+                    newcontent.append((self.content[t + 2] - 2 * self.content[t] + self.content[t - 2]) / 4)
+            if (all([x is None for x in newcontent])):
+                raise Exception("Derivative is undefined at all timeslices")
+            return Corr(newcontent, padding=[2, 2])
         elif variant == "improved":
             newcontent = []
             for t in range(2, self.T - 2):

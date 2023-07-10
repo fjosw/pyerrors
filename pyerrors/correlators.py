@@ -577,7 +577,7 @@ class Corr:
             raise Exception("Unknown variant.")
 
     def second_deriv(self, variant="symmetric"):
-        """Return the second derivative of the correlator with respect to x0.
+        r"""Return the second derivative of the correlator with respect to x0.
 
         Parameters
         ----------

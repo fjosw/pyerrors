@@ -9,8 +9,8 @@
 ## Installation
 Install the most recent release using pip and [pypi](https://pypi.org/project/pyerrors/):
 ```bash
-pip install pyerrors     # Fresh install
-pip install -U pyerrors  # Update
+python -m pip install pyerrors     # Fresh install
+python -m pip install -U pyerrors  # Update
 ```
 Install the most recent release using conda and [conda-forge](https://anaconda.org/conda-forge/pyerrors):
 ```bash

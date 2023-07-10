@@ -583,7 +583,15 @@ class Corr:
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, improved, log, default: symmetric
+            Available choice:
+                - symmetric (default)
+                    $$\tilde{\partial}^2_0 f(x_0) = f(x_0+1)-2f(x_0)+f(x_0-1)$$
+                - big_symmetric
+                    $$\partial^2_0 f(x_0) = \frac{f(x_0+2)-2f(x_0)+f(x_0-2)}{4}$$
+                - improved
+                    $$\partial^2_0 f(x_0) = \frac{-f(x_0+2) + 16 * f(x_0+1) - 30 * f(x_0) + 16 * f(x_0-1) - f(x_0-2)}{12}$$
+                - log
+                    $$f(x) = \tilde{\partial}^2_0 log(f(x_0))+(\tilde{\partial}_0 log(f(x_0)))^2$$
         """
         if self.N != 1:
             raise Exception("second_deriv only implemented for one-dimensional correlators.")

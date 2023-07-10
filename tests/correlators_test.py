@@ -58,12 +58,16 @@ def test_modify_correlator():
     for pad in [0, 2]:
         corr = pe.Corr(corr_content, padding=[pad, pad])
         corr.roll(np.random.randint(100))
-        corr.deriv(variant="forward")
         corr.deriv(variant="symmetric")
+        corr.deriv(variant="forward")
+        corr.deriv(variant="backward")
         corr.deriv(variant="improved")
+        corr.deriv(variant="log")
         corr.deriv().deriv()
         corr.second_deriv(variant="symmetric")
+        corr.second_deriv(variant="big_symmetric")
         corr.second_deriv(variant="improved")
+        corr.second_deriv(variant="log")
         corr.second_deriv().second_deriv()
 
     for i, e in enumerate(corr.content):

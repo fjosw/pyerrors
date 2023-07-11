@@ -684,6 +684,49 @@ class Obs:
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
+    def export_bootstrap(self, samples=500, random_numbers=None, save_rng=None):
+        """Export bootstrap samples from the Obs
+
+        Parameters
+        ----------
+        samples : int
+            Number of bootstrap samples to generate.
+        random_numbers : np.ndarray
+            Array of shape (samples, length) containing the random numbers to generate the bootstrap samples.
+            If not provided the bootstrap samples are generated bashed on the md5 hash of the enesmble name.
+        save_rng : str
+            Save the random numbers to a file if a path is specified.
+
+        Returns
+        -------
+        numpy.ndarray
+            Returns a numpy array of length N + 1 where N is the number of samples
+            for the given ensemble and replicum. The zeroth entry of the array contains
+            the mean value of the Obs, entries 1 to N contain the N jackknife samples
+            derived from the Obs. The current implementation only works for observables
+            defined on exactly one ensemble and replicum. The derived jackknife samples
+            should agree with samples from a full jackknife analysis up to O(1/N).
+        """
+        if len(self.names) != 1:
+            raise Exception("'export_boostrap' is only implemented for Obs defined on one ensemble and replicum.")
+
+        name = self.names[0]
+        length = self.N
+
+        if random_numbers is None:
+            seed = int(hashlib.md5(name.encode()).hexdigest(), 16) & 0xFFFFFFFF
+            rng = np.random.default_rng(seed)
+            random_numbers = rng.integers(0, length, size=(samples, length))
+
+        if save_rng is not None:
+            np.savetxt(save_rng, random_numbers, fmt='%i')
+
+        proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]) / length
+        ret = np.zeros(samples + 1)
+        ret[0] = self.value
+        ret[1:] = proj @ (self.deltas[name] + self.r_values[name])
+        return ret
+
     def __float__(self):
         return float(self.value)
 

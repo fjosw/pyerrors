@@ -3,6 +3,7 @@ import hashlib
 import pickle
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
+import scipy
 from autograd import jacobian
 import matplotlib.pyplot as plt
 from scipy.stats import skew, skewtest, kurtosis, kurtosistest
@@ -1591,6 +1592,41 @@ def import_jackknife(jacks, name, idl=None):
     new_obs = Obs([samples - mean], [name], idl=idl, means=[mean])
     new_obs._value = jacks[0]
     return new_obs
+
+
+def import_bootstrap(boots, name, shape, random_numbers=None):
+    """Imports bootstrap samples and returns an Obs
+
+    Parameters
+    ----------
+    boots : numpy.ndarray
+        numpy array containing the mean value as zeroth entry and
+        the N bootstrap samples as first to Nth entry.
+    name : str
+        name of the ensemble the samples are defined on.
+    shape : tuple
+        Tuple (samples, length) which specifies the relevant dimensions.
+    random_numbers : np.ndarray
+        Array of shape (samples, length) containing the random numbers to generate the bootstrap samples.
+        If not provided the bootstrap samples are generated bashed on the md5 hash of the enesmble name.
+    """
+    length, samples = shape
+
+    if samples < length:
+        raise Exception("Obs can't be reconstructed if there are fewer bootstrap samples than Monte Carlo data points.")
+
+    if random_numbers is None:
+        seed = int(hashlib.md5(name.encode()).hexdigest(), 16) & 0xFFFFFFFF
+        rng = np.random.default_rng(seed)
+        random_numbers = rng.integers(0, length, size=(samples, length))
+    else:
+        assert random_numbers.shape == (samples, length)
+    proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]) / length
+
+    samples = scipy.linalg.lstsq(proj, boots[1:])[0]
+    ret = Obs([samples], [name])
+    ret._value = boots[0]
+    return ret
 
 
 def merge_obs(list_of_obs):

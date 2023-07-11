@@ -1094,6 +1094,15 @@ def test_import_jackknife():
     assert my_obs == reconstructed_obs
 
 
+def test_import_bootstrap():
+    name = "test"
+    samples = 1234
+    obs = pe.pseudo_Obs(2.447, 0.14, name)
+    boots = obs.export_bootstrap(1234)
+    re_obs = pe.import_bootstrap(boots, name, (1000, 1234))
+    assert obs == re_obs
+
+
 def test_reduce_deltas():
     idx_old = range(1, 101)
     deltas = [float(i) for i in idx_old]

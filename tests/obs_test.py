@@ -1095,11 +1095,16 @@ def test_import_jackknife():
 
 
 def test_import_bootstrap():
-    name = "test"
+    seed = 4321
     samples = 1234
-    obs = pe.pseudo_Obs(2.447, 0.14, name)
-    boots = obs.export_bootstrap(1234)
-    re_obs = pe.import_bootstrap(boots, name, (1000, 1234))
+    length = 820
+    name = "test"
+
+    rng = np.random.default_rng(seed)
+    random_numbers = rng.integers(0, length, size=(samples, length))
+    obs = pe.pseudo_Obs(2.447, 0.14, name, length)
+    boots = obs.export_bootstrap(1234, random_numbers=random_numbers)
+    re_obs = pe.import_bootstrap(boots, name, random_numbers=random_numbers)
     assert obs == re_obs
 
 

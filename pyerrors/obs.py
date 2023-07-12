@@ -706,7 +706,7 @@ class Obs:
             the mean value of the Obs, entries 1 to N contain the N jackknife samples
             derived from the Obs. The current implementation only works for observables
             defined on exactly one ensemble and replicum. The derived jackknife samples
-            should agree with samples from a full jackknife analysis up to O(1/N).
+            should agree with samples from a full bootstrap analysis up to O(1/N).
         """
         if len(self.names) != 1:
             raise Exception("'export_boostrap' is only implemented for Obs defined on one ensemble and replicum.")
@@ -1594,7 +1594,7 @@ def import_jackknife(jacks, name, idl=None):
     return new_obs
 
 
-def import_bootstrap(boots, name, shape, random_numbers=None):
+def import_bootstrap(boots, name, random_numbers):
     """Imports bootstrap samples and returns an Obs
 
     Parameters
@@ -1604,23 +1604,16 @@ def import_bootstrap(boots, name, shape, random_numbers=None):
         the N bootstrap samples as first to Nth entry.
     name : str
         name of the ensemble the samples are defined on.
-    shape : tuple
-        Tuple (samples, length) which specifies the relevant dimensions.
     random_numbers : np.ndarray
         Array of shape (samples, length) containing the random numbers to generate the bootstrap samples.
-        If not provided the bootstrap samples are generated bashed on the md5 hash of the enesmble name.
     """
-    length, samples = shape
+    samples, length = random_numbers.shape
+    if samples != len(boots) - 1:
+        raise ValueError("Random numbers do not have the correct shape.")
 
     if samples < length:
-        raise Exception("Obs can't be reconstructed if there are fewer bootstrap samples than Monte Carlo data points.")
+        raise ValueError("Obs can't be reconstructed if there are fewer bootstrap samples than Monte Carlo data points.")
 
-    if random_numbers is None:
-        seed = int(hashlib.md5(name.encode()).hexdigest(), 16) & 0xFFFFFFFF
-        rng = np.random.default_rng(seed)
-        random_numbers = rng.integers(0, length, size=(samples, length))
-    else:
-        assert random_numbers.shape == (samples, length)
     proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]) / length
 
     samples = scipy.linalg.lstsq(proj, boots[1:])[0]

@@ -1078,6 +1078,20 @@ class Corr:
         else:
             raise TypeError("Corr * wrong type")
 
+    def __matmul__(self, y):
+        if isinstance(y, np.ndarray):
+            if not self.N == y.shape[0]:
+                raise TypeError("Shape mismatch")
+            newcontent = []
+            for t in range(self.T):
+                if _check_for_none(self, self.content[t]):
+                    newcontent.append(None)
+                else:
+                    newcontent.append(self.content[t] @ y)
+            return Corr(newcontent)
+        else:
+            raise NotImplementedError("Matmul not implemented for this type.")
+
     def __truediv__(self, y):
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):

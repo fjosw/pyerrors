@@ -610,6 +610,7 @@ def test_matmul_overloading():
     # Multiply with gamma matrix
     mat @ pe.dirac.gammaX
     corr = pe.Corr([mat] * 4, padding=[0, 1])
+    pe.dirac.gammaX @ corr
     mcorr = corr @ pe.dirac.gammaX
 
     comp = mat @ pe.dirac.gammaX
@@ -645,9 +646,12 @@ def test_matrix_trace():
     for el in corr.trace():
         el == np.sum(np.diag(mat))
 
+    # Trace is cyclic
+    for one, two in zip((pe.dirac.gammaX @ corr).trace(), (corr @ pe.dirac.gammaX).trace()):
+        assert np.all(one == two)
+
     # Antisymmetric matrices are traceless.
     mat = (mat - mat.T) / 2
-
     corr = pe.Corr([mat] * 4)
     for el in corr.trace():
         assert el == 0

@@ -608,12 +608,17 @@ def test_matmul_overloading():
     mat = np.array(ll).reshape(N, N)
 
     # Multiply with gamma matrix
-    mat @ pe.dirac.gammaX
     corr = pe.Corr([mat] * 4, padding=[0, 1])
-    pe.dirac.gammaX @ corr
-    mcorr = corr @ pe.dirac.gammaX
 
+    # __matmul__
+    mcorr = corr @ pe.dirac.gammaX
     comp = mat @ pe.dirac.gammaX
+    for i in range(4):
+        assert np.all(mcorr[i] == comp)
+
+    # __rmatmul__
+    mcorr = pe.dirac.gammaX @ corr
+    comp = pe.dirac.gammaX @ mat
     for i in range(4):
         assert np.all(mcorr[i] == comp)
 

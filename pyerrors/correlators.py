@@ -255,6 +255,7 @@ class Corr:
         return True
 
     def trace(self):
+        """Calculates the per-timeslice trace of a correlator matrix."""
         if self.N == 1:
             raise TypeError("Only works for correlator matrices.")
         newcontent = []

@@ -417,7 +417,7 @@ class Corr:
         dt : int
             number of timeslices
         """
-        return Corr(list(np.roll(np.array(self.content, dtype=object), dt)))
+        return Corr(list(np.roll(np.array(self.content, dtype=object), dt, axis=0)))
 
     def reverse(self):
         """Reverse the time ordering of the Corr"""

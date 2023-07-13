@@ -666,3 +666,25 @@ def test_matrix_trace():
     corr = pe.Corr([mat] * 4)
     for el in corr.trace():
         assert el == 0
+
+
+def test_corr_roll():
+    T = 4
+    rn = lambda : np.random.normal(0.5, 0.1)
+
+    ll = []
+    for i in range(T):
+        re = pe.pseudo_Obs(rn(), rn(), "test")
+        im = pe.pseudo_Obs(rn(), rn(), "test")
+        ll.append(pe.CObs(re, im))
+
+    # Rolling by T should produce the same correlator
+    corr = pe.Corr(ll)
+    tt = corr - corr.roll(T)
+    for el in tt:
+        assert np.all(el == 0)
+
+    mcorr = pe.Corr(np.array([[corr, corr + 0.1], [corr - 0.1, 2 * corr]]))
+    tt = mcorr.roll(T) - mcorr
+    for el in tt:
+        assert np.all(el == 0)

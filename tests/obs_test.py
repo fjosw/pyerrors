@@ -1283,6 +1283,16 @@ def test_f_string_obs():
     print(f"{o1:-1}")
     print(f"{o1: 8}")
 
+def test_f_string_cobs():
+    o_real = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o_imag = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o1 = pe.CObs(o_real, o_imag)
+    print(f"{o1}")
+    print(f"{o1:3}")
+    print(f"{o1:+3}")
+    print(f"{o1:-1}")
+    print(f"{o1: 8}")
+
 def test_compute_drho_fails():
     obs = pe.input.json.load_json("tests/data/compute_drho_fails.json.gz")
     obs.gm()

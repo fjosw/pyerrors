@@ -628,6 +628,12 @@ def test_matmul_overloading():
     for i in range(4):
         assert np.all(tt[i] == 0)
 
+    # associative property
+    tt = (corr.real @ pe.dirac.gammaX + corr.imag @ (pe.dirac.gammaX * 1j)) - corr @ pe.dirac.gammaX
+    for el in tt:
+        if el is not None:
+            assert np.all(el == 0)
+
     corr2 = corr @ corr
     for i in range(4):
         np.all(corr2[i] == corr[i] @ corr[i])

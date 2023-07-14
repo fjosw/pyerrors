@@ -79,6 +79,9 @@ def quad(func, p, a, b, **kwargs):
         if isobs_b[i]:
             derivint.append(bsign[i] * func(pval, bval[i]))
 
+    if len(derivint) == 0:
+        return integration_result
+
     res = derived_observable(lambda x, **kwargs: 0 * (x[0] + np.finfo(np.float64).eps) * (pval[0] + np.finfo(np.float64).eps) + val, pobs + bobs, man_grad=derivint)
 
     return (res, *integration_result[1:])

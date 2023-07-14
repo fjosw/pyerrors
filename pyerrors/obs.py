@@ -1023,6 +1023,14 @@ class CObs:
     def __repr__(self):
         return 'CObs[' + str(self) + ']'
 
+    def __format__(self, format_type):
+        if format_type == "":
+            significance = 2
+            format_type = "2"
+        else:
+            significance = int(float(format_type.replace("+", "").replace("-", "")))
+        return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
+
 
 def _format_uncertainty(value, dvalue, significance=2):
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""

@@ -5,7 +5,7 @@ from scipy.integrate import quad as squad
 
 
 def quad(func, p, a, b, **kwargs):
-    '''Performs a (one-dimensional) numeric integration of f(p, x) from bounds[0] to bounds[1]
+    '''Performs a (one-dimensional) numeric integration of f(p, x) from a to b.
 
     The integration is performed using scipy.integrate.quad().
     All parameters that can be passed to scipy.integrate.quad may also be passed to this function.

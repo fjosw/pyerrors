@@ -1143,6 +1143,23 @@ def test_fit_dof():
     assert np.all(np.array(cd[1:]) > 0)
 
 
+def test_combined_fit_constant_shape():
+    N1 = 16
+    N2 = 10
+    x = {"a": np.arange(N1),
+         "": np.arange(N2)}
+    y = {"a": [pe.pseudo_Obs(o + np.random.normal(0.0, 0.1), 0.1, "test") for o in range(N1)],
+         "": [pe.pseudo_Obs(o + np.random.normal(0.0, 0.1), 0.1, "test") for o in range(N2)]}
+    funcs = {"a": lambda a, x: a[0] + a[1] * x,
+             "": lambda a, x: a[1]}
+    with pytest.raises(ValueError):
+        pe.fits.least_squares(x, y, funcs, method='migrad')
+
+    funcs = {"a": lambda a, x: a[0] + a[1] * x,
+             "": lambda a, x: a[1] + x * 0}
+    pe.fits.least_squares(x, y, funcs, method='migrad')
+
+
 def fit_general(x, y, func, silent=False, **kwargs):
     """Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 

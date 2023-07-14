@@ -998,8 +998,6 @@ class Corr:
             content_string += "Description: " + self.tag + "\n"
         if self.N != 1:
             return content_string
-        if isinstance(self[0], CObs):
-            return content_string
 
         if print_range[1]:
             print_range[1] += 1
@@ -1010,7 +1008,7 @@ class Corr:
             else:
                 content_string += str(i + print_range[0])
                 for element in sub_corr:
-                    content_string += '\t' + ' ' * int(element >= 0) + str(element)
+                    content_string += f"\t{element:+2}"
                 content_string += '\n'
         return content_string
 

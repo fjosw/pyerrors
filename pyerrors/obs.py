@@ -703,9 +703,9 @@ class Obs:
         numpy.ndarray
             Returns a numpy array of length N + 1 where N is the number of samples
             for the given ensemble and replicum. The zeroth entry of the array contains
-            the mean value of the Obs, entries 1 to N contain the N jackknife samples
+            the mean value of the Obs, entries 1 to N contain the N import_bootstrap samples
             derived from the Obs. The current implementation only works for observables
-            defined on exactly one ensemble and replicum. The derived jackknife samples
+            defined on exactly one ensemble and replicum. The derived bootstrap samples
             should agree with samples from a full bootstrap analysis up to O(1/N).
         """
         if len(self.names) != 1:
@@ -1605,7 +1605,9 @@ def import_bootstrap(boots, name, random_numbers):
     name : str
         name of the ensemble the samples are defined on.
     random_numbers : np.ndarray
-        Array of shape (samples, length) containing the random numbers to generate the bootstrap samples.
+        Array of shape (samples, length) containing the random numbers to generate the bootstrap samples,
+        where samples is the number of bootstrap samples and length is the length of the original Monte Carlo
+        chain to be reconstructed.
     """
     samples, length = random_numbers.shape
     if samples != len(boots) - 1:

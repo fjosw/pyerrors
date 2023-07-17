@@ -32,7 +32,7 @@ class Corr:
     ```python
     matrix_corr = pe.Corr(np.array([[corr11, corr12], [corr21, corr22]]))
     ```
-    or alternativly via a three-dimensional array of `Obs` or `CObs` of shape (T, N, N) where T is
+    or alternatively via a three-dimensional array of `Obs` or `CObs` of shape (T, N, N) where T is
     the temporal extent of the correlator and N is the dimension of the matrix.
     """
 
@@ -51,7 +51,7 @@ class Corr:
             at the back.
         prange : list, optional
             List containing the first and last timeslice of the plateau
-            region indentified for this correlator.
+            region identified for this correlator.
         """
 
         if isinstance(data_input, np.ndarray):
@@ -519,7 +519,7 @@ class Corr:
         ----------
         partner : Corr
             Time symmetry partner of the Corr
-        partity : int
+        parity : int
             Parity quantum number of the correlator, can be +1 or -1
         """
         if self.N != 1:
@@ -677,8 +677,8 @@ class Corr:
         ----------
         variant : str
             log : uses the standard effective mass log(C(t) / C(t+1))
-            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
-            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
+            cosh, periodic : Use periodicity of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+            sinh : Use anti-periodicity of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
             See, e.g., arXiv:1205.5380
             arccosh : Uses the explicit form of the symmetrized correlator (not recommended)
             logsym: uses the symmetric effective mass log(C(t-1) / C(t+1))/2

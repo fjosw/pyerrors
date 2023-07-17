@@ -570,3 +570,21 @@ def test_corr_symmetric():
         assert scorr[1] == scorr[3]
         assert scorr[2] == corr[2]
         assert scorr[0] == corr[0]
+
+
+def test_corr_array_ndim1_init():
+    y = [pe.pseudo_Obs(2 + np.random.normal(0.0, 0.1), .1, 't') for i in np.arange(5)]
+    cc1 = pe.Corr(y)
+    cc2 = pe.Corr(np.array(y))
+    assert np.all([o1 == o2 for o1, o2 in zip(cc1, cc2)])
+
+
+def test_corr_array_ndim3_init():
+    y = np.array([pe.pseudo_Obs(np.random.normal(2.0, 0.1), .1, 't') for i in np.arange(12)]).reshape(3, 2, 2)
+    tt1 = pe.Corr(list(y))
+    tt2 = pe.Corr(y)
+    tt3 = pe.Corr(np.array([pe.Corr(o) for o in y.reshape(3, 4).T]).reshape(2, 2))
+    assert np.all([o1 == o2 for o1, o2 in zip(tt1, tt2)])
+    assert np.all([o1 == o2 for o1, o2 in zip(tt1, tt3)])
+    assert tt1.T == y.shape[0]
+    assert tt1.N == y.shape[1] == y.shape[2]

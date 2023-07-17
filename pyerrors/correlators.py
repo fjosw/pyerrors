@@ -20,7 +20,6 @@ class Corr:
 
     The correlator can have two types of content: An Obs at every timeslice OR a GEVP
     matrix at every timeslice. Other dependency (eg. spatial) are not supported.
-
     """
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
@@ -42,32 +41,35 @@ class Corr:
         """
 
         if isinstance(data_input, np.ndarray):
+            if data_input.ndim in (1, 3):
+                data_input = list(data_input)
+            elif data_input.ndim == 2:
+                if not data_input.shape[0] == data_input.shape[1]:
+                    raise ValueError("Array needs to be square.")
+                if not all([isinstance(item, Corr) for item in data_input.flatten()]):
+                    raise ValueError("If the input is an array, its elements must be of type pe.Corr.")
+                if not all([item.N == 1 for item in data_input.flatten()]):
+                    raise ValueError("Can only construct matrix correlator from single valued correlators.")
+                if not len(set([item.T for item in data_input.flatten()])) == 1:
+                    raise ValueError("All input Correlators must be defined over the same timeslices.")
 
-            # This only works, if the array fulfills the conditions below
-            if not len(data_input.shape) == 2 and data_input.shape[0] == data_input.shape[1]:
-                raise Exception("Incompatible array shape")
-            if not all([isinstance(item, Corr) for item in data_input.flatten()]):
-                raise Exception("If the input is an array, its elements must be of type pe.Corr")
-            if not all([item.N == 1 for item in data_input.flatten()]):
-                raise Exception("Can only construct matrix correlator from single valued correlators")
-            if not len(set([item.T for item in data_input.flatten()])) == 1:
-                raise Exception("All input Correlators must be defined over the same timeslices.")
-
-            T = data_input[0, 0].T
-            N = data_input.shape[0]
-            input_as_list = []
-            for t in range(T):
-                if any([(item.content[t] is None) for item in data_input.flatten()]):
-                    if not all([(item.content[t] is None) for item in data_input.flatten()]):
-                        warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss!", RuntimeWarning)
-                    input_as_list.append(None)
-                else:
-                    array_at_timeslace = np.empty([N, N], dtype="object")
-                    for i in range(N):
-                        for j in range(N):
-                            array_at_timeslace[i, j] = data_input[i, j][t]
-                    input_as_list.append(array_at_timeslace)
-            data_input = input_as_list
+                T = data_input[0, 0].T
+                N = data_input.shape[0]
+                input_as_list = []
+                for t in range(T):
+                    if any([(item.content[t] is None) for item in data_input.flatten()]):
+                        if not all([(item.content[t] is None) for item in data_input.flatten()]):
+                            warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss.!", RuntimeWarning)
+                        input_as_list.append(None)
+                    else:
+                        array_at_timeslace = np.empty([N, N], dtype="object")
+                        for i in range(N):
+                            for j in range(N):
+                                array_at_timeslace[i, j] = data_input[i, j][t]
+                        input_as_list.append(array_at_timeslace)
+                data_input = input_as_list
+            else:
+                raise ValueError("Arrays with ndim>3 not supported.")
 
         if isinstance(data_input, list):
 
@@ -75,19 +77,18 @@ class Corr:
                 _assert_equal_properties([o for o in data_input if o is not None])
                 self.content = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
-
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
                 noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
                 self.N = noNull[0].shape[0]
                 if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
-                    raise Exception("Smearing matrices are not NxN")
+                    raise ValueError("Smearing matrices are not NxN.")
                 if (not all([item.shape == noNull[0].shape for item in noNull])):
-                    raise Exception("Items in data_input are not of identical shape." + str(noNull))
+                    raise ValueError("Items in data_input are not of identical shape." + str(noNull))
             else:
-                raise Exception("data_input contains item of wrong type")
+                raise TypeError("'data_input' contains item of wrong type.")
         else:
-            raise Exception("Data input was not given as list or correct array")
+            raise TypeError("Data input was not given as list or correct array.")
 
         self.tag = None
 

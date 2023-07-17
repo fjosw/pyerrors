@@ -11,15 +11,29 @@ from .roots import find_root
 
 
 class Corr:
-    """The class for a correlator (time dependent sequence of pe.Obs).
+    r"""The class for a correlator (time dependent sequence of pe.Obs).
 
     Everything, this class does, can be achieved using lists or arrays of Obs.
     But it is simply more convenient to have a dedicated object for correlators.
     One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
     to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.
 
-    The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-    matrix at every timeslice. Other dependency (eg. spatial) are not supported.
+    The correlator can have two types of content: An Obs at every timeslice OR a matrix at every timeslice.
+    Other dependency (eg. spatial) are not supported.
+
+    Initialization
+    --------------
+    A simple correlator can be initialized with a list or a one-dimensional array of `Obs` or `Cobs`
+    ```python
+    corr11 = pe.Corr([obs1, obs2])
+    corr11 = pe.Corr(np.array([obs1, obs2]))
+    ```
+    A matrix-valued correlator can either be initialized via a two-dimensional array of `Corr` objects
+    ```python
+    matrix_corr = pe.Corr(np.array([[corr11, corr12], [corr21, corr22]]))
+    ```
+    or alternativly via a three-dimensional array of `Obs` or `CObs` of shape (T, N, N) where T is
+    the temporal extent of the correlator and N is the dimension of the matrix.
     """
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
@@ -30,7 +44,7 @@ class Corr:
         Parameters
         ----------
         data_input : list or array
-            list of Obs or list of arrays of Obs or array of Corrs
+            list of Obs or list of arrays of Obs or array of Corrs (see class docstring for details).
         padding : list, optional
             List with two entries where the first labels the padding
             at the front of the correlator and the second the padding

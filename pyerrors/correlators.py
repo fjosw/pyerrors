@@ -21,6 +21,9 @@ class Corr:
     The correlator can have two types of content: An Obs at every timeslice OR a matrix at every timeslice.
     Other dependency (eg. spatial) are not supported.
 
+    The Corr class can also deal with missing measurements or paddings for fixed boundary conditions.
+    The missing entries are represented via the `None` object.
+
     Initialization
     --------------
     A simple correlator can be initialized with a list or a one-dimensional array of `Obs` or `Cobs`

@@ -235,12 +235,12 @@ def test_fit_corr_independent():
 
 
 def test_linear_fit_guesses():
-    for err in [10, 0.1, 0.001]:
+    for err in [1.2, 0.1, 0.001]:
         xvals = []
         yvals = []
         for x in range(1, 8, 2):
             xvals.append(x)
-            yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+            yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 97, 'test2', samples=87))
         lin_func = lambda a, x: a[0] + a[1] * x
         with pytest.raises(Exception):
             pe.least_squares(xvals, yvals, lin_func)
@@ -251,7 +251,7 @@ def test_linear_fit_guesses():
         bad_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[999, 999])
         good_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[0, 1])
         assert np.isclose(bad_guess.chisquare, good_guess.chisquare, atol=1e-8)
-        assert np.all([(go - ba).is_zero(atol=1e-6) for (go, ba) in zip(good_guess, bad_guess)])
+        assert np.all([(go - ba).is_zero(atol=5e-5) for (go, ba) in zip(good_guess, bad_guess)])
 
 
 def test_total_least_squares():

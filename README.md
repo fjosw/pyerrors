@@ -4,6 +4,7 @@
 
 - **Documentation:** https://fjosw.github.io/pyerrors/pyerrors.html
 - **Examples:** https://github.com/fjosw/pyerrors/tree/develop/examples
+- **Ask a question:** https://github.com/fjosw/pyerrors/discussions/new?category=q-a
 - **Changelog:** https://github.com/fjosw/pyerrors/blob/develop/CHANGELOG.md
 - **Bug reports:** https://github.com/fjosw/pyerrors/issues
 

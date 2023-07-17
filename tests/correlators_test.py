@@ -570,3 +570,125 @@ def test_corr_symmetric():
         assert scorr[1] == scorr[3]
         assert scorr[2] == corr[2]
         assert scorr[0] == corr[0]
+
+
+def test_two_matrix_corr_inits():
+    T = 4
+    rn = lambda : np.random.normal(0.5, 0.1)
+
+    # Generate T random CObs in a list
+    list_of_timeslices =[]
+    for i in range(T):
+        re = pe.pseudo_Obs(rn(), rn(), "test")
+        im = pe.pseudo_Obs(rn(), rn(), "test")
+        list_of_timeslices.append(pe.CObs(re, im))
+
+    # First option: Correlator of matrix of correlators
+    corr = pe.Corr(list_of_timeslices)
+    mat_corr1 = pe.Corr(np.array([[corr, corr], [corr, corr]]))
+
+    # Second option: Correlator of list of arrays per timeslice
+    list_of_arrays = [np.array([[elem, elem], [elem, elem]]) for elem in list_of_timeslices]
+    mat_corr2 = pe.Corr(list_of_arrays)
+
+    for el in mat_corr1 - mat_corr2:
+        assert np.all(el == 0)
+
+
+def test_matmul_overloading():
+    N = 4
+    rn = lambda : np.random.normal(0.5, 0.1)
+
+    # Generate N^2 random CObs and assemble them in an array
+    ll =[]
+    for i in range(N ** 2):
+        re = pe.pseudo_Obs(rn(), rn(), "test")
+        im = pe.pseudo_Obs(rn(), rn(), "test")
+        ll.append(pe.CObs(re, im))
+    mat = np.array(ll).reshape(N, N)
+
+    # Multiply with gamma matrix
+    corr = pe.Corr([mat] * 4, padding=[0, 1])
+
+    # __matmul__
+    mcorr = corr @ pe.dirac.gammaX
+    comp = mat @ pe.dirac.gammaX
+    for i in range(4):
+        assert np.all(mcorr[i] == comp)
+
+    # __rmatmul__
+    mcorr = pe.dirac.gammaX @ corr
+    comp = pe.dirac.gammaX @ mat
+    for i in range(4):
+        assert np.all(mcorr[i] == comp)
+
+    test_mat = pe.dirac.gamma5 + pe.dirac.gammaX
+    icorr = corr @ test_mat @ np.linalg.inv(test_mat)
+    tt = corr - icorr
+    for i in range(4):
+        assert np.all(tt[i] == 0)
+
+    # associative property
+    tt = (corr.real @ pe.dirac.gammaX + corr.imag @ (pe.dirac.gammaX * 1j)) - corr @ pe.dirac.gammaX
+    for el in tt:
+        if el is not None:
+            assert np.all(el == 0)
+
+    corr2 = corr @ corr
+    for i in range(4):
+        np.all(corr2[i] == corr[i] @ corr[i])
+
+
+def test_matrix_trace():
+    N = 4
+    rn = lambda : np.random.normal(0.5, 0.1)
+
+    # Generate N^2 random CObs and assemble them in an array
+    ll =[]
+    for i in range(N ** 2):
+        re = pe.pseudo_Obs(rn(), rn(), "test")
+        im = pe.pseudo_Obs(rn(), rn(), "test")
+        ll.append(pe.CObs(re, im))
+    mat = np.array(ll).reshape(N, N)
+
+    corr = pe.Corr([mat] * 4)
+
+    # Explicitly check trace
+    for el in corr.trace():
+        el == np.sum(np.diag(mat))
+
+    # Trace is cyclic
+    for one, two in zip((pe.dirac.gammaX @ corr).trace(), (corr @ pe.dirac.gammaX).trace()):
+        assert np.all(one == two)
+
+    # Antisymmetric matrices are traceless.
+    mat = (mat - mat.T) / 2
+    corr = pe.Corr([mat] * 4)
+    for el in corr.trace():
+        assert el == 0
+
+
+    with pytest.raises(ValueError):
+        corr.item(0, 0).trace()
+
+
+def test_corr_roll():
+    T = 4
+    rn = lambda : np.random.normal(0.5, 0.1)
+
+    ll = []
+    for i in range(T):
+        re = pe.pseudo_Obs(rn(), rn(), "test")
+        im = pe.pseudo_Obs(rn(), rn(), "test")
+        ll.append(pe.CObs(re, im))
+
+    # Rolling by T should produce the same correlator
+    corr = pe.Corr(ll)
+    tt = corr - corr.roll(T)
+    for el in tt:
+        assert np.all(el == 0)
+
+    mcorr = pe.Corr(np.array([[corr, corr + 0.1], [corr - 0.1, 2 * corr]]))
+    tt = mcorr.roll(T) - mcorr
+    for el in tt:
+        assert np.all(el == 0)

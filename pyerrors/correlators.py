@@ -257,7 +257,7 @@ class Corr:
     def trace(self):
         """Calculates the per-timeslice trace of a correlator matrix."""
         if self.N == 1:
-            raise TypeError("Only works for correlator matrices.")
+            raise ValueError("Only works for correlator matrices.")
         newcontent = []
         for t in range(self.T):
             if _check_for_none(self, self.content[t]):

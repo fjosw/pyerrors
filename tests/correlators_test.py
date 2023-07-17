@@ -668,6 +668,10 @@ def test_matrix_trace():
         assert el == 0
 
 
+    with pytest.raises(ValueError):
+        corr.item(0, 0).trace()
+
+
 def test_corr_roll():
     T = 4
     rn = lambda : np.random.normal(0.5, 0.1)

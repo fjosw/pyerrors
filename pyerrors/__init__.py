@@ -37,8 +37,9 @@ conda update -c conda-forge pyerrors   # Update
 ```
 Install the current `develop` version:
 ```bash
-python -m pip install git+https://github.com/fjosw/pyerrors.git@develop
+python -m pip install -U --no-deps --force-reinstall git+https://github.com/fjosw/pyerrors.git@develop
 ```
+(Also works for any feature branch).
 
 ## Basic example
 

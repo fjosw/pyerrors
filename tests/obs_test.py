@@ -1094,6 +1094,20 @@ def test_import_jackknife():
     assert my_obs == reconstructed_obs
 
 
+def test_import_bootstrap():
+    seed = 4321
+    samples = 1234
+    length = 820
+    name = "test"
+
+    rng = np.random.default_rng(seed)
+    random_numbers = rng.integers(0, length, size=(samples, length))
+    obs = pe.pseudo_Obs(2.447, 0.14, name, length)
+    boots = obs.export_bootstrap(1234, random_numbers=random_numbers)
+    re_obs = pe.import_bootstrap(boots, name, random_numbers=random_numbers)
+    assert obs == re_obs
+
+
 def test_reduce_deltas():
     idx_old = range(1, 101)
     deltas = [float(i) for i in idx_old]
@@ -1277,6 +1291,16 @@ def test_format():
 
 def test_f_string_obs():
     o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
+    print(f"{o1}")
+    print(f"{o1:3}")
+    print(f"{o1:+3}")
+    print(f"{o1:-1}")
+    print(f"{o1: 8}")
+
+def test_f_string_cobs():
+    o_real = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o_imag = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o1 = pe.CObs(o_real, o_imag)
     print(f"{o1}")
     print(f"{o1:3}")
     print(f"{o1:+3}")

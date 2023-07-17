@@ -41,7 +41,7 @@ class Corr:
         """
 
         if isinstance(data_input, np.ndarray):
-            if data_input.ndim in (1, 3):
+            if data_input.ndim == 1:
                 data_input = list(data_input)
             elif data_input.ndim == 2:
                 if not data_input.shape[0] == data_input.shape[1]:
@@ -68,6 +68,10 @@ class Corr:
                                 array_at_timeslace[i, j] = data_input[i, j][t]
                         input_as_list.append(array_at_timeslace)
                 data_input = input_as_list
+            elif data_input.ndim == 3:
+                if not data_input.shape[1] == data_input.shape[2]:
+                    raise ValueError("Array needs to be square.")
+                data_input = list(data_input)
             else:
                 raise ValueError("Arrays with ndim>3 not supported.")
 

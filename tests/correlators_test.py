@@ -588,3 +588,6 @@ def test_corr_array_ndim3_init():
     assert np.all([o1 == o2 for o1, o2 in zip(tt1, tt3)])
     assert tt1.T == y.shape[0]
     assert tt1.N == y.shape[1] == y.shape[2]
+
+    with pytest.raises(ValueError):
+        pe.Corr(y.reshape(6, 2, 1))

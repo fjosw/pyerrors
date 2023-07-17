@@ -70,7 +70,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
         corresponds to the pseudoscalar pseudoscalar two-point function.
     gammas : tuple of strings
         Instrad of a meson label one can also provide a tuple of two strings
-        indicating the gamma matrices at source and sink.
+        indicating the gamma matrices at sink and source (gamma_snk, gamma_src).
         ("Gamma5", "Gamma5") corresponds to the pseudoscalar pseudoscalar
         two-point function. The gammas argument dominateds over meson.
     idl : range

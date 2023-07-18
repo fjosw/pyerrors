@@ -1329,3 +1329,6 @@ def test_vec_gm():
     aa = np.array([obs, obs, obs])
     pe.gm(aa, S=2.2)
     assert np.all(np.vectorize(lambda x: x.S["qq"])(aa) == 2.20)
+    cc = pe.Corr(obs)
+    pe.gm(cc, S=4.12)
+    assert np.all(np.vectorize(lambda x: x.S["qq"])(cc.content) == 4.12)

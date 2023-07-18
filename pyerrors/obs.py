@@ -1034,7 +1034,7 @@ class CObs:
 
 def gm(x, **kwargs):
     """Vectorized version of the gamma_method. See docstring of pe.Obs.gamma_method for details."""
-    return np.vectorize(lambda o: Obs.gm(o, **kwargs))(x)
+    return np.vectorize(lambda o: o.gm(**kwargs))(x)
 
 
 def _format_uncertainty(value, dvalue, significance=2):

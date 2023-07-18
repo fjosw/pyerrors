@@ -1056,6 +1056,9 @@ class Corr:
 
     __array_priority__ = 10000
 
+    def __eq__(self, y):
+        return np.all([np.all(el == 0) or el is None for el in self - y])
+
     def __add__(self, y):
         if isinstance(y, Corr):
             if ((self.N != y.N) or (self.T != y.T)):

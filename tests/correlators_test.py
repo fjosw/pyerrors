@@ -713,3 +713,22 @@ def test_corr_roll():
     tt = mcorr.roll(T) - mcorr
     for el in tt:
         assert np.all(el == 0)
+
+
+def test_correlator_comparison():
+    scorr = pe.Corr([pe.pseudo_Obs(0.3, 0.1, "test") for o in range(4)])
+    mcorr = pe.Corr(np.array([[scorr, scorr], [scorr, scorr]]))
+    for corr in [scorr, mcorr]:
+        assert corr == 1 * corr
+        assert corr == (1 + 1e-16) * corr
+        assert corr != (1 + 1e-5) * corr
+        assert corr == 1 / (1 / corr)
+        assert corr - corr == 0
+        assert corr * 0 == 0
+        assert 0 * corr == 0
+        assert 0 * corr + scorr[2] == scorr[2]
+        assert -corr == 0 - corr
+        assert corr ** 2 == corr * corr
+    acorr = pe.Corr([scorr[0]] * 6)
+    assert acorr == scorr[0]
+    assert acorr != scorr[1]

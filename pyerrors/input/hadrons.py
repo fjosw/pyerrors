@@ -54,7 +54,7 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="re"):
+def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
     r'''Read hadrons hdf5 file and extract entry based on attributes.
 
     Parameters
@@ -76,8 +76,9 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="re"):
     idl : range
         If specified only configurations in the given range are read in.
     part: str
-        string specifying the real ('re') or imaginary part ('im').
-        Default 're'.
+        string specifying whether to extract the real part ('real'),
+        the imaginary part ('imag') or a complex correlator ('complex').
+        Default 'real'.
 
     Returns
     -------
@@ -115,7 +116,7 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="re"):
         if not group + '/' + entry in h5file:
             raise Exception("Entry '" + entry + "' not contained in the files.")
         raw_data = h5file[group + '/' + entry + '/corr']
-        real_data = raw_data[:][part].astype(np.double)
+        real_data = raw_data[:].view("complex")
         corr_data.append(real_data)
         if not infos:
             for k, i in h5file[group + '/' + entry].attrs.items():
@@ -123,9 +124,16 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="re"):
         h5file.close()
     corr_data = np.array(corr_data)
 
-    l_obs = []
-    for c in corr_data.T:
-        l_obs.append(Obs([c], [ens_id], idl=[idx]))
+    if part == "complex":
+        l_obs = []
+        for c in corr_data.T:
+            l_obs.append(CObs(Obs([c.real], [ens_id], idl=[idx]),
+                              Obs([c.imag], [ens_id], idl=[idx])))
+    else:
+        corr_data = getattr(corr_data, part)
+        l_obs = []
+        for c in corr_data.T:
+            l_obs.append(Obs([c], [ens_id], idl=[idx]))
 
     corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
@@ -168,7 +176,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
                  "gamma_src": gammas[1]}
     return read_hd5(filestem=path + "/" + filestem, ens_id=ens_id,
                     group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl,
-                    part="re")
+                    part="real")
 
 
 def _extract_real_arrays(path, files, tree, keys):

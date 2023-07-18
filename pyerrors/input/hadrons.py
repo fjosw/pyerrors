@@ -54,7 +54,7 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_hd5(filestem, ens_id, group, attrs=None, idl=None):
+def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="re"):
     r'''Read hadrons hdf5 file and extract entry based on attributes.
 
     Parameters
@@ -75,6 +75,9 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None):
         This is discouraged as the order in the file is not guaranteed.
     idl : range
         If specified only configurations in the given range are read in.
+    part: str
+        string specifying the real ('re') or imaginary part ('im').
+        Default 're'.
 
     Returns
     -------
@@ -112,7 +115,7 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None):
         if not group + '/' + entry in h5file:
             raise Exception("Entry '" + entry + "' not contained in the files.")
         raw_data = h5file[group + '/' + entry + '/corr']
-        real_data = raw_data[:]["re"].astype(np.double)
+        real_data = raw_data[:][part].astype(np.double)
         corr_data.append(real_data)
         if not infos:
             for k, i in h5file[group + '/' + entry].attrs.items():
@@ -164,7 +167,8 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
         attrs = {"gamma_snk": gammas[0],
                  "gamma_src": gammas[1]}
     return read_hd5(filestem=path + "/" + filestem, ens_id=ens_id,
-                     group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl)
+                     group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl,
+                     part="re")
 
 
 def _extract_real_arrays(path, files, tree, keys):

@@ -1057,7 +1057,19 @@ class Corr:
     __array_priority__ = 10000
 
     def __eq__(self, y):
-        return np.all([np.all(el == 0) or el is None for el in self - y])
+        if isinstance(y, Corr):
+            for e1, e2 in zip(np.array(self.content, dtype=object).flatten(), np.array(y.content, dtype=object).flatten()):
+                if e1 is None and e2 is None:
+                    continue
+                if e1 is None and e2 is not None:
+                    return False
+                if e1 is not None and e2 is None:
+                    return False
+                if not np.all(e1 == e2):
+                    return False
+            return True
+        else:
+            return np.all([np.all(el == 0) or el is None for el in self - y])
 
     def __add__(self, y):
         if isinstance(y, Corr):

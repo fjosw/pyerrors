@@ -732,3 +732,6 @@ def test_correlator_comparison():
     acorr = pe.Corr([scorr[0]] * 6)
     assert acorr == scorr[0]
     assert acorr != scorr[1]
+
+    mcorr[1][0, 1] = None
+    assert mcorr != pe.Corr(np.array([[scorr, scorr], [scorr, scorr]]))

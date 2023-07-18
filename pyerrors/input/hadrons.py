@@ -167,8 +167,8 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
         attrs = {"gamma_snk": gammas[0],
                  "gamma_src": gammas[1]}
     return read_hd5(filestem=path + "/" + filestem, ens_id=ens_id,
-                     group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl,
-                     part="re")
+                    group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl,
+                    part="re")
 
 
 def _extract_real_arrays(path, files, tree, keys):

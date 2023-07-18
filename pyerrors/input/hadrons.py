@@ -54,6 +54,81 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
+def read_hd5(filestem, ens_id, group, attrs=None, idl=None):
+    r'''Read hadrons hdf5 file and extract entry based on attributes.
+
+    Parameters
+    -----------------
+    filestem : str
+        Full namestem of the files to read, including the full path.
+    ens_id : str
+        name of the ensemble, required for internal bookkeeping
+    group : str
+        label of the group to be extracted.
+    attrs : dict or int
+        Dictionary containing the attributes. For example
+        ```python
+        attrs = {"gamma_snk": "Gamma5",
+                 "gamma_src": "Gamma5"}
+         ```
+        Alternatively an integer can be specified to identify the sub group.
+        This is discouraged as the order in the file is not guaranteed.
+    idl : range
+        If specified only configurations in the given range are read in.
+
+    Returns
+    -------
+    corr : Corr
+        Correlator of the source sink combination in question.
+    '''
+
+    path_obj = Path(filestem)
+    path = path_obj.parent.as_posix()
+    filestem = path_obj.stem
+
+    files, idx = _get_files(path, filestem, idl)
+
+    if isinstance(attrs, dict):
+        h5file = h5py.File(path + '/' + files[0], "r")
+        entry = None
+        for key in h5file[group].keys():
+            if attrs.items() <= {k: v[0].decode() for k, v in h5file[group][key].attrs.items()}.items():
+                if entry is None:
+                    entry = key
+                else:
+                    raise ValueError("More than one fitting entry found. More constraint on attributes needed.")
+        h5file.close()
+        if entry is None:
+            raise ValueError(f"Entry with attributes {attrs} not found.")
+    elif isinstance(attrs, int):
+        entry = group + f"_{attrs}"
+    else:
+        raise TypeError("Invalid type for 'attrs'. Needs to be dict or int.")
+
+    corr_data = []
+    infos = []
+    for hd5_file in files:
+        h5file = h5py.File(path + '/' + hd5_file, "r")
+        if not group + '/' + entry in h5file:
+            raise Exception("Entry '" + entry + "' not contained in the files.")
+        raw_data = h5file[group + '/' + entry + '/corr']
+        real_data = raw_data[:]["re"].astype(np.double)
+        corr_data.append(real_data)
+        if not infos:
+            for k, i in h5file[group + '/' + entry].attrs.items():
+                infos.append(k + ': ' + i[0].decode())
+        h5file.close()
+    corr_data = np.array(corr_data)
+
+    l_obs = []
+    for c in corr_data.T:
+        l_obs.append(Obs([c], [ens_id], idl=[idx]))
+
+    corr = Corr(l_obs)
+    corr.tag = r", ".join(infos)
+    return corr
+
+
 def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=None):
     r'''Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
@@ -81,45 +156,15 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
     corr : Corr
         Correlator of the source sink combination in question.
     '''
-
-    files, idx = _get_files(path, filestem, idl)
-
-    tree = meson.rsplit('_', 1)[0]
-    if gammas is not None:
-        h5file = h5py.File(path + '/' + files[0], "r")
-        found_meson = None
-        for key in h5file[tree].keys():
-            if gammas[0] == h5file[tree][key].attrs["gamma_snk"][0].decode() and h5file[tree][key].attrs["gamma_src"][0].decode() == gammas[1]:
-                found_meson = key
-                break
-        h5file.close()
-        if found_meson:
-            meson = found_meson
-        else:
-            raise Exception("Source Sink combination " + str(gammas) + " not found.")
-
-    corr_data = []
-    infos = []
-    for hd5_file in files:
-        h5file = h5py.File(path + '/' + hd5_file, "r")
-        if not tree + '/' + meson in h5file:
-            raise Exception("Entry '" + meson + "' not contained in the files.")
-        raw_data = h5file[tree + '/' + meson + '/corr']
-        real_data = raw_data[:]["re"].astype(np.double)
-        corr_data.append(real_data)
-        if not infos:
-            for k, i in h5file[tree + '/' + meson].attrs.items():
-                infos.append(k + ': ' + i[0].decode())
-        h5file.close()
-    corr_data = np.array(corr_data)
-
-    l_obs = []
-    for c in corr_data.T:
-        l_obs.append(Obs([c], [ens_id], idl=[idx]))
-
-    corr = Corr(l_obs)
-    corr.tag = r", ".join(infos)
-    return corr
+    if gammas is None:
+        attrs = int(meson.rsplit('_', 1)[-1])
+    else:
+        if len(gammas) != 2:
+            raise ValueError("'gammas' needs to have exactly two entries")
+        attrs = {"gamma_snk": gammas[0],
+                 "gamma_src": gammas[1]}
+    return read_hd5(filestem=path + "/" + filestem, ens_id=ens_id,
+                     group=meson.rsplit('_', 1)[0], attrs=attrs, idl=idl)
 
 
 def _extract_real_arrays(path, files, tree, keys):

@@ -84,7 +84,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
 
     files, idx = _get_files(path, filestem, idl)
 
-    tree = meson.rsplit('_')[0]
+    tree = meson.rsplit('_', 1)[0]
     if gammas is not None:
         h5file = h5py.File(path + '/' + files[0], "r")
         found_meson = None

@@ -11,16 +11,32 @@ from .roots import find_root
 
 
 class Corr:
-    """The class for a correlator (time dependent sequence of pe.Obs).
+    r"""The class for a correlator (time dependent sequence of pe.Obs).
 
     Everything, this class does, can be achieved using lists or arrays of Obs.
     But it is simply more convenient to have a dedicated object for correlators.
     One often wants to add or multiply correlators of the same length at every timeslice and it is inconvenient
     to iterate over all timeslices for every operation. This is especially true, when dealing with matrices.
 
-    The correlator can have two types of content: An Obs at every timeslice OR a GEVP
-    matrix at every timeslice. Other dependency (eg. spatial) are not supported.
+    The correlator can have two types of content: An Obs at every timeslice OR a matrix at every timeslice.
+    Other dependency (eg. spatial) are not supported.
 
+    The Corr class can also deal with missing measurements or paddings for fixed boundary conditions.
+    The missing entries are represented via the `None` object.
+
+    Initialization
+    --------------
+    A simple correlator can be initialized with a list or a one-dimensional array of `Obs` or `Cobs`
+    ```python
+    corr11 = pe.Corr([obs1, obs2])
+    corr11 = pe.Corr(np.array([obs1, obs2]))
+    ```
+    A matrix-valued correlator can either be initialized via a two-dimensional array of `Corr` objects
+    ```python
+    matrix_corr = pe.Corr(np.array([[corr11, corr12], [corr21, corr22]]))
+    ```
+    or alternatively via a three-dimensional array of `Obs` or `CObs` of shape (T, N, N) where T is
+    the temporal extent of the correlator and N is the dimension of the matrix.
     """
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
@@ -31,43 +47,50 @@ class Corr:
         Parameters
         ----------
         data_input : list or array
-            list of Obs or list of arrays of Obs or array of Corrs
+            list of Obs or list of arrays of Obs or array of Corrs (see class docstring for details).
         padding : list, optional
             List with two entries where the first labels the padding
             at the front of the correlator and the second the padding
             at the back.
         prange : list, optional
             List containing the first and last timeslice of the plateau
-            region indentified for this correlator.
+            region identified for this correlator.
         """
 
         if isinstance(data_input, np.ndarray):
+            if data_input.ndim == 1:
+                data_input = list(data_input)
+            elif data_input.ndim == 2:
+                if not data_input.shape[0] == data_input.shape[1]:
+                    raise ValueError("Array needs to be square.")
+                if not all([isinstance(item, Corr) for item in data_input.flatten()]):
+                    raise ValueError("If the input is an array, its elements must be of type pe.Corr.")
+                if not all([item.N == 1 for item in data_input.flatten()]):
+                    raise ValueError("Can only construct matrix correlator from single valued correlators.")
+                if not len(set([item.T for item in data_input.flatten()])) == 1:
+                    raise ValueError("All input Correlators must be defined over the same timeslices.")
 
-            # This only works, if the array fulfills the conditions below
-            if not len(data_input.shape) == 2 and data_input.shape[0] == data_input.shape[1]:
-                raise Exception("Incompatible array shape")
-            if not all([isinstance(item, Corr) for item in data_input.flatten()]):
-                raise Exception("If the input is an array, its elements must be of type pe.Corr")
-            if not all([item.N == 1 for item in data_input.flatten()]):
-                raise Exception("Can only construct matrix correlator from single valued correlators")
-            if not len(set([item.T for item in data_input.flatten()])) == 1:
-                raise Exception("All input Correlators must be defined over the same timeslices.")
-
-            T = data_input[0, 0].T
-            N = data_input.shape[0]
-            input_as_list = []
-            for t in range(T):
-                if any([(item.content[t] is None) for item in data_input.flatten()]):
-                    if not all([(item.content[t] is None) for item in data_input.flatten()]):
-                        warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss!", RuntimeWarning)
-                    input_as_list.append(None)
-                else:
-                    array_at_timeslace = np.empty([N, N], dtype="object")
-                    for i in range(N):
-                        for j in range(N):
-                            array_at_timeslace[i, j] = data_input[i, j][t]
-                    input_as_list.append(array_at_timeslace)
-            data_input = input_as_list
+                T = data_input[0, 0].T
+                N = data_input.shape[0]
+                input_as_list = []
+                for t in range(T):
+                    if any([(item.content[t] is None) for item in data_input.flatten()]):
+                        if not all([(item.content[t] is None) for item in data_input.flatten()]):
+                            warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss.!", RuntimeWarning)
+                        input_as_list.append(None)
+                    else:
+                        array_at_timeslace = np.empty([N, N], dtype="object")
+                        for i in range(N):
+                            for j in range(N):
+                                array_at_timeslace[i, j] = data_input[i, j][t]
+                        input_as_list.append(array_at_timeslace)
+                data_input = input_as_list
+            elif data_input.ndim == 3:
+                if not data_input.shape[1] == data_input.shape[2]:
+                    raise ValueError("Array needs to be square.")
+                data_input = list(data_input)
+            else:
+                raise ValueError("Arrays with ndim>3 not supported.")
 
         if isinstance(data_input, list):
 
@@ -75,19 +98,18 @@ class Corr:
                 _assert_equal_properties([o for o in data_input if o is not None])
                 self.content = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
-
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
                 noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
                 self.N = noNull[0].shape[0]
                 if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
-                    raise Exception("Smearing matrices are not NxN")
+                    raise ValueError("Smearing matrices are not NxN.")
                 if (not all([item.shape == noNull[0].shape for item in noNull])):
-                    raise Exception("Items in data_input are not of identical shape." + str(noNull))
+                    raise ValueError("Items in data_input are not of identical shape." + str(noNull))
             else:
-                raise Exception("data_input contains item of wrong type")
+                raise TypeError("'data_input' contains item of wrong type.")
         else:
-            raise Exception("Data input was not given as list or correct array")
+            raise TypeError("Data input was not given as list or correct array.")
 
         self.tag = None
 
@@ -500,7 +522,7 @@ class Corr:
         ----------
         partner : Corr
             Time symmetry partner of the Corr
-        partity : int
+        parity : int
             Parity quantum number of the correlator, can be +1 or -1
         """
         if self.N != 1:
@@ -658,8 +680,8 @@ class Corr:
         ----------
         variant : str
             log : uses the standard effective mass log(C(t) / C(t+1))
-            cosh, periodic : Use periodicitiy of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
-            sinh : Use anti-periodicitiy of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
+            cosh, periodic : Use periodicity of the correlator by solving C(t) / C(t+1) = cosh(m * (t - T/2)) / cosh(m * (t + 1 - T/2)) for m.
+            sinh : Use anti-periodicity of the correlator by solving C(t) / C(t+1) = sinh(m * (t - T/2)) / sinh(m * (t + 1 - T/2)) for m.
             See, e.g., arXiv:1205.5380
             arccosh : Uses the explicit form of the symmetrized correlator (not recommended)
             logsym: uses the symmetric effective mass log(C(t-1) / C(t+1))/2

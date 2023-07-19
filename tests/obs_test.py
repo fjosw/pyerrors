@@ -102,6 +102,7 @@ def test_comparison():
     test_obs1 = pe.pseudo_Obs(value1, 0.1, 't')
     value2 = np.random.normal(0, 100)
     test_obs2 = pe.pseudo_Obs(value2, 0.1, 't')
+    assert test_obs1 != None
     assert (value1 > value2) == (test_obs1 > test_obs2)
     assert (value1 < value2) == (test_obs1 < test_obs2)
     assert (value1 >= value2) == (test_obs1 >= test_obs2)

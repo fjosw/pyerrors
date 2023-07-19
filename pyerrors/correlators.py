@@ -1058,18 +1058,10 @@ class Corr:
 
     def __eq__(self, y):
         if isinstance(y, Corr):
-            for e1, e2 in zip(np.array(self.content, dtype=object).flatten(), np.array(y.content, dtype=object).flatten()):
-                if e1 is None and e2 is None:
-                    continue
-                if e1 is None and e2 is not None:
-                    return False
-                if e1 is not None and e2 is None:
-                    return False
-                if not np.all(e1 == e2):
-                    return False
-            return True
+            comp = np.asarray(y.content)
         else:
-            return np.all([np.all(el == 0) or el is None for el in self - y])
+            comp = np.asarray(y)
+        return np.asarray(self.content) == comp
 
     def __add__(self, y):
         if isinstance(y, Corr):

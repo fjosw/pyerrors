@@ -773,10 +773,9 @@ class Obs:
         return self.value >= other
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return (self - other).is_zero()
-
-    def __ne__(self, other):
-        return not (self - other).is_zero()
 
     # Overload math operations
     def __add__(self, y):

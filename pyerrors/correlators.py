@@ -1058,10 +1058,10 @@ class Corr:
 
     def __eq__(self, y):
         if isinstance(y, Corr):
-            comp = np.asarray(y.content)
+            comp = np.asarray(y.content, dtype=object)
         else:
             comp = np.asarray(y)
-        return np.asarray(self.content) == comp
+        return np.asarray(self.content, dtype=object) == comp
 
     def __add__(self, y):
         if isinstance(y, Corr):

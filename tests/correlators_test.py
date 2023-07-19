@@ -737,6 +737,10 @@ def test_correlator_comparison():
     mcorr[1][0, 1] = None
     assert not np.all(mcorr == pe.Corr(np.array([[scorr, scorr], [scorr, scorr]])))
 
+    pcorr = pe.Corr([pe.pseudo_Obs(0.25, 0.1, "test") for o in range(2)], padding=[1, 1])
+    assert np.all(pcorr == pcorr)
+    assert np.all(1 * pcorr == pcorr)
+
 
 def test_corr_item():
     corr_aa = _gen_corr(1)

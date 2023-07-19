@@ -719,6 +719,7 @@ def test_correlator_comparison():
     scorr = pe.Corr([pe.pseudo_Obs(0.3, 0.1, "test") for o in range(4)])
     mcorr = pe.Corr(np.array([[scorr, scorr], [scorr, scorr]]))
     for corr in [scorr, mcorr]:
+        assert (corr == corr).all()
         assert np.all(corr == 1 * corr)
         assert np.all(corr == (1 + 1e-16) * corr)
         assert not np.all(corr == (1 + 1e-5) * corr)

@@ -713,3 +713,39 @@ def test_corr_roll():
     tt = mcorr.roll(T) - mcorr
     for el in tt:
         assert np.all(el == 0)
+
+
+def test_correlator_comparison():
+    scorr = pe.Corr([pe.pseudo_Obs(0.3, 0.1, "test") for o in range(4)])
+    mcorr = pe.Corr(np.array([[scorr, scorr], [scorr, scorr]]))
+    for corr in [scorr, mcorr]:
+        assert (corr == corr).all()
+        assert np.all(corr == 1 * corr)
+        assert np.all(corr == (1 + 1e-16) * corr)
+        assert not np.all(corr == (1 + 1e-5) * corr)
+        assert np.all(corr == 1 / (1 / corr))
+        assert np.all(corr - corr == 0)
+        assert np.all(corr * 0 == 0)
+        assert np.all(0 * corr == 0)
+        assert np.all(0 * corr + scorr[2] == scorr[2])
+        assert np.all(-corr == 0 - corr)
+        assert np.all(corr ** 2 == corr * corr)
+    acorr = pe.Corr([scorr[0]] * 6)
+    assert np.all(acorr == scorr[0])
+    assert not np.all(acorr == scorr[1])
+
+    mcorr[1][0, 1] = None
+    assert not np.all(mcorr == pe.Corr(np.array([[scorr, scorr], [scorr, scorr]])))
+
+    pcorr = pe.Corr([pe.pseudo_Obs(0.25, 0.1, "test") for o in range(2)], padding=[1, 1])
+    assert np.all(pcorr == pcorr)
+    assert np.all(1 * pcorr == pcorr)
+
+
+def test_corr_item():
+    corr_aa = _gen_corr(1)
+    corr_ab = 0.5 * corr_aa
+
+    corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
+    corr_mat.item(0, 0)
+    assert corr_mat[0].item(0, 1) == corr_mat.item(0, 1)[0]

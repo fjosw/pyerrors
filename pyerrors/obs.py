@@ -1032,9 +1032,20 @@ class CObs:
         return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
 
 
-def gm(x, **kwargs):
-    """Vectorized version of the gamma_method. See docstring of pe.Obs.gamma_method for details."""
+def gamma_method(x, **kwargs):
+    """Vectorized version of the gamma_method applicable to lists or arrays of Obs.
+
+    See docstring of pe.Obs.gamma_method for details.
+    """
     return np.vectorize(lambda o: o.gm(**kwargs))(x)
+
+
+def gm(x, **kwargs):
+    """Short version of the vectorized gamma_method.
+
+    See docstring of pe.Obs.gamma_method for details
+    """
+    return gamma_method(x, **kwargs)
 
 
 def _format_uncertainty(value, dvalue, significance=2):

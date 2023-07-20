@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.0] - 2023-07-20
+### Added
+- Vectorized `gamma_method` added which can be applied to lists or arrays of pyerrors objects.
+- Wrapper for numerical integration of `Obs` valued functions with `Obs` valued intervals.
+- Bootstrap import and export added.
+- `matmul` overloaded for `Corr` class.
+- More options for initializing `Corr` objects added.
+- General Hadrons hdf5 reader added.
+- New variant of second_derivative.
+- CObs formatting added.
+- Comparisons for `Corr` class added.
+
+### Changed
+- support for python<3.8 was dropped and dependencies were updated.
+
+
 ## [2.8.2] - 2023-06-02
 ### Fixed
 - Another bug appearing in an edge case of `_compute_drho` fixed.

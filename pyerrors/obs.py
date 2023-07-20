@@ -1039,12 +1039,7 @@ def gamma_method(x, **kwargs):
     return np.vectorize(lambda o: o.gm(**kwargs))(x)
 
 
-def gm(x, **kwargs):
-    """Short version of the vectorized gamma_method.
-
-    See docstring of pe.Obs.gamma_method for details
-    """
-    return gamma_method(x, **kwargs)
+gm = gamma_method
 
 
 def _format_uncertainty(value, dvalue, significance=2):

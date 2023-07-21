@@ -784,6 +784,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self + o for o in y])
+            elif isinstance(y, complex):
+                return CObs(self, 0) + y
             elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:

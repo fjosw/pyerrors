@@ -749,3 +749,13 @@ def test_corr_item():
     corr_mat = pe.Corr(np.array([[corr_aa, corr_ab], [corr_ab, corr_aa]]))
     corr_mat.item(0, 0)
     assert corr_mat[0].item(0, 1) == corr_mat.item(0, 1)[0]
+
+
+def test_complex_add_and_mul():
+    o = pe.pseudo_Obs(1.0, 0.3, "my_r345sfg16£$%&$%^%$^$", samples=47)
+    co = pe.CObs(o, 0.341 * o)
+    for obs in [o, co]:
+        cc = pe.Corr([obs for _ in range(4)])
+        cc += 2j
+        cc = cc * 4j
+        cc.real + cc.imag

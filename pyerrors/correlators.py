@@ -1075,7 +1075,7 @@ class Corr:
                     newcontent.append(self.content[t] + y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, (Obs, int, float, CObs)):
+        elif isinstance(y, (Obs, int, float, CObs, complex)):
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
@@ -1103,7 +1103,7 @@ class Corr:
                     newcontent.append(self.content[t] * y.content[t])
             return Corr(newcontent)
 
-        elif isinstance(y, (Obs, int, float, CObs)):
+        elif isinstance(y, (Obs, int, float, CObs, complex)):
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):

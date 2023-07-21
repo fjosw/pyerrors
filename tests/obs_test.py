@@ -1333,3 +1333,10 @@ def test_vec_gm():
     cc = pe.Corr(obs)
     pe.gm(cc, S=4.12)
     assert np.all(np.vectorize(lambda x: x.S["qq"])(cc.content) == 4.12)
+
+def test_complex_addition():
+    o = pe.pseudo_Obs(34.12, 1e-4, "testens")
+    r = o + 2j
+    assert r.real == o
+    r = r * 1j
+    assert r.imag == o

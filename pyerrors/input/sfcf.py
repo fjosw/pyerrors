@@ -6,7 +6,17 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
+_corr_type_dict = {
+    "f_A": "bi",
+    "g_A": "bi",
+    "f_P": "bi",
+    "g_P": "bi",
+    "f_1": "bb",
+    "k_1": "bb",
+}
+
+
+def read_sfcf(path, prefix, name, quarks='.*', corr_type = "bi" ,noffsets=0, wf1s=0, wf2s=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -65,7 +75,70 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type='bi', noffset=0, wf=0, 
         list of Observables with length T, observable per timeslice.
         bb-type correlators have length 1.
     """
-    if kwargs.get('im'):
+
+    return read_sfcf_multi(path, prefix, [name], quark_pairs=[quarks], corr_type=[corr_type], noffset=[0], wf=[0], wf2=[0], version="1.0c", cfg_separator="n", silent=False, **kwargs)
+
+
+def read_sfcf_multi(path, prefix, names, quark_pairs='.*', corr_type=['bi'],  noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
+    """Read sfcf files from given folder structure.
+
+    Parameters
+    ----------
+    path : str
+        Path to the sfcf files.
+    prefix : str
+        Prefix of the sfcf files.
+    name : str
+        Name of the correlation function to read.
+    quarks : str
+        Label of the quarks used in the sfcf input file. e.g. "quark quark"
+        for version 0.0 this does NOT need to be given with the typical " - "
+        that is present in the output file,
+        this is done automatically for this version
+    corr_type : str
+        Type of correlation function to read. Can be
+        - 'bi' for boundary-inner
+        - 'bb' for boundary-boundary
+        - 'bib' for boundary-inner-boundary
+    noffset : int
+        Offset of the source (only relevant when wavefunctions are used)
+    wf : int
+        ID of wave function
+    wf2 : int
+        ID of the second wavefunction
+        (only relevant for boundary-to-boundary correlation functions)
+    im : bool
+        if True, read imaginary instead of real part
+        of the correlation function.
+    names : list
+        Alternative labeling for replicas/ensembles.
+        Has to have the appropriate length
+    ens_name : str
+        replaces the name of the ensemble
+    version: str
+        version of SFCF, with which the measurement was done.
+        if the compact output option (-c) was specified,
+        append a "c" to the version (e.g. "1.0c")
+        if the append output option (-a) was specified,
+        append an "a" to the version
+    cfg_separator : str
+        String that separates the ensemble identifier from the configuration number (default 'n').
+    replica: list
+        list of replica to be read, default is all
+    files: list
+        list of files to be read per replica, default is all.
+        for non-compact output format, hand the folders to be read here.
+    check_configs: list[list[int]]
+        list of list of supposed configs, eg. [range(1,1000)]
+        for one replicum with 1000 configs
+
+    Returns
+    -------
+    result: list[Obs]
+        list of Observables with length T, observable per timeslice.
+        bb-type correlators have length 1.
+    """
+    if kwargs.get('im') is True:
         im = 1
         part = 'imaginary'
     else:

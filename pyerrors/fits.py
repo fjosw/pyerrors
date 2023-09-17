@@ -168,12 +168,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     '''
     output = Fit_result()
 
-    if (type(x) == dict and type(y) == dict and type(func) == dict):
+    if (isinstance(x, dict) and isinstance(y, dict) and isinstance(func, dict)):
         xd = {key: anp.asarray(x[key]) for key in x}
         yd = y
         funcd = func
         output.fit_function = func
-    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+    elif (isinstance(x, dict) or isinstance(y, dict) or isinstance(func, dict)):
         raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
         x = np.asarray(x)

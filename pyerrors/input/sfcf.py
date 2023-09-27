@@ -80,7 +80,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf1=0,
     return ret
 
 
-def read_sfcf_multi(path, prefix, name_list, quark_pairs=['.*'], corr_type=['bi'],  noffset_list=[0], wf1_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, nice_output=False, **kwargs):
+def read_sfcf_multi(path, prefix, name_list, quark_pairs=['.*'], corr_type_list=['bi'],  noffset_list=[0], wf1_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, nice_output=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -207,9 +207,9 @@ def read_sfcf_multi(path, prefix, name_list, quark_pairs=['.*'], corr_type=['bi'
     idl = []
 
     intern = {}
-    for name, c_type in zip(name_list, corr_type):
+    for name, corr_type in zip(name_list, corr_type_list):
         intern[name] = {}
-        b2b, single = _extract_corr_type(c_type)
+        b2b, single = _extract_corr_type(corr_type)
         intern[name]["b2b"] = b2b
         intern[name]["single"] = single
         intern[name]["spec"] = {}
@@ -323,7 +323,7 @@ def read_sfcf_multi(path, prefix, name_list, quark_pairs=['.*'], corr_type=['bi'
                                 rep_idl = []
                                 filename = path + '/' + file
                                 T, rep_idl, rep_data = _read_append_rep(filename, pattern, b2b, cfg_separator, im, single)
-                                if not 'T' in intern[name]:
+                                if 'T' not in intern[name]:
                                     intern[name]['T'] = T
                                 if rep == 0:
                                     for t in range(T):

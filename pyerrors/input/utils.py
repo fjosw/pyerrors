@@ -20,6 +20,7 @@ def sort_names(ll):
     ll: list
         sorted list
     """
+
     if len(ll) > 1:
         sorted = False
         r_pattern = r'r(\d+)'
@@ -66,6 +67,7 @@ def check_idl(idl, che):
     miss_str : str
         string with integers of which idls are missing
     """
+
     missing = []
     for c in che:
         if c not in idl:
@@ -80,7 +82,27 @@ def check_idl(idl, che):
     return miss_str
 
 
-def check_params(path, param_hash, prefix, param_prefix):
+def check_params(path, param_hash, prefix, param_prefix = "parameters_"):
+    """
+    Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.
+
+    Parameters
+    ----------
+    path: str
+        measurement path, same as for sfcf read method
+    param_hash: str
+        expected parameter hash
+    prefix: str
+        data prefix to find the appropriate replicum folders in path
+    param_prefix: str
+        prefix of the parameter file. Defaults to 'parameters_'
+
+    Returns
+    -------
+    nums: dict
+        dictionary of faulty parameter files sorted by the replica paths
+    """
+
     ls = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         ls.extend(dirnames)

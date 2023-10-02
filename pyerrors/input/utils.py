@@ -1,5 +1,8 @@
-import re
 """Utilities for the input"""
+
+import re
+import fnmatch
+import os
 
 
 def sort_names(ll):
@@ -75,3 +78,45 @@ def check_idl(idl, che):
             miss_str += "," + str(i)
         print(miss_str)
     return miss_str
+
+
+def check_params(path, param_hash, prefix, param_prefix):
+    ls = []
+    for (dirpath, dirnames, filenames) in os.walk(path):
+        ls.extend(dirnames)
+        break
+    if not ls:
+        raise Exception('Error, directory not found')
+    # Exclude folders with different names
+    for exc in ls:
+        if not fnmatch.fnmatch(exc, prefix + '*'):
+            ls = list(set(ls) - set([exc]))
+
+    ls = sort_names(ls)
+    nums = {}
+    for rep in ls:
+        rep_path = path + '/' + rep
+        # files of replicum
+        sub_ls = []
+        for (dirpath, dirnames, filenames) in os.walk(rep_path):
+            sub_ls.extend(filenames)
+
+        # filter
+        param_files = []
+        for file in sub_ls:
+            if fnmatch.fnmatch(file, param_prefix + '*'):
+                param_files.append(file)
+
+        rep_nums = ''
+        for file in param_files:
+            with open(rep_path + '/' + file) as fp:
+                for line in fp:
+                    pass
+                last_line = line
+                if last_line.split()[2] != param_hash:
+                    rep_nums += file.split("_")[1] + ','
+        nums[rep_path] = rep_nums
+
+        if not len(rep_nums) == 0:
+            raise Warning("found differing parameter hash in the param files in " + rep_path)
+    return nums

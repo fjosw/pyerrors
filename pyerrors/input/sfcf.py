@@ -247,15 +247,12 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             idl.append(rep_idl)
             # here we have found all the files we need to look into.
             if i == 0:
-                if version == "0.0":
-                    file = path + '/' + item + '/' + sub_ls[0] + '/' + name
-                else:
-                    if compact:
-                        file = path + '/' + item + '/' + sub_ls[0]
-                    else:
-                        file = path + '/' + item + '/' + sub_ls[0] + '/' + name
+                if version != "0.0" and compact:
+                    file = path + '/' + item + '/' + sub_ls[0]
 
                 for name in name_list:
+                    if version == "0.0" or not compact:
+                        file = path + '/' + item + '/' + sub_ls[0] + '/' + name
                     for quarks in quarks_list:
                         for off in noffset_list:
                             for w in wf_list:
@@ -271,7 +268,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                                     # preparing the datastructure
                                     # the correlators get parsed into...
                                     deltas = []
-                                    for j in range(T):
+                                    for j in range(intern[name]["T"]):
                                         deltas.append([])
                                     internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)] = deltas
 
@@ -285,46 +282,54 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                                     for t in range(intern[name]["T"]):
                                         internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t].append(rep_deltas[name][quarks][str(off)][str(w)][str(w2)][t])
             else:
-                for t in range(T):
-                    deltas[t].append(np.zeros(no_cfg))
-                for cnfg, subitem in enumerate(sub_ls):
-                    with open(path + '/' + item + '/' + subitem + '/' + name) as fp:
-                        for k, line in enumerate(fp):
-                            if (k >= start_read and k < start_read + T):
-                                floats = list(map(float, line.split()))
-                                if version == "0.0":
-                                    deltas[k - start_read][i][cnfg] = floats[im - single]
-                                else:
-                                    deltas[k - start_read][i][cnfg] = floats[1 + im - single]
+                for name in name_list:
+                    rep_data = []
+                    for cnfg, subitem in enumerate(sub_ls):
+                        for quarks in quarks_list:
+                            for off in noffset_list:
+                                for w in wf_list:
+                                    for w2 in wf2_list:
+                                        cfg_path = path + '/' + item + '/' + subitem
+                                        file_data = _read_o_file(cfg_path, name, intern, version, im)
+                                        rep_data.append(file_data)
 
+                    for quarks in quarks_list:
+                        for off in noffset_list:
+                            for w in wf_list:
+                                for w2 in wf2_list:
+                                    for t in range(intern[name]["T"]):
+                                        internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t].append([])
+                                        for cfg in range(no_cfg):
+                                            internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t][i].append(rep_data[cfg][quarks][str(off)][str(w)][str(w2)][t])
     else:
-        if "files" in kwargs:
-            ls = kwargs.get("files")
-        else:
-            for exc in ls:
-                if not fnmatch.fnmatch(exc, prefix + '*.' + name):
-                    ls = list(set(ls) - set([exc]))
-            ls = sort_names(ls)
         for name in name_list:
+            if "files" in kwargs:
+                ls = kwargs.get("files")
+            else:
+                name_ls = ls
+                for exc in name_ls:
+                    if not fnmatch.fnmatch(exc, prefix + '*.' + name):
+                        name_ls = list(set(name_ls) - set([exc]))
+            name_ls = sort_names(name_ls)
             for quarks in quarks_list:
                 for off in noffset_list:
                     for w in wf_list:
                         for w2 in wf2_list:
                             pattern = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
                             deltas = []
-                            for rep, file in enumerate(ls):
+                            for rep, file in enumerate(name_ls):
                                 rep_idl = []
                                 filename = path + '/' + file
-                                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, single)
-                                if 'T' not in intern[name]:
-                                    intern[name]['T'] = T
+                                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'])
                                 if rep == 0:
-                                    for t in range(T):
+                                    intern[name]['T'] = T
+                                    for t in range(intern[name]['T']):
                                         deltas.append([])
-                                for t in range(T):
+                                for t in range(intern[name]['T']):
                                     deltas[t].append(rep_data[t])
                                 internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)] = deltas
-                                idl.append(rep_idl)
+                                if name == name_list[0]:
+                                    idl.append(rep_idl)
 
     if kwargs.get("check_configs") is True:
         if not silent:
@@ -356,6 +361,31 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     if nice_output:
         result_dict = _reduce_dict(result_dict)
     return result_dict
+
+
+def _read_o_file(cfg_path, name, intern, version, im):
+    file = cfg_path + '/' + name
+    return_vals = {}
+    with open(file) as fp:
+        lines = fp.readlines()
+        for quarks in intern[name]["spec"].keys():
+            return_vals[quarks] = {}
+            for off in intern[name]["spec"][quarks].keys():
+                return_vals[quarks][off] = {}
+                for w in intern[name]["spec"][quarks][off].keys():
+                    return_vals[quarks][off][w] = {}
+                    for w2 in intern[name]["spec"][quarks][off][w].keys():
+                        T = intern[name]["T"]
+                        start_read = intern[name]["spec"][quarks][off][w][w2]["start"]
+                        deltas = []
+                        for line in lines[start_read:start_read + T]:
+                            floats = list(map(float, line.split()))
+                            if version == "0.0":
+                                deltas.append(floats[im - intern[name]["single"]])
+                            else:
+                                deltas.append(floats[1 + im - intern[name]["single"]])
+                        return_vals[quarks][off][w][w2] = deltas
+    return return_vals
 
 
 def _extract_corr_type(corr_type):

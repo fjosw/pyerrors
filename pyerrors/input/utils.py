@@ -82,7 +82,7 @@ def check_idl(idl, che):
     return miss_str
 
 
-def check_params(path, param_hash, prefix, param_prefix = "parameters_"):
+def check_params(path, param_hash, prefix, param_prefix="parameters_"):
     """
     Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.
 

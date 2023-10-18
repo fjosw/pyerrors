@@ -69,12 +69,11 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     """
     ret = read_sfcf_multi(path, prefix, [name], quarks_list=[quarks], corr_type_list=[corr_type],
                           noffset_list=[noffset], wf_list=[wf], wf2_list=[wf2], version=version,
-                          cfg_separator=cfg_separator, silent=silent, nice_output=True, **kwargs)
+                          cfg_separator=cfg_separator, silent=silent, **kwargs)
+    return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
-    return ret
 
-
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'],  noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, nice_output=False, **kwargs):
+def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'],  noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -331,8 +330,6 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             result.append(Obs(internal_ret_dict[k][t], new_names, idl=idl))
         print(result)
         result_dict[k] = result
-    if nice_output:
-        result_dict = _reduce_dict(result_dict)
     return result_dict
 
 
@@ -629,16 +626,6 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None):
         else:
             new_names.append(myentry[:idx] + '|' + myentry[idx:])
     return new_names
-
-
-def _reduce_dict(d):
-    for key in d.keys():
-        if isinstance(d[key], dict):
-            ret = _reduce_dict(d[key])
-        else:
-            if len(list(d.keys())) == 1:
-                ret = d[list(d.keys())[0]]
-    return ret
 
 
 def _get_deep_paths(f, sep='/'):

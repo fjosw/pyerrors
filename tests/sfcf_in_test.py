@@ -63,8 +63,8 @@ def test_o_bib(tmp_path):
 
 def test_simple_multi_o(tmp_path):
     build_test_environment(str(tmp_path), "o", 5, 3)
-    f_V0 = sfin.read_sfcf_multi(str(tmp_path) + "/data_o", "test", ["F_V0"], quarks=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0", corr_type_list=["bib"], nice_output=True)
-    print(f_V0)
+    corrs = sfin.read_sfcf_multi(str(tmp_path) + "/data_o", "test", ["F_V0"], quarks_list=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0", corr_type_list=["bib"])
+    f_V0 = corrs["F_V0"]['lquark lquark']['0']['0']['0']
     assert len(f_V0) == 3
     assert list(f_V0[0].shape.keys()) == ["test_|r0", "test_|r1", "test_|r2"]
     assert f_V0[0] == 683.6776090085115
@@ -133,8 +133,8 @@ def test_c_bib(tmp_path):
 
 def test_simple_multi_c(tmp_path):
     build_test_environment(str(tmp_path), "c", 5, 3)
-    f_V0 = sfin.read_sfcf_multi(str(tmp_path) + "/data_c", "data_c", ["F_V0"], quarks=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0c", corr_type_list=["bib"], nice_output=True)
-    print(f_V0)
+    corrs = sfin.read_sfcf_multi(str(tmp_path) + "/data_c", "data_c", ["F_V0"], quarks_list=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0c", corr_type_list=["bib"])
+    f_V0 = corrs["F_V0"]['lquark lquark']['0']['0']['0']
     assert len(f_V0) == 3
     assert list(f_V0[0].shape.keys()) == ["data_c_|r0", "data_c_|r1", "data_c_|r2"]
     assert f_V0[0] == 683.6776090085115
@@ -269,8 +269,8 @@ def test_a_bib(tmp_path):
 
 def test_simple_multi_a(tmp_path):
     build_test_environment(str(tmp_path), "a", 5, 3)
-    f_V0 = sfin.read_sfcf_multi(str(tmp_path) + "/data_a", "data_a", ["F_V0"], quarks=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0a", corr_type_list=["bib"], nice_output=True)
-    print(f_V0)
+    corrs = sfin.read_sfcf_multi(str(tmp_path) + "/data_a", "data_a", ["F_V0"], quarks_list=["lquark lquark"], wf1_list=[0], wf2_list=[0], version="2.0a", corr_type_list=["bib"])
+    f_V0 = corrs["F_V0"]['lquark lquark']['0']['0']['0']
     assert len(f_V0) == 3
     assert list(f_V0[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
     assert f_V0[0] == 683.6776090085115

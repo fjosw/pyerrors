@@ -4,8 +4,6 @@ import re
 import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from .utils import sort_names, check_idl
-from benedict import benedict
-from copy import deepcopy
 
 
 def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
@@ -198,11 +196,32 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     idl = []
 
-    # setup dict structures
-    intern = _setup_intern_dict(name_list, corr_type_list, quarks_list, noffset_list, wf_list, wf2_list)
+    # setup dect structures
+    intern = {}
+    for name, corr_type in zip(name_list, corr_type_list):
+        intern[name] = {}
+        b2b, single = _extract_corr_type(corr_type)
+        intern[name]["b2b"] = b2b
+        intern[name]["single"] = single
+        intern[name]["spec"] = {}
+        for quarks in quarks_list:
+            intern[name]["spec"][quarks] = {}
+            for off in noffset_list:
+                intern[name]["spec"][quarks][str(off)] = {}
+                for w in wf_list:
+                    intern[name]["spec"][quarks][str(off)][str(w)] = {}
+                    for w2 in wf2_list:
+                        intern[name]["spec"][quarks][str(off)][str(w)][str(w2)] = {}
 
-    ret_key_paths, internal_ret_dict = _setup_ret_dict(name_list, quarks_list, noffset_list, wf_list, wf2_list)
-    dict_template = deepcopy(internal_ret_dict)
+    internal_ret_dict = {}
+    for name in name_list:
+        internal_ret_dict[name] = {}
+        for quarks in quarks_list:
+            internal_ret_dict[name][quarks] = {}
+            for off in noffset_list:
+                internal_ret_dict[name][quarks][str(off)] = {}
+                for w in wf_list:
+                    internal_ret_dict[name][quarks][str(off)][str(w)] = {}
 
     if not appended:
         for i, item in enumerate(ls):
@@ -231,53 +250,60 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             if i == 0:
                 if version != "0.0" and compact:
                     file = path + '/' + item + '/' + sub_ls[0]
-                for k in ret_key_paths:
-                    ori_keys = k.split("/")
-                    name = ori_keys[0]
-                    quarks = ori_keys[1]
-                    off = ori_keys[2]
-                    w = ori_keys[3]
-                    w2 = ori_keys[4]
+
+                for name in name_list:
                     if version == "0.0" or not compact:
                         file = path + '/' + item + '/' + sub_ls[0] + '/' + name
-                    # here, we want to find the place within the file,
-                    # where the correlator we need is stored.
-                    # to do so, the pattern needed is put together
-                    # from the input values
-                    intern[name]["spec"][quarks][str(off)][str(w)][str(w2)]["pattern"] = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
-                    start_read, T = _find_correlator(file, version, intern[name]["spec"][quarks][off][w][w2]["pattern"], intern[name]['b2b'], silent=silent)
-                    intern[name]["spec"][quarks][str(off)][str(w)][str(w2)]["start"] = start_read
-                    intern[name]["T"] = T
-                    # preparing the datastructure
-                    # the correlators get parsed into...
-                    deltas = []
-                    for j in range(intern[name]["T"]):
-                        deltas.append([])
-                    internal_ret_dict[k] = deltas
+                    for quarks in quarks_list:
+                        for off in noffset_list:
+                            for w in wf_list:
+                                for w2 in wf2_list:
+                                    # here, we want to find the place within the file,
+                                    # where the correlator we need is stored.
+                                    # to do so, the pattern needed is put together
+                                    # from the input values
+                                    intern[name]["spec"][quarks][str(off)][str(w)][str(w2)]["pattern"] = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
+                                    start_read, T = _find_correlator(file, version, intern[name]["spec"][quarks][str(off)][str(w)][str(w2)]["pattern"], intern[name]['b2b'], silent=silent)
+                                    intern[name]["spec"][quarks][str(off)][str(w)][str(w2)]["start"] = start_read
+                                    intern[name]["T"] = T
+                                    # preparing the datastructure
+                                    # the correlators get parsed into...
+                                    deltas = []
+                                    for j in range(intern[name]["T"]):
+                                        deltas.append([])
+                                    internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)] = deltas
 
             if compact:
-                rep_deltas = _read_compact_rep(path, item, sub_ls, intern, ret_key_paths, im, dict_template)
-                for k in ret_key_paths:
-                    name = k.split("/")[0]
-                    for t in range(intern[name]["T"]):
-                        internal_ret_dict[k][t].append(rep_deltas[k][t])
+                rep_deltas = _read_compact_rep(path, item, sub_ls, intern, im)
+                for name in name_list:
+                    for quarks in quarks_list:
+                        for off in noffset_list:
+                            for w in wf_list:
+                                for w2 in wf2_list:
+                                    for t in range(intern[name]["T"]):
+                                        internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t].append(rep_deltas[name][quarks][str(off)][str(w)][str(w2)][t])
             else:
-                for name in internal_ret_dict:
+                for name in name_list:
                     rep_data = []
                     for cnfg, subitem in enumerate(sub_ls):
-                        for k in _get_deep_paths(internal_ret_dict.subset(name)):
-                            cfg_path = path + '/' + item + '/' + subitem
-                            file_data = _read_o_file(cfg_path, name, intern, version, im, dict_template)
-                            rep_data.append(file_data)
+                        for quarks in quarks_list:
+                            for off in noffset_list:
+                                for w in wf_list:
+                                    for w2 in wf2_list:
+                                        cfg_path = path + '/' + item + '/' + subitem
+                                        file_data = _read_o_file(cfg_path, name, intern, version, im)
+                                        rep_data.append(file_data)
 
-                    for k in _get_deep_paths(internal_ret_dict.subset(name)[name]):
-                        for t in range(intern[name]["T"]):
-                            internal_ret_dict[name][k][t].append([])
-                            for cfg in range(no_cfg):
-                                internal_ret_dict[name][k][t][i].append(rep_data[cfg][k][t])
+                    for quarks in quarks_list:
+                        for off in noffset_list:
+                            for w in wf_list:
+                                for w2 in wf2_list:
+                                    for t in range(intern[name]["T"]):
+                                        internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t].append([])
+                                        for cfg in range(no_cfg):
+                                            internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t][i].append(rep_data[cfg][quarks][str(off)][str(w)][str(w2)][t])
     else:
-
-        for name in internal_ret_dict:
+        for name in name_list:
             if "files" in kwargs:
                 ls = kwargs.get("files")
             else:
@@ -285,29 +311,26 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 for exc in name_ls:
                     if not fnmatch.fnmatch(exc, prefix + '*.' + name):
                         name_ls = list(set(name_ls) - set([exc]))
-
             name_ls = sort_names(name_ls)
-            for k in _get_deep_paths(internal_ret_dict.subset(name)[name]):
-                ori_keys = k.split("/")
-                quarks = ori_keys[0]
-                off = ori_keys[1]
-                w = ori_keys[2]
-                w2 = ori_keys[3]
-                pattern = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
-                deltas = []
-                for rep, file in enumerate(name_ls):
-                    rep_idl = []
-                    filename = path + '/' + file
-                    T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'])
-                    if rep == 0:
-                        intern[name]['T'] = T
-                        for t in range(intern[name]['T']):
-                            deltas.append([])
-                    for t in range(intern[name]['T']):
-                        deltas[t].append(rep_data[t])
-                    internal_ret_dict[name][k] = deltas
-                    if name == name_list[0]:
-                        idl.append(rep_idl)
+            for quarks in quarks_list:
+                for off in noffset_list:
+                    for w in wf_list:
+                        for w2 in wf2_list:
+                            pattern = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
+                            deltas = []
+                            for rep, file in enumerate(name_ls):
+                                rep_idl = []
+                                filename = path + '/' + file
+                                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'])
+                                if rep == 0:
+                                    intern[name]['T'] = T
+                                    for t in range(intern[name]['T']):
+                                        deltas.append([])
+                                for t in range(intern[name]['T']):
+                                    deltas[t].append(rep_data[t])
+                                internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)] = deltas
+                                if name == name_list[0]:
+                                    idl.append(rep_idl)
 
     if kwargs.get("check_configs") is True:
         if not silent:
@@ -322,76 +345,47 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         if not silent:
             print("Done")
 
-    result_dict = deepcopy(dict_template)
-    for k in ret_key_paths:
-        name = k.split("/")[0]
-        result = []
-        for t in range(intern[name]["T"]):
-            result.append(Obs(internal_ret_dict[k][t], new_names, idl=idl))
-        print(result)
-        result_dict[k] = result
+    result_dict = {}
+    for name in name_list:
+        result_dict[name] = {}
+        for quarks in quarks_list:
+            result_dict[name][quarks] = {}
+            for off in noffset_list:
+                result_dict[name][quarks][str(off)] = {}
+                for w in wf_list:
+                    result_dict[name][quarks][str(off)][str(w)] = {}
+                    for w2 in wf2_list:
+                        result = []
+                        for t in range(intern[name]["T"]):
+                            result.append(Obs(internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t], new_names, idl=idl))
+                        result_dict[name][quarks][str(off)][str(w)][str(w2)] = result
+    if nice_output:
+        result_dict = _reduce_dict(result_dict)
     return result_dict
 
 
-def _setup_ret_dict(name_list, quarks_list, noffset_list, wf_list, wf2_list):
-    internal_ret_dict = {}
-    for name in name_list:
-        internal_ret_dict[name] = {}
-        for quarks in quarks_list:
-            internal_ret_dict[name][quarks] = {}
-            for off in noffset_list:
-                internal_ret_dict[name][quarks][str(off)] = {}
-                for w in wf_list:
-                    internal_ret_dict[name][quarks][str(off)][str(w)] = {}
-                    for w2 in wf2_list:
-                        internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)] = []
-    internal_ret_dict = benedict(internal_ret_dict, keypath_separator="/")
-    ret_key_paths = _get_deep_paths(internal_ret_dict)
-    return ret_key_paths, internal_ret_dict
-
-
-def _setup_intern_dict(name_list, corr_type_list, quarks_list, noffset_list, wf_list, wf2_list):
-    intern = {}
-    for name, corr_type in zip(name_list, corr_type_list):
-        intern[name] = {}
-        b2b, single = _extract_corr_type(corr_type)
-        intern[name]["b2b"] = b2b
-        intern[name]["single"] = single
-        intern[name]["spec"] = {}
-        for quarks in quarks_list:
-            intern[name]["spec"][quarks] = {}
-            for off in noffset_list:
-                intern[name]["spec"][quarks][str(off)] = {}
-                for w in wf_list:
-                    intern[name]["spec"][quarks][str(off)][str(w)] = {}
-                    for w2 in wf2_list:
-                        intern[name]["spec"][quarks][str(off)][str(w)][str(w2)] = {}
-    return intern
-
-
-def _read_o_file(cfg_path, name, intern, version, im, template):
+def _read_o_file(cfg_path, name, intern, version, im):
     file = cfg_path + '/' + name
-    return_vals = deepcopy(template)
-    return_vals = return_vals.subset(name)[name]
-    print(return_vals)
+    return_vals = {}
     with open(file) as fp:
         lines = fp.readlines()
-        for k in _get_deep_paths(return_vals):
-            ori_keys = k.split("/")
-            quarks = ori_keys[0]
-            off = ori_keys[1]
-            w = ori_keys[2]
-            w2 = ori_keys[3]
-            T = intern[name]["T"]
-            start_read = intern[name]["spec"][quarks][off][w][w2]["start"]
-            deltas = []
-            for line in lines[start_read:start_read + T]:
-                floats = list(map(float, line.split()))
-                if version == "0.0":
-                    deltas.append(floats[im - intern[name]["single"]])
-                else:
-                    deltas.append(floats[1 + im - intern[name]["single"]])
-            return_vals[quarks][off][w][w2] = deltas
+        for quarks in intern[name]["spec"].keys():
+            return_vals[quarks] = {}
+            for off in intern[name]["spec"][quarks].keys():
+                return_vals[quarks][off] = {}
+                for w in intern[name]["spec"][quarks][off].keys():
+                    return_vals[quarks][off][w] = {}
+                    for w2 in intern[name]["spec"][quarks][off][w].keys():
+                        T = intern[name]["T"]
+                        start_read = intern[name]["spec"][quarks][off][w][w2]["start"]
+                        deltas = []
+                        for line in lines[start_read:start_read + T]:
+                            floats = list(map(float, line.split()))
+                            if version == "0.0":
+                                deltas.append(floats[im - intern[name]["single"]])
+                            else:
+                                deltas.append(floats[1 + im - intern[name]["single"]])
+                        return_vals[quarks][off][w][w2] = deltas
     return return_vals
 
 
@@ -475,55 +469,67 @@ def _find_correlator(file_name, version, pattern, b2b, silent=False):
     return start_read, T
 
 
-def _read_compact_file(rep_path, cfg_file, intern, im, template):
-    return_vals = deepcopy(template)
+def _read_compact_file(rep_path, cfg_file, intern, im):
+    return_vals = {}
     with open(rep_path + cfg_file) as fp:
         lines = fp.readlines()
-        for key in _get_deep_paths(return_vals):
-            ori_keys = key.split("/")
-            name = ori_keys[0]
-            quarks = ori_keys[1]
-            off = ori_keys[2]
-            w = ori_keys[3]
-            w2 = ori_keys[4]
-            T = intern[name]["T"]
-            start_read = intern[name]["spec"][quarks][off][w][w2]["start"]
-            # check, if the correlator is in fact
-            # printed completely
-            if (start_read + T + 1 > len(lines)):
-                raise Exception("EOF before end of correlator data! Maybe " + rep_path + cfg_file + " is corrupted?")
-            corr_lines = lines[start_read - 6: start_read + T]
-            t_vals = []
+        for name in intern.keys():
+            return_vals[name] = {}
+            for quarks in intern[name]["spec"].keys():
+                return_vals[name][quarks] = {}
+                for off in intern[name]["spec"][quarks].keys():
+                    return_vals[name][quarks][off] = {}
+                    for w in intern[name]["spec"][quarks][off].keys():
+                        return_vals[name][quarks][off][w] = {}
+                        for w2 in intern[name]["spec"][quarks][off][w].keys():
+                            T = intern[name]["T"]
+                            start_read = intern[name]["spec"][quarks][off][w][w2]["start"]
+                            # check, if the correlator is in fact
+                            # printed completely
+                            if (start_read + T + 1 > len(lines)):
+                                raise Exception("EOF before end of correlator data! Maybe " + rep_path + cfg_file + " is corrupted?")
+                            corr_lines = lines[start_read - 6: start_read + T]
+                            t_vals = []
 
-            if corr_lines[1 - intern[name]["b2b"]].strip() != 'name      ' + name:
-                raise Exception('Wrong format in file', cfg_file)
+                            if corr_lines[1 - intern[name]["b2b"]].strip() != 'name      ' + name:
+                                raise Exception('Wrong format in file', cfg_file)
 
-            for k in range(6, T + 6):
-                floats = list(map(float, corr_lines[k].split()))
-                t_vals.append(floats[-2:][im])
-            return_vals[key] = t_vals
+                            for k in range(6, T + 6):
+                                floats = list(map(float, corr_lines[k].split()))
+                                t_vals.append(floats[-2:][im])
+                            return_vals[name][quarks][off][w][w2] = t_vals
     return return_vals
 
 
-def _read_compact_rep(path, rep, sub_ls, intern, keys, im_list, template):
+def _read_compact_rep(path, rep, sub_ls, intern, im_list):
     rep_path = path + '/' + rep + '/'
     no_cfg = len(sub_ls)
-    print(template)
-    return_vals = deepcopy(template)
-    for k in keys:
-        name = k.split("/")[0]
-        deltas = []
-        for t in range(intern[name]["T"]):
-            deltas.append(np.zeros(no_cfg))
-        return_vals[k] = deltas
+
+    return_vals = {}
+    for name in intern.keys():
+        return_vals[name] = {}
+        for quarks in intern[name]["spec"].keys():
+            return_vals[name][quarks] = {}
+            for off in intern[name]["spec"][quarks].keys():
+                return_vals[name][quarks][off] = {}
+                for w in intern[name]["spec"][quarks][off].keys():
+                    return_vals[name][quarks][off][w] = {}
+                    for w2 in intern[name]["spec"][quarks][off][w].keys():
+                        deltas = []
+                        for t in range(intern[name]["T"]):
+                            deltas.append(np.zeros(no_cfg))
+                        return_vals[name][quarks][off][w][w2] = deltas
+
     for cfg in range(no_cfg):
         cfg_file = sub_ls[cfg]
-        cfg_data = _read_compact_file(rep_path, cfg_file, intern, im_list, template)
-        for k in keys:
-            name = k.split("/")[0]
-            for t in range(intern[name]["T"]):
-                return_vals[k][t][cfg] = cfg_data[k][t]
-    print(template)
+        cfg_data = _read_compact_file(rep_path, cfg_file, intern, im_list)
+        for name in intern.keys():
+            for quarks in intern[name]["spec"].keys():
+                for off in intern[name]["spec"][quarks].keys():
+                    for w in intern[name]["spec"][quarks][off].keys():
+                        for w2 in intern[name]["spec"][quarks][off][w].keys():
+                            for t in range(intern[name]["T"]):
+                                return_vals[name][quarks][off][w][w2][t][cfg] = cfg_data[name][quarks][off][w][w2][t]
     return return_vals
 
 
@@ -628,11 +634,11 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None):
     return new_names
 
 
-def _get_deep_paths(f, sep='/'):
-    max_count = max([k.count(sep) for k in f.keypaths()])
-
-    deep_paths = []
-    for k in f.keypaths():
-        if k.count(sep) == max_count:
-            deep_paths.append(k)
-    return deep_paths
+def _reduce_dict(d):
+    for key in d.keys():
+        if isinstance(d[key], dict):
+            ret = _reduce_dict(d[key])
+        else:
+            if len(list(d.keys())) == 1:
+                ret = d[list(d.keys())[0]]
+    return ret

@@ -359,8 +359,6 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         for t in range(intern[name]["T"]):
                             result.append(Obs(internal_ret_dict[name][quarks][str(off)][str(w)][str(w2)][t], new_names, idl=idl))
                         result_dict[name][quarks][str(off)][str(w)][str(w2)] = result
-    if nice_output:
-        result_dict = _reduce_dict(result_dict)
     return result_dict
 
 
@@ -632,13 +630,3 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None):
         else:
             new_names.append(myentry[:idx] + '|' + myentry[idx:])
     return new_names
-
-
-def _reduce_dict(d):
-    for key in d.keys():
-        if isinstance(d[key], dict):
-            ret = _reduce_dict(d[key])
-        else:
-            if len(list(d.keys())) == 1:
-                ret = d[list(d.keys())[0]]
-    return ret

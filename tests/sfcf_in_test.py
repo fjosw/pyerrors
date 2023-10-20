@@ -331,3 +331,10 @@ def test_read_compact_file():
     im = False
     with pytest.raises(Exception):
         sfin._read_compact_file(rep_path, config_file, start_read, T, b2b, name, im)
+
+
+def test_find_correlator():
+    file = "tests/data/sfcf_test/data_c/data_c_r0/data_c_r0_n1"
+    found_start, found_T = sfin._find_correlator(file, "2.0", "name      f_A\nquarks    lquark lquark\noffset    0\nwf        0", False, False)
+    assert found_start == 21
+    assert found_T == 3

@@ -86,21 +86,21 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         Prefix of the sfcf files.
     name : str
         Name of the correlation function to read.
-    quarks : str
+    quarks_list : list[str]
         Label of the quarks used in the sfcf input file. e.g. "quark quark"
         for version 0.0 this does NOT need to be given with the typical " - "
         that is present in the output file,
         this is done automatically for this version
-    corr_type : str
+    corr_type_list : list[str]
         Type of correlation function to read. Can be
         - 'bi' for boundary-inner
         - 'bb' for boundary-boundary
         - 'bib' for boundary-inner-boundary
-    noffset : int
+    noffset_list : list[int]
         Offset of the source (only relevant when wavefunctions are used)
-    wf : int
+    wf_list : int
         ID of wave function
-    wf2 : int
+    wf2_list : list[int]
         ID of the second wavefunction
         (only relevant for boundary-to-boundary correlation functions)
     im : bool
@@ -130,9 +130,13 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     Returns
     -------
-    result: list[Obs]
-        list of Observables with length T, observable per timeslice.
-        bb-type correlators have length 1.
+    result: dict[list[Obs]]
+        dict with one of the following properties:
+        if keyed_out:
+            dict[key] = list[Obs]
+            where key has the form name/quarks/offset/wf/wf2
+        if not keyed_out:
+            dict[name][quarks][offset][wf][wf2] = list[Obs]
     """
 
     if kwargs.get('im'):

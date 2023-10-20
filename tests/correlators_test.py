@@ -548,7 +548,7 @@ def test_corr_no_filtering():
     li = [-pe.pseudo_Obs(.2, .1, 'a', samples=10) for i in range(96)]
     for i in range(len(li)):
         li[i].idl['a'] = range(1, 21, 2)
-    c= pe.Corr(li)
+    c = pe.Corr(li)
     b = pe.pseudo_Obs(1, 1e-11, 'a', samples=30)
     c *= b
     assert np.all([c[0].idl == o.idl for o in c])
@@ -569,16 +569,18 @@ def test_corr_symmetric():
 
 
 def test_error_GEVP():
-    corr=pe.input.json.load_json("tests/data/test_matrix_corr.json.gz")
-    t0,ts,state=3,6,0
-    vec_regular=corr.GEVP(t0=3)[state][ts]
-    vec_errors=corr.error_GEVP(t0,auto_gamma=True)[0][ts]
-    vec_errors,vec_regular
-    assert(np.isclose(np.asarray([e.value for e in vec_errors]),vec_regular).all())
-    assert(all([e.dvalue>0. for e in vec_errors]))
-    projected_regular=corr.projected(vec_regular).content[ts+1][0]
-    projected_errors=corr.projected(vec_errors).content[ts+1][0]
+    corr = pe.input.json.load_json("tests/data/test_matrix_corr.json.gz")
+    t0, ts, state = 3, 6, 0
+    vec_regular = corr.GEVP(t0=t0)[state][ts]
+    vec_errors = corr.GEVP(t0=t0, vector_obs=True, auto_gamma=True)[state][ts]
+    print(vec_errors)
+    print(type(vec_errors[0]))
+    assert(np.isclose(np.asarray([e.value for e in vec_errors]), vec_regular).all())
+    assert(all([e.dvalue > 0. for e in vec_errors]))
+
+    projected_regular = corr.projected(vec_regular).content[ts + 1][0]
+    projected_errors = corr.projected(vec_errors).content[ts + 1][0]
     projected_regular.gamma_method()
     projected_errors.gamma_method()
-    assert(projected_errors.dvalue>projected_regular.dvalue)
-    assert(corr.error_GEVP(t0)[state][42] is None)
+    assert(projected_errors.dvalue > projected_regular.dvalue)
+    assert(corr.GEVP(t0, vector_obs=True)[state][42] is None)

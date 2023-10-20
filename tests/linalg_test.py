@@ -298,6 +298,10 @@ def test_matrix_functions():
         for j in range(dim):
             assert tmp[j].is_zero()
 
+    # Check eigv
+    v2 = pe.linalg.eigv(sym)
+    assert(np.all(v - v2).is_zero())
+
     # Check eig function
     e2 = pe.linalg.eig(sym)
     assert np.all(np.sort(e) == np.sort(e2))

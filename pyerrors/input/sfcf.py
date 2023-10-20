@@ -75,7 +75,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'],  noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, keyed_out=False, **kwargs):
+def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, keyed_out=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters

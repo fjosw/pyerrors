@@ -2,3 +2,5 @@
 /pyerrors/covobs.py @s-kuberski
 /pyerrors/input/json.py @s-kuberski
 /pyerrors/input/dobs.py @s-kuberski
+/pyerrors/input/sfcf.py @jkuhl-uni
+/tests/sfcf_in_test.py @jkuhl-uni

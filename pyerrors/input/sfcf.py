@@ -371,7 +371,6 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
 
 def _lists2key(*lists):
-    sep = "/"
     keys = []
     for tup in itertools.product(*lists):
         keys.append(sep.join(tup))

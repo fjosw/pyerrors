@@ -1142,6 +1142,53 @@ def test_fit_dof():
     assert cd[0] != cd[0]  # Check for nan
     assert np.all(np.array(cd[1:]) > 0)
 
+    N = 5
+
+    def fitf(a, x):
+        return a[0] + 0 * x
+
+    def fitf_multi(a, x):
+        return a[0] + 0 * x[0] + 0*x[1]
+
+    for priors in [None, [pe.cov_Obs(3, 1, 'p')]]:
+        if priors is None:
+            lp = 0
+        else:
+            lp = len(priors)
+        x = [1. for i in range(N)]
+        y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+        [o.gm() for o in y]
+        res = pe.fits.least_squares(x, y, fitf, expected_chisquare=True, priors=priors)
+        assert(res.dof == N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        kl = ['a', 'b']
+        x = {k: [1. for i in range(N)] for k in kl}
+        y = {k: [pe.cov_Obs(i, .1, '%d%s' % (i, k)) for i in range(N)] for k in kl}
+        [[o.gm() for o in y[k]] for k in y]
+        res = pe.fits.least_squares(x, y, {k: fitf for k in kl}, expected_chisquare=True, priors=priors)
+        assert(res.dof == 2 * N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        x = np.array([[1., 2.] for i in range(N)]).T
+        y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+        [o.gm() for o in y]
+        res = pe.fits.least_squares(x, y, fitf_multi, expected_chisquare=True, priors=priors)
+        assert(res.dof == N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        x = {k: np.array([[1., 2.] for i in range(N)]).T for k in kl}
+        y = {k: [pe.cov_Obs(i, .1, '%d%s' % (i, k)) for i in range(N)] for k in kl}
+        [[o.gm() for o in y[k]] for k in y]
+        res = pe.fits.least_squares(x, y, {k: fitf_multi for k in kl}, expected_chisquare=True, priors=priors)
+
+        assert(res.dof == 2 * N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
 
 def test_combined_fit_constant_shape():
     N1 = 16

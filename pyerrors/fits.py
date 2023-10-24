@@ -365,7 +365,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         raise Exception('The minimization procedure did not converge.')
 
     output.chisquare = chisquare
-    output.dof = x_all.shape[-1] - n_parms + len(loc_priors)
+    output.dof = y_all.shape[-1] - n_parms + len(loc_priors)
     output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     if output.dof > 0:
         output.chisquare_by_dof = output.chisquare / output.dof
@@ -393,7 +393,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             hat_vector = prepare_hat_matrix()
             A = W @ hat_vector
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
             if not silent:
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)

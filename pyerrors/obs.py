@@ -104,7 +104,9 @@ class Obs:
                 elif isinstance(idx, (list, np.ndarray)):
                     dc = np.unique(np.diff(idx))
                     if np.any(dc < 0):
-                        raise ValueError("Unsorted idx for idl[%s]" % (name))
+                        raise ValueError("Unsorted idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) < 0)[0]])))
+                    elif np.any(dc == 0):
+                        raise ValueError("Duplicate entries in idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) == 0)[0]])))
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:

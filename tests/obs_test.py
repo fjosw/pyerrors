@@ -40,6 +40,10 @@ def test_Obs_exceptions():
         pe.Obs([np.random.rand(4)], ['name'])
     with pytest.raises(ValueError):
         pe.Obs([np.random.rand(5)], ['1'], idl=[[5, 3, 2 ,4 ,1]])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[1, 2, 3, 3, 5]])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[1, 1, 3, 1, 5]])
     with pytest.raises(TypeError):
         pe.Obs([np.random.rand(5)], ['1'], idl=['t'])
     with pytest.raises(ValueError):

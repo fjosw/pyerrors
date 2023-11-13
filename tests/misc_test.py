@@ -18,3 +18,7 @@ def test_obs_errorbar():
             pe.errorbar(x_obs, y_obs, marker="x", ms=2, xerr=xerr, yerr=yerr)
 
     plt.close('all')
+
+
+def test_print_config():
+    pe.print_config()

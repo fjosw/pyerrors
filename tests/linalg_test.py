@@ -14,8 +14,8 @@ def get_real_matrix(dimension):
         exponent_imag = np.random.normal(0, 1)
         base_matrix[n, m] = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
 
-
     return base_matrix
+
 
 def get_complex_matrix(dimension):
     base_matrix = np.empty((dimension, dimension), dtype=object)
@@ -108,7 +108,6 @@ def test_einsum():
         assert np.all([o.real.dvalue < 0.001 for o in arr])
         assert np.all([o.imag.is_zero_within_error(0.001) for o in arr])
         assert np.all([o.imag.dvalue < 0.001 for o in arr])
-
 
     tt = [get_real_matrix(4), get_real_matrix(3)]
     q = np.tensordot(tt[0], tt[1], 0)
@@ -359,3 +358,4 @@ def test_complex_matrix_real_entries():
     my_mat[0, 1] = 4
     my_mat[2, 0] = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
     assert np.all((my_mat @ pe.linalg.inv(my_mat) - np.identity(4)) == 0)
+

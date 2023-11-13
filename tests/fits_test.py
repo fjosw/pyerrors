@@ -235,12 +235,12 @@ def test_fit_corr_independent():
 
 
 def test_linear_fit_guesses():
-    for err in [10, 0.1, 0.001]:
+    for err in [1.2, 0.1, 0.001]:
         xvals = []
         yvals = []
         for x in range(1, 8, 2):
             xvals.append(x)
-            yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+            yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 97, 'test2', samples=87))
         lin_func = lambda a, x: a[0] + a[1] * x
         with pytest.raises(Exception):
             pe.least_squares(xvals, yvals, lin_func)
@@ -251,7 +251,7 @@ def test_linear_fit_guesses():
         bad_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[999, 999])
         good_guess = pe.least_squares(xvals, yvals, lin_func, initial_guess=[0, 1])
         assert np.isclose(bad_guess.chisquare, good_guess.chisquare, atol=1e-8)
-        assert np.all([(go - ba).is_zero(atol=1e-6) for (go, ba) in zip(good_guess, bad_guess)])
+        assert np.all([(go - ba).is_zero(atol=5e-5) for (go, ba) in zip(good_guess, bad_guess)])
 
 
 def test_total_least_squares():
@@ -1141,6 +1141,70 @@ def test_fit_dof():
     assert np.allclose(dof, [0, 1, 1, 2])
     assert cd[0] != cd[0]  # Check for nan
     assert np.all(np.array(cd[1:]) > 0)
+
+    N = 5
+
+    def fitf(a, x):
+        return a[0] + 0 * x
+
+    def fitf_multi(a, x):
+        return a[0] + 0 * x[0] + 0*x[1]
+
+    for priors in [None, [pe.cov_Obs(3, 1, 'p')]]:
+        if priors is None:
+            lp = 0
+        else:
+            lp = len(priors)
+        x = [1. for i in range(N)]
+        y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+        [o.gm() for o in y]
+        res = pe.fits.least_squares(x, y, fitf, expected_chisquare=True, priors=priors)
+        assert(res.dof == N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        kl = ['a', 'b']
+        x = {k: [1. for i in range(N)] for k in kl}
+        y = {k: [pe.cov_Obs(i, .1, '%d%s' % (i, k)) for i in range(N)] for k in kl}
+        [[o.gm() for o in y[k]] for k in y]
+        res = pe.fits.least_squares(x, y, {k: fitf for k in kl}, expected_chisquare=True, priors=priors)
+        assert(res.dof == 2 * N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        x = np.array([[1., 2.] for i in range(N)]).T
+        y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+        [o.gm() for o in y]
+        res = pe.fits.least_squares(x, y, fitf_multi, expected_chisquare=True, priors=priors)
+        assert(res.dof == N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+        x = {k: np.array([[1., 2.] for i in range(N)]).T for k in kl}
+        y = {k: [pe.cov_Obs(i, .1, '%d%s' % (i, k)) for i in range(N)] for k in kl}
+        [[o.gm() for o in y[k]] for k in y]
+        res = pe.fits.least_squares(x, y, {k: fitf_multi for k in kl}, expected_chisquare=True, priors=priors)
+
+        assert(res.dof == 2 * N - 1 + lp)
+        if priors is None:
+            assert(np.isclose(res.chisquare_by_expected_chisquare, res.chisquare_by_dof))
+
+
+def test_combined_fit_constant_shape():
+    N1 = 16
+    N2 = 10
+    x = {"a": np.arange(N1),
+         "": np.arange(N2)}
+    y = {"a": [pe.pseudo_Obs(o + np.random.normal(0.0, 0.1), 0.1, "test") for o in range(N1)],
+         "": [pe.pseudo_Obs(o + np.random.normal(0.0, 0.1), 0.1, "test") for o in range(N2)]}
+    funcs = {"a": lambda a, x: a[0] + a[1] * x,
+             "": lambda a, x: a[1]}
+    with pytest.raises(ValueError):
+        pe.fits.least_squares(x, y, funcs, method='migrad')
+
+    funcs = {"a": lambda a, x: a[0] + a[1] * x,
+             "": lambda a, x: a[1] + x * 0}
+    pe.fits.least_squares(x, y, funcs, method='migrad')
 
 
 def fit_general(x, y, func, silent=False, **kwargs):

@@ -3,6 +3,7 @@ import hashlib
 import pickle
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
+import scipy
 from autograd import jacobian
 import matplotlib.pyplot as plt
 from scipy.stats import skew, skewtest, kurtosis, kurtosistest
@@ -103,7 +104,9 @@ class Obs:
                 elif isinstance(idx, (list, np.ndarray)):
                     dc = np.unique(np.diff(idx))
                     if np.any(dc < 0):
-                        raise ValueError("Unsorted idx for idl[%s]" % (name))
+                        raise ValueError("Unsorted idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) < 0)[0]])))
+                    elif np.any(dc == 0):
+                        raise ValueError("Duplicate entries in idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) == 0)[0]])))
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
@@ -627,7 +630,7 @@ class Obs:
         if save:
             fig1.savefig(save)
 
-        return dict(zip(self.e_names, sizes))
+        return dict(zip(labels, sizes))
 
     def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
@@ -684,6 +687,49 @@ class Obs:
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
+    def export_bootstrap(self, samples=500, random_numbers=None, save_rng=None):
+        """Export bootstrap samples from the Obs
+
+        Parameters
+        ----------
+        samples : int
+            Number of bootstrap samples to generate.
+        random_numbers : np.ndarray
+            Array of shape (samples, length) containing the random numbers to generate the bootstrap samples.
+            If not provided the bootstrap samples are generated bashed on the md5 hash of the enesmble name.
+        save_rng : str
+            Save the random numbers to a file if a path is specified.
+
+        Returns
+        -------
+        numpy.ndarray
+            Returns a numpy array of length N + 1 where N is the number of samples
+            for the given ensemble and replicum. The zeroth entry of the array contains
+            the mean value of the Obs, entries 1 to N contain the N import_bootstrap samples
+            derived from the Obs. The current implementation only works for observables
+            defined on exactly one ensemble and replicum. The derived bootstrap samples
+            should agree with samples from a full bootstrap analysis up to O(1/N).
+        """
+        if len(self.names) != 1:
+            raise Exception("'export_boostrap' is only implemented for Obs defined on one ensemble and replicum.")
+
+        name = self.names[0]
+        length = self.N
+
+        if random_numbers is None:
+            seed = int(hashlib.md5(name.encode()).hexdigest(), 16) & 0xFFFFFFFF
+            rng = np.random.default_rng(seed)
+            random_numbers = rng.integers(0, length, size=(samples, length))
+
+        if save_rng is not None:
+            np.savetxt(save_rng, random_numbers, fmt='%i')
+
+        proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]) / length
+        ret = np.zeros(samples + 1)
+        ret[0] = self.value
+        ret[1:] = proj @ (self.deltas[name] + self.r_values[name])
+        return ret
+
     def __float__(self):
         return float(self.value)
 
@@ -729,10 +775,9 @@ class Obs:
         return self.value >= other
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return (self - other).is_zero()
-
-    def __ne__(self, other):
-        return not (self - other).is_zero()
 
     # Overload math operations
     def __add__(self, y):
@@ -741,6 +786,8 @@ class Obs:
         else:
             if isinstance(y, np.ndarray):
                 return np.array([self + o for o in y])
+            elif isinstance(y, complex):
+                return CObs(self, 0) + y
             elif y.__class__.__name__ in ['Corr', 'CObs']:
                 return NotImplemented
             else:
@@ -978,6 +1025,25 @@ class CObs:
 
     def __repr__(self):
         return 'CObs[' + str(self) + ']'
+
+    def __format__(self, format_type):
+        if format_type == "":
+            significance = 2
+            format_type = "2"
+        else:
+            significance = int(float(format_type.replace("+", "").replace("-", "")))
+        return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
+
+
+def gamma_method(x, **kwargs):
+    """Vectorized version of the gamma_method applicable to lists or arrays of Obs.
+
+    See docstring of pe.Obs.gamma_method for details.
+    """
+    return np.vectorize(lambda o: o.gm(**kwargs))(x)
+
+
+gm = gamma_method
 
 
 def _format_uncertainty(value, dvalue, significance=2):
@@ -1548,6 +1614,36 @@ def import_jackknife(jacks, name, idl=None):
     new_obs = Obs([samples - mean], [name], idl=idl, means=[mean])
     new_obs._value = jacks[0]
     return new_obs
+
+
+def import_bootstrap(boots, name, random_numbers):
+    """Imports bootstrap samples and returns an Obs
+
+    Parameters
+    ----------
+    boots : numpy.ndarray
+        numpy array containing the mean value as zeroth entry and
+        the N bootstrap samples as first to Nth entry.
+    name : str
+        name of the ensemble the samples are defined on.
+    random_numbers : np.ndarray
+        Array of shape (samples, length) containing the random numbers to generate the bootstrap samples,
+        where samples is the number of bootstrap samples and length is the length of the original Monte Carlo
+        chain to be reconstructed.
+    """
+    samples, length = random_numbers.shape
+    if samples != len(boots) - 1:
+        raise ValueError("Random numbers do not have the correct shape.")
+
+    if samples < length:
+        raise ValueError("Obs can't be reconstructed if there are fewer bootstrap samples than Monte Carlo data points.")
+
+    proj = np.vstack([np.bincount(o, minlength=length) for o in random_numbers]) / length
+
+    samples = scipy.linalg.lstsq(proj, boots[1:])[0]
+    ret = Obs([samples], [name])
+    ret._value = boots[0]
+    return ret
 
 
 def merge_obs(list_of_obs):

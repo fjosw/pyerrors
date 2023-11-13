@@ -27,8 +27,8 @@ There exist similar publicly available implementations of gamma method error ana
 
 Install the most recent release using pip and [pypi](https://pypi.org/project/pyerrors/):
 ```bash
-pip install pyerrors     # Fresh install
-pip install -U pyerrors  # Update
+python -m pip install pyerrors     # Fresh install
+python -m pip install -U pyerrors  # Update
 ```
 Install the most recent release using conda and [conda-forge](https://anaconda.org/conda-forge/pyerrors):
 ```bash
@@ -37,8 +37,9 @@ conda update -c conda-forge pyerrors   # Update
 ```
 Install the current `develop` version:
 ```bash
-pip install git+https://github.com/fjosw/pyerrors.git@develop
+python -m pip install -U --no-deps --force-reinstall git+https://github.com/fjosw/pyerrors.git@develop
 ```
+(Also works for any feature branch).
 
 ## Basic example
 
@@ -108,6 +109,7 @@ my_sum.details()
 >   · Ensemble 'ensemble_name' : 1000 configurations (from 1 to 1000)
 
 ```
+The `gamma_method` is not automatically called after every intermediate step in order to prevent computational overhead.
 
 We use the following definition of the integrated autocorrelation time established in [Madras & Sokal 1988](https://link.springer.com/article/10.1007/BF01022990)
 $$\tau_\mathrm{int}=\frac{1}{2}+\sum_{t=1}^{W}\rho(t)\geq \frac{1}{2}\,.$$
@@ -305,7 +307,7 @@ print(my_derived_cobs)
 # The `Covobs` class
 In many projects, auxiliary data that is not based on Monte Carlo chains enters. Examples are experimentally determined mesons masses which are used to set the scale or renormalization constants. These numbers come with an error that has to be propagated through the analysis. The `Covobs` class allows to define such quantities in `pyerrors`. Furthermore, external input might consist of correlated quantities. An example are the parameters of an interpolation formula, which are defined via mean values and a covariance matrix between all parameters. The contribution of the interpolation formula to the error of a derived quantity therefore might depend on the complete covariance matrix.
 
-This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). Note, that the square of the error enters `cov_Obs`, since the second argument of this function is the covariance matrix of the `Covobs`.
+This concept is built into the definition of `Covobs`. In `pyerrors`, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). **Note, that the square of the error enters `cov_Obs`**, since the second argument of this function is the covariance matrix of the `Covobs`.
 
 ```python
 import pyerrors.obs as pe
@@ -387,11 +389,12 @@ def func(a, x):
 
 `pyerrors` also supports correlated fits which can be triggered via the parameter `correlated_fit=True`.
 Details about how the required covariance matrix is estimated can be found in `pyerrors.obs.covariance`.
+Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`.
 
-Direct visualizations of the performed fits can be triggered via `resplot=True` or `qqplot=True`. For all available options see `pyerrors.fits.least_squares`.
+For all available options including combined fits to multiple datasets see `pyerrors.fits.least_squares`.
 
 ## Total least squares fits
-`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.
+`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to as orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.
 
 For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 
@@ -483,5 +486,6 @@ from . import input
 from . import linalg
 from . import mpm
 from . import roots
+from . import integrate
 
 from .version import __version__

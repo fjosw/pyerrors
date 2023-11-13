@@ -1,5 +1,8 @@
-import re
 """Utilities for the input"""
+
+import re
+import fnmatch
+import os
 
 
 def sort_names(ll):
@@ -17,6 +20,7 @@ def sort_names(ll):
     ll: list
         sorted list
     """
+
     if len(ll) > 1:
         sorted = False
         r_pattern = r'r(\d+)'
@@ -63,6 +67,7 @@ def check_idl(idl, che):
     miss_str : str
         string with integers of which idls are missing
     """
+
     missing = []
     for c in che:
         if c not in idl:
@@ -75,3 +80,65 @@ def check_idl(idl, che):
             miss_str += "," + str(i)
         print(miss_str)
     return miss_str
+
+
+def check_params(path, param_hash, prefix, param_prefix="parameters_"):
+    """
+    Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.
+
+    Parameters
+    ----------
+    path: str
+        measurement path, same as for sfcf read method
+    param_hash: str
+        expected parameter hash
+    prefix: str
+        data prefix to find the appropriate replicum folders in path
+    param_prefix: str
+        prefix of the parameter file. Defaults to 'parameters_'
+
+    Returns
+    -------
+    nums: dict
+        dictionary of faulty parameter files sorted by the replica paths
+    """
+
+    ls = []
+    for (dirpath, dirnames, filenames) in os.walk(path):
+        ls.extend(dirnames)
+        break
+    if not ls:
+        raise Exception('Error, directory not found')
+    # Exclude folders with different names
+    for exc in ls:
+        if not fnmatch.fnmatch(exc, prefix + '*'):
+            ls = list(set(ls) - set([exc]))
+
+    ls = sort_names(ls)
+    nums = {}
+    for rep in ls:
+        rep_path = path + '/' + rep
+        # files of replicum
+        sub_ls = []
+        for (dirpath, dirnames, filenames) in os.walk(rep_path):
+            sub_ls.extend(filenames)
+
+        # filter
+        param_files = []
+        for file in sub_ls:
+            if fnmatch.fnmatch(file, param_prefix + '*'):
+                param_files.append(file)
+
+        rep_nums = ''
+        for file in param_files:
+            with open(rep_path + '/' + file) as fp:
+                for line in fp:
+                    pass
+                last_line = line
+                if last_line.split()[2] != param_hash:
+                    rep_nums += file.split("_")[1] + ','
+        nums[rep_path] = rep_nums
+
+        if not len(rep_nums) == 0:
+            raise Warning("found differing parameter hash in the param files in " + rep_path)
+    return nums

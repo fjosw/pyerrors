@@ -168,12 +168,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     '''
     output = Fit_result()
 
-    if (type(x) == dict and type(y) == dict and type(func) == dict):
+    if (isinstance(x, dict) and isinstance(y, dict) and isinstance(func, dict)):
         xd = {key: anp.asarray(x[key]) for key in x}
         yd = y
         funcd = func
         output.fit_function = func
-    elif (type(x) == dict or type(y) == dict or type(func) == dict):
+    elif (isinstance(x, dict) or isinstance(y, dict) or isinstance(func, dict)):
         raise TypeError("All arguments have to be dictionaries in order to perform a combined fit.")
     else:
         x = np.asarray(x)
@@ -230,6 +230,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         n_parms_ls.append(n_loc)
 
     n_parms = max(n_parms_ls)
+
+    if len(key_ls) > 1:
+        for key in key_ls:
+            if np.asarray(yd[key]).shape != funcd[key](np.arange(n_parms), xd[key]).shape:
+                raise ValueError(f"Fit function {key} returns the wrong shape ({funcd[key](np.arange(n_parms), xd[key]).shape} instead of {xd[key].shape})\nIf the fit function is just a constant you could try adding x*0 to get the correct shape.")
+
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
 
@@ -359,7 +365,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         raise Exception('The minimization procedure did not converge.')
 
     output.chisquare = chisquare
-    output.dof = x_all.shape[-1] - n_parms + len(loc_priors)
+    output.dof = y_all.shape[-1] - n_parms + len(loc_priors)
     output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     if output.dof > 0:
         output.chisquare_by_dof = output.chisquare / output.dof
@@ -387,7 +393,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             hat_vector = prepare_hat_matrix()
             A = W @ hat_vector
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(x_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W)
             output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
             if not silent:
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)

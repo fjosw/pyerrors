@@ -1,4 +1,5 @@
-import autograd.numpy as np
+import numpy as np
+import autograd.numpy as anp
 import os
 import copy
 import matplotlib.pyplot as plt
@@ -39,6 +40,10 @@ def test_Obs_exceptions():
         pe.Obs([np.random.rand(4)], ['name'])
     with pytest.raises(ValueError):
         pe.Obs([np.random.rand(5)], ['1'], idl=[[5, 3, 2 ,4 ,1]])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[1, 2, 3, 3, 5]])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(5)], ['1'], idl=[[1, 1, 3, 1, 5]])
     with pytest.raises(TypeError):
         pe.Obs([np.random.rand(5)], ['1'], idl=['t'])
     with pytest.raises(ValueError):
@@ -102,6 +107,7 @@ def test_comparison():
     test_obs1 = pe.pseudo_Obs(value1, 0.1, 't')
     value2 = np.random.normal(0, 100)
     test_obs2 = pe.pseudo_Obs(value2, 0.1, 't')
+    assert test_obs1 != None
     assert (value1 > value2) == (test_obs1 > test_obs2)
     assert (value1 < value2) == (test_obs1 < test_obs2)
     assert (value1 >= value2) == (test_obs1 >= test_obs2)
@@ -126,9 +132,9 @@ def test_function_overloading():
 
     fs = [lambda x: x[0] + x[1], lambda x: x[1] + x[0], lambda x: x[0] - x[1], lambda x: x[1] - x[0],
           lambda x: x[0] * x[1], lambda x: x[1] * x[0], lambda x: x[0] / x[1], lambda x: x[1] / x[0],
-          lambda x: np.exp(x[0]), lambda x: np.sin(x[0]), lambda x: np.cos(x[0]), lambda x: np.tan(x[0]),
-          lambda x: np.log(x[0]), lambda x: np.sqrt(np.abs(x[0])),
-          lambda x: np.sinh(x[0]), lambda x: np.cosh(x[0]), lambda x: np.tanh(x[0])]
+          lambda x: anp.exp(x[0]), lambda x: anp.sin(x[0]), lambda x: anp.cos(x[0]), lambda x: anp.tan(x[0]),
+          lambda x: anp.log(x[0]), lambda x: anp.sqrt(anp.abs(x[0])),
+          lambda x: anp.sinh(x[0]), lambda x: anp.cosh(x[0]), lambda x: anp.tanh(x[0])]
 
     for i, f in enumerate(fs):
         t1 = f([a, b])
@@ -306,9 +312,9 @@ def test_derived_observables():
     test_obs = pe.pseudo_Obs(2, 0.1 * (1 + np.random.rand()), 't', int(1000 * (1 + np.random.rand())))
 
     # Check if autograd and numgrad give the same result
-    d_Obs_ad = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * np.sin(x[0] * x[1]), [test_obs, test_obs])
+    d_Obs_ad = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * anp.sin(x[0] * x[1]), [test_obs, test_obs])
     d_Obs_ad.gamma_method()
-    d_Obs_fd = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * np.sin(x[0] * x[1]), [test_obs, test_obs], num_grad=True)
+    d_Obs_fd = pe.derived_observable(lambda x, **kwargs: x[0] * x[1] * anp.sin(x[0] * x[1]), [test_obs, test_obs], num_grad=True)
     d_Obs_fd.gamma_method()
 
     assert d_Obs_ad == d_Obs_fd
@@ -1094,6 +1100,20 @@ def test_import_jackknife():
     assert my_obs == reconstructed_obs
 
 
+def test_import_bootstrap():
+    seed = 4321
+    samples = 1234
+    length = 820
+    name = "test"
+
+    rng = np.random.default_rng(seed)
+    random_numbers = rng.integers(0, length, size=(samples, length))
+    obs = pe.pseudo_Obs(2.447, 0.14, name, length)
+    boots = obs.export_bootstrap(1234, random_numbers=random_numbers)
+    re_obs = pe.import_bootstrap(boots, name, random_numbers=random_numbers)
+    assert obs == re_obs
+
+
 def test_reduce_deltas():
     idx_old = range(1, 101)
     deltas = [float(i) for i in idx_old]
@@ -1269,11 +1289,13 @@ def test_format_uncertainty():
     pe.obs._format_uncertainty(1, np.NaN)
     pe.obs._format_uncertainty(np.NaN, np.inf)
 
+
 def test_format():
     o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
     assert o1.__format__("+3") == '+0.3480(123)'
     assert o1.__format__("+2") == '+0.348(12)'
     assert o1.__format__(" 2") == ' 0.348(12)'
+
 
 def test_f_string_obs():
     o1 = pe.pseudo_Obs(0.348, 0.0123, "test")
@@ -1283,7 +1305,42 @@ def test_f_string_obs():
     print(f"{o1:-1}")
     print(f"{o1: 8}")
 
+
+def test_f_string_cobs():
+    o_real = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o_imag = pe.pseudo_Obs(0.348, 0.0123, "test")
+    o1 = pe.CObs(o_real, o_imag)
+    print(f"{o1}")
+    print(f"{o1:3}")
+    print(f"{o1:+3}")
+    print(f"{o1:-1}")
+    print(f"{o1: 8}")
+
+
 def test_compute_drho_fails():
     obs = pe.input.json.load_json("tests/data/compute_drho_fails.json.gz")
     obs.gm()
     assert np.isclose(obs.dvalue, 0.0022150779611891094)
+
+
+def test_vec_gm():
+    obs = pe.misc.gen_correlated_data(np.arange(3), np.array([[0.0364    , 0.03627262, 0.03615699],
+           [0.03627262, 0.03688438, 0.03674798],
+           [0.03615699, 0.03674798, 0.03732882]]), "qq", 3.8, 1000)
+    pe.gm(obs[0], S=0)
+    assert obs[0].S["qq"] == 0
+    pe.gm(obs, S=1.3)
+    assert np.all(np.vectorize(lambda x: x.S["qq"])(obs) == 1.3)
+    aa = np.array([obs, obs, obs])
+    pe.gamma_method(aa, S=2.2)
+    assert np.all(np.vectorize(lambda x: x.S["qq"])(aa) == 2.20)
+    cc = pe.Corr(obs)
+    pe.gm(cc, S=4.12)
+    assert np.all(np.vectorize(lambda x: x.S["qq"])(cc.content) == 4.12)
+
+def test_complex_addition():
+    o = pe.pseudo_Obs(34.12, 1e-4, "testens")
+    r = o + 2j
+    assert r.real == o
+    r = r * 1j
+    assert r.imag == o

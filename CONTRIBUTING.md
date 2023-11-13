@@ -19,19 +19,17 @@ Please add docstrings to any new function, class or method you implement. The do
 
 ### Tests
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
+We follow the [PEP8](https://peps.python.org/pep-0008/) code style which is checked by `flake8`.
 For all pull requests tests are executed for the most recent python releases via
 ```
 pytest -vv -Werror
 pytest --nbmake examples/*.ipynb
+flake8 --ignore=E501,W503 --exclude=__init__.py pyerrors
 ```
-requiring `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis` and `nbmake`. To install the test dependencies one can run `pip install pyerrors[test]`
+The tests require `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis`, `nbmake` and `flake8`. To install the test dependencies one can run `pip install pyerrors[test]`.
+Please make sure that all tests pass for a new pull requests.
 
 To get a coverage report in html run
 ```
 pytest --cov=pyerrors --cov-report html
 ```
-The linter `flake8` is executed with the command
-```
-flake8 --ignore=E501,W503 --exclude=__init__.py pyerrors
-```
-Please make sure that all tests pass for a new pull requests.

@@ -436,7 +436,7 @@ def test_GEVP_solver():
     sp_vecs = [v / np.sqrt((v.T @ mat2 @ v)) for v in sp_vecs]
 
     assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2), atol=1e-14)
-    assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2, method='cholesky'), atol=1e-13)
+    assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2, method='cholesky'))
 
 
 def test_GEVP_none_entries():

@@ -572,6 +572,7 @@ def test_corr_symmetric():
         assert scorr[2] == corr[2]
         assert scorr[0] == corr[0]
 
+
 def test_error_GEVP():
     corr = pe.input.json.load_json("tests/data/test_matrix_corr.json.gz")
     t0, ts, state = 3, 6, 0
@@ -593,7 +594,8 @@ def test_error_GEVP():
     assert(np.isclose(vec_regular_chol, vec_regular).all())
     assert(np.isclose(corr.GEVP(t0=t0, state=state)[ts], vec_regular).all())
 
-   def test_corr_array_ndim1_init():
+
+def test_corr_array_ndim1_init():
     y = [pe.pseudo_Obs(2 + np.random.normal(0.0, 0.1), .1, 't') for i in np.arange(5)]
     cc1 = pe.Corr(y)
     cc2 = pe.Corr(np.array(y))
@@ -708,7 +710,6 @@ def test_matrix_trace():
     corr = pe.Corr([mat] * 4)
     for el in corr.trace():
         assert el == 0
-
 
     with pytest.raises(ValueError):
         corr.item(0, 0).trace()

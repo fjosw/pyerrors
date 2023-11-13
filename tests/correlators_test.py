@@ -196,17 +196,17 @@ def test_padded_correlator():
 
 def test_corr_exceptions():
     obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
-    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 99)], ['test'])
+    obs_b = pe.Obs([np.random.normal(0.1, 0.1, 99)], ['test'])
     with pytest.raises(Exception):
         pe.Corr([obs_a, obs_b])
 
     obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
-    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'], idl=[range(1, 200, 2)])
+    obs_b = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'], idl=[range(1, 200, 2)])
     with pytest.raises(Exception):
         pe.Corr([obs_a, obs_b])
 
     obs_a = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test'])
-    obs_b= pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
+    obs_b = pe.Obs([np.random.normal(0.1, 0.1, 100)], ['test2'])
     with pytest.raises(Exception):
         pe.Corr([obs_a, obs_b])
 
@@ -432,6 +432,7 @@ def test_GEVP_solver():
     sp_vecs = [v / np.sqrt((v.T @ mat2 @ v)) for v in sp_vecs]
 
     assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2), atol=1e-14)
+    assert np.allclose(sp_vecs, pe.correlators._GEVP_solver(mat1, mat2, method='cholesky'), atol=1e-13)
 
 
 def test_GEVP_none_entries():
@@ -573,6 +574,7 @@ def test_error_GEVP():
     t0, ts, state = 3, 6, 0
     vec_regular = corr.GEVP(t0=t0)[state][ts]
     vec_errors = corr.GEVP(t0=t0, vector_obs=True, auto_gamma=True)[state][ts]
+    vec_regular_chol = corr.GEVP(t0=t0, method='cholesky')[state][ts]
     print(vec_errors)
     print(type(vec_errors[0]))
     assert(np.isclose(np.asarray([e.value for e in vec_errors]), vec_regular).all())
@@ -584,3 +586,6 @@ def test_error_GEVP():
     projected_errors.gamma_method()
     assert(projected_errors.dvalue > projected_regular.dvalue)
     assert(corr.GEVP(t0, vector_obs=True)[state][42] is None)
+
+    assert(np.isclose(vec_regular_chol, vec_regular).all())
+    assert(np.isclose(corr.GEVP(t0=t0, state=state)[ts], vec_regular).all())

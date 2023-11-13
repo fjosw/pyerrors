@@ -5,7 +5,7 @@ import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
-from .misc import dump_object, _assert_equal_properties, obsval
+from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
 from .roots import find_root
 from . import linalg
@@ -284,10 +284,10 @@ class Corr:
             If sort="Eigenvector" it gives a reference point for the sorting method.
         sort : string
             If this argument is set, a list of self.T vectors per state is returned. If it is set to None, only one vector is returned.
-            - None: The GEVP is solved only at ts, no sorting is necessary
-            - "Eigenvalue": The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
+            - "Eigenvalue": The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice. (default)
             - "Eigenvector": Use the method described in arXiv:2004.10472 to find the set of v(t) belonging to the state.
               The reference state is identified by its eigenvalue at $t=t_s$.
+            - None: The GEVP is solved only at ts, no sorting is necessary
         vector_obs : bool
             If True, uncertainties are propagated in the eigenvector computation (default False).
 
@@ -297,7 +297,7 @@ class Corr:
            Returns only the vector(s) for a specified state. The lowest state is zero.
         method : str
            Method used to solve the GEVP.
-           - "eigh": Use scipy.linalg.eigh to solve the GEVP.
+           - "eigh": Use scipy.linalg.eigh to solve the GEVP. (default for vector_obs=False)
            - "cholesky": Use manually implemented solution via the Cholesky decomposition. Automatically chosen if vector_obs==True.
         '''
 
@@ -364,14 +364,14 @@ class Corr:
             if kwargs.get('auto_gamma', False) and vector_obs:
                 [[[o.gm() for o in evn] for evn in ev if evn is not None] for ev in reordered_vecs]
         else:
-            raise Exception("Unkown value for 'sort'. Choose None, 'Eigenvalue' or 'Eigenvector'.")
+            raise Exception("Unknown value for 'sort'. Choose 'Eigenvalue', 'Eigenvector' or None.")
 
         if "state" in kwargs:
             return reordered_vecs[kwargs.get("state")]
         else:
             return reordered_vecs
 
-    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue"):
+    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue", **kwargs):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator
 
         Parameters
@@ -381,7 +381,7 @@ class Corr:
 
         All other parameters are identical to the ones of Corr.GEVP.
         """
-        vec = self.GEVP(t0, ts=ts, sort=sort)[state]
+        vec = self.GEVP(t0, ts=ts, sort=sort, **kwargs)[state]
         return self.projected(vec)
 
     def Hankel(self, N, periodic=False):
@@ -1316,7 +1316,7 @@ def _sort_vectors(vec_set_in, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
     if isinstance(vec_set_in[ts][0][0], Obs):
-        vec_set = [anp.vectorize(lambda x: obsval(x))(vi) if vi is not None else vi for vi in vec_set_in]
+        vec_set = [anp.vectorize(lambda x: float(x))(vi) if vi is not None else vi for vi in vec_set_in]
     else:
         vec_set = vec_set_in
     reference_sorting = np.array(vec_set[ts])
@@ -1360,9 +1360,9 @@ def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
 
     Parameters
     ----------
-    ts : array
-        The correlator at time t0 for the left hand side of the GEVP
     Gt : array
+        The correlator at time t for the left hand side of the GEVP
+    G0 : array
         The correlator at time t0 for the right hand side of the GEVP
     Method used to solve the GEVP.
        - "eigh": Use scipy.linalg.eigh to solve the GEVP.

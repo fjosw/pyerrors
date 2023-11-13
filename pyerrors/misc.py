@@ -183,18 +183,3 @@ def _assert_equal_properties(ol, otype=Obs):
             if hasattr(ol[0], attr):
                 if not getattr(ol[0], attr) == getattr(o, attr):
                     raise Exception(f"All Obs in list have to have the same state '{attr}'.")
-
-
-def obsval(o):
-    """ Return the value of o, if it is an Obs, otherwise return o
-
-    Parameters
-    ----------
-    o : any
-        object to get the value from
-
-    """
-    if isinstance(o, Obs):
-        return o.value
-    else:
-        return o

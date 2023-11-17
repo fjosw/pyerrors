@@ -271,6 +271,12 @@ def eig(obs, **kwargs):
     return w
 
 
+def eigv(obs, **kwargs):
+    """Computes the eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
+    v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
+    return v
+
+
 def pinv(obs, **kwargs):
     """Computes the Moore-Penrose pseudoinverse of a matrix of Obs."""
     return derived_observable(lambda x, **kwargs: anp.linalg.pinv(x), obs)

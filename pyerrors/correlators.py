@@ -8,6 +8,7 @@ from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares
 from .roots import find_root
+from . import linalg
 
 
 class Corr:
@@ -298,7 +299,7 @@ class Corr:
             transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
 
-    def GEVP(self, t0, ts=None, sort="Eigenvalue", **kwargs):
+    def GEVP(self, t0, ts=None, sort="Eigenvalue", vector_obs=False, **kwargs):
         r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
 
         The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the
@@ -317,14 +318,21 @@ class Corr:
             If sort="Eigenvector" it gives a reference point for the sorting method.
         sort : string
             If this argument is set, a list of self.T vectors per state is returned. If it is set to None, only one vector is returned.
-            - "Eigenvalue": The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice.
+            - "Eigenvalue": The eigenvector is chosen according to which eigenvalue it belongs individually on every timeslice. (default)
             - "Eigenvector": Use the method described in arXiv:2004.10472 to find the set of v(t) belonging to the state.
               The reference state is identified by its eigenvalue at $t=t_s$.
+            - None: The GEVP is solved only at ts, no sorting is necessary
+        vector_obs : bool
+            If True, uncertainties are propagated in the eigenvector computation (default False).
 
         Other Parameters
         ----------------
         state : int
            Returns only the vector(s) for a specified state. The lowest state is zero.
+        method : str
+           Method used to solve the GEVP.
+           - "eigh": Use scipy.linalg.eigh to solve the GEVP. (default for vector_obs=False)
+           - "cholesky": Use manually implemented solution via the Cholesky decomposition. Automatically chosen if vector_obs==True.
         '''
 
         if self.N == 1:
@@ -342,16 +350,34 @@ class Corr:
         else:
             symmetric_corr = self.matrix_symmetric()
 
-        G0 = np.vectorize(lambda x: x.value)(symmetric_corr[t0])
-        np.linalg.cholesky(G0)  # Check if matrix G0 is positive-semidefinite.
+        def _get_mat_at_t(t, vector_obs=vector_obs):
+            if vector_obs:
+                return symmetric_corr[t]
+            else:
+                return np.vectorize(lambda x: x.value)(symmetric_corr[t])
+        G0 = _get_mat_at_t(t0)
+
+        method = kwargs.get('method', 'eigh')
+        if vector_obs:
+            chol = linalg.cholesky(G0)
+            chol_inv = linalg.inv(chol)
+            method = 'cholesky'
+        else:
+            chol = np.linalg.cholesky(_get_mat_at_t(t0, vector_obs=False))  # Check if matrix G0 is positive-semidefinite.
+            if method == 'cholesky':
+                chol_inv = np.linalg.inv(chol)
+            else:
+                chol_inv = None
 
         if sort is None:
             if (ts is None):
                 raise Exception("ts is required if sort=None.")
             if (self.content[t0] is None) or (self.content[ts] is None):
                 raise Exception("Corr not defined at t0/ts.")
-            Gt = np.vectorize(lambda x: x.value)(symmetric_corr[ts])
-            reordered_vecs = _GEVP_solver(Gt, G0)
+            Gt = _get_mat_at_t(ts)
+            reordered_vecs = _GEVP_solver(Gt, G0, method=method, chol_inv=chol_inv)
+            if kwargs.get('auto_gamma', False) and vector_obs:
+                [[o.gm() for o in ev if isinstance(o, Obs)] for ev in reordered_vecs]
 
         elif sort in ["Eigenvalue", "Eigenvector"]:
             if sort == "Eigenvalue" and ts is not None:
@@ -359,8 +385,8 @@ class Corr:
             all_vecs = [None] * (t0 + 1)
             for t in range(t0 + 1, self.T):
                 try:
-                    Gt = np.vectorize(lambda x: x.value)(symmetric_corr[t])
-                    all_vecs.append(_GEVP_solver(Gt, G0))
+                    Gt = _get_mat_at_t(t)
+                    all_vecs.append(_GEVP_solver(Gt, G0, method=method, chol_inv=chol_inv))
                 except Exception:
                     all_vecs.append(None)
             if sort == "Eigenvector":
@@ -369,15 +395,17 @@ class Corr:
                 all_vecs = _sort_vectors(all_vecs, ts)
 
             reordered_vecs = [[v[s] if v is not None else None for v in all_vecs] for s in range(self.N)]
+            if kwargs.get('auto_gamma', False) and vector_obs:
+                [[[o.gm() for o in evn] for evn in ev if evn is not None] for ev in reordered_vecs]
         else:
-            raise Exception("Unkown value for 'sort'.")
+            raise Exception("Unknown value for 'sort'. Choose 'Eigenvalue', 'Eigenvector' or None.")
 
         if "state" in kwargs:
             return reordered_vecs[kwargs.get("state")]
         else:
             return reordered_vecs
 
-    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue"):
+    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue", **kwargs):
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator
 
         Parameters
@@ -387,7 +415,7 @@ class Corr:
 
         All other parameters are identical to the ones of Corr.GEVP.
         """
-        vec = self.GEVP(t0, ts=ts, sort=sort)[state]
+        vec = self.GEVP(t0, ts=ts, sort=sort, **kwargs)[state]
         return self.projected(vec)
 
     def Hankel(self, N, periodic=False):
@@ -1386,8 +1414,13 @@ class Corr:
         return Corr(newcontent)
 
 
-def _sort_vectors(vec_set, ts):
+def _sort_vectors(vec_set_in, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
+
+    if isinstance(vec_set_in[ts][0][0], Obs):
+        vec_set = [anp.vectorize(lambda x: float(x))(vi) if vi is not None else vi for vi in vec_set_in]
+    else:
+        vec_set = vec_set_in
     reference_sorting = np.array(vec_set[ts])
     N = reference_sorting.shape[0]
     sorted_vec_set = []
@@ -1406,9 +1439,9 @@ def _sort_vectors(vec_set, ts):
                 if current_score > best_score:
                     best_score = current_score
                     best_perm = perm
-            sorted_vec_set.append([vec_set[t][k] for k in best_perm])
+            sorted_vec_set.append([vec_set_in[t][k] for k in best_perm])
         else:
-            sorted_vec_set.append(vec_set[t])
+            sorted_vec_set.append(vec_set_in[t])
 
     return sorted_vec_set
 
@@ -1418,10 +1451,63 @@ def _check_for_none(corr, entry):
     return len(list(filter(None, np.asarray(entry).flatten()))) < corr.N ** 2
 
 
-def _GEVP_solver(Gt, G0):
-    """Helper function for solving the GEVP and sorting the eigenvectors.
+def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
+    r"""Helper function for solving the GEVP and sorting the eigenvectors.
+
+    Solves $G(t)v_i=\lambda_i G(t_0)v_i$ and returns the eigenvectors v_i
 
     The helper function assumes that both provided matrices are symmetric and
     only processes the lower triangular part of both matrices. In case the matrices
-    are not symmetric the upper triangular parts are effectively discarded."""
-    return scipy.linalg.eigh(Gt, G0, lower=True)[1].T[::-1]
+    are not symmetric the upper triangular parts are effectively discarded.
+
+    Parameters
+    ----------
+    Gt : array
+        The correlator at time t for the left hand side of the GEVP
+    G0 : array
+        The correlator at time t0 for the right hand side of the GEVP
+    Method used to solve the GEVP.
+       - "eigh": Use scipy.linalg.eigh to solve the GEVP.
+       - "cholesky": Use manually implemented solution via the Cholesky decomposition.
+    chol_inv : array, optional
+        Inverse of the Cholesky decomposition of G0. May be provided to
+        speed up the computation in the case of method=='cholesky'
+
+    """
+    if isinstance(G0[0][0], Obs):
+        vector_obs = True
+    else:
+        vector_obs = False
+
+    if method == 'cholesky':
+        if vector_obs:
+            cholesky = linalg.cholesky
+            inv = linalg.inv
+            eigv = linalg.eigv
+            matmul = linalg.matmul
+        else:
+            cholesky = np.linalg.cholesky
+            inv = np.linalg.inv
+
+            def eigv(x, **kwargs):
+                return np.linalg.eigh(x)[1]
+
+            def matmul(*operands):
+                return np.linalg.multi_dot(operands)
+        N = Gt.shape[0]
+        output = [[] for j in range(N)]
+        if chol_inv is None:
+            chol = cholesky(G0)  # This will automatically report if the matrix is not pos-def
+            chol_inv = inv(chol)
+
+        try:
+            new_matrix = matmul(chol_inv, Gt, chol_inv.T)
+            ev = eigv(new_matrix)
+            ev = matmul(chol_inv.T, ev)
+            output = np.flip(ev, axis=1).T
+        except (np.linalg.LinAlgError, TypeError, ValueError):  # The above code can fail because of linalg-errors or because the entry of the corr is None
+            for s in range(N):
+                output[s] = None
+        return output
+    elif method == 'eigh':
+        return scipy.linalg.eigh(Gt, G0, lower=True)[1].T[::-1]

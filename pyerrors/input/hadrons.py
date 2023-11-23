@@ -88,7 +88,7 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
 
     path_obj = Path(filestem)
     path = path_obj.parent.as_posix()
-    filestem = path_obj.stem
+    filestem = path_obj.name
 
     files, idx = _get_files(path, filestem, idl)
 

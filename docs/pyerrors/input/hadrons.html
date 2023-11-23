@@ -193,7 +193,7 @@
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">path_obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filestem</span><span class="p">)</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="n">filestem</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">stem</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="n">filestem</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">name</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
@@ -767,7 +767,7 @@
 </span><span id="read_hd5-89"><a href="#read_hd5-89"><span class="linenos"> 89</span></a>
 </span><span id="read_hd5-90"><a href="#read_hd5-90"><span class="linenos"> 90</span></a>    <span class="n">path_obj</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filestem</span><span class="p">)</span>
 </span><span id="read_hd5-91"><a href="#read_hd5-91"><span class="linenos"> 91</span></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-</span><span id="read_hd5-92"><a href="#read_hd5-92"><span class="linenos"> 92</span></a>    <span class="n">filestem</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">stem</span>
+</span><span id="read_hd5-92"><a href="#read_hd5-92"><span class="linenos"> 92</span></a>    <span class="n">filestem</span> <span class="o">=</span> <span class="n">path_obj</span><span class="o">.</span><span class="n">name</span>
 </span><span id="read_hd5-93"><a href="#read_hd5-93"><span class="linenos"> 93</span></a>
 </span><span id="read_hd5-94"><a href="#read_hd5-94"><span class="linenos"> 94</span></a>    <span class="n">files</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">_get_files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filestem</span><span class="p">,</span> <span class="n">idl</span><span class="p">)</span>
 </span><span id="read_hd5-95"><a href="#read_hd5-95"><span class="linenos"> 95</span></a>

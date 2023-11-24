@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.10.0] - 2023-11-24
+### Added
+- More efficient implementation of read_sfcf
+- added support for addition and multiplication of complex numbers to Corr objects
+- the Corr.GEVP method can now also propagate the errors for the eigenvectors
+
+### Fixed
+- Fixed bug in combined fit with multiple independent variables
+- Check for invalid set of configuration numbers added when initializing an Obs object.
+- Fixed a  bug in hadrons.read_hdf5
+
+
 ## [2.9.0] - 2023-07-20
 ### Added
 - Vectorized `gamma_method` added which can be applied to lists or arrays of pyerrors objects.

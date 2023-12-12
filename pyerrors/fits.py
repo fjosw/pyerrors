@@ -297,7 +297,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
 
     if kwargs.get('correlated_fit') is True:
-        corr = covariance(y_all, correlation=True, **kwargs)
+        if 'corr_matrix' in kwargs:
+            corr = kwargs.get('corr_matrix')
+        else:
+            corr = covariance(y_all, correlation=True, **kwargs)
         covdiag = np.diag(1 / np.asarray(dy_f))
         condn = np.linalg.cond(corr)
         if condn > 0.1 / np.finfo(float).eps:

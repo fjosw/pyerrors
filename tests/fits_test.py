@@ -153,6 +153,55 @@ def test_alternative_solvers():
     assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
 
 
+def test_cov_matrix_input_combined_fit():
+    
+
+    num_samples = 400
+    N = 10
+
+    x = norm.rvs(size=(N, num_samples)) # generate random numbers
+
+    r = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            r[i, j] = np.exp(-0.8 * np.fabs(i - j)) # element in correlation matrix
+
+    errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2]) # set y errors
+    for i in range(N):
+        for j in range(N):
+            r[i, j] *= errl[i] * errl[j] # element in covariance matrix
+    
+    c = cholesky(r, lower=True)
+    y = np.dot(c, x)
+    x = np.arange(N)
+    for linear in [True, False]:
+        data = []
+        for i in range(N):
+            if linear:
+                data.append(pe.Obs([[i + 1 + o for o in y[i]]], ['ens']))
+            else:
+                data.append(pe.Obs([[np.exp(-(i + 1)) + np.exp(-(i + 1)) * o for o in y[i]]], ['ens']))
+
+        [o.gamma_method() for o in data]
+
+        corr = pe.covariance(data, correlation=True)
+        
+
+        if linear:
+            def fitf(p, x):
+                return p[1] + p[0] * x
+        else:
+            def fitf(p, x):
+                return p[1] * anp.exp(-p[0] * x)
+
+        fitp = pe.least_squares(x, data, fitf, correlated_fit = True, corr_matrix = corr)
+        fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
+        for i in range(2):
+            diff = fitp[i] - fitpc[i]
+            diff.gamma_method()
+            assert(diff.is_zero(atol=0.0))
+
+
 def test_correlated_fit():
     num_samples = 400
     N = 10

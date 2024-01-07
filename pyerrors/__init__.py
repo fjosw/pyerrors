@@ -487,5 +487,6 @@ from . import linalg
 from . import mpm
 from . import roots
 from . import integrate
+from . import special
 
 from .version import __version__

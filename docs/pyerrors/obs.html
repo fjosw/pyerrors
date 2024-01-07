@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.1.0"/>
+    <meta name="generator" content="pdoc 14.3.0"/>
     <title>pyerrors.obs API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -3309,79 +3309,133 @@ list of ranges or lists on which the samples are defined</li>
 
                             </div>
                             <div id="Obs.value" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.value-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">value</span>
 
-        
+                <label class="view-source-button" for="Obs.value-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.value"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.value-144"><a href="#Obs.value-144"><span class="linenos">144</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.value-145"><a href="#Obs.value-145"><span class="linenos">145</span></a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.value-146"><a href="#Obs.value-146"><span class="linenos">146</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.dvalue" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.dvalue-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">dvalue</span>
 
-        
+                <label class="view-source-button" for="Obs.dvalue-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.dvalue"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.dvalue-148"><a href="#Obs.dvalue-148"><span class="linenos">148</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.dvalue-149"><a href="#Obs.dvalue-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="nf">dvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.dvalue-150"><a href="#Obs.dvalue-150"><span class="linenos">150</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvalue</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.e_names" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.e_names-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">e_names</span>
 
-        
+                <label class="view-source-button" for="Obs.e_names-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.e_names"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.e_names-152"><a href="#Obs.e_names-152"><span class="linenos">152</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.e_names-153"><a href="#Obs.e_names-153"><span class="linenos">153</span></a>    <span class="k">def</span> <span class="nf">e_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.e_names-154"><a href="#Obs.e_names-154"><span class="linenos">154</span></a>        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]))</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.cov_names" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.cov_names-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">cov_names</span>
 
-        
+                <label class="view-source-button" for="Obs.cov_names-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.cov_names"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.cov_names-156"><a href="#Obs.cov_names-156"><span class="linenos">156</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.cov_names-157"><a href="#Obs.cov_names-157"><span class="linenos">157</span></a>    <span class="k">def</span> <span class="nf">cov_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.cov_names-158"><a href="#Obs.cov_names-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covobs</span><span class="o">.</span><span class="n">keys</span><span class="p">()]))</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.mc_names" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.mc_names-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">mc_names</span>
 
-        
+                <label class="view-source-button" for="Obs.mc_names-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.mc_names"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.mc_names-160"><a href="#Obs.mc_names-160"><span class="linenos">160</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.mc_names-161"><a href="#Obs.mc_names-161"><span class="linenos">161</span></a>    <span class="k">def</span> <span class="nf">mc_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.mc_names-162"><a href="#Obs.mc_names-162"><span class="linenos">162</span></a>        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">o</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">o</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cov_names</span><span class="p">]))</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.e_content" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.e_content-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">e_content</span>
 
-        
+                <label class="view-source-button" for="Obs.e_content-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.e_content"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.e_content-164"><a href="#Obs.e_content-164"><span class="linenos">164</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.e_content-165"><a href="#Obs.e_content-165"><span class="linenos">165</span></a>    <span class="k">def</span> <span class="nf">e_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.e_content-166"><a href="#Obs.e_content-166"><span class="linenos">166</span></a>        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="Obs.e_content-167"><a href="#Obs.e_content-167"><span class="linenos">167</span></a>        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_names</span><span class="p">):</span>
+</span><span id="Obs.e_content-168"><a href="#Obs.e_content-168"><span class="linenos">168</span></a>            <span class="n">res</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">e_name</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">))</span>
+</span><span id="Obs.e_content-169"><a href="#Obs.e_content-169"><span class="linenos">169</span></a>            <span class="k">if</span> <span class="n">e_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+</span><span id="Obs.e_content-170"><a href="#Obs.e_content-170"><span class="linenos">170</span></a>                <span class="n">res</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_name</span><span class="p">)</span>
+</span><span id="Obs.e_content-171"><a href="#Obs.e_content-171"><span class="linenos">171</span></a>        <span class="k">return</span> <span class="n">res</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="Obs.covobs" class="classattr">
-                                <div class="attr variable">
+                                        <input id="Obs.covobs-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">covobs</span>
 
-        
+                <label class="view-source-button" for="Obs.covobs-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#Obs.covobs"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Obs.covobs-173"><a href="#Obs.covobs-173"><span class="linenos">173</span></a>    <span class="nd">@property</span>
+</span><span id="Obs.covobs-174"><a href="#Obs.covobs-174"><span class="linenos">174</span></a>    <span class="k">def</span> <span class="nf">covobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Obs.covobs-175"><a href="#Obs.covobs-175"><span class="linenos">175</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covobs</span>
+</span></pre></div>
+
+
     
 
                             </div>
@@ -5056,24 +5110,38 @@ should agree with samples from a full bootstrap analysis up to O(1/N).</li>
 
                             </div>
                             <div id="CObs.real" class="classattr">
-                                <div class="attr variable">
+                                        <input id="CObs.real-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">real</span>
 
-        
+                <label class="view-source-button" for="CObs.real-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#CObs.real"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="CObs.real-929"><a href="#CObs.real-929"><span class="linenos">929</span></a>    <span class="nd">@property</span>
+</span><span id="CObs.real-930"><a href="#CObs.real-930"><span class="linenos">930</span></a>    <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="CObs.real-931"><a href="#CObs.real-931"><span class="linenos">931</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real</span>
+</span></pre></div>
+
+
     
 
                             </div>
                             <div id="CObs.imag" class="classattr">
-                                <div class="attr variable">
+                                        <input id="CObs.imag-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
             <span class="name">imag</span>
 
-        
+                <label class="view-source-button" for="CObs.imag-view-source"><span>View Source</span></label>
+
     </div>
     <a class="headerlink" href="#CObs.imag"></a>
-    
+            <div class="pdoc-code codehilite"><pre><span></span><span id="CObs.imag-933"><a href="#CObs.imag-933"><span class="linenos">933</span></a>    <span class="nd">@property</span>
+</span><span id="CObs.imag-934"><a href="#CObs.imag-934"><span class="linenos">934</span></a>    <span class="k">def</span> <span class="nf">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="CObs.imag-935"><a href="#CObs.imag-935"><span class="linenos">935</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imag</span>
+</span></pre></div>
+
+
     
 
                             </div>

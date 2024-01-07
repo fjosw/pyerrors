@@ -4,7 +4,10 @@ from autograd.extend import primitive, defvjp
 from autograd.scipy.special import j0, y0, j1, y1, jn, yn, i0, i1, iv, ive
 
 
-__all__ = ["kn", "j0", "y0", "j1", "y1", "jn", "yn", "i0", "i1", "iv", "ive"]
+__all__ = ["beta", "betainc", "betaln",
+           "polygamma", "psi", "digamma", "gamma", "gammaln", "gammainc", "gammaincc", "gammasgn", "rgamma", "multigammaln",
+           "kn", "j0", "y0", "j1", "y1", "jn", "yn", "i0", "i1", "iv", "ive",
+           "erf", "erfc", "erfinc", "erfcinv", "logit", "expit", "logsumsexp"]
 
 
 @primitive

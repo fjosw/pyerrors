@@ -20,7 +20,7 @@ def print_config():
               "pandas": pd.__version__}
 
     for key, value in config.items():
-        print(f"{key : <10}\t {value}")
+        print(f"{key: <10}\t {value}")
 
 
 def errorbar(x, y, axes=plt, **kwargs):

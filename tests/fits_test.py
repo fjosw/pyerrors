@@ -153,7 +153,7 @@ def test_alternative_solvers():
     assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
 
 
-def test_cov_matrix_input_combined_fit():
+def test_corr_matrix_input_combined_fit():
     
 
     num_samples = 400
@@ -185,7 +185,9 @@ def test_cov_matrix_input_combined_fit():
         [o.gamma_method() for o in data]
 
         corr = pe.covariance(data, correlation=True)
-        
+        chol = np.linalg.cholesky(corr)
+        covdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
+        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
         if linear:
             def fitf(p, x):
@@ -196,11 +198,40 @@ def test_cov_matrix_input_combined_fit():
 
         fitp = pe.least_squares(x, data, fitf, correlated_fit = True, corr_matrix = corr)
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
+        fitp_inv_cov = pe.least_squares(x, data, fitf,  correlated_fit = True, inv_chol_cov_matrix = chol_inv)
         for i in range(2):
             diff = fitp[i] - fitpc[i]
             diff.gamma_method()
             assert(diff.is_zero(atol=0.0))
+            diff_inv_cov = fitp_inv_cov[i] - fitpc[i]
+            diff_inv_cov.gamma_method()
+            assert(diff_inv_cov.is_zero(atol=0.0))
 
+def test_combined_fit_invalid_cov_matrix_input():
+    xvals = []
+    yvals = []
+    err = 0.1
+    def func_valid(a,x):
+        return a[0] + a[1] * x
+    for x in range(1, 8, 2):
+        xvals.append(x)
+        yvals.append(pe.pseudo_Obs(x + np.random.normal(0.0, err), err, 'test1') + pe.pseudo_Obs(0, err / 100, 'test2', samples=87))
+
+    [o.gamma_method() for o in yvals]
+
+    corr_valid = pe.covariance(yvals, correlation = True)
+    pe.least_squares(xvals, yvals, func_valid, correlated_fit = True, corr_matrix = corr_valid)
+    corr_invalid_shape1 = np.zeros((len(yvals),len(yvals)-1))
+    corr_invalid_shape2 = np.zeros((len(yvals)+2,len(yvals)))
+
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals, yvals, func_valid, correlated_fit = True, corr_matrix = corr_invalid_shape1)
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals, yvals, func_valid, correlated_fit = True, corr_matrix = corr_invalid_shape2)
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals, yvals, func_valid, correlated_fit = True, inv_chol_cov_matrix = corr_invalid_shape1)
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals, yvals, func_valid,correlated_fit = True, inv_chol_cov_matrix = corr_invalid_shape2)
 
 def test_correlated_fit():
     num_samples = 400

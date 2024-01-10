@@ -151,6 +151,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
+    corr_matrix: array, optional
+        if correlated_fit=True is set as well, can provide a correlation matrix (without y errros!) of your own choosing for a correlated fit
+    inv_chol_cov_matrix
+        if correlated_fit=True is set as well, can provide an inverse covariance matrix (y errros, dy_f included!) of your own choosing for a correlated fit
+        The matrix must be a lower triangular matrix constructed from a Cholesky decomposed correlation matrix (e.g. chol = np.linalg.cholesky(corr)
+        so that the inverse covariance matrix is defined by chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True) with covdiag = np.diag(1 / np.asarray(dy_f)))
     expected_chisquare : bool
         If True estimates the expected chisquare which is
         corrected by effects caused by correlated input data (default False).
@@ -297,18 +303,30 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
 
     if kwargs.get('correlated_fit') is True:
-        if 'corr_matrix' in kwargs:
-            corr = kwargs.get('corr_matrix')
+        if 'inv_chol_cov_matrix' in kwargs:
+            chol_inv = kwargs.get('inv_chol_cov_matrix')
+            print('Warning: The inverse covariance matrix handed over must be a lower triangular matrix constructed from a Cholesky decomposed correlation matrix.')
+            if (chol_inv.shape[0] != len(dy_f)):
+                raise TypeError('The number of columns of the inverse covariance matrix handed over needs to be equal to the number of y errors.')
+            if (chol_inv.shape[0] != chol_inv.shape[1]):
+                raise TypeError('The inverse covariance matrix handed over needs to have the same number of rows as columns.')
         else:
-            corr = covariance(y_all, correlation=True, **kwargs)
-        covdiag = np.diag(1 / np.asarray(dy_f))
-        condn = np.linalg.cond(corr)
-        if condn > 0.1 / np.finfo(float).eps:
-            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
-        if condn > 1e13:
-            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
-        chol = np.linalg.cholesky(corr)
-        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+            if 'corr_matrix' in kwargs:
+                corr = kwargs.get('corr_matrix')
+                if (corr.shape[0] != len(dy_f)):
+                    raise TypeError('The number of columns of the correlation matrix needs to be equal to the number of y errors.')
+                if (corr.shape[0] != corr.shape[1]):
+                    raise TypeError('The correlation matrix needs to have the same number of rows as columns.')
+            else:
+                corr = covariance(y_all, correlation=True, **kwargs)
+            covdiag = np.diag(1 / np.asarray(dy_f))
+            condn = np.linalg.cond(corr)
+            if condn > 0.1 / np.finfo(float).eps:
+                raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+            if condn > 1e13:
+                warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+            chol = np.linalg.cholesky(corr)
+            chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
 
         def general_chisqfunc(p, ivars, pr):
             model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])
@@ -353,7 +371,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
         fit_result = scipy.optimize.least_squares(chisqfunc_residuals_uncorr, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
         if kwargs.get('correlated_fit') is True:
-
             def chisqfunc_residuals(p):
                 return general_chisqfunc(p, y_f, p_f)
 

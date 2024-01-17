@@ -121,7 +121,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         String that separates the ensemble identifier from the configuration number (default 'n').
     replica: list
         list of replica to be read, default is all
-    files: list
+    files: list[list[int]]
         list of files to be read per replica, default is all.
         for non-compact output format, hand the folders to be read here.
     check_configs: list[list[int]]
@@ -236,6 +236,10 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             rep_path = path + '/' + item
             if "files" in kwargs:
                 files = kwargs.get("files")
+                if isinstance(files, list):
+                    if isinstance(files[0], list):
+                        files = files[i]
+
             else:
                 files = []
             sub_ls = _find_files(rep_path, prefix, compact, files)
@@ -248,7 +252,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                     else:
                         rep_idl.append(int(cfg[3:]))
                 except Exception:
-                    raise Exception("Couldn't parse idl from directroy, problem with file " + cfg)
+                    raise Exception("Couldn't parse idl from directory, problem with file " + cfg)
             rep_idl.sort()
             # maybe there is a better way to print the idls
             if not silent:
@@ -309,7 +313,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             w = specs[3]
             w2 = specs[4]
             if "files" in kwargs:
-                ls = kwargs.get("files")
+                name_ls = kwargs.get("files")
             else:
                 name_ls = ls
                 for exc in name_ls:

@@ -50,6 +50,18 @@ def test_o_bi(tmp_path):
     assert f_A[2].value == -41.025094911185185
 
 
+def test_o_bi_files(tmp_path):
+    build_test_environment(str(tmp_path), "o", 10, 3)
+    f_A = sfin.read_sfcf(str(tmp_path) + "/data_o", "test", "f_A", quarks="lquark lquark", wf=0, version="2.0",
+                         files=[["cfg" + str(i) for i in range(1, 11, 2)], ["cfg" + str(i) for i in range(2, 11, 2)], ["cfg" + str(i) for i in range(1, 11, 2)]])
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["test_|r0", "test_|r1", "test_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
+
+
 def test_o_bib(tmp_path):
     build_test_environment(str(tmp_path), "o", 5, 3)
     f_V0 = sfin.read_sfcf(str(tmp_path) + "/data_o", "test", "F_V0", quarks="lquark lquark", wf=0, wf2=0, version="2.0", corr_type="bib")
@@ -112,6 +124,18 @@ def test_c_bb(tmp_path):
 def test_c_bi(tmp_path):
     build_test_environment(str(tmp_path), "c", 5, 3)
     f_A = sfin.read_sfcf(str(tmp_path) + "/data_c", "data_c", "f_A", quarks="lquark lquark", wf=0, version="2.0c")
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["data_c_|r0", "data_c_|r1", "data_c_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
+
+
+def test_c_bi_files(tmp_path):
+    build_test_environment(str(tmp_path), "c", 10, 3)
+    f_A = sfin.read_sfcf(str(tmp_path) + "/data_c", "data_c", "f_A", quarks="lquark lquark", wf=0, version="2.0c",
+                         files=[["data_c_r0_n" + str(i) for i in range(1, 11, 2)], ["data_c_r1_n" + str(i) for i in range(2, 11, 2)], ["data_c_r2_n" + str(i) for i in range(1, 11, 2)]])
     print(f_A)
     assert len(f_A) == 3
     assert list(f_A[0].shape.keys()) == ["data_c_|r0", "data_c_|r1", "data_c_|r2"]
@@ -248,6 +272,17 @@ def test_a_bb(tmp_path):
 def test_a_bi(tmp_path):
     build_test_environment(str(tmp_path), "a", 5, 3)
     f_A = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_A", quarks="lquark lquark", wf=0, version="2.0a")
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
+
+
+def test_a_bi_files(tmp_path):
+    build_test_environment(str(tmp_path), "a", 5, 3)
+    f_A = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_A", quarks="lquark lquark", wf=0, version="2.0a", files=["data_a_r0.f_A", "data_a_r1.f_A", "data_a_r2.f_A"])
     print(f_A)
     assert len(f_A) == 3
     assert list(f_A[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]

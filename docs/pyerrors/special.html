@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.3.0"/>
+    <meta name="generator" content="pdoc 14.4.0"/>
     <title>pyerrors.special API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -351,6 +351,9 @@ t^{a-1}(1-t)^{b-1}dt,$$</p>
 
 <p>for \( 0 \leq x \leq 1 \).</p>
 
+<p>This function is the cumulative distribution function for the beta
+distribution; its range is [0, 1].</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
@@ -372,7 +375,9 @@ Optional output array for the function values</li>
 <h6 id="see-also">See Also</h6>
 
 <p><code><a href="#beta">beta</a></code>:  beta function <br />
-<code>betaincinv</code>:  inverse of the regularized incomplete beta function  </p>
+<code>betaincinv</code>:  inverse of the regularized incomplete beta function <br />
+<code>betaincc</code>:  complement of the regularized incomplete beta function <br />
+<code>scipy.stats.beta</code>:  beta distribution  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1159,6 +1164,12 @@ Optional output array for the function values</li>
 <li><strong>scalar or ndarray</strong>: Values of the lower incomplete gamma function</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#gammaincc">gammaincc</a></code>:  regularized upper incomplete gamma function <br />
+<code>gammaincinv</code>:  inverse of the regularized lower incomplete gamma function <br />
+<code>gammainccinv</code>:  inverse of the regularized upper incomplete gamma function  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The function satisfies the relation <code>gammainc(a, x) +
@@ -1166,12 +1177,6 @@ gammaincc(a, x) = 1</code> where <code><a href="#gammaincc">gammaincc</a></code>
 incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>gammaincc : regularized upper incomplete gamma function
-gammaincinv : inverse of the regularized lower incomplete gamma function
-gammainccinv : inverse of the regularized upper incomplete gamma function</p>
 
 <h6 id="references">References</h6>
 
@@ -1268,6 +1273,12 @@ Optional output array for the function values</li>
 <li><strong>scalar or ndarray</strong>: Values of the upper incomplete gamma function</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#gammainc">gammainc</a></code>:  regularized lower incomplete gamma function <br />
+<code>gammaincinv</code>:  inverse of the regularized lower incomplete gamma function <br />
+<code>gammainccinv</code>:  inverse of the regularized upper incomplete gamma function  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The function satisfies the relation <code>gammainc(a, x) +
@@ -1275,12 +1286,6 @@ gammaincc(a, x) = 1</code> where <code><a href="#gammainc">gammainc</a></code> i
 incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>gammainc : regularized lower incomplete gamma function
-gammaincinv : inverse of the regularized lower incomplete gamma function
-gammainccinv : inverse of the regularized upper incomplete gamma function</p>
 
 <h6 id="references">References</h6>
 
@@ -1382,16 +1387,16 @@ Optional output array for the function values</li>
 <li><strong>scalar or ndarray</strong>: Sign of the gamma function</li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<p>The gamma function can be computed as <code>gammasgn(x) *
-np.exp(gammaln(x))</code>.</p>
-
 <h6 id="see-also">See Also</h6>
 
 <p><code><a href="#gamma">gamma</a></code>:  the gamma function <br />
 <code><a href="#gammaln">gammaln</a></code>:  log of the absolute value of the gamma function <br />
 <code>loggamma</code>:  analytic continuation of the log of the gamma function  </p>
+
+<h6 id="notes">Notes</h6>
+
+<p>The gamma function can be computed as <code>gammasgn(x) *
+np.exp(gammaln(x))</code>.</p>
 
 <h6 id="references">References</h6>
 
@@ -1489,16 +1494,16 @@ Optional output array for the function results</li>
 <li><strong>scalar or ndarray</strong>: Function results</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code>gamma,</code>, <code>gammaln,</code>, <code>loggamma</code>  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The gamma function has no zeros and has simple poles at
 nonpositive integers, so <code><a href="#rgamma">rgamma</a></code> is an entire function with zeros
 at the nonpositive integers. See the discussion in [dlmf]_ for
 more details.</p>
-
-<h6 id="see-also">See Also</h6>
-
-<p><code>gamma,</code>, <code>gammaln,</code>, <code>loggamma</code>  </p>
 
 <h6 id="references">References</h6>
 
@@ -1719,6 +1724,11 @@ Optional output array for the function values</li>
 Value of the Bessel function of the first kind of order 0 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code>jv</code>:  Bessel function of real order and complex argument. <br />
+<code>spherical_jn</code>:  spherical Bessel functions.  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The domain is divided into the intervals [0, 5] and (5, infinity). In the
@@ -1736,11 +1746,6 @@ two rational functions of degree 6/6 and 7/7.</p>
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#j0">j0</a></code>.
 It should not be confused with the spherical Bessel functions (see
 <code>spherical_jn</code>).</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>jv : Bessel function of real order and complex argument.
-spherical_jn : spherical Bessel functions.</p>
 
 <h6 id="references">References</h6>
 
@@ -1840,6 +1845,11 @@ Optional output array for the function results</li>
 Value of the Bessel function of the second kind of order 0 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#j0">j0</a></code>:  Bessel function of the first kind of order 0 <br />
+<code>yv</code>:  Bessel function of the first kind  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The domain is divided into the intervals [0, 5] and (5, infinity). In the
@@ -1854,11 +1864,6 @@ compute,</p>
 two rational functions of degree 6/6 and 7/7.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#y0">y0</a></code>.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>j0: Bessel function of the first kind of order 0
-yv: Bessel function of the first kind</p>
 
 <h6 id="references">References</h6>
 
@@ -1958,6 +1963,11 @@ Optional output array for the function values</li>
 Value of the Bessel function of the first kind of order 1 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code>jv</code>:  Bessel function of the first kind <br />
+<code>spherical_jn</code>:  spherical Bessel functions.  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The domain is divided into the intervals [0, 8] and (8, infinity). In the
@@ -1968,11 +1978,6 @@ functions of degree 5/5.</p>
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#j1">j1</a></code>.
 It should not be confused with the spherical Bessel functions (see
 <code>spherical_jn</code>).</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>jv: Bessel function of the first kind
-spherical_jn: spherical Bessel functions.</p>
 
 <h6 id="references">References</h6>
 
@@ -2072,6 +2077,12 @@ Optional output array for the function results</li>
 Value of the Bessel function of the second kind of order 1 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#j1">j1</a></code>:  Bessel function of the first kind of order 1 <br />
+<code><a href="#yn">yn</a></code>:  Bessel function of the second kind <br />
+<code>yv</code>:  Bessel function of the second kind  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The domain is divided into the intervals [0, 8] and (8, infinity). In the
@@ -2081,12 +2092,6 @@ second, the asymptotic trigonometric representation is employed using two
 rational functions of degree 5/5.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#y1">y1</a></code>.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>j1: Bessel function of the first kind of order 1
-yn: Bessel function of the second kind
-yv: Bessel function of the second kind</p>
 
 <h6 id="references">References</h6>
 
@@ -2188,12 +2193,12 @@ Optional output array for the function values</li>
 Value of the Bessel function, \( J_v(z) \).</li>
 </ul>
 
-<h6 id="see-also">See also</h6>
+<h6 id="see-also">See Also</h6>
 
-<p>jve : \( J_v \) with leading exponential behavior stripped off.
-spherical_jn : spherical Bessel functions.
-j0 : faster version of this function for order 0.
-j1 : faster version of this function for order 1.</p>
+<p><code>jve</code>:  \( J_v \) with leading exponential behavior stripped off. <br />
+<code>spherical_jn</code>:  spherical Bessel functions. <br />
+<code><a href="#j0">j0</a></code>:  faster version of this function for order 0. <br />
+<code><a href="#j1">j1</a></code>:  faster version of this function for order 1.  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2355,6 +2360,12 @@ Optional output array for the function results</li>
 Value of the Bessel function, \( Y_n(x) \).</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code>yv</code>:  For real order and real or complex argument. <br />
+<code><a href="#y0">y0</a></code>:  faster implementation of this function for order 0 <br />
+<code><a href="#y1">y1</a></code>:  faster implementation of this function for order 1  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>Wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#yn">yn</a></code>.</p>
@@ -2362,12 +2373,6 @@ Value of the Bessel function, \( Y_n(x) \).</li>
 <p>The function is evaluated by forward recurrence on <code>n</code>, starting with
 values computed by the Cephes routines <code><a href="#y0">y0</a></code> and <code><a href="#y1">y1</a></code>. If <code>n = 0</code> or 1,
 the routine for <code><a href="#y0">y0</a></code> or <code><a href="#y1">y1</a></code> is called directly.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>yv : For real order and real or complex argument.
-y0: faster implementation of this function for order 0
-y1: faster implementation of this function for order 1</p>
 
 <h6 id="references">References</h6>
 
@@ -2512,17 +2517,17 @@ Optional output array for the function values</li>
 Value of the modified Bessel function of order 0 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#iv">iv</a></code>:  Modified Bessel function of any order <br />
+<code>i0e</code>:  Exponentially scaled modified Bessel function of order 0  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The range is partitioned into the two intervals [0, 8] and (8, infinity).
 Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i0">i0</a></code>.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>iv: Modified Bessel function of any order
-i0e: Exponentially scaled modified Bessel function of order 0</p>
 
 <h6 id="references">References</h6>
 
@@ -2629,17 +2634,17 @@ Optional output array for the function values</li>
 Value of the modified Bessel function of order 1 at <code>x</code>.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#iv">iv</a></code>:  Modified Bessel function of the first kind <br />
+<code>i1e</code>:  Exponentially scaled modified Bessel function of order 1  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>The range is partitioned into the two intervals [0, 8] and (8, infinity).
 Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i1">i1</a></code>.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>iv: Modified Bessel function of the first kind
-i1e: Exponentially scaled modified Bessel function of order 1</p>
 
 <h6 id="references">References</h6>
 
@@ -2741,6 +2746,12 @@ Optional output array for the function values</li>
 <li><strong>scalar or ndarray</strong>: Values of the modified Bessel function.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#ive">ive</a></code>:  This function with leading exponential behavior stripped off. <br />
+<code><a href="#i0">i0</a></code>:  Faster version of this function for order 0. <br />
+<code><a href="#i1">i1</a></code>:  Faster version of this function for order 1.  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>For real <code>z</code> and \( v \in [-50, 50] \), the evaluation is carried out
@@ -2767,12 +2778,6 @@ formula</p>
 
 <p>is used, where \( K_v(z) \) is the modified Bessel function of the
 second kind, evaluated using the AMOS routine <code>zbesk</code>.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>ive : This function with leading exponential behavior stripped off.
-i0 : Faster version of this function for order 0.
-i1 : Faster version of this function for order 1.</p>
 
 <h6 id="references">References</h6>
 
@@ -2924,6 +2929,12 @@ Optional output array for the function values</li>
 <li><strong>scalar or ndarray</strong>: Values of the exponentially scaled modified Bessel function.</li>
 </ul>
 
+<h6 id="see-also">See Also</h6>
+
+<p><code><a href="#iv">iv</a></code>:  Modified Bessel function of the first kind <br />
+<code>i0e</code>:  Faster implementation of this function for order 0 <br />
+<code>i1e</code>:  Faster implementation of this function for order 1  </p>
+
 <h6 id="notes">Notes</h6>
 
 <p>For positive <code>v</code>, the AMOS <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> <code>zbesi</code> routine is called. It uses a
@@ -2949,12 +2960,6 @@ second kind, evaluated using the AMOS routine <code>zbesk</code>.</p>
 
 <p><code><a href="#ive">ive</a></code> is useful for large arguments <code>z</code>: for these, <code><a href="#iv">iv</a></code> easily overflows,
 while <code><a href="#ive">ive</a></code> does not due to the exponential scaling.</p>
-
-<h6 id="see-also">See also</h6>
-
-<p>iv: Modified Bessel function of the first kind
-i0e: Faster implementation of this function for order 0
-i1e: Faster implementation of this function for order 1</p>
 
 <h6 id="references">References</h6>
 

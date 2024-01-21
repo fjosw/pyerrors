@@ -41,6 +41,7 @@ jobs:
           pip install pytest-benchmark
           pip install hypothesis
           pip install py
+          pip install pyarrow
           pip freeze
 
       - name: Run tests

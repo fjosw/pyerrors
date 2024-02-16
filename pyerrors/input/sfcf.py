@@ -237,8 +237,14 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             if "files" in kwargs:
                 files = kwargs.get("files")
                 if isinstance(files, list):
-                    if isinstance(files[0], list):
+                    if all(isinstance(f, list) for f in files):
                         files = files[i]
+                    elif all(isinstance(f, str) for f in files):
+                        files = files
+                    else:
+                        raise TypeError("files has to be of type list[list[str]] or list[str]!")
+                else:
+                    raise TypeError("files has to be of type list[list[str]] or list[str]!")
 
             else:
                 files = []
@@ -313,7 +319,10 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             w = specs[3]
             w2 = specs[4]
             if "files" in kwargs:
-                name_ls = kwargs.get("files")
+                if isinstance(kwargs.get("files"), list) and all(isinstance(f, str) for f in kwargs.get("files")):
+                    name_ls = kwargs.get("files")
+                else:
+                    raise TypeError("In append mode, files has to be of type list[str]!")
             else:
                 name_ls = ls
                 for exc in name_ls:

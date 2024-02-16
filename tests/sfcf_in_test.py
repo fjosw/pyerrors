@@ -144,6 +144,13 @@ def test_c_bi_files(tmp_path):
     assert f_A[2].value == -41.025094911185185
 
 
+def test_c_bi_files_int_fail(tmp_path):
+    build_test_environment(str(tmp_path), "c", 10, 3)
+    with pytest.raises(TypeError):
+        sfin.read_sfcf(str(tmp_path) + "/data_c", "data_c", "f_A", quarks="lquark lquark", wf=0, version="2.0c",
+                       files=[[range(1, 11, 2)], [range(2, 11, 2)], [range(1, 11, 2)]])
+
+
 def test_c_bib(tmp_path):
     build_test_environment(str(tmp_path), "c", 5, 3)
     f_V0 = sfin.read_sfcf(str(tmp_path) + "/data_c", "data_c", "F_V0", quarks="lquark lquark", wf=0, wf2=0, version="2.0c", corr_type="bib")
@@ -289,6 +296,13 @@ def test_a_bi_files(tmp_path):
     assert f_A[0].value == 65.4711887279723
     assert f_A[1].value == 1.0447210336915187
     assert f_A[2].value == -41.025094911185185
+
+
+def test_a_bi_files_int_fail(tmp_path):
+    build_test_environment(str(tmp_path), "a", 10, 3)
+    with pytest.raises(TypeError):
+        sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_A", quarks="lquark lquark", wf=0, version="2.0a",
+                       files=[[range(1, 11, 2)], [range(2, 11, 2)], [range(1, 11, 2)]])
 
 
 def test_a_bib(tmp_path):

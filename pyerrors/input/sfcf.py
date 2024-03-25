@@ -184,6 +184,8 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
+    if replica == 0:
+        raise Exception('No replica found in directory')
     if not silent:
         print('Read', part, 'part of', name_list, 'from', prefix[:-1], ',', replica, 'replica')
 

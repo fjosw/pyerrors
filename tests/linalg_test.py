@@ -299,7 +299,7 @@ def test_matrix_functions():
 
     # Check eigv
     v2 = pe.linalg.eigv(sym)
-    assert(np.all(v - v2).is_zero())
+    assert np.sum(v - v2).is_zero()
 
     # Check eig function
     e2 = pe.linalg.eig(sym)

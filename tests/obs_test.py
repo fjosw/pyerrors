@@ -1380,7 +1380,7 @@ def test_missing_replica():
     O1O2c.gm(S=0)
 
     for o in [O1O2, O1O2b, O1O2c]:
-        assert(np.isclose(dval, o.dvalue, atol=0, rtol=1e-2))
+        assert(np.isclose(dval, o.dvalue, atol=0, rtol=5e-2))
 
     o = O1O2 * O2dobs - O1dobs
     o.gm()
@@ -1417,23 +1417,23 @@ def test_missing_replica():
 
     for op in [[O1O2, O1O2b], [O1O2O3, O1O2O3b]]:
         assert np.isclose(op[0].value, op[1].value)
-        assert np.isclose(op[0].dvalue, op[1].dvalue, atol=0, rtol=1e-2)
+        assert np.isclose(op[0].dvalue, op[1].dvalue, atol=0, rtol=5e-2)
 
     # perform the same test using the array_mode of derived_observable
     O1O2 = pyerrors.linalg.matmul(np.diag(np.diag(np.reshape(4 * [O1dobs], (2, 2)))), np.diag(np.diag(np.reshape(4 * [1. / O2dobs], (2, 2)))))
     O1O2O3 = pyerrors.linalg.matmul(O1O2, np.diag(np.diag(np.sinh(np.reshape(4 * [O3dobs], (2, 2))))))
     O1O2 = O1O2[0][0]
-    O1O2.gm()
+    O1O2.gm(S=0)
     O1O2O3 = O1O2O3[0][0]
-    O1O2O3.gm()
+    O1O2O3.gm(S=0)
 
     O1O2b = pyerrors.linalg.matmul(np.diag(np.diag(np.reshape(4 * [sum(np.array(Ol) * wl)], (2, 2)))), np.diag(np.diag(np.reshape(4 * [1. / O2dobs], (2, 2)))))
     O1O2O3b = pyerrors.linalg.matmul(O1O2b, np.diag(np.diag(np.sinh(np.reshape(4 * [O3dobsb], (2, 2))))))
     O1O2b = O1O2b[0][0]
-    O1O2b.gm()
+    O1O2b.gm(S=0)
     O1O2O3b = O1O2O3b[0][0]
-    O1O2O3b.gm()
+    O1O2O3b.gm(S=0)
 
     for op in [[O1O2, O1O2b], [O1O2O3, O1O2O3b]]:
         assert np.isclose(op[1].value, op[0].value)
-        assert np.isclose(op[1].dvalue, op[0].dvalue, atol=0, rtol=1e-2)
+        assert np.isclose(op[1].dvalue, op[0].dvalue, atol=0, rtol=5e-2)

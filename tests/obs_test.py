@@ -777,11 +777,11 @@ def test_gamma_method_irregular():
     carr = gen_autocorrelated_array(arr, .8)
     o = pe.Obs([carr], ['test'])
     o.gamma_method()
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
     o.idl['test'] = range(1, 1998, 2)
     o.gamma_method()
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
 
 
@@ -839,7 +839,7 @@ def test_covariance_vs_numpy():
     data1 = np.random.normal(2.5, 0.2, N)
     data2 = np.random.normal(0.5, 0.08, N)
     data3 = np.random.normal(-178, 5, N)
-    uncorr = np.row_stack([data1, data2, data3])
+    uncorr = np.vstack([data1, data2, data3])
     corr = np.random.multivariate_normal([0.0, 17, -0.0487], [[1.0, 0.6, -0.22], [0.6, 0.8, 0.01], [-0.22, 0.01, 1.9]], N).T
 
     for X in [uncorr, corr]:
@@ -1276,7 +1276,7 @@ def test_nan_obs():
     no.gamma_method()
 
     o.idl['test'] = [1, 5] + list(range(7, 2002, 2))
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
 
 
@@ -1285,9 +1285,9 @@ def test_format_uncertainty():
     assert pe.obs._format_uncertainty(0.548, 2.48497, 2) == '0.5(2.5)'
     assert pe.obs._format_uncertainty(0.548, 2.48497, 4) == '0.548(2.485)'
     assert pe.obs._format_uncertainty(0.548, 20078.3, 9) == '0.5480(20078.3000)'
-    pe.obs._format_uncertainty(np.NaN, 1)
-    pe.obs._format_uncertainty(1, np.NaN)
-    pe.obs._format_uncertainty(np.NaN, np.inf)
+    pe.obs._format_uncertainty(np.nan, 1)
+    pe.obs._format_uncertainty(1, np.nan)
+    pe.obs._format_uncertainty(np.nan, np.inf)
 
 
 def test_format():

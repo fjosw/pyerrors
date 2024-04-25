@@ -1138,7 +1138,7 @@ def _intersection_idx(idl):
     return idinter
 
 
-def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
+def _expand_deltas_for_merge(deltas, idx, shape, new_idx, scalefactor):
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
@@ -1154,15 +1154,20 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx):
         Number of configs in idx.
     new_idx : list
         List of configs that defines the new range, has to be sorted in ascending order.
+    scalefactor : float
+        An additional scaling factor that can be applied to scale the fluctuations,
+        e.g., when Obs with differing numbers of replica are merged.
     """
-
     if type(idx) is range and type(new_idx) is range:
         if idx == new_idx:
-            return deltas
+            if scalefactor == 1:
+                return deltas
+            else:
+                return deltas * scalefactor
     ret = np.zeros(new_idx[-1] - new_idx[0] + 1)
     for i in range(shape):
         ret[idx[i] - new_idx[0]] = deltas[i]
-    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx)
+    return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx) * scalefactor
 
 
 def derived_observable(func, data, array_mode=False, **kwargs):
@@ -1243,6 +1248,25 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         new_r_values[name] = func(tmp_values, **kwargs)
         new_idl_d[name] = _merge_idx(idl)
 
+    def _compute_scalefactor_missing_rep(obs):
+        """
+        Computes the scale factor that is to be multiplied with the deltas
+        in the case where Obs with different subsets of replica are merged.
+        Returns a dictionary with the scale factor for each Monte Carlo name.
+
+        Parameters
+        ----------
+        obs : Obs
+            The observable corresponding to the deltas that are to be scaled
+        """
+        scalef_d = {}
+        for mc_name in obs.mc_names:
+            mc_idl_d = [name for name in obs.idl if name.startswith(mc_name + '|')]
+            new_mc_idl_d = [name for name in new_idl_d if name.startswith(mc_name + '|')]
+            if len(mc_idl_d) > 0 and len(mc_idl_d) < len(new_mc_idl_d):
+                scalef_d[mc_name] = sum([len(new_idl_d[name]) for name in new_mc_idl_d]) / sum([len(new_idl_d[name]) for name in mc_idl_d])
+        return scalef_d
+
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
         if new_values.shape + data.shape != deriv.shape:
@@ -1280,7 +1304,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             d_extracted[name] = []
             ens_length = len(new_idl_d[name])
             for i_dat, dat in enumerate(data):
-                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name]) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name], _compute_scalefactor_missing_rep(o).get(name.split('|')[0], 1)) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
         for name in new_cov_names:
             g_extracted[name] = []
             zero_grad = _Zero_grad(new_covobs_lengths[name])
@@ -1302,11 +1326,12 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                     new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
         else:
             for j_obs, obs in np.ndenumerate(data):
+                scalef_d = _compute_scalefactor_missing_rep(obs)
                 for name in obs.names:
                     if name in obs.cov_names:
                         new_grad[name] = new_grad.get(name, 0) + deriv[i_val + j_obs] * obs.covobs[name].grad
                     else:
-                        new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name])
+                        new_deltas[name] = new_deltas.get(name, 0) + deriv[i_val + j_obs] * _expand_deltas_for_merge(obs.deltas[name], obs.idl[name], obs.shape[name], new_idl_d[name], scalef_d.get(name.split('|')[0], 1))
 
         new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 

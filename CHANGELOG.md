@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.11.1] - 2024-04-25
+
+### Fixed
+- Fixed a bug in error computation when combining two Obs from the same ensemble and fluctuations on one replicum are not part of one of the Obs.
+
+
 ## [2.11.0] - 2024-04-01
 ### Added
 - New special function module.

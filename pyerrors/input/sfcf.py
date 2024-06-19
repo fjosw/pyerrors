@@ -348,6 +348,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     result_dict = {}
     if keyed_out:
         for key in needed_keys:
+            name = _key2specs(key)[0]
             result = []
             for t in range(intern[name]["T"]):
                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))

@@ -121,7 +121,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         String that separates the ensemble identifier from the configuration number (default 'n').
     replica: list
         list of replica to be read, default is all
-    files: list
+    files: list[list[int]]
         list of files to be read per replica, default is all.
         for non-compact output format, hand the folders to be read here.
     check_configs: list[list[int]]
@@ -184,6 +184,8 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
+    if replica == 0:
+        raise Exception('No replica found in directory')
     if not silent:
         print('Read', part, 'part of', name_list, 'from', prefix[:-1], ',', replica, 'replica')
 
@@ -236,6 +238,16 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             rep_path = path + '/' + item
             if "files" in kwargs:
                 files = kwargs.get("files")
+                if isinstance(files, list):
+                    if all(isinstance(f, list) for f in files):
+                        files = files[i]
+                    elif all(isinstance(f, str) for f in files):
+                        files = files
+                    else:
+                        raise TypeError("files has to be of type list[list[str]] or list[str]!")
+                else:
+                    raise TypeError("files has to be of type list[list[str]] or list[str]!")
+
             else:
                 files = []
             sub_ls = _find_files(rep_path, prefix, compact, files)
@@ -248,7 +260,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                     else:
                         rep_idl.append(int(cfg[3:]))
                 except Exception:
-                    raise Exception("Couldn't parse idl from directroy, problem with file " + cfg)
+                    raise Exception("Couldn't parse idl from directory, problem with file " + cfg)
             rep_idl.sort()
             # maybe there is a better way to print the idls
             if not silent:
@@ -295,7 +307,6 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         cfg_path = path + '/' + item + '/' + subitem
                         file_data = _read_o_file(cfg_path, name, needed_keys, intern, version, im)
                         rep_data.append(file_data)
-                    print(rep_data)
                     for t in range(intern[name]["T"]):
                         internal_ret_dict[key][t].append([])
                         for cfg in range(no_cfg):
@@ -309,7 +320,10 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             w = specs[3]
             w2 = specs[4]
             if "files" in kwargs:
-                ls = kwargs.get("files")
+                if isinstance(kwargs.get("files"), list) and all(isinstance(f, str) for f in kwargs.get("files")):
+                    name_ls = kwargs.get("files")
+                else:
+                    raise TypeError("In append mode, files has to be of type list[str]!")
             else:
                 name_ls = ls
                 for exc in name_ls:
@@ -348,6 +362,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     result_dict = {}
     if keyed_out:
         for key in needed_keys:
+            name = _key2specs(key)[0]
             result = []
             for t in range(intern[name]["T"]):
                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))

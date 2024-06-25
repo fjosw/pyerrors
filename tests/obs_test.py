@@ -5,6 +5,7 @@ import copy
 import matplotlib.pyplot as plt
 import pyerrors as pe
 import pytest
+import pyerrors.linalg
 from hypothesis import given, strategies as st
 
 np.random.seed(0)
@@ -777,11 +778,11 @@ def test_gamma_method_irregular():
     carr = gen_autocorrelated_array(arr, .8)
     o = pe.Obs([carr], ['test'])
     o.gamma_method()
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
     o.idl['test'] = range(1, 1998, 2)
     o.gamma_method()
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
 
 
@@ -839,7 +840,7 @@ def test_covariance_vs_numpy():
     data1 = np.random.normal(2.5, 0.2, N)
     data2 = np.random.normal(0.5, 0.08, N)
     data3 = np.random.normal(-178, 5, N)
-    uncorr = np.row_stack([data1, data2, data3])
+    uncorr = np.vstack([data1, data2, data3])
     corr = np.random.multivariate_normal([0.0, 17, -0.0487], [[1.0, 0.6, -0.22], [0.6, 0.8, 0.01], [-0.22, 0.01, 1.9]], N).T
 
     for X in [uncorr, corr]:
@@ -1276,7 +1277,7 @@ def test_nan_obs():
     no.gamma_method()
 
     o.idl['test'] = [1, 5] + list(range(7, 2002, 2))
-    no = np.NaN * o
+    no = np.nan * o
     no.gamma_method()
 
 
@@ -1285,9 +1286,9 @@ def test_format_uncertainty():
     assert pe.obs._format_uncertainty(0.548, 2.48497, 2) == '0.5(2.5)'
     assert pe.obs._format_uncertainty(0.548, 2.48497, 4) == '0.548(2.485)'
     assert pe.obs._format_uncertainty(0.548, 20078.3, 9) == '0.5480(20078.3000)'
-    pe.obs._format_uncertainty(np.NaN, 1)
-    pe.obs._format_uncertainty(1, np.NaN)
-    pe.obs._format_uncertainty(np.NaN, np.inf)
+    pe.obs._format_uncertainty(np.nan, 1)
+    pe.obs._format_uncertainty(1, np.nan)
+    pe.obs._format_uncertainty(np.nan, np.inf)
 
 
 def test_format():
@@ -1338,9 +1339,101 @@ def test_vec_gm():
     pe.gm(cc, S=4.12)
     assert np.all(np.vectorize(lambda x: x.S["qq"])(cc.content) == 4.12)
 
+
 def test_complex_addition():
     o = pe.pseudo_Obs(34.12, 1e-4, "testens")
     r = o + 2j
     assert r.real == o
     r = r * 1j
     assert r.imag == o
+
+
+def test_missing_replica():
+    N1 = 3000
+    N2 = 2000
+    O1 = np.random.normal(1.0, .1, N1 + N2)
+    O2 = .5 * O1[:N1]
+
+    w1 = N1 / (N1 + N2)
+    w2 = N2 / (N1 + N2)
+    m12 = np.mean(O1[N1:])
+    m2 = np.mean(O2)
+    d12 = np.std(O1[N1:]) / np.sqrt(N2)  # error of <O1> from second rep
+    d2 = np.std(O2) / np.sqrt(N1)  # error of <O2> from first rep
+    dval = np.sqrt((w2 * d12 / m2)**2 + (w2 * m12 * d2 / m2**2)**2)  # complete error of <O1>/<O2>
+
+    # pyerrors version that should give the same result
+    O1dobs = pe.Obs([O1[:N1], O1[N1:]], names=['E|1', 'E|2'])
+    O2dobs = pe.Obs([O2], names=['E|1'])
+    O1O2 = O1dobs / O2dobs
+    O1O2.gm(S=0)
+
+    # explicit construction with different ensembles
+    O1a = pe.Obs([O1[:N1]], names=['E|1'])
+    O1b = pe.Obs([O1[N1:]], names=['F|2'])
+    O1O2b = (w1 * O1a + w2 * O1b) / O2dobs
+    O1O2b.gm(S=0)
+
+    # pyerrors version without replica (missing configs)
+    O1c = pe.Obs([O1], names=['E|1'])
+    O1O2c = O1c / O2dobs
+    O1O2c.gm(S=0)
+
+    for o in [O1O2, O1O2b, O1O2c]:
+        assert(np.isclose(dval, o.dvalue, atol=0, rtol=5e-2))
+
+    o = O1O2 * O2dobs - O1dobs
+    o.gm()
+    assert(o.is_zero())
+
+    o = O1dobs / O1O2 - O2dobs
+    o.gm()
+    assert(o.is_zero())
+
+    # bring more randomness and complexity into the game
+    Nl = [int(np.random.uniform(low=500, high=5000)) for i in range(4)]
+    wl = np.array(Nl) / sum(Nl)
+    O1 = np.random.normal(1.0, .1, sum(Nl))
+
+    # pyerrors replica version
+    datl = [O1[:Nl[0]], O1[Nl[0]:sum(Nl[:2])], O1[sum(Nl[:2]):sum(Nl[:3])], O1[sum(Nl[:3]):sum(Nl[:4])]]
+    O1dobs = pe.Obs(datl, names=['E|%d' % (d) for d in range(len(Nl))])
+    O2dobs = .5 * pe.Obs([datl[0]], names=['E|0'])
+    O3dobs = 2. / pe.Obs([datl[1]], names=['E|1'])
+    O1O2 = O1dobs / O2dobs
+    O1O2.gm(S=0)
+    O1O2O3 = O1O2 * np.sinh(O3dobs)
+    O1O2O3.gm(S=0)
+
+    # explicit construction with different ensembles
+    charl = ['E', 'F', 'G', 'H']
+    Ol = [pe.Obs([datl[i]], names=['%s|%d' % (charl[i], i)]) for i in range(len(Nl))]
+    O1O2b = sum(np.array(Ol) * wl) / O2dobs
+    O1O2b.gm(S=0)
+    i = 1
+    O3dobsb = 2. / pe.Obs([datl[i]], names=['%s|%d' % (charl[i], i)])
+    O1O2O3b = O1O2b * np.sinh(O3dobsb)
+    O1O2O3b.gm(S=0)
+
+    for op in [[O1O2, O1O2b], [O1O2O3, O1O2O3b]]:
+        assert np.isclose(op[0].value, op[1].value)
+        assert np.isclose(op[0].dvalue, op[1].dvalue, atol=0, rtol=5e-2)
+
+    # perform the same test using the array_mode of derived_observable
+    O1O2 = pyerrors.linalg.matmul(np.diag(np.diag(np.reshape(4 * [O1dobs], (2, 2)))), np.diag(np.diag(np.reshape(4 * [1. / O2dobs], (2, 2)))))
+    O1O2O3 = pyerrors.linalg.matmul(O1O2, np.diag(np.diag(np.sinh(np.reshape(4 * [O3dobs], (2, 2))))))
+    O1O2 = O1O2[0][0]
+    O1O2.gm(S=0)
+    O1O2O3 = O1O2O3[0][0]
+    O1O2O3.gm(S=0)
+
+    O1O2b = pyerrors.linalg.matmul(np.diag(np.diag(np.reshape(4 * [sum(np.array(Ol) * wl)], (2, 2)))), np.diag(np.diag(np.reshape(4 * [1. / O2dobs], (2, 2)))))
+    O1O2O3b = pyerrors.linalg.matmul(O1O2b, np.diag(np.diag(np.sinh(np.reshape(4 * [O3dobsb], (2, 2))))))
+    O1O2b = O1O2b[0][0]
+    O1O2b.gm(S=0)
+    O1O2O3b = O1O2O3b[0][0]
+    O1O2O3b.gm(S=0)
+
+    for op in [[O1O2, O1O2b], [O1O2O3, O1O2O3b]]:
+        assert np.isclose(op[1].value, op[0].value)
+        assert np.isclose(op[1].dvalue, op[0].dvalue, atol=0, rtol=5e-2)

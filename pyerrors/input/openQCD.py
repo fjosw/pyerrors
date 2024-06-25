@@ -1286,7 +1286,9 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                         imagsamples[repnum][t].append(corrres[1][t])
             if 'idl' in kwargs:
                 left_idl = list(left_idl)
-                if len(left_idl) > 0:
+                if expected_idl[repnum] == left_idl:
+                    raise ValueError("None of the idls searched for were found in replikum of file " + file)
+                elif len(left_idl) > 0:
                     warnings.warn('Could not find idls ' + str(left_idl) + ' in replikum of file ' + file, UserWarning)
         repnum += 1
     s = "Read correlator " + corr + " from " + str(repnum) + " replika with idls" + str(realsamples[0][t])

@@ -1544,6 +1544,27 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     return cov
 
 
+def invert_corr_cov_cholesky(corr, covdiag):
+    """Constructs a lower triangular matrix, chol, via the Cholesky decomposition of the correlation matrix, corr,
+       and then returns the inverse covariance matrix, chol_inv, as a lower triangular matrix by solving chol * x = covdiag.
+
+    corr : np.ndarray
+           correlation matrix
+    covdiag : np.ndarray
+              diagonal matrix, the entries are the errors of the data points considered
+    """
+
+    condn = np.linalg.cond(corr)
+    if condn > 0.1 / np.finfo(float).eps:
+        raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+    if condn > 1e13:
+        warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+    chol = np.linalg.cholesky(corr)
+    chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+
+    return chol_inv
+
+
 def _smooth_eigenvalues(corr, E):
     """Eigenvalue smoothing as described in hep-lat/9412087
 

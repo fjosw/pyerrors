@@ -14,7 +14,7 @@ from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
 from numdifftools import Jacobian as num_jacobian
 from numdifftools import Hessian as num_hessian
-from .obs import Obs, derived_observable, covariance, cov_Obs
+from .obs import Obs, derived_observable, covariance, cov_Obs, invert_corr_cov_cholesky
 
 
 class Fit_result(Sequence):
@@ -151,12 +151,13 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
-    corr_matrix: array, optional
-        if correlated_fit=True is set as well, can provide a correlation matrix (without y errros!) of your own choosing for a correlated fit
-    inv_chol_cov_matrix
-        if correlated_fit=True is set as well, can provide an inverse covariance matrix (y errros, dy_f included!) of your own choosing for a correlated fit
-        The matrix must be a lower triangular matrix constructed from a Cholesky decomposed correlation matrix (e.g. chol = np.linalg.cholesky(corr)
-        so that the inverse covariance matrix is defined by chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True) with covdiag = np.diag(1 / np.asarray(dy_f)))
+    inv_chol_cov_matrix [array,list], optional
+        array: shape = (no of y values) X (no of y values)
+        list:   for an uncombined fit: [""]
+                for a combined fit: list of keys belonging to the corr_matrix saved in the array, must be the same as the keys of the y dict in alphabetical order
+        If correlated_fit=True is set as well, can provide an inverse covariance matrix (y errros, dy_f included!) of your own choosing for a correlated fit.
+        The matrix must be a lower triangular matrix constructed from a Cholesky decomposition: The function invert_corr_cov_cholesky(corr, covdiag) can be
+        used to construct it from a correlation matrix (corr) and the errors dy_f of the data points (covdiag = np.diag(1 / np.asarray(dy_f))).
     expected_chisquare : bool
         If True estimates the expected chisquare which is
         corrected by effects caused by correlated input data (default False).
@@ -305,28 +306,17 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if kwargs.get('correlated_fit') is True:
         if 'inv_chol_cov_matrix' in kwargs:
             chol_inv = kwargs.get('inv_chol_cov_matrix')
-            print('Warning: The inverse covariance matrix handed over must be a lower triangular matrix constructed from a Cholesky decomposed correlation matrix.')
-            if (chol_inv.shape[0] != len(dy_f)):
+            if (chol_inv[0].shape[0] != len(dy_f)):
                 raise TypeError('The number of columns of the inverse covariance matrix handed over needs to be equal to the number of y errors.')
-            if (chol_inv.shape[0] != chol_inv.shape[1]):
+            if (chol_inv[0].shape[0] != chol_inv[0].shape[1]):
                 raise TypeError('The inverse covariance matrix handed over needs to have the same number of rows as columns.')
+            if (chol_inv[1] != key_ls):
+                raise ValueError('The keys of the corr matrix are not same or do not appear in the same order as the x and y values.')
+            chol_inv = chol_inv[0]
         else:
-            if 'corr_matrix' in kwargs:
-                corr = kwargs.get('corr_matrix')
-                if (corr.shape[0] != len(dy_f)):
-                    raise TypeError('The number of columns of the correlation matrix needs to be equal to the number of y errors.')
-                if (corr.shape[0] != corr.shape[1]):
-                    raise TypeError('The correlation matrix needs to have the same number of rows as columns.')
-            else:
-                corr = covariance(y_all, correlation=True, **kwargs)
+            corr = covariance(y_all, correlation=True, **kwargs)
             covdiag = np.diag(1 / np.asarray(dy_f))
-            condn = np.linalg.cond(corr)
-            if condn > 0.1 / np.finfo(float).eps:
-                raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
-            if condn > 1e13:
-                warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
-            chol = np.linalg.cholesky(corr)
-            chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+            chol_inv = invert_corr_cov_cholesky(corr, covdiag)
 
         def general_chisqfunc(p, ivars, pr):
             model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])

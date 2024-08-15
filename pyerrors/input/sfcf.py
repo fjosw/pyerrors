@@ -224,12 +224,23 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 intern[name]["spec"][quarks][off] = {}
                 for w in wf_list:
                     intern[name]["spec"][quarks][off][w] = {}
-                    for w2 in wf2_list:
-                        intern[name]["spec"][quarks][off][w][w2] = {}
-                        intern[name]["spec"][quarks][off][w][w2]["pattern"] = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
+                    if b2b:
+                        for w2 in wf2_list:
+                            intern[name]["spec"][quarks][off][w][w2] = {}
+                            intern[name]["spec"][quarks][off][w][w2]["pattern"] = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
+                    else:
+                        intern[name]["spec"][quarks][off][w]["0"] = {}
+                        intern[name]["spec"][quarks][off][w]["0"]["pattern"] = _make_pattern(version, name, off, w, 0, intern[name]['b2b'], quarks)
 
     internal_ret_dict = {}
-    needed_keys = _lists2key(name_list, quarks_list, noffset_list, wf_list, wf2_list)
+    needed_keys = []
+    for name, corr_type in zip(name_list, corr_type_list):
+        b2b, single = _extract_corr_type(corr_type)
+        if b2b:
+            needed_keys.extend(_lists2key([name], quarks_list, noffset_list, wf_list, wf2_list))
+        else:
+            needed_keys.extend(_lists2key([name], quarks_list, noffset_list, wf_list, ["0"]))
+
     for key in needed_keys:
         internal_ret_dict[key] = []
 
@@ -270,10 +281,14 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             if i == 0:
                 if version != "0.0" and compact:
                     file = path + '/' + item + '/' + sub_ls[0]
-                for name in name_list:
+                for name_index, name in enumerate(name_list):
                     if version == "0.0" or not compact:
                         file = path + '/' + item + '/' + sub_ls[0] + '/' + name
-                    for key in _lists2key(quarks_list, noffset_list, wf_list, wf2_list):
+                    if corr_type_list[name_index] == 'bi':
+                        name_keys = _lists2key(quarks_list, noffset_list, wf_list, ["0"])
+                    else:
+                        name_keys = _lists2key(quarks_list, noffset_list, wf_list, wf2_list)
+                    for key in name_keys:
                         specs = _key2specs(key)
                         quarks = specs[0]
                         off = specs[1]
@@ -368,7 +383,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
             result_dict[key] = result
     else:
-        for name in name_list:
+        for name, corr_type in zip(name_list, corr_type_list):
             result_dict[name] = {}
             for quarks in quarks_list:
                 result_dict[name][quarks] = {}
@@ -376,12 +391,19 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                     result_dict[name][quarks][off] = {}
                     for w in wf_list:
                         result_dict[name][quarks][off][w] = {}
-                        for w2 in wf2_list:
-                            key = _specs2key(name, quarks, off, w, w2)
+                        if corr_type != 'bi':
+                            for w2 in wf2_list:
+                                key = _specs2key(name, quarks, off, w, w2)
+                                result = []
+                                for t in range(intern[name]["T"]):
+                                    result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
+                                result_dict[name][quarks][str(off)][str(w)][str(w2)] = result
+                        else:
+                            key = _specs2key(name, quarks, off, w, "0")
                             result = []
                             for t in range(intern[name]["T"]):
                                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
-                            result_dict[name][quarks][str(off)][str(w)][str(w2)] = result
+                            result_dict[name][quarks][str(off)][str(w)][str(0)] = result
     return result_dict
 
 

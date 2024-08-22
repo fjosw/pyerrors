@@ -1330,7 +1330,8 @@ ndarray.</p>
 <p>First mode, <code>buffer</code> is None:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
 <span class="go">array([[0.0e+000, 0.0e+000], # random</span>
 <span class="go">       [     nan, 2.5e-323]])</span>
 </code></pre>
@@ -1406,15 +1407,12 @@ in and out momenta of the propagator are exchanged.</p>
                 <dd id="Npr_matrix.flatten" class="function">flatten</dd>
                 <dd id="Npr_matrix.getfield" class="function">getfield</dd>
                 <dd id="Npr_matrix.item" class="function">item</dd>
-                <dd id="Npr_matrix.itemset" class="function">itemset</dd>
                 <dd id="Npr_matrix.max" class="function">max</dd>
                 <dd id="Npr_matrix.mean" class="function">mean</dd>
                 <dd id="Npr_matrix.min" class="function">min</dd>
-                <dd id="Npr_matrix.newbyteorder" class="function">newbyteorder</dd>
                 <dd id="Npr_matrix.nonzero" class="function">nonzero</dd>
                 <dd id="Npr_matrix.partition" class="function">partition</dd>
                 <dd id="Npr_matrix.prod" class="function">prod</dd>
-                <dd id="Npr_matrix.ptp" class="function">ptp</dd>
                 <dd id="Npr_matrix.put" class="function">put</dd>
                 <dd id="Npr_matrix.ravel" class="function">ravel</dd>
                 <dd id="Npr_matrix.repeat" class="function">repeat</dd>
@@ -1438,6 +1436,7 @@ in and out momenta of the propagator are exchanged.</p>
                 <dd id="Npr_matrix.transpose" class="function">transpose</dd>
                 <dd id="Npr_matrix.var" class="function">var</dd>
                 <dd id="Npr_matrix.view" class="function">view</dd>
+                <dd id="Npr_matrix.to_device" class="function">to_device</dd>
                 <dd id="Npr_matrix.ndim" class="variable">ndim</dd>
                 <dd id="Npr_matrix.flags" class="variable">flags</dd>
                 <dd id="Npr_matrix.shape" class="variable">shape</dd>
@@ -1453,6 +1452,11 @@ in and out momenta of the propagator are exchanged.</p>
                 <dd id="Npr_matrix.flat" class="variable">flat</dd>
                 <dd id="Npr_matrix.ctypes" class="variable">ctypes</dd>
                 <dd id="Npr_matrix.T" class="variable">T</dd>
+                <dd id="Npr_matrix.mT" class="variable">mT</dd>
+                <dd id="Npr_matrix.ptp" class="variable">ptp</dd>
+                <dd id="Npr_matrix.newbyteorder" class="variable">newbyteorder</dd>
+                <dd id="Npr_matrix.itemset" class="variable">itemset</dd>
+                <dd id="Npr_matrix.device" class="variable">device</dd>
 
             </div>
                                 </dl>

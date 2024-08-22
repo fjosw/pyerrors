@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.12.0] - 2024-08-22
+
+### Changed
+- Support for numpy 2 was added via a new autograd release
+- Support for python<3.9 was dropped and dependencies were updated.
+
+### Fixed
+- Minor bug fixes in input.sfcf
+
+
 ## [2.11.1] - 2024-04-25
 
 ### Fixed

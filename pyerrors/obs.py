@@ -1544,14 +1544,14 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     return cov
 
 
-def invert_corr_cov_cholesky(corr, covdiag):
+def invert_corr_cov_cholesky(corr, inverrdiag):
     """Constructs a lower triangular matrix, chol, via the Cholesky decomposition of the correlation matrix, corr,
-       and then returns the inverse covariance matrix, chol_inv, as a lower triangular matrix by solving chol * x = covdiag.
+       and then returns the inverse covariance matrix, chol_inv, as a lower triangular matrix by solving chol * x = inverrdiag.
 
     corr : np.ndarray
            correlation matrix
-    covdiag : np.ndarray
-              diagonal matrix, the entries are the errors of the data points considered
+    inverrdiag : np.ndarray
+              diagonal matrix, the entries are the inverse errors of the data points considered
     """
 
     condn = np.linalg.cond(corr)
@@ -1560,7 +1560,7 @@ def invert_corr_cov_cholesky(corr, covdiag):
     if condn > 1e13:
         warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
     chol = np.linalg.cholesky(corr)
-    chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+    chol_inv = scipy.linalg.solve_triangular(chol, inverrdiag, lower=True)
 
     return chol_inv
 

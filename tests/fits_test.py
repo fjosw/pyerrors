@@ -152,7 +152,6 @@ def test_alternative_solvers():
     chisquare_values = np.array(chisquare_values)
     assert np.all(np.isclose(chisquare_values, chisquare_values[0]))
 
-
 def test_inv_cov_matrix_input_least_squares():
     
 
@@ -174,6 +173,11 @@ def test_inv_cov_matrix_input_least_squares():
     c = cholesky(r, lower=True)
     y = np.dot(c, x)
     x = np.arange(N)
+    x_dict = {}
+    y_dict = {}
+    for i,item in enumerate(x):
+        x_dict[str(item)] = [x[i]]
+
     for linear in [True, False]:
         data = []
         for i in range(N):
@@ -184,25 +188,40 @@ def test_inv_cov_matrix_input_least_squares():
 
         [o.gamma_method() for o in data]
 
+        data_dict = {}
+        for i,item in enumerate(x):
+            data_dict[str(item)] = [data[i]]
+
         corr = pe.covariance(data, correlation=True)
         chol = np.linalg.cholesky(corr)
         covdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
         chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
         chol_inv_keys = [""]
+        chol_inv_keys_combined_fit = [str(item) for i,item in enumerate(x)]
 
         if linear:
             def fitf(p, x):
                 return p[1] + p[0] * x
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
         else:
             def fitf(p, x):
                 return p[1] * anp.exp(-p[0] * x)
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
 
         fitpc = pe.least_squares(x, data, fitf, correlated_fit=True)
         fitp_inv_cov = pe.least_squares(x, data, fitf,  correlated_fit = True, inv_chol_cov_matrix = [chol_inv,chol_inv_keys])
+        fitp_inv_cov_combined_fit = pe.least_squares(x_dict, data_dict, fitf_dict,  correlated_fit = True, inv_chol_cov_matrix = [chol_inv,chol_inv_keys_combined_fit])
         for i in range(2):
             diff_inv_cov = fitp_inv_cov[i] - fitpc[i]
             diff_inv_cov.gamma_method()
             assert(diff_inv_cov.is_zero(atol=0.0))
+            diff_inv_cov_combined_fit = fitp_inv_cov_combined_fit[i] - fitpc[i]
+            diff_inv_cov_combined_fit.gamma_method()
+            assert(diff_inv_cov_combined_fit.is_zero(atol=1e-12))
 
 def test_least_squares_invalid_inv_cov_matrix_input():
     xvals = []
@@ -224,23 +243,33 @@ def test_least_squares_invalid_inv_cov_matrix_input():
         yvals_dict[str(item)] = [yvals[i]]
     chol_inv_keys_combined_fit = ['1', '3', '5', '7']
     chol_inv_keys_combined_fit_invalid = ['2', '7', '100', '8']
-    
+    func_dict_valid = {"1": func_valid,"3": func_valid,"5": func_valid,"7": func_valid}
+
     corr_valid = pe.covariance(yvals, correlation = True)
     chol = np.linalg.cholesky(corr_valid)
     covdiag = np.diag(1 / np.asarray([o.dvalue for o in yvals]))
     chol_inv_valid = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
     chol_inv_keys = [""]
     pe.least_squares(xvals, yvals,func_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_valid,chol_inv_keys])
-    pe.least_squares(xvals_dict, yvals_dict, {"1": func_valid,"3": func_valid,"5": func_valid,"7": func_valid}, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_valid,chol_inv_keys_combined_fit])
+    pe.least_squares(xvals_dict, yvals_dict,func_dict_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_valid,chol_inv_keys_combined_fit])
     chol_inv_invalid_shape1 = np.zeros((len(yvals),len(yvals)-1))
     chol_inv_invalid_shape2 = np.zeros((len(yvals)+2,len(yvals)))
 
+    # for an uncombined fit
     with pytest.raises(TypeError):
         pe.least_squares(xvals, yvals, func_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_invalid_shape1,chol_inv_keys])
     with pytest.raises(TypeError):
         pe.least_squares(xvals, yvals, func_valid,correlated_fit = True, inv_chol_cov_matrix = [chol_inv_invalid_shape2,chol_inv_keys])
     with pytest.raises(ValueError):
         pe.least_squares(xvals, yvals, func_valid,correlated_fit = True, inv_chol_cov_matrix = [chol_inv_valid,chol_inv_keys_combined_fit_invalid])
+
+    #repeat for a combined fit
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals_dict, yvals_dict,func_dict_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_invalid_shape1,chol_inv_keys_combined_fit])
+    with pytest.raises(TypeError):
+        pe.least_squares(xvals_dict, yvals_dict,func_dict_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_invalid_shape2,chol_inv_keys_combined_fit])
+    with pytest.raises(ValueError):
+        pe.least_squares(xvals_dict, yvals_dict,func_dict_valid, correlated_fit = True, inv_chol_cov_matrix = [chol_inv_valid,chol_inv_keys_combined_fit_invalid])
 
 def test_correlated_fit():
     num_samples = 400

@@ -172,6 +172,57 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     -------
     output : Fit_result
         Parameters and information on the fitted result.
+    Examples
+    ------
+    >>> # Example of a correlated (correlated_fit = True, inv_chol_cov_matrix handed over) combined fit, based on a randomly generated data set
+    >>> import numpy as np
+    >>> from scipy.stats import norm
+    >>> from scipy.linalg import cholesky
+    >>> import pyerrors as pe
+    >>> # generating the random data set
+    >>> num_samples = 400
+    >>> N = 3
+    >>> x = np.arange(N)
+    >>> x1 = norm.rvs(size=(N, num_samples)) # generate random numbers
+    >>> x2 = norm.rvs(size=(N, num_samples)) # generate random numbers
+    >>> r = r1 = r2 = np.zeros((N, N))
+    >>> y = {}
+    >>> for i in range(N):
+    >>>    for j in range(N):
+    >>>        r[i, j] = np.exp(-0.8 * np.fabs(i - j)) # element in correlation matrix
+    >>> errl = np.sqrt([3.4, 2.5, 3.6]) # set y errors
+    >>> for i in range(N):
+    >>>    for j in range(N):
+    >>>        r[i, j] *= errl[i] * errl[j] # element in covariance matrix
+    >>> c = cholesky(r, lower=True)
+    >>> y = {'a': np.dot(c, x1), 'b': np.dot(c, x2)} # generate y data with the covariance matrix defined
+    >>> # random data set has been generated, now the dictionaries and the inverse covariance matrix to be handed over are built
+    >>> x_dict = {}
+    >>> y_dict = {}
+    >>> chol_inv_dict = {}
+    >>> data = []
+    >>> for key in y.keys():
+    >>>    x_dict[key] = x
+    >>>    for i in range(N):
+    >>>        data.append(pe.Obs([[i + 1 + o for o in y[key][i]]], ['ens'])) # generate y Obs from the y data
+    >>>    [o.gamma_method() for o in data]
+    >>>    corr = pe.covariance(data, correlation=True)
+    >>>    inverrdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
+    >>>    chol_inv = pe.obs.invert_corr_cov_cholesky(corr, inverrdiag) # gives form of the inverse covariance matrix needed for the combined correlated fit below
+    >>> y_dict = {'a': data[:3], 'b': data[3:]}
+    >>> # common fit parameter p[0] in combined fit
+    >>> def fit1(p, x):
+    >>>    return p[0] + p[1] * x
+    >>> def fit2(p, x):
+    >>>    return p[0] + p[2] * x
+    >>> fitf_dict = {'a': fit1, 'b':fit2}
+    >>> fitp_inv_cov_combined_fit = pe.least_squares(x_dict,y_dict, fitf_dict, correlated_fit = True, inv_chol_cov_matrix = [chol_inv,['a','b']])
+    Fit with 3 parameters
+    Method: Levenberg-Marquardt
+    `ftol` termination condition is satisfied.
+    chisquare/d.o.f.: 0.5388013574561786 # random
+    fit parameters [1.11897846 0.96361162 0.92325319] # random
+
     '''
     output = Fit_result()
 

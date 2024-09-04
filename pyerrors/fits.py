@@ -155,9 +155,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         array: shape = (no of y values) X (no of y values)
         list:   for an uncombined fit: [""]
                 for a combined fit: list of keys belonging to the corr_matrix saved in the array, must be the same as the keys of the y dict in alphabetical order
-        If correlated_fit=True is set as well, can provide an inverse covariance matrix (y erros, dy_f included!) of your own choosing for a correlated fit.
+        If correlated_fit=True is set as well, can provide an inverse covariance matrix (y errors, dy_f included!) of your own choosing for a correlated fit.
         The matrix must be a lower triangular matrix constructed from a Cholesky decomposition: The function invert_corr_cov_cholesky(corr, inverrdiag) can be
-        used to construct it from a correlation matrix (corr) and the errors dy_f of the data points (inverrdiag = np.diag(1 / np.asarray(dy_f))).
+        used to construct it from a correlation matrix (corr) and the errors dy_f of the data points (inverrdiag = np.diag(1 / np.asarray(dy_f))). For the correct
+        ordering the correlation matrix (corr) can be sorted via the function sort_corr(corr, kl, yd) where kl is the list of keys and yd the y dict.
     expected_chisquare : bool
         If True estimates the expected chisquare which is
         corrected by effects caused by correlated input data (default False).

@@ -1063,6 +1063,27 @@ def test_covariance_reorder_non_overlapping_data():
     assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
 
 
+def test_sort_corr():
+    xd = {
+    'b': [1, 2, 3],
+    'a': [2.2, 4.4],
+    'c': [3.7, 5.1]
+    }
+
+    yd = {k : pe.cov_Obs(xd[k], [.2 * o for o in xd[k]], k) for k in xd}
+    key_orig = list(yd.keys())
+    y_all = np.concatenate([np.array(yd[key]) for key in key_orig])
+    [o.gm() for o in y_all]
+    cov = pe.covariance(y_all)
+
+    key_ls = key_sorted = sorted(key_orig)
+    y_sorted = np.concatenate([np.array(yd[key]) for key in key_sorted])
+    [o.gm() for o in y_sorted]
+    cov_sorted = pe.covariance(y_sorted)
+    retcov = pe.obs.sort_corr(cov, key_orig, yd)
+    assert np.sum(retcov - cov_sorted) == 0
+
+
 def test_empty_obs():
     o = pe.Obs([np.random.rand(100)], ['test'])
     q = o + pe.Obs([], [], means=[])

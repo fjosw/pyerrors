@@ -1565,6 +1565,37 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
     return chol_inv
 
 
+def sort_corr(corr, kl, yd):
+    """ Sorts entries in a (correlation) matrix, cov, according to the list of keys, kl, that is sorted alphabetically in the function
+        and a dictionary, yd, containing the y Obs.
+    corr: np.ndarray
+         (correlation) matrix
+    kl: list
+        list of keys
+    yd: dict
+        y Obs
+    """
+    kl_sorted = sorted(kl)
+
+    posd = {}
+    ofs = 0
+    for ki, k in enumerate(kl):
+        posd[k] = [i + ofs for i in range(len(yd[k]))]
+        ofs += len(posd[k])
+
+    mapping = []
+    for k in kl_sorted:
+        for i in range(len(yd[k])):
+            mapping.append(posd[k][i])
+
+    corr_sorted = np.zeros_like(corr)
+    for i in range(corr.shape[0]):
+        for j in range(corr.shape[0]):
+            corr_sorted[i][j] = corr[mapping[i]][mapping[j]]
+
+    return corr_sorted
+
+
 def _smooth_eigenvalues(corr, E):
     """Eigenvalue smoothing as described in hep-lat/9412087
 

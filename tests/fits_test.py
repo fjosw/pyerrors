@@ -1086,10 +1086,12 @@ def test_combined_fit_xerr():
     fitd = {
         'a' : lambda p, x: p[0] * x[0] + p[1] * x[1],
         'b' : lambda p, x: p[0] * x[0] + p[2] * x[1],
+        'c' : lambda p, x: p[0] * x[0] + p[3] * x[1],
     }
     yd = {
         'a': [pe.cov_Obs(3 + .1 * np.random.uniform(), .1**2, 'a' + str(i)) for i in range(5)],
         'b': [pe.cov_Obs(1 + .1 * np.random.uniform(), .1**2, 'b' + str(i)) for i in range(6)],
+        'c': [pe.cov_Obs(3 + .1 * np.random.uniform(), .1**2, 'c' + str(i)) for i in range(3)],
     }
     xd = {k: np.transpose([[1 + .01 * np.random.uniform(), 2] for i in range(len(yd[k]))]) for k in fitd}
     pe.fits.least_squares(xd, yd, fitd)

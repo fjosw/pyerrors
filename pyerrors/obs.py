@@ -1544,6 +1544,92 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     return cov
 
 
+def invert_corr_cov_cholesky(corr, inverrdiag):
+    """Constructs a lower triangular matrix `chol` via the Cholesky decomposition of the correlation matrix `corr`
+       and then returns the inverse covariance matrix `chol_inv` as a lower triangular matrix by solving `chol * x = inverrdiag`.
+
+    Parameters
+    ----------
+    corr : np.ndarray
+           correlation matrix
+    inverrdiag : np.ndarray
+              diagonal matrix, the entries are the inverse errors of the data points considered
+    """
+
+    condn = np.linalg.cond(corr)
+    if condn > 0.1 / np.finfo(float).eps:
+        raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+    if condn > 1e13:
+        warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+    chol = np.linalg.cholesky(corr)
+    chol_inv = scipy.linalg.solve_triangular(chol, inverrdiag, lower=True)
+
+    return chol_inv
+
+
+def sort_corr(corr, kl, yd):
+    """ Reorders a correlation matrix to match the alphabetical order of its underlying y data.
+
+    The ordering of the input correlation matrix `corr` is given by the list of keys `kl`.
+    The input dictionary `yd` (with the same keys `kl`) must contain the corresponding y data
+    that the correlation matrix is based on.
+    This function sorts the list of keys `kl` alphabetically and sorts the matrix `corr`
+    according to this alphabetical order such that the sorted matrix `corr_sorted` corresponds
+    to the y data `yd` when arranged in an alphabetical order by its keys.
+
+    Parameters
+    ----------
+    corr : np.ndarray
+        A square correlation matrix constructed using the order of the y data specified by `kl`.
+        The dimensions of `corr` should match the total number of y data points in `yd` combined.
+    kl : list of str
+        A list of keys that denotes the order in which the y data from `yd` was used to build the
+        input correlation matrix `corr`.
+    yd : dict of list
+        A dictionary where each key corresponds to a unique identifier, and its value is a list of
+        y data points. The total number of y data points across all keys must match the dimensions
+        of `corr`. The lists in the dictionary can be lists of Obs.
+
+    Returns
+    -------
+    np.ndarray
+        A new, sorted correlation matrix that corresponds to the y data from `yd` when arranged alphabetically by its keys.
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> import pyerrors as pe
+    >>> corr = np.array([[1, 0.2, 0.3], [0.2, 1, 0.4], [0.3, 0.4, 1]])
+    >>> kl = ['b', 'a']
+    >>> yd = {'a': [1, 2], 'b': [3]}
+    >>> sorted_corr = pe.obs.sort_corr(corr, kl, yd)
+    >>> print(sorted_corr)
+    array([[1. , 0.3, 0.4],
+           [0.3, 1. , 0.2],
+           [0.4, 0.2, 1. ]])
+
+    """
+    kl_sorted = sorted(kl)
+
+    posd = {}
+    ofs = 0
+    for ki, k in enumerate(kl):
+        posd[k] = [i + ofs for i in range(len(yd[k]))]
+        ofs += len(posd[k])
+
+    mapping = []
+    for k in kl_sorted:
+        for i in range(len(yd[k])):
+            mapping.append(posd[k][i])
+
+    corr_sorted = np.zeros_like(corr)
+    for i in range(corr.shape[0]):
+        for j in range(corr.shape[0]):
+            corr_sorted[i][j] = corr[mapping[i]][mapping[j]]
+
+    return corr_sorted
+
+
 def _smooth_eigenvalues(corr, E):
     """Eigenvalue smoothing as described in hep-lat/9412087
 

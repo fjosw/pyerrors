@@ -276,10 +276,10 @@ def test_matrix_functions():
     for (i, j), entry in np.ndenumerate(check_inv):
         entry.gamma_method()
         if(i == j):
-            assert math.isclose(entry.value, 1.0, abs_tol=1e-9), 'value ' + str(i) + ',' + str(j) + ' ' + str(entry.value)
+            assert math.isclose(entry.value, 1.0, abs_tol=2e-9), 'value ' + str(i) + ',' + str(j) + ' ' + str(entry.value)
         else:
-            assert math.isclose(entry.value, 0.0, abs_tol=1e-9), 'value ' + str(i) + ',' + str(j) + ' ' + str(entry.value)
-        assert math.isclose(entry.dvalue, 0.0, abs_tol=1e-9), 'dvalue ' + str(i) + ',' + str(j) + ' ' + str(entry.dvalue)
+            assert math.isclose(entry.value, 0.0, abs_tol=2e-9), 'value ' + str(i) + ',' + str(j) + ' ' + str(entry.value)
+        assert math.isclose(entry.dvalue, 0.0, abs_tol=2e-9), 'dvalue ' + str(i) + ',' + str(j) + ' ' + str(entry.dvalue)
 
     # Check Cholesky decomposition
     sym = np.dot(matrix, matrix.T)

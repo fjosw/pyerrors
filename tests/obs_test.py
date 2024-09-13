@@ -554,11 +554,11 @@ def test_merge_idx():
 
     for j in range(5):
         idll = [range(1, int(round(np.random.uniform(300, 700))), int(round(np.random.uniform(1, 14)))) for i in range(10)]
-        assert pe.obs._merge_idx(idll) == sorted(set().union(*idll))
+        assert list(pe.obs._merge_idx(idll)) == sorted(set().union(*idll))
 
     for j in range(5):
         idll = [range(int(round(np.random.uniform(1, 28))), int(round(np.random.uniform(300, 700))), int(round(np.random.uniform(1, 14)))) for i in range(10)]
-        assert pe.obs._merge_idx(idll) == sorted(set().union(*idll))
+        assert list(pe.obs._merge_idx(idll)) == sorted(set().union(*idll))
 
     idl = [list(np.arange(1, 14)) + list(range(16, 100, 4)), range(4, 604, 4), [2, 4, 5, 6, 8, 9, 12, 24], range(1, 20, 1), range(50, 789, 7)]
     new_idx = pe.obs._merge_idx(idl)

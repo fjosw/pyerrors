@@ -256,7 +256,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if sorted(list(funcd.keys())) != key_ls:
         raise ValueError('x and func dictionaries do not contain the same keys.')
 
-    x_all = np.concatenate([np.array(xd[key]) for key in key_ls])
+    x_all = np.concatenate([np.array(xd[key]).transpose() for key in key_ls]).transpose()
     y_all = np.concatenate([np.array(yd[key]) for key in key_ls])
 
     y_f = [o.value for o in y_all]

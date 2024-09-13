@@ -14,7 +14,7 @@ from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
 from numdifftools import Jacobian as num_jacobian
 from numdifftools import Hessian as num_hessian
-from .obs import Obs, derived_observable, covariance, cov_Obs
+from .obs import Obs, derived_observable, covariance, cov_Obs, invert_corr_cov_cholesky
 
 
 class Fit_result(Sequence):
@@ -151,6 +151,14 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         For details about how the covariance matrix is estimated see `pyerrors.obs.covariance`.
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
+    inv_chol_cov_matrix [array,list], optional
+        array: shape = (no of y values) X (no of y values)
+        list:   for an uncombined fit: [""]
+                for a combined fit: list of keys belonging to the corr_matrix saved in the array, must be the same as the keys of the y dict in alphabetical order
+        If correlated_fit=True is set as well, can provide an inverse covariance matrix (y errors, dy_f included!) of your own choosing for a correlated fit.
+        The matrix must be a lower triangular matrix constructed from a Cholesky decomposition: The function invert_corr_cov_cholesky(corr, inverrdiag) can be
+        used to construct it from a correlation matrix (corr) and the errors dy_f of the data points (inverrdiag = np.diag(1 / np.asarray(dy_f))). For the correct
+        ordering the correlation matrix (corr) can be sorted via the function sort_corr(corr, kl, yd) where kl is the list of keys and yd the y dict.
     expected_chisquare : bool
         If True estimates the expected chisquare which is
         corrected by effects caused by correlated input data (default False).
@@ -165,6 +173,57 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     -------
     output : Fit_result
         Parameters and information on the fitted result.
+    Examples
+    ------
+    >>> # Example of a correlated (correlated_fit = True, inv_chol_cov_matrix handed over) combined fit, based on a randomly generated data set
+    >>> import numpy as np
+    >>> from scipy.stats import norm
+    >>> from scipy.linalg import cholesky
+    >>> import pyerrors as pe
+    >>> # generating the random data set
+    >>> num_samples = 400
+    >>> N = 3
+    >>> x = np.arange(N)
+    >>> x1 = norm.rvs(size=(N, num_samples)) # generate random numbers
+    >>> x2 = norm.rvs(size=(N, num_samples)) # generate random numbers
+    >>> r = r1 = r2 = np.zeros((N, N))
+    >>> y = {}
+    >>> for i in range(N):
+    >>>    for j in range(N):
+    >>>        r[i, j] = np.exp(-0.8 * np.fabs(i - j)) # element in correlation matrix
+    >>> errl = np.sqrt([3.4, 2.5, 3.6]) # set y errors
+    >>> for i in range(N):
+    >>>    for j in range(N):
+    >>>        r[i, j] *= errl[i] * errl[j] # element in covariance matrix
+    >>> c = cholesky(r, lower=True)
+    >>> y = {'a': np.dot(c, x1), 'b': np.dot(c, x2)} # generate y data with the covariance matrix defined
+    >>> # random data set has been generated, now the dictionaries and the inverse covariance matrix to be handed over are built
+    >>> x_dict = {}
+    >>> y_dict = {}
+    >>> chol_inv_dict = {}
+    >>> data = []
+    >>> for key in y.keys():
+    >>>    x_dict[key] = x
+    >>>    for i in range(N):
+    >>>        data.append(pe.Obs([[i + 1 + o for o in y[key][i]]], ['ens'])) # generate y Obs from the y data
+    >>>    [o.gamma_method() for o in data]
+    >>>    corr = pe.covariance(data, correlation=True)
+    >>>    inverrdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
+    >>>    chol_inv = pe.obs.invert_corr_cov_cholesky(corr, inverrdiag) # gives form of the inverse covariance matrix needed for the combined correlated fit below
+    >>> y_dict = {'a': data[:3], 'b': data[3:]}
+    >>> # common fit parameter p[0] in combined fit
+    >>> def fit1(p, x):
+    >>>    return p[0] + p[1] * x
+    >>> def fit2(p, x):
+    >>>    return p[0] + p[2] * x
+    >>> fitf_dict = {'a': fit1, 'b':fit2}
+    >>> fitp_inv_cov_combined_fit = pe.least_squares(x_dict,y_dict, fitf_dict, correlated_fit = True, inv_chol_cov_matrix = [chol_inv,['a','b']])
+    Fit with 3 parameters
+    Method: Levenberg-Marquardt
+    `ftol` termination condition is satisfied.
+    chisquare/d.o.f.: 0.5388013574561786 # random
+    fit parameters [1.11897846 0.96361162 0.92325319] # random
+
     '''
     output = Fit_result()
 
@@ -297,15 +356,19 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
 
     if kwargs.get('correlated_fit') is True:
-        corr = covariance(y_all, correlation=True, **kwargs)
-        covdiag = np.diag(1 / np.asarray(dy_f))
-        condn = np.linalg.cond(corr)
-        if condn > 0.1 / np.finfo(float).eps:
-            raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
-        if condn > 1e13:
-            warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
-        chol = np.linalg.cholesky(corr)
-        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+        if 'inv_chol_cov_matrix' in kwargs:
+            chol_inv = kwargs.get('inv_chol_cov_matrix')
+            if (chol_inv[0].shape[0] != len(dy_f)):
+                raise TypeError('The number of columns of the inverse covariance matrix handed over needs to be equal to the number of y errors.')
+            if (chol_inv[0].shape[0] != chol_inv[0].shape[1]):
+                raise TypeError('The inverse covariance matrix handed over needs to have the same number of rows as columns.')
+            if (chol_inv[1] != key_ls):
+                raise ValueError('The keys of inverse covariance matrix are not the same or do not appear in the same order as the x and y values.')
+            chol_inv = chol_inv[0]
+        else:
+            corr = covariance(y_all, correlation=True, **kwargs)
+            inverrdiag = np.diag(1 / np.asarray(dy_f))
+            chol_inv = invert_corr_cov_cholesky(corr, inverrdiag)
 
         def general_chisqfunc(p, ivars, pr):
             model = anp.concatenate([anp.array(funcd[key](p, xd[key])).reshape(-1) for key in key_ls])
@@ -350,7 +413,6 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
         fit_result = scipy.optimize.least_squares(chisqfunc_residuals_uncorr, x0, method='lm', ftol=1e-15, gtol=1e-15, xtol=1e-15)
         if kwargs.get('correlated_fit') is True:
-
             def chisqfunc_residuals(p):
                 return general_chisqfunc(p, y_f, p_f)
 

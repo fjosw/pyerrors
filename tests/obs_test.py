@@ -1458,3 +1458,29 @@ def test_missing_replica():
     for op in [[O1O2, O1O2b], [O1O2O3, O1O2O3b]]:
         assert np.isclose(op[1].value, op[0].value)
         assert np.isclose(op[1].dvalue, op[0].dvalue, atol=0, rtol=5e-2)
+
+
+def test_meas():
+    meas1 = pe.Meas(1.0, 0.1)
+    meas2 = pe.Meas(2, 1)
+
+    assert meas1 + meas2 == meas2 + meas1
+    assert meas1 - meas2 == -(meas2 - meas1)
+    assert meas1 * meas2 == meas2 * meas1
+
+    identical_sum = meas1 + meas1
+    assert identical_sum == 2 * meas1
+    assert np.isclose(identical_sum.dvalue, 2 * meas1.dvalue)
+
+    meas1_new = pe.Meas(1.0, 0.1)
+    not_identical_sum = meas1 + meas1_new
+    assert not_identical_sum.value == (2 * meas1).value
+    assert not_identical_sum != 2 * meas1
+    assert np.isclose(not_identical_sum.dvalue, np.sqrt(meas1.dvalue ** 2 + meas1_new.dvalue ** 2))
+
+    assert meas2 * meas2 == meas2 ** 2
+
+
+def test_square_cov_obs():
+    cov = pe.cov_Obs(1, 0.1 ** 2, "testing")
+    cov2 = cov ** 2

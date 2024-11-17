@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
+from typing import Optional, Union
+import uuid
 from .covobs import Covobs
 
 # Improve print output of numpy.ndarrays containing Obs objects.
@@ -1354,6 +1356,9 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         final_result[i_val]._value = new_val
         final_result[i_val].reweighted = reweighted
 
+        if not final_result[i_val].idl:
+            final_result[i_val].gm()
+
     if multi == 0:
         final_result = final_result.item()
 
@@ -1810,7 +1815,7 @@ def cov_Obs(means, cov, name, grad=None):
         co : Covobs
             Covobs to be embedded into the Obs
         """
-        o = Obs([], [], means=[])
+        o = Obs(samples=[], names=[], means=[])
         o._value = co.value
         o.names.append(co.name)
         o._covobs[co.name] = co
@@ -1822,12 +1827,49 @@ def cov_Obs(means, cov, name, grad=None):
         means = [means]
 
     for i in range(len(means)):
-        ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
+        ol.append(covobs_to_obs(Covobs(float(means[i]), cov, name, pos=i, grad=grad)))
     if ol[0].covobs[name].N != len(means):
         raise Exception('You have to provide %d mean values!' % (ol[0].N))
     if len(ol) == 1:
         return ol[0]
     return ol
+
+
+class Meas(Obs):
+    """Class for a scalar measurement.
+
+    Convenience wrapper for scalar measurements.
+    """
+
+    def __init__(self, value: Union[float, int], dvalue: Union[float, int], name: Optional[str] = None):
+        """ Initialize Meas object.
+
+        Parameters
+        ----------
+        value : float
+            Mean value of the measurement.
+        dvalue : list or array
+            Standard error of the measurement.
+        name : Optional[str]
+            Optional name identifier for the measurement. If none is specified, a random uuid
+            string is used instead.
+        """
+        if not isinstance(value, (float, int)):
+            raise TypeError(f"value has to be a flaot or int, not {type(value)}")
+        if not isinstance(dvalue, (float, int)):
+            raise TypeError(f"dvalue has to be a float or int, not {type(dvalue)}")
+        super().__init__(samples=[], names=[], means=[])
+        if name is None:
+            name = uuid.uuid4().hex
+        else:
+            if not isinstance(name, str):
+                raise TypeError(f"name has to be a str, not {type(name)}")
+
+        co = Covobs(float(value), float(dvalue) ** 2, name)
+        self._value = co.value
+        self.names.append(co.name)
+        self._covobs[co.name] = co
+        self._dvalue = np.sqrt(co.errsq())
 
 
 def _determine_gap(o, e_content, e_name):

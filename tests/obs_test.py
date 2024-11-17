@@ -1484,3 +1484,11 @@ def test_meas():
 def test_square_cov_obs():
     cov = pe.cov_Obs(1, 0.1 ** 2, "testing")
     cov2 = cov ** 2
+
+
+def test_covobs_equal_meas():
+    value = 1.1
+    standard_error = 0.23
+    meas = pe.Meas(value, standard_error)
+    covo = pe.cov_Obs(value, standard_error ** 2, meas.names[0])
+    assert covo == meas

@@ -461,6 +461,17 @@ def test_cobs_overloading():
     obs / cobs
 
 
+def test_pow():
+    data = [1, 2.341, pe.pseudo_Obs(4.8, 0.48, "test_obs"), pe.cov_Obs(1.1, 0.3 ** 2, "test_cov_obs")]
+
+    for d in data:
+        assert d * d == d ** 2
+        assert d * d * d == d ** 3
+
+        for d2 in data:
+            assert np.log(d ** d2) == d2 * np.log(d)
+
+
 def test_reweighting():
     my_obs = pe.Obs([np.random.rand(1000)], ['t'])
     assert not my_obs.reweighted

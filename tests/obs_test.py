@@ -470,6 +470,7 @@ def test_pow():
 
         for d2 in data:
             assert np.log(d ** d2) == d2 * np.log(d)
+            assert (d ** d2) ** (1 / d2) == d
 
 
 def test_reweighting():

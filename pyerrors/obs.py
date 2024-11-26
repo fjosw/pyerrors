@@ -856,15 +856,12 @@ class Obs:
 
     def __pow__(self, y):
         if isinstance(y, Obs):
-            return derived_observable(lambda x: x[0] ** x[1], [self, y])
+            return derived_observable(lambda x, **kwargs: x[0] ** x[1], [self, y], man_grad=[y.value * self.value ** (y.value - 1), self.value ** y.value * np.log(self.value)])
         else:
-            return derived_observable(lambda x: x[0] ** y, [self])
+            return derived_observable(lambda x, **kwargs: x[0] ** y, [self], man_grad=[y * self.value ** (y - 1)])
 
     def __rpow__(self, y):
-        if isinstance(y, Obs):
-            return derived_observable(lambda x: x[0] ** x[1], [y, self])
-        else:
-            return derived_observable(lambda x: y ** x[0], [self])
+        return derived_observable(lambda x, **kwargs: y ** x[0], [self], man_grad=[y ** self.value * np.log(y)])
 
     def __abs__(self):
         return derived_observable(lambda x: anp.abs(x[0]), [self])

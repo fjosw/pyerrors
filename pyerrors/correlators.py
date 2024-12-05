@@ -862,7 +862,7 @@ class Corr:
             raise Exception("prange must be a list or array with two values")
         if not ((isinstance(prange[0], int)) and (isinstance(prange[1], int))):
             raise Exception("Start and end point must be integers")
-        if not (0 <= prange[0] <= self.T and 0 <= prange[1] <= self.T and prange[0] < prange[1]):
+        if not (0 <= prange[0] <= self.T and 0 <= prange[1] <= self.T and prange[0] <= prange[1]):
             raise Exception("Start and end point must define a range in the interval 0,T")
 
         self.prange = prange

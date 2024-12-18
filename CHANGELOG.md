@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.0] - 2024-11-03
+
+### Added
+- Allow providing lower triangular matrix constructed from a Cholesky decomposition in least squares function for correlated fits.
+
+### Fixed
+- Corrected bug that prevented combined fits with multiple x-obs in some cases.
+
 ## [2.12.0] - 2024-08-22
 
 ### Changed

@@ -59,6 +59,8 @@ def create_json_string(ol, description='', indent=1):
     def _gen_cdata_d_from_list(ol):
         dl = []
         for name in ol[0].cov_names:
+            if _is_uuid4_hex(name):
+                raise ValueError("Cannot safely serialize an Obs derived from a Meas object with a uuid as name. Consider recreating the Meas with an explict name.")
             ed = {}
             ed['id'] = name
             ed['layout'] = str(ol[0].covobs[name].cov.shape).lstrip('(').rstrip(')').rstrip(',')
@@ -214,6 +216,11 @@ def create_json_string(ol, description='', indent=1):
         return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_SINGLE_LINE_ARRAY)
     else:
         return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_COMPACT)
+
+
+def _is_uuid4_hex(s):
+    uuid4_hex_pattern = re.compile(r'^[0-9a-f]{32}$')
+    return bool(uuid4_hex_pattern.match(s))
 
 
 def dump_to_json(ol, fname, description='', indent=1, gz=True):

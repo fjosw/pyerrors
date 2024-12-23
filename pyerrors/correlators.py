@@ -101,7 +101,7 @@ class Corr:
                 self.N = 1
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
-                noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
+                noNull = [a for a in self.content if a is not None]  # To check if the matrices are correct for all undefined elements
                 self.N = noNull[0].shape[0]
                 if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
                     raise ValueError("Smearing matrices are not NxN.")
@@ -141,7 +141,7 @@ class Corr:
     def gamma_method(self, **kwargs):
         """Apply the gamma method to the content of the Corr."""
         for item in self.content:
-            if not (item is None):
+            if item is not None:
                 if self.N == 1:
                     item[0].gamma_method(**kwargs)
                 else:
@@ -213,7 +213,7 @@ class Corr:
         """
         if self.N != 1:
             raise Exception("Can only make Corr[N=1] plottable")
-        x_list = [x for x in range(self.T) if not self.content[x] is None]
+        x_list = [x for x in range(self.T) if self.content[x] is not None]
         y_list = [y[0].value for y in self.content if y is not None]
         y_err_list = [y[0].dvalue for y in self.content if y is not None]
 
@@ -814,8 +814,8 @@ class Corr:
             if len(fitrange) != 2:
                 raise Exception("fitrange has to have exactly two elements [fit_start, fit_stop]")
 
-        xs = np.array([x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
-        ys = np.array([self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
+        xs = np.array([x for x in range(fitrange[0], fitrange[1] + 1) if self.content[x] is not None])
+        ys = np.array([self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if self.content[x] is not None])
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         return result
 

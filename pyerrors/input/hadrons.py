@@ -245,7 +245,7 @@ def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_rang
     return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
-def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):
+def read_DistillationContraction_hd5(path, ens_id, diagrams=None, idl=None):
     """Read hadrons DistillationContraction hdf5 files in given directory structure
 
     Parameters
@@ -265,6 +265,8 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
         extracted DistillationContration data
     """
 
+    if diagrams is None:
+        diagrams = ["direct"]
     res_dict = {}
 
     directories, idx = _get_files(path, "data", idl)
@@ -486,7 +488,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     return result_dict
 
 
-def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
+def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=None):
     """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
 
     Parameters
@@ -508,6 +510,8 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
         extracted fourquark matrizes
     """
 
+    if vertices is None:
+        vertices = ["VA", "AV"]
     files, idx = _get_files(path, filestem, idl)
 
     mom_in = None
@@ -596,7 +600,7 @@ def _get_lorentz_names(name):
     assert len(name) == 2
 
     if 'S' in name or 'P' in name:
-        if not set(name) <= set(['S', 'P']):
+        if not set(name) <= {'S', 'P'}:
             raise Exception("'" + name + "' is not a Lorentz scalar")
 
         g_names = {'S': 'Identity',
@@ -605,7 +609,7 @@ def _get_lorentz_names(name):
         res.append((g_names[name[0]], g_names[name[1]]))
 
     else:
-        if not set(name) <= set(['V', 'A']):
+        if not set(name) <= {'V', 'A'}:
             raise Exception("'" + name + "' is not a Lorentz scalar")
 
         for ind in lorentz_index:

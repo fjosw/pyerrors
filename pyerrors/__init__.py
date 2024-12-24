@@ -1,4 +1,4 @@
-r'''
+r"""
 # What is pyerrors?
 `pyerrors` is a python package for error computation and propagation of Markov chain Monte Carlo data.
 It is based on the gamma method [arXiv:hep-lat/0306017](https://arxiv.org/abs/hep-lat/0306017). Some of its features are:
@@ -476,7 +476,7 @@ The array `cdata` contains information about the contribution of auxiliary obser
 A JSON schema that may be used to verify the correctness of a file with respect to the format definition is stored in ./examples/json_schema.json. The schema is a self-descriptive format definition and contains an exemplary file.
 
 Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).
-'''
+"""
 from .obs import *
 from .correlators import *
 from .fits import *

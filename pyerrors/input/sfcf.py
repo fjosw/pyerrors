@@ -176,7 +176,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         # Exclude folders with different names
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*'):
-                ls = list(set(ls) - set([exc]))
+                ls = list(set(ls) - {exc})
 
     if not appended:
         ls = sort_names(ls)
@@ -343,7 +343,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 name_ls = ls
                 for exc in name_ls:
                     if not fnmatch.fnmatch(exc, prefix + '*.' + name):
-                        name_ls = list(set(name_ls) - set([exc]))
+                        name_ls = list(set(name_ls) - {exc})
             name_ls = sort_names(name_ls)
             pattern = intern[name]['spec'][quarks][off][w][w2]['pattern']
             deltas = []
@@ -460,7 +460,9 @@ def _extract_corr_type(corr_type):
     return b2b, single
 
 
-def _find_files(rep_path, prefix, compact, files=[]):
+def _find_files(rep_path, prefix, compact, files=None):
+    if files is None:
+        files = []
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
@@ -474,12 +476,12 @@ def _find_files(rep_path, prefix, compact, files=[]):
         if compact:
             for exc in sub_ls:
                 if not fnmatch.fnmatch(exc, prefix + '*'):
-                    sub_ls = list(set(sub_ls) - set([exc]))
+                    sub_ls = list(set(sub_ls) - {exc})
             sub_ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
         else:
             for exc in sub_ls:
                 if not fnmatch.fnmatch(exc, 'cfg*'):
-                    sub_ls = list(set(sub_ls) - set([exc]))
+                    sub_ls = list(set(sub_ls) - {exc})
             sub_ls.sort(key=lambda x: int(x[3:]))
         files = sub_ls
     if len(files) == 0:
@@ -665,7 +667,7 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None):
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):
-            ls = list(set(ls) - set([exc]))
+            ls = list(set(ls) - {exc})
     ls.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
     for entry in ls:
         myentry = entry[:-len(name) - 1]

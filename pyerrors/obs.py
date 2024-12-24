@@ -112,7 +112,7 @@ class Obs:
                     else:
                         self.idl[name] = list(idx)
                 else:
-                    raise TypeError('incompatible type for idl[%s].' % (name))
+                    raise TypeError('incompatible type for idl[%s].' % name)
         else:
             for name, sample in sorted(zip(names, samples)):
                 self.idl[name] = range(1, len(sample) + 1)
@@ -388,7 +388,7 @@ class Obs:
         if self.tag is not None:
             print("Description:", self.tag)
         if not hasattr(self, 'e_dvalue'):
-            print('Result\t %3.8e' % (self.value))
+            print('Result\t %3.8e' % self.value)
         else:
             if self.value == 0.0:
                 percentage = np.nan
@@ -446,7 +446,7 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def reweight(self, weight):
+    def reweight(self, weight, all_configs=False):
         """Reweight the obs with given rewighting factors.
 
         Parameters
@@ -459,7 +459,7 @@ class Obs:
             the reweighting factor on all configurations in weight.idl and not
             on the configurations in obs[i].idl. Default False.
         """
-        return reweight(weight, [self])[0]
+        return reweight(weight, [self], all_configs=all_configs)[0]
 
     def is_zero_within_error(self, sigma=1):
         """Checks whether the observable is zero within 'sigma' standard errors.
@@ -1078,7 +1078,7 @@ def _expand_deltas(deltas, idx, shape, gapsize):
         are found in idx, the data is expanded.
     """
     if isinstance(idx, range):
-        if (idx.step == gapsize):
+        if idx.step == gapsize:
             return deltas
     ret = np.zeros((idx[-1] - idx[0] + gapsize) // gapsize)
     for i in range(shape):
@@ -1188,6 +1188,10 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         of func. Use cautiously, supplying the wrong derivative will
         not be intercepted.
 
+    array_mode: bool
+        If True, the function is applied to the full array of data.
+        Default: False
+
     Notes
     -----
     For simple mathematical operations it can be practical to use anonymous
@@ -1210,7 +1214,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for name in o.cov_names:
             if name in allcov:
                 if not np.allclose(allcov[name], o.covobs[name].cov):
-                    raise Exception('Inconsistent covariance matrices for %s!' % (name))
+                    raise Exception('Inconsistent covariance matrices for %s!' % name)
             else:
                 allcov[name] = o.covobs[name].cov
 
@@ -1260,7 +1264,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for mc_name in obs.mc_names:
             mc_idl_d = [name for name in obs.idl if name.startswith(mc_name + '|')]
             new_mc_idl_d = [name for name in new_idl_d if name.startswith(mc_name + '|')]
-            if len(mc_idl_d) > 0 and len(mc_idl_d) < len(new_mc_idl_d):
+            if 0 < len(mc_idl_d) < len(new_mc_idl_d):
                 scalef_d[mc_name] = sum([len(new_idl_d[name]) for name in new_mc_idl_d]) / sum([len(new_idl_d[name]) for name in mc_idl_d])
         return scalef_d
 
@@ -1386,7 +1390,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     return np.array(deltas)[indices]
 
 
-def reweight(weight, obs, **kwargs):
+def reweight(weight, obs, all_configs=False):
     """Reweight a list of observables.
 
     Parameters
@@ -1417,7 +1421,7 @@ def reweight(weight, obs, **kwargs):
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
         tmp_obs = Obs(new_samples, sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
 
-        if kwargs.get('all_configs'):
+        if all_configs:
             new_weight = weight
         else:
             new_weight = Obs([w_deltas[name] + weight.r_values[name] for name in sorted(obs[i].names)], sorted(obs[i].names), idl=[obs[i].idl[name] for name in sorted(obs[i].names)])
@@ -1471,8 +1475,8 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
-    r'''Calculates the error covariance matrix of a set of observables.
+def covariance(obs, visualize=False, correlation=False, smooth=None):
+    r"""Calculates the error covariance matrix of a set of observables.
 
     WARNING: This function should be used with care, especially for observables with support on multiple
              ensembles with differing autocorrelations. See the notes below for details.
@@ -1503,7 +1507,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     For observables defined on a single ensemble our approximation is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
     $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$
     This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
-    '''
+    """
 
     length = len(obs)
 
@@ -1557,7 +1561,7 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
     if condn > 0.1 / np.finfo(float).eps:
         raise ValueError(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
     if condn > 1e13:
-        warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+        warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % condn, RuntimeWarning)
     chol = np.linalg.cholesky(corr)
     chol_inv = scipy.linalg.solve_triangular(chol, inverrdiag, lower=True)
 
@@ -1714,6 +1718,8 @@ def import_jackknife(jacks, name, idl=None):
         the N jackknife samples as first to Nth entry.
     name : str
         name of the ensemble the samples are defined on.
+    idl : list, optional
+        list of ranges or lists on which the samples are defined
     """
     length = len(jacks) - 1
     prj = (np.ones((length, length)) - (length - 1) * np.identity(length))
@@ -1789,7 +1795,7 @@ def cov_Obs(means, cov, name, grad=None):
 
     Parameters
     ----------
-    mean : list of floats or float
+    means : list of floats or float
         N mean value(s) of the new Obs
     cov : list or array
         2d (NxN) Covariance matrix, 1d diagonal entries or 0d covariance
@@ -1821,7 +1827,7 @@ def cov_Obs(means, cov, name, grad=None):
     for i in range(len(means)):
         ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
     if ol[0].covobs[name].N != len(means):
-        raise ValueError('You have to provide %d mean values!' % (ol[0].N))
+        raise ValueError('You have to provide %d mean values!' % ol[0].N)
     if len(ol) == 1:
         return ol[0]
     return ol
@@ -1843,14 +1849,14 @@ def _determine_gap(o, e_content, e_name):
 
 
 def _check_lists_equal(idl):
-    '''
+    """
     Use groupby to efficiently check whether all elements of idl are identical.
     Returns True if all elements are equal, otherwise False.
 
     Parameters
     ----------
     idl : list of lists, ranges or np.ndarrays
-    '''
+    """
     g = groupby([np.nditer(el) if isinstance(el, np.ndarray) else el for el in idl])
     if next(g, True) and not next(g, False):
         return True

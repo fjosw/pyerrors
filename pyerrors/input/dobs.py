@@ -79,7 +79,7 @@ def _dict_to_xmlstring_spaces(d, space='  '):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if not '<%s' % ('/') in li:
+            if '<%s' % ('/') not in li:
                 c += 1
         cm = False
     return o
@@ -671,7 +671,7 @@ def _dobsdict_to_xmlstring_spaces(d, space='  '):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if not '<%s' % ('/') in li:
+            if '<%s' % ('/') not in li:
                 c += 1
         cm = False
     return o

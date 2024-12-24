@@ -113,7 +113,7 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
     infos = []
     for hd5_file in files:
         h5file = h5py.File(path + '/' + hd5_file, "r")
-        if not group + '/' + entry in h5file:
+        if group + '/' + entry not in h5file:
             raise Exception("Entry '" + entry + "' not contained in the files.")
         raw_data = h5file[group + '/' + entry + '/corr']
         real_data = raw_data[:].view("complex")
@@ -186,7 +186,7 @@ def _extract_real_arrays(path, files, tree, keys):
     for hd5_file in files:
         h5file = h5py.File(path + '/' + hd5_file, "r")
         for key in keys:
-            if not tree + '/' + key in h5file:
+            if tree + '/' + key not in h5file:
                 raise Exception("Entry '" + key + "' not contained in the files.")
             raw_data = h5file[tree + '/' + key + '/data']
             real_data = raw_data[:].astype(np.double)

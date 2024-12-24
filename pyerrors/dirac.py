@@ -34,7 +34,7 @@ def epsilon_tensor(i, j, k):
     """
     test_set = set((i, j, k))
     if not (test_set <= set((1, 2, 3)) or test_set <= set((0, 1, 2))):
-        raise Exception("Unexpected input", i, j, k)
+        raise ValueError("Unexpected input", i, j, k)
 
     return (i - j) * (j - k) * (k - i) / 2
 
@@ -52,7 +52,7 @@ def epsilon_tensor_rank4(i, j, k, o):
     """
     test_set = set((i, j, k, o))
     if not (test_set <= set((1, 2, 3, 4)) or test_set <= set((0, 1, 2, 3))):
-        raise Exception("Unexpected input", i, j, k, o)
+        raise ValueError("Unexpected input", i, j, k, o)
 
     return (i - j) * (j - k) * (k - i) * (i - o) * (j - o) * (o - k) / 12
 
@@ -92,5 +92,5 @@ def Grid_gamma(gamma_tag):
     elif gamma_tag == 'SigmaZT':
         g = 0.5 * (gamma[2] @ gamma[3] - gamma[3] @ gamma[2])
     else:
-        raise Exception('Unkown gamma structure', gamma_tag)
+        raise ValueError('Unkown gamma structure', gamma_tag)
     return g

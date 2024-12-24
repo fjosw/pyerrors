@@ -47,7 +47,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
         Reweighting factors read
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
-    if not (version in known_oqcd_versions):
+    if version not in known_oqcd_versions:
         raise Exception('Unknown openQCD version defined!')
     print("Working with openQCD version " + version)
     if 'postfix' in kwargs:

@@ -61,9 +61,9 @@ def test_Obs_exceptions():
         my_obs.plot_rep_dist()
     with pytest.raises(Exception):
         my_obs.plot_piechart()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         my_obs.gamma_method(S='2.3')
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         my_obs.gamma_method(tau_exp=2.3)
     my_obs.gamma_method()
     my_obs.details()
@@ -199,7 +199,7 @@ def test_gamma_method_no_windowing():
         assert np.isclose(np.sqrt(np.var(obs.deltas['ens'], ddof=1) / obs.shape['ens']), obs.dvalue)
         obs.gamma_method(S=1.1)
         assert obs.e_tauint['ens'] > 0.5
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         obs.gamma_method(S=-0.2)
 
 
@@ -490,12 +490,12 @@ def test_reweighting():
     r_obs2 = r_obs[0] * my_obs
     assert r_obs2.reweighted
     my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.reweight(my_obs, [my_covobs])
     my_obs2 = pe.Obs([np.random.rand(1000)], ['t2'])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.reweight(my_obs, [my_obs + my_obs2])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.reweight(my_irregular_obs, [my_obs])
 
 
@@ -505,10 +505,10 @@ def test_merge_obs():
     merged = pe.merge_obs([my_obs1, my_obs2])
     diff = merged - my_obs2 - my_obs1
     assert diff == -(my_obs1.value + my_obs2.value) / 2
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.merge_obs([my_obs1, my_obs1])
     my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.merge_obs([my_obs1, my_covobs])
 
 
@@ -531,11 +531,11 @@ def test_correlate():
     assert corr1 == corr2
 
     my_obs3 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(2, 102)])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.correlate(my_obs1, my_obs3)
 
     my_obs4 = pe.Obs([np.random.rand(99)], ['t'])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.correlate(my_obs1, my_obs4)
 
     my_obs5 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
@@ -544,10 +544,10 @@ def test_correlate():
     assert my_obs5.idl == corr3.idl
 
     my_new_obs = pe.Obs([np.random.rand(100)], ['q3'])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.correlate(my_obs1, my_new_obs)
     my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.correlate(my_covobs, my_covobs)
     r_obs = pe.reweight(my_obs1, [my_obs1])[0]
     with pytest.warns(RuntimeWarning):
@@ -774,7 +774,7 @@ def test_gamma_method_irregular():
     my_obs.gm()
     idl += [range(1, 400, 4)]
     my_obs = pe.Obs([dat for i in range(len(idl))], ['%s|%d' % ('A', i) for i in range(len(idl))], idl=idl)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         my_obs.gm()
 
     # check cases where tau is large compared to the chain length
@@ -1122,7 +1122,7 @@ def test_jackknife():
 
     assert np.allclose(tmp_jacks, my_obs.export_jackknife())
     my_new_obs = my_obs + pe.Obs([full_data], ['test2'])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         my_new_obs.export_jackknife()
 
 

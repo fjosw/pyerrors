@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
-from .fits import least_squares
+from .fits import least_squares, Fit_result
 from .roots import find_root
 from . import linalg
 from numpy import float64, int64, ndarray, ufunc

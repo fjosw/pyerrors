@@ -1,4 +1,5 @@
 from __future__ import annotations
+import sys
 import warnings
 import hashlib
 import pickle
@@ -12,7 +13,15 @@ import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
 from numpy import bool, float64, int64, ndarray
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union, TYPE_CHECKING
+
+if sys.version_info >= (3, 10):
+    from types import NotImplementedType
+else:
+    NotImplementedType = type(NotImplemented)
+
+if TYPE_CHECKING:
+    from .correlators import Corr
 
 # Improve print output of numpy.ndarrays containing Obs objects.
 np.set_printoptions(formatter={'object': lambda x: str(x)})

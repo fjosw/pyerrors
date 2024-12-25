@@ -6,11 +6,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
-from .obs import Obs
+from .obs import Obs, CObs
 from .version import __version__
 from numpy import float64, int64, ndarray
-from typing import List, Type, Union
+from typing import List, Type, Union, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from .correlators import Corr
 
 def print_config():
     """Print information about version of python, pyerrors and dependencies."""

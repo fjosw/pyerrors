@@ -3,7 +3,6 @@ import numpy as np
 import scipy.linalg
 from .obs import Obs
 from .linalg import svd, eig
-from pyerrors.obs import Obs
 from typing import List
 
 

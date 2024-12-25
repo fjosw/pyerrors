@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import fnmatch
 import re
@@ -5,12 +6,14 @@ import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from .utils import sort_names, check_idl
 import itertools
+from numpy import ndarray
+from typing import Any, Dict, List, Tuple, Union
 
 
 sep = "/"
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
+def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", silent: bool=False, **kwargs) -> List[Obs]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -75,7 +78,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, keyed_out=False, **kwargs):
+def read_sfcf_multi(path: str, prefix: str, name_list: List[str], quarks_list: List[str]=['.*'], corr_type_list: List[str]=['bi'], noffset_list: List[int]=[0], wf_list: List[int]=[0], wf2_list: List[int]=[0], version: str="1.0c", cfg_separator: str="n", silent: bool=False, keyed_out: bool=False, **kwargs) -> Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, List[Obs]]]]]]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -407,22 +410,22 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     return result_dict
 
 
-def _lists2key(*lists):
+def _lists2key(*lists) -> List[str]:
     keys = []
     for tup in itertools.product(*lists):
         keys.append(sep.join(tup))
     return keys
 
 
-def _key2specs(key):
+def _key2specs(key: str) -> List[str]:
     return key.split(sep)
 
 
-def _specs2key(*specs):
+def _specs2key(*specs) -> str:
     return sep.join(specs)
 
 
-def _read_o_file(cfg_path, name, needed_keys, intern, version, im):
+def _read_o_file(cfg_path: str, name: str, needed_keys: List[str], intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], version: str, im: int) -> Dict[str, List[float]]:
     return_vals = {}
     for key in needed_keys:
         file = cfg_path + '/' + name
@@ -447,7 +450,7 @@ def _read_o_file(cfg_path, name, needed_keys, intern, version, im):
     return return_vals
 
 
-def _extract_corr_type(corr_type):
+def _extract_corr_type(corr_type: str) -> Tuple[bool, bool]:
     if corr_type == 'bb':
         b2b = True
         single = True
@@ -460,7 +463,7 @@ def _extract_corr_type(corr_type):
     return b2b, single
 
 
-def _find_files(rep_path, prefix, compact, files=[]):
+def _find_files(rep_path: str, prefix: str, compact: bool, files: List[Union[range, str, Any]]=[]) -> List[str]:
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
@@ -487,7 +490,7 @@ def _find_files(rep_path, prefix, compact, files=[]):
     return files
 
 
-def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
+def _make_pattern(version: str, name: str, noffset: str, wf: str, wf2: Union[str, int], b2b: bool, quarks: str) -> str:
     if version == "0.0":
         pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
         if b2b:
@@ -501,7 +504,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
     return pattern
 
 
-def _find_correlator(file_name, version, pattern, b2b, silent=False):
+def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, silent: bool=False) -> Tuple[int, int]:
     T = 0
 
     with open(file_name, "r") as my_file:
@@ -527,7 +530,7 @@ def _find_correlator(file_name, version, pattern, b2b, silent=False):
     return start_read, T
 
 
-def _read_compact_file(rep_path, cfg_file, intern, needed_keys, im):
+def _read_compact_file(rep_path: str, cfg_file: str, intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], needed_keys: List[str], im: int) -> Dict[str, List[float]]:
     return_vals = {}
     with open(rep_path + cfg_file) as fp:
         lines = fp.readlines()
@@ -558,7 +561,7 @@ def _read_compact_file(rep_path, cfg_file, intern, needed_keys, im):
     return return_vals
 
 
-def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
+def _read_compact_rep(path: str, rep: str, sub_ls: List[str], intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], needed_keys: List[str], im: int) -> Dict[str, List[ndarray]]:
     rep_path = path + '/' + rep + '/'
     no_cfg = len(sub_ls)
 
@@ -580,7 +583,7 @@ def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
     return return_vals
 
 
-def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single):
+def _read_chunk(chunk: List[str], gauge_line: int, cfg_sep: str, start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> Tuple[int, List[float]]:
     try:
         idl = int(chunk[gauge_line].split(cfg_sep)[-1])
     except Exception:
@@ -597,7 +600,7 @@ def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, patte
     return idl, data
 
 
-def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
+def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str, im: int, single: bool) -> Tuple[int, List[int], List[List[float]]]:
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []
@@ -646,7 +649,7 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
         return T, rep_idl, data
 
 
-def _get_rep_names(ls, ens_name=None):
+def _get_rep_names(ls: List[str], ens_name: None=None) -> List[str]:
     new_names = []
     for entry in ls:
         try:
@@ -661,7 +664,7 @@ def _get_rep_names(ls, ens_name=None):
     return new_names
 
 
-def _get_appended_rep_names(ls, prefix, name, ens_name=None):
+def _get_appended_rep_names(ls: List[str], prefix: str, name: str, ens_name: None=None) -> List[str]:
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):

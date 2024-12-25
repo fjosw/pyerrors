@@ -1,11 +1,13 @@
 """Utilities for the input"""
 
+from __future__ import annotations
 import re
 import fnmatch
 import os
+from typing import List
 
 
-def sort_names(ll):
+def sort_names(ll: List[str]) -> List[str]:
     """Sorts a list of names of replika with searches for `r` and `id` in the replikum string.
     If this search fails, a fallback method is used,
     where the strings are simply compared and the first diffeing numeral is used for differentiation.

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import warnings
 import gzip
 import sqlite3
@@ -6,9 +7,11 @@ from ..obs import Obs
 from ..correlators import Corr
 from .json import create_json_string, import_json_string
 import numpy as np
+from pandas.core.frame import DataFrame
+from pandas.core.series import Series
 
 
-def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
+def to_sql(df: DataFrame, table_name: str, db: str, if_exists: str='fail', gz: bool=True, **kwargs):
     """Write DataFrame including Obs or Corr valued columns to sqlite database.
 
     Parameters
@@ -34,7 +37,7 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
     con.close()
 
 
-def read_sql(sql, db, auto_gamma=False, **kwargs):
+def read_sql(sql: str, db: str, auto_gamma: bool=False, **kwargs) -> DataFrame:
     """Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.
 
     Parameters
@@ -58,7 +61,7 @@ def read_sql(sql, db, auto_gamma=False, **kwargs):
     return _deserialize_df(extract_df, auto_gamma=auto_gamma)
 
 
-def dump_df(df, fname, gz=True):
+def dump_df(df: DataFrame, fname: str, gz: bool=True):
     """Exports a pandas DataFrame containing Obs valued columns to a (gzipped) csv file.
 
     Before making use of pandas to_csv functionality Obs objects are serialized via the standardized
@@ -97,7 +100,7 @@ def dump_df(df, fname, gz=True):
         out.to_csv(fname, index=False)
 
 
-def load_df(fname, auto_gamma=False, gz=True):
+def load_df(fname: str, auto_gamma: bool=False, gz: bool=True) -> DataFrame:
     """Imports a pandas DataFrame from a csv.(gz) file in which Obs objects are serialized as json strings.
 
     Parameters
@@ -131,7 +134,7 @@ def load_df(fname, auto_gamma=False, gz=True):
     return _deserialize_df(re_import, auto_gamma=auto_gamma)
 
 
-def _serialize_df(df, gz=False):
+def _serialize_df(df: DataFrame, gz: bool=False) -> DataFrame:
     """Serializes all Obs or Corr valued columns into json strings according to the pyerrors json specification.
 
     Parameters
@@ -152,7 +155,7 @@ def _serialize_df(df, gz=False):
     return out
 
 
-def _deserialize_df(df, auto_gamma=False):
+def _deserialize_df(df: DataFrame, auto_gamma: bool=False) -> DataFrame:
     """Deserializes all pyerrors json strings into Obs or Corr objects according to the pyerrors json specification.
 
     Parameters
@@ -188,7 +191,7 @@ def _deserialize_df(df, auto_gamma=False):
     return df
 
 
-def _need_to_serialize(col):
+def _need_to_serialize(col: Series) -> bool:
     serialize = False
     i = 0
     while i < len(col) and col[i] is None:

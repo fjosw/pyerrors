@@ -1,10 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import scipy.optimize
 from autograd import jacobian
 from .obs import derived_observable
+from typing import Callable, List, Union
 
 
-def find_root(d, func, guess=1.0, **kwargs):
+def find_root(d: Union[Obs, List[Obs]], func: Callable, guess: float=1.0, **kwargs) -> Obs:
     r'''Finds the root of the function func(x, d) where d is an `Obs`.
 
     Parameters

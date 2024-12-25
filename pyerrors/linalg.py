@@ -1,9 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from .obs import derived_observable, CObs, Obs, import_jackknife
+from numpy import ndarray
+from typing import Callable, Tuple, Union
 
 
-def matmul(*operands):
+def matmul(*operands) -> ndarray:
     """Matrix multiply all operands.
 
     Parameters
@@ -59,7 +62,7 @@ def matmul(*operands):
         return derived_observable(multi_dot, operands, array_mode=True)
 
 
-def jack_matmul(*operands):
+def jack_matmul(*operands) -> ndarray:
     """Matrix multiply both operands making use of the jackknife approximation.
 
     Parameters
@@ -120,7 +123,7 @@ def jack_matmul(*operands):
         return _imp_from_jack(r, name, idl)
 
 
-def einsum(subscripts, *operands):
+def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
     """Wrapper for numpy.einsum
 
     Parameters
@@ -194,24 +197,24 @@ def einsum(subscripts, *operands):
         return result
 
 
-def inv(x):
+def inv(x: ndarray) -> ndarray:
     """Inverse of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.inv, x)
 
 
-def cholesky(x):
+def cholesky(x: ndarray) -> ndarray:
     """Cholesky decomposition of Obs valued matrices."""
     if any(isinstance(o, CObs) for o in x.ravel()):
         raise Exception("Cholesky decomposition is not implemented for CObs.")
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 
-def det(x):
+def det(x: Union[ndarray, int]) -> Obs:
     """Determinant of Obs valued matrices."""
     return _scalar_mat_op(anp.linalg.det, x)
 
 
-def _scalar_mat_op(op, obs, **kwargs):
+def _scalar_mat_op(op: Callable, obs: Union[ndarray, int], **kwargs) -> Obs:
     """Computes the matrix to scalar operation op to a given matrix of Obs."""
     def _mat(x, **kwargs):
         dim = int(np.sqrt(len(x)))
@@ -232,7 +235,7 @@ def _scalar_mat_op(op, obs, **kwargs):
     return derived_observable(_mat, raveled_obs, **kwargs)
 
 
-def _mat_mat_op(op, obs, **kwargs):
+def _mat_mat_op(op: Callable, obs: ndarray, **kwargs) -> ndarray:
     """Computes the matrix to matrix operation op to a given matrix of Obs."""
     # Use real representation to calculate matrix operations for complex matrices
     if any(isinstance(o, CObs) for o in obs.ravel()):
@@ -258,31 +261,31 @@ def _mat_mat_op(op, obs, **kwargs):
         return derived_observable(lambda x, **kwargs: op(x), [obs], array_mode=True)[0]
 
 
-def eigh(obs, **kwargs):
+def eigh(obs: ndarray, **kwargs) -> Tuple[ndarray, ndarray]:
     """Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return w, v
 
 
-def eig(obs, **kwargs):
+def eig(obs: ndarray, **kwargs) -> ndarray:
     """Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig."""
     w = derived_observable(lambda x, **kwargs: anp.real(anp.linalg.eig(x)[0]), obs)
     return w
 
 
-def eigv(obs, **kwargs):
+def eigv(obs: ndarray, **kwargs) -> ndarray:
     """Computes the eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return v
 
 
-def pinv(obs, **kwargs):
+def pinv(obs: ndarray, **kwargs) -> ndarray:
     """Computes the Moore-Penrose pseudoinverse of a matrix of Obs."""
     return derived_observable(lambda x, **kwargs: anp.linalg.pinv(x), obs)
 
 
-def svd(obs, **kwargs):
+def svd(obs: ndarray, **kwargs) -> Tuple[ndarray, ndarray, ndarray]:
     """Computes the singular value decomposition of a matrix of Obs."""
     u = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[0], obs)
     s = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[1], obs)

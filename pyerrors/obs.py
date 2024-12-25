@@ -1,3 +1,4 @@
+from __future__ import annotations
 import warnings
 import hashlib
 import pickle
@@ -10,6 +11,8 @@ from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
+from numpy import bool, float64, int64, ndarray
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # Improve print output of numpy.ndarrays containing Obs objects.
 np.set_printoptions(formatter={'object': lambda x: str(x)})
@@ -57,7 +60,7 @@ class Obs:
     N_sigma_global = 1.0
     N_sigma_dict = {}
 
-    def __init__(self, samples, names, idl=None, **kwargs):
+    def __init__(self, samples: Union[List[List[int]], List[ndarray], ndarray, List[List[float64]], List[List[float]]], names: List[Union[int, Any, str]], idl: Optional[Any]=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -141,27 +144,27 @@ class Obs:
         self.tag = None
 
     @property
-    def value(self):
+    def value(self) -> Union[float, int64, float64, int]:
         return self._value
 
     @property
-    def dvalue(self):
+    def dvalue(self) -> Union[float, float64]:
         return self._dvalue
 
     @property
-    def e_names(self):
+    def e_names(self) -> List[str]:
         return sorted(set([o.split('|')[0] for o in self.names]))
 
     @property
-    def cov_names(self):
+    def cov_names(self) -> List[Union[Any, str]]:
         return sorted(set([o for o in self.covobs.keys()]))
 
     @property
-    def mc_names(self):
+    def mc_names(self) -> List[Union[Any, str]]:
         return sorted(set([o.split('|')[0] for o in self.names if o not in self.cov_names]))
 
     @property
-    def e_content(self):
+    def e_content(self) -> Dict[str, List[str]]:
         res = {}
         for e, e_name in enumerate(self.e_names):
             res[e_name] = sorted(filter(lambda x: x.startswith(e_name + '|'), self.names))
@@ -170,7 +173,7 @@ class Obs:
         return res
 
     @property
-    def covobs(self):
+    def covobs(self) -> Dict[str, Covobs]:
         return self._covobs
 
     def gamma_method(self, **kwargs):
@@ -341,7 +344,7 @@ class Obs:
 
     gm = gamma_method
 
-    def _calc_gamma(self, deltas, idx, shape, w_max, fft, gapsize):
+    def _calc_gamma(self, deltas: ndarray, idx: Union[range, List[int], List[int64]], shape: int, w_max: Union[int64, int], fft: bool, gapsize: Union[int64, int]) -> ndarray:
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
 
@@ -377,7 +380,7 @@ class Obs:
 
         return gamma
 
-    def details(self, ens_content=True):
+    def details(self, ens_content: bool=True):
         """Output detailed properties of the Obs.
 
         Parameters
@@ -446,7 +449,7 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def reweight(self, weight):
+    def reweight(self, weight: "Obs") -> "Obs":
         """Reweight the obs with given rewighting factors.
 
         Parameters
@@ -461,7 +464,7 @@ class Obs:
         """
         return reweight(weight, [self])[0]
 
-    def is_zero_within_error(self, sigma=1):
+    def is_zero_within_error(self, sigma: Union[float, int]=1) -> Union[bool, bool]:
         """Checks whether the observable is zero within 'sigma' standard errors.
 
         Parameters
@@ -473,7 +476,7 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, atol=1e-10):
+    def is_zero(self, atol: float=1e-10) -> Union[bool, bool]:
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters
@@ -483,7 +486,7 @@ class Obs:
         """
         return np.isclose(0.0, self.value, 1e-14, atol) and all(np.allclose(0.0, delta, 1e-14, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), 1e-14, atol) for delta in self.covobs.values())
 
-    def plot_tauint(self, save=None):
+    def plot_tauint(self, save: None=None):
         """Plot integrated autocorrelation time for each ensemble.
 
         Parameters
@@ -523,7 +526,7 @@ class Obs:
             if save:
                 fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self, save=None):
+    def plot_rho(self, save: None=None):
         """Plot normalized autocorrelation function time for each ensemble.
 
         Parameters
@@ -576,7 +579,7 @@ class Obs:
             plt.title('Replica distribution' + e_name + ' (mean=0, var=1)')
             plt.draw()
 
-    def plot_history(self, expand=True):
+    def plot_history(self, expand: bool=True):
         """Plot derived Monte Carlo history for each ensemble
 
         Parameters
@@ -608,7 +611,7 @@ class Obs:
             plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
-    def plot_piechart(self, save=None):
+    def plot_piechart(self, save: None=None) -> Dict[str, float64]:
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions.
 
@@ -632,7 +635,7 @@ class Obs:
 
         return dict(zip(labels, sizes))
 
-    def dump(self, filename, datatype="json.gz", description="", **kwargs):
+    def dump(self, filename: str, datatype: str="json.gz", description: str="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
 
         Parameters
@@ -661,7 +664,7 @@ class Obs:
         else:
             raise TypeError("Unknown datatype " + str(datatype))
 
-    def export_jackknife(self):
+    def export_jackknife(self) -> ndarray:
         """Export jackknife samples from the Obs
 
         Returns
@@ -687,7 +690,7 @@ class Obs:
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
-    def export_bootstrap(self, samples=500, random_numbers=None, save_rng=None):
+    def export_bootstrap(self, samples: int=500, random_numbers: Optional[ndarray]=None, save_rng: None=None) -> ndarray:
         """Export bootstrap samples from the Obs
 
         Parameters
@@ -730,16 +733,16 @@ class Obs:
         ret[1:] = proj @ (self.deltas[name] + self.r_values[name])
         return ret
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.value)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'Obs[' + str(self) + ']'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _format_uncertainty(self.value, self._dvalue)
 
-    def __format__(self, format_type):
+    def __format__(self, format_type: str) -> str:
         if format_type == "":
             significance = 2
         else:
@@ -752,7 +755,7 @@ class Obs:
                     my_str = char + my_str
         return my_str
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
         hash_tuple += tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()])
         hash_tuple += tuple([np.array([o.errsq()]).astype(np.float32).data.tobytes() for o in self.covobs.values()])
@@ -762,25 +765,25 @@ class Obs:
         return int(m.hexdigest(), 16) & 0xFFFFFFFF
 
     # Overload comparisons
-    def __lt__(self, other):
+    def __lt__(self, other: Union[Obs, float, float64]) -> Union[bool, bool]:
         return self.value < other
 
-    def __le__(self, other):
+    def __le__(self, other: Union[Obs, float, int]) -> bool:
         return self.value <= other
 
-    def __gt__(self, other):
+    def __gt__(self, other: Union[Obs, float]) -> Union[bool, bool]:
         return self.value > other
 
-    def __ge__(self, other):
+    def __ge__(self, other: Union[Obs, float, int]) -> Union[bool, bool]:
         return self.value >= other
 
-    def __eq__(self, other):
+    def __eq__(self, other: Optional[Union[Obs, float64, int, float]]) -> Union[bool, bool]:
         if other is None:
             return False
         return (self - other).is_zero()
 
     # Overload math operations
-    def __add__(self, y):
+    def __add__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] + x[1], [self, y], man_grad=[1, 1])
         else:
@@ -793,10 +796,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
 
-    def __radd__(self, y):
+    def __radd__(self, y: Union[float, int]) -> "Obs":
         return self + y
 
-    def __mul__(self, y):
+    def __mul__(self, y: Any) -> Union[Obs, ndarray, CObs, NotImplementedType]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] * x[1], [self, y], man_grad=[y.value, self.value])
         else:
@@ -809,10 +812,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
-    def __rmul__(self, y):
+    def __rmul__(self, y: Union[float, int]) -> "Obs":
         return self * y
 
-    def __sub__(self, y):
+    def __sub__(self, y: Any) -> Union[Obs, NotImplementedType, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] - x[1], [self, y], man_grad=[1, -1])
         else:
@@ -823,16 +826,16 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
-    def __rsub__(self, y):
+    def __rsub__(self, y: Union[float, int]) -> "Obs":
         return -1 * (self - y)
 
-    def __pos__(self):
+    def __pos__(self) -> "Obs":
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> "Obs":
         return -1 * self
 
-    def __truediv__(self, y):
+    def __truediv__(self, y: Any) -> Union[Obs, NotImplementedType, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [self, y], man_grad=[1 / y.value, - self.value / y.value ** 2])
         else:
@@ -843,7 +846,7 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
 
-    def __rtruediv__(self, y):
+    def __rtruediv__(self, y: Union[float, int]) -> "Obs":
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [y, self], man_grad=[1 / self.value, - y.value / self.value ** 2])
         else:
@@ -854,62 +857,62 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
 
-    def __pow__(self, y):
+    def __pow__(self, y: Union[Obs, float, int]) -> "Obs":
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] ** x[1], [self, y], man_grad=[y.value * self.value ** (y.value - 1), self.value ** y.value * np.log(self.value)])
         else:
             return derived_observable(lambda x, **kwargs: x[0] ** y, [self], man_grad=[y * self.value ** (y - 1)])
 
-    def __rpow__(self, y):
+    def __rpow__(self, y: Union[float, int]) -> "Obs":
         return derived_observable(lambda x, **kwargs: y ** x[0], [self], man_grad=[y ** self.value * np.log(y)])
 
-    def __abs__(self):
+    def __abs__(self) -> "Obs":
         return derived_observable(lambda x: anp.abs(x[0]), [self])
 
     # Overload numpy functions
-    def sqrt(self):
+    def sqrt(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.sqrt(x[0]), [self], man_grad=[1 / 2 / np.sqrt(self.value)])
 
-    def log(self):
+    def log(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.log(x[0]), [self], man_grad=[1 / self.value])
 
-    def exp(self):
+    def exp(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.exp(x[0]), [self], man_grad=[np.exp(self.value)])
 
-    def sin(self):
+    def sin(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.sin(x[0]), [self], man_grad=[np.cos(self.value)])
 
-    def cos(self):
+    def cos(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.cos(x[0]), [self], man_grad=[-np.sin(self.value)])
 
-    def tan(self):
+    def tan(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.tan(x[0]), [self], man_grad=[1 / np.cos(self.value) ** 2])
 
-    def arcsin(self):
+    def arcsin(self) -> "Obs":
         return derived_observable(lambda x: anp.arcsin(x[0]), [self])
 
-    def arccos(self):
+    def arccos(self) -> "Obs":
         return derived_observable(lambda x: anp.arccos(x[0]), [self])
 
-    def arctan(self):
+    def arctan(self) -> "Obs":
         return derived_observable(lambda x: anp.arctan(x[0]), [self])
 
-    def sinh(self):
+    def sinh(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.sinh(x[0]), [self], man_grad=[np.cosh(self.value)])
 
-    def cosh(self):
+    def cosh(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.cosh(x[0]), [self], man_grad=[np.sinh(self.value)])
 
-    def tanh(self):
+    def tanh(self) -> "Obs":
         return derived_observable(lambda x, **kwargs: np.tanh(x[0]), [self], man_grad=[1 / np.cosh(self.value) ** 2])
 
-    def arcsinh(self):
+    def arcsinh(self) -> "Obs":
         return derived_observable(lambda x: anp.arcsinh(x[0]), [self])
 
-    def arccosh(self):
+    def arccosh(self) -> "Obs":
         return derived_observable(lambda x: anp.arccosh(x[0]), [self])
 
-    def arctanh(self):
+    def arctanh(self) -> "Obs":
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
 
 
@@ -917,17 +920,17 @@ class CObs:
     """Class for a complex valued observable."""
     __slots__ = ['_real', '_imag', 'tag']
 
-    def __init__(self, real, imag=0.0):
+    def __init__(self, real: Obs, imag: Union[Obs, float, int]=0.0):
         self._real = real
         self._imag = imag
         self.tag = None
 
     @property
-    def real(self):
+    def real(self) -> Obs:
         return self._real
 
     @property
-    def imag(self):
+    def imag(self) -> Union[Obs, float, int]:
         return self._imag
 
     def gamma_method(self, **kwargs):
@@ -937,14 +940,14 @@ class CObs:
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
-    def is_zero(self):
+    def is_zero(self) -> bool:
         """Checks whether both real and imaginary part are zero within machine precision."""
         return self.real == 0.0 and self.imag == 0.0
 
-    def conjugate(self):
+    def conjugate(self) -> "CObs":
         return CObs(self.real, -self.imag)
 
-    def __add__(self, other):
+    def __add__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return other + self
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -953,10 +956,10 @@ class CObs:
         else:
             return CObs(self.real + other, self.imag)
 
-    def __radd__(self, y):
+    def __radd__(self, y: Union[complex, float, Obs, int]) -> "CObs":
         return self + y
 
-    def __sub__(self, other):
+    def __sub__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return -1 * (other - self)
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -964,10 +967,10 @@ class CObs:
         else:
             return CObs(self.real - other, self.imag)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Union[complex, float, Obs, int]) -> "CObs":
         return -1 * (self - other)
 
-    def __mul__(self, other):
+    def __mul__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return other * self
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -986,10 +989,10 @@ class CObs:
         else:
             return CObs(self.real * other, self.imag * other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Union[complex, Obs, float, int]) -> "CObs":
         return self * other
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return 1 / (other / self)
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -998,32 +1001,32 @@ class CObs:
         else:
             return CObs(self.real / other, self.imag / other)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other: Union[complex, float, Obs, int]) -> "CObs":
         r = self.real ** 2 + self.imag ** 2
         if hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs((self.real * other.real + self.imag * other.imag) / r, (self.real * other.imag - self.imag * other.real) / r)
         else:
             return CObs(self.real * other / r, -self.imag * other / r)
 
-    def __abs__(self):
+    def __abs__(self) -> Obs:
         return np.sqrt(self.real**2 + self.imag**2)
 
-    def __pos__(self):
+    def __pos__(self) -> "CObs":
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> "CObs":
         return -1 * self
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union[CObs, int]) -> bool:
         return self.real == other.real and self.imag == other.imag
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'CObs[' + str(self) + ']'
 
-    def __format__(self, format_type):
+    def __format__(self, format_type: str) -> str:
         if format_type == "":
             significance = 2
             format_type = "2"
@@ -1032,7 +1035,7 @@ class CObs:
         return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
 
 
-def gamma_method(x, **kwargs):
+def gamma_method(x: Union[Corr, Obs, ndarray, List[Obs]], **kwargs) -> ndarray:
     """Vectorized version of the gamma_method applicable to lists or arrays of Obs.
 
     See docstring of pe.Obs.gamma_method for details.
@@ -1043,7 +1046,7 @@ def gamma_method(x, **kwargs):
 gm = gamma_method
 
 
-def _format_uncertainty(value, dvalue, significance=2):
+def _format_uncertainty(value: Union[float, float64, int], dvalue: Union[float, float64, int], significance: int=2) -> str:
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
     if dvalue == 0.0 or (not np.isfinite(dvalue)):
         return str(value)
@@ -1060,7 +1063,7 @@ def _format_uncertainty(value, dvalue, significance=2):
         return f"{value:.{max(0, int(significance - fexp - 1))}f}({dvalue:2.{max(0, int(significance - fexp - 1))}f})"
 
 
-def _expand_deltas(deltas, idx, shape, gapsize):
+def _expand_deltas(deltas: ndarray, idx: Union[range, List[int], List[int64]], shape: int, gapsize: Union[int64, int]) -> ndarray:
     """Expand deltas defined on idx to a regular range with spacing gapsize between two
        configurations and where holes are filled by 0.
        If idx is of type range, the deltas are not changed if the idx.step == gapsize.
@@ -1086,7 +1089,7 @@ def _expand_deltas(deltas, idx, shape, gapsize):
     return ret
 
 
-def _merge_idx(idl):
+def _merge_idx(idl: List[Union[List[Union[int64, int]], range, List[int]]]) -> Union[List[Union[int64, int]], range, List[int]]:
     """Returns the union of all lists in idl as range or sorted list
 
     Parameters
@@ -1109,7 +1112,7 @@ def _merge_idx(idl):
     return idunion
 
 
-def _intersection_idx(idl):
+def _intersection_idx(idl: List[Union[range, List[int]]]) -> Union[range, List[int]]:
     """Returns the intersection of all lists in idl as range or sorted list
 
     Parameters
@@ -1135,7 +1138,7 @@ def _intersection_idx(idl):
     return idinter
 
 
-def _expand_deltas_for_merge(deltas, idx, shape, new_idx, scalefactor):
+def _expand_deltas_for_merge(deltas: ndarray, idx: Union[range, List[int]], shape: int, new_idx: Union[range, List[int]], scalefactor: Union[float, int]) -> ndarray:
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
@@ -1167,7 +1170,7 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx, scalefactor):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx) * scalefactor
 
 
-def derived_observable(func, data, array_mode=False, **kwargs):
+def derived_observable(func: Callable, data: Any, array_mode: bool=False, **kwargs) -> Union[Obs, ndarray]:
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
     Parameters
@@ -1357,7 +1360,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     return final_result
 
 
-def _reduce_deltas(deltas, idx_old, idx_new):
+def _reduce_deltas(deltas: Union[List[float], ndarray], idx_old: Union[range, List[int]], idx_new: Union[range, List[int], ndarray]) -> Union[List[float], ndarray]:
     """Extract deltas defined on idx_old on all configs of idx_new.
 
     Assumes, that idx_old and idx_new are correctly defined idl, i.e., they
@@ -1386,7 +1389,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     return np.array(deltas)[indices]
 
 
-def reweight(weight, obs, **kwargs):
+def reweight(weight: Obs, obs: Union[ndarray, List[Obs]], **kwargs) -> List[Obs]:
     """Reweight a list of observables.
 
     Parameters
@@ -1428,7 +1431,7 @@ def reweight(weight, obs, **kwargs):
     return result
 
 
-def correlate(obs_a, obs_b):
+def correlate(obs_a: Obs, obs_b: Obs) -> Obs:
     """Correlate two observables.
 
     Parameters
@@ -1471,7 +1474,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
+def covariance(obs: Union[ndarray, List[Obs]], visualize: bool=False, correlation: bool=False, smooth: Optional[int]=None, **kwargs) -> ndarray:
     r'''Calculates the error covariance matrix of a set of observables.
 
     WARNING: This function should be used with care, especially for observables with support on multiple
@@ -1541,7 +1544,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     return cov
 
 
-def invert_corr_cov_cholesky(corr, inverrdiag):
+def invert_corr_cov_cholesky(corr: ndarray, inverrdiag: ndarray) -> ndarray:
     """Constructs a lower triangular matrix `chol` via the Cholesky decomposition of the correlation matrix `corr`
        and then returns the inverse covariance matrix `chol_inv` as a lower triangular matrix by solving `chol * x = inverrdiag`.
 
@@ -1564,7 +1567,7 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
     return chol_inv
 
 
-def sort_corr(corr, kl, yd):
+def sort_corr(corr: ndarray, kl: List[str], yd: Dict[str, List[Obs]]) -> ndarray:
     """ Reorders a correlation matrix to match the alphabetical order of its underlying y data.
 
     The ordering of the input correlation matrix `corr` is given by the list of keys `kl`.
@@ -1627,7 +1630,7 @@ def sort_corr(corr, kl, yd):
     return corr_sorted
 
 
-def _smooth_eigenvalues(corr, E):
+def _smooth_eigenvalues(corr: ndarray, E: int) -> ndarray:
     """Eigenvalue smoothing as described in hep-lat/9412087
 
     corr : np.ndarray
@@ -1644,7 +1647,7 @@ def _smooth_eigenvalues(corr, E):
     return vec @ np.diag(vals) @ vec.T
 
 
-def _covariance_element(obs1, obs2):
+def _covariance_element(obs1: Obs, obs2: Obs) -> Union[float, float64]:
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
@@ -1704,7 +1707,7 @@ def _covariance_element(obs1, obs2):
     return dvalue
 
 
-def import_jackknife(jacks, name, idl=None):
+def import_jackknife(jacks: ndarray, name: str, idl: Optional[List[range]]=None) -> Obs:
     """Imports jackknife samples and returns an Obs
 
     Parameters
@@ -1724,7 +1727,7 @@ def import_jackknife(jacks, name, idl=None):
     return new_obs
 
 
-def import_bootstrap(boots, name, random_numbers):
+def import_bootstrap(boots: ndarray, name: str, random_numbers: ndarray) -> Obs:
     """Imports bootstrap samples and returns an Obs
 
     Parameters
@@ -1754,7 +1757,7 @@ def import_bootstrap(boots, name, random_numbers):
     return ret
 
 
-def merge_obs(list_of_obs):
+def merge_obs(list_of_obs: List[Obs]) -> Obs:
     """Combine all observables in list_of_obs into one new observable
 
     Parameters
@@ -1784,7 +1787,7 @@ def merge_obs(list_of_obs):
     return o
 
 
-def cov_Obs(means, cov, name, grad=None):
+def cov_Obs(means: Union[float64, int, List[float], float, List[int]], cov: Any, name: str, grad: None=None) -> Union[Obs, List[Obs]]:
     """Create an Obs based on mean(s) and a covariance matrix
 
     Parameters
@@ -1827,7 +1830,7 @@ def cov_Obs(means, cov, name, grad=None):
     return ol
 
 
-def _determine_gap(o, e_content, e_name):
+def _determine_gap(o: Obs, e_content: Dict[str, List[str]], e_name: str) -> Union[int64, int]:
     gaps = []
     for r_name in e_content[e_name]:
         if isinstance(o.idl[r_name], range):
@@ -1842,7 +1845,7 @@ def _determine_gap(o, e_content, e_name):
     return gap
 
 
-def _check_lists_equal(idl):
+def _check_lists_equal(idl: List[Union[List[int], List[Union[int64, int]], range, ndarray]]):
     '''
     Use groupby to efficiently check whether all elements of idl are identical.
     Returns True if all elements are equal, otherwise False.

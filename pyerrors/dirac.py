@@ -1,4 +1,6 @@
+from __future__ import annotations
 import numpy as np
+from numpy import ndarray
 
 
 gammaX = np.array(
@@ -22,7 +24,7 @@ identity = np.array(
     dtype=complex)
 
 
-def epsilon_tensor(i, j, k):
+def epsilon_tensor(i: int, j: int, k: int) -> float:
     """Rank-3 epsilon tensor
 
     Based on https://codegolf.stackexchange.com/a/160375
@@ -39,7 +41,7 @@ def epsilon_tensor(i, j, k):
     return (i - j) * (j - k) * (k - i) / 2
 
 
-def epsilon_tensor_rank4(i, j, k, o):
+def epsilon_tensor_rank4(i: int, j: int, k: int, o: int) -> float:
     """Rank-4 epsilon tensor
 
     Extension of https://codegolf.stackexchange.com/a/160375
@@ -57,7 +59,7 @@ def epsilon_tensor_rank4(i, j, k, o):
     return (i - j) * (j - k) * (k - i) * (i - o) * (j - o) * (o - k) / 12
 
 
-def Grid_gamma(gamma_tag):
+def Grid_gamma(gamma_tag: str) -> ndarray:
     """Returns gamma matrix in Grid labeling."""
     if gamma_tag == 'Identity':
         g = identity

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import platform
 import numpy as np
 import scipy
@@ -7,6 +8,8 @@ import pandas as pd
 import pickle
 from .obs import Obs
 from .version import __version__
+from numpy import float64, int64, ndarray
+from typing import List, Type, Union
 
 
 def print_config():
@@ -54,7 +57,7 @@ def errorbar(x, y, axes=plt, **kwargs):
     axes.errorbar(val["x"], val["y"], xerr=err["x"], yerr=err["y"], **kwargs)
 
 
-def dump_object(obj, name, **kwargs):
+def dump_object(obj: Corr, name: str, **kwargs):
     """Dump object into pickle file.
 
     Parameters
@@ -78,7 +81,7 @@ def dump_object(obj, name, **kwargs):
         pickle.dump(obj, fb)
 
 
-def load_object(path):
+def load_object(path: str) -> Union[Obs, Corr]:
     """Load object from pickle file.
 
     Parameters
@@ -95,7 +98,7 @@ def load_object(path):
         return pickle.load(file)
 
 
-def pseudo_Obs(value, dvalue, name, samples=1000):
+def pseudo_Obs(value: Union[float, int64, float64, int], dvalue: Union[float, float64, int], name: str, samples: int=1000) -> Obs:
     """Generate an Obs object with given value, dvalue and name for test purposes
 
     Parameters
@@ -132,7 +135,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         return res
 
 
-def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
+def gen_correlated_data(means: Union[ndarray, List[float]], cov: ndarray, name: str, tau: Union[float, ndarray]=0.5, samples: int=1000) -> List[Obs]:
     """ Generate observables with given covariance and autocorrelation times.
 
     Parameters
@@ -174,7 +177,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol, otype=Obs):
+def _assert_equal_properties(ol: Union[List[Obs], List[CObs], ndarray], otype: Type[Obs]=Obs):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):

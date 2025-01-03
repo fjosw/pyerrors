@@ -7,7 +7,7 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 import itertools
 from numpy import ndarray
-from typing import Any, Union
+from typing import Union, Optional
 
 
 sep = "/"

@@ -13,8 +13,7 @@ from ..covobs import Covobs
 from ..correlators import Corr
 from ..misc import _assert_equal_properties
 from .. import version as pyerrorsversion
-from numpy import ndarray
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 
 def create_json_string(ol: list, description: Union[str, dict]='', indent: int=1) -> str:

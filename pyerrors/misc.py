@@ -14,6 +14,7 @@ from typing import Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from .correlators import Corr
 
+
 def print_config():
     """Print information about version of python, pyerrors and dependencies."""
     config = {"system": platform.system(),

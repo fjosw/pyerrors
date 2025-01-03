@@ -1729,7 +1729,7 @@ def _covariance_element(obs1: Obs, obs2: Obs) -> Union[float, float64]:
     return dvalue
 
 
-def import_jackknife(jacks: ndarray, name: str, idl:  Optional[list[Union[list[int], range]]]=None) -> Obs:
+def import_jackknife(jacks: ndarray, name: str, idl: Optional[list[Union[list[int], range]]]=None) -> Obs:
     """Imports jackknife samples and returns an Obs
 
     Parameters
@@ -1855,7 +1855,7 @@ def cov_Obs(means: Union[int, list[float], float, list[int]], cov: Any, name: st
 def _determine_gap(o: Obs, e_content: dict[str, list[str]], e_name: str) -> Union[int64, int]:
     gaps = []
     for r_name in e_content[e_name]:
-        my_idl =o.idl[r_name]
+        my_idl = o.idl[r_name]
         if isinstance(my_idl, range):
             gaps.append(my_idl.step)
         else:

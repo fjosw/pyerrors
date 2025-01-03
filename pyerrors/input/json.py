@@ -17,7 +17,7 @@ from numpy import ndarray
 from typing import Any, Optional, Union
 
 
-def create_json_string(ol: Any, description: Union[str, dict[str, Union[str, dict[str, Union[dict[str, Union[str, dict[str, Union[int, str]]]], dict[str, Optional[Union[str, list[str], float]]]]]]], dict[str, Union[str, dict[Optional[Union[int, bool]], str], float]], dict[str, dict[str, dict[str, str]]], dict[str, Union[str, dict[Optional[Union[int, bool]], str], dict[int, float]]]]='', indent: int=1) -> str:
+def create_json_string(ol: list, description: Union[str, dict]='', indent: int=1) -> str:
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .json(.gz) file
 
@@ -168,7 +168,7 @@ def create_json_string(ol: Any, description: Union[str, dict[str, Union[str, dic
     if not isinstance(ol, list):
         ol = [ol]
 
-    d = {}
+    d: dict[str, Any] = {}
     d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
     d['version'] = '1.1'
     d['who'] = getpass.getuser()
@@ -219,7 +219,7 @@ def create_json_string(ol: Any, description: Union[str, dict[str, Union[str, dic
         return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_COMPACT)
 
 
-def dump_to_json(ol: Union[Corr, list[Union[Obs, list[Obs], Corr, ndarray]], ndarray, list[Union[Obs, list[Obs], ndarray]], list[Obs]], fname: str, description: Union[str, dict[str, Union[str, dict[str, Union[dict[str, Union[str, dict[str, Union[int, str]]]], dict[str, Optional[Union[str, list[str], float]]]]]]], dict[str, Union[str, dict[Optional[Union[int, bool]], str], float]], dict[str, dict[str, dict[str, str]]], dict[str, Union[str, dict[Optional[Union[int, bool]], str], dict[int, float]]]]='', indent: int=1, gz: bool=True):
+def dump_to_json(ol: list, fname: str, description: Union[str, dict]='', indent: int=1, gz: bool=True):
     """Export a list of Obs or structures containing Obs to a .json(.gz) file.
     Dict keys that are not JSON-serializable such as floats are converted to strings.
 
@@ -253,12 +253,13 @@ def dump_to_json(ol: Union[Corr, list[Union[Obs, list[Obs], Corr, ndarray]], nda
         if not fname.endswith('.gz'):
             fname += '.gz'
 
-        fp = gzip.open(fname, 'wb')
-        fp.write(jsonstring.encode('utf-8'))
+        gp = gzip.open(fname, 'wb')
+        gp.write(jsonstring.encode('utf-8'))
+        gp.close()
     else:
         fp = open(fname, 'w', encoding='utf-8')
         fp.write(jsonstring)
-    fp.close()
+        fp.close()
 
 
 def _parse_json_dict(json_dict: dict[str, Any], verbose: bool=True, full_output: bool=False) -> Any:
@@ -473,7 +474,7 @@ def _parse_json_dict(json_dict: dict[str, Any], verbose: bool=True, full_output:
         return ol
 
 
-def import_json_string(json_string: str, verbose: bool=True, full_output: bool=False) -> Union[Obs, List[Obs], Corr]:
+def import_json_string(json_string: str, verbose: bool=True, full_output: bool=False) -> Union[Obs, list[Obs], Corr]:
     """Reconstruct a list of Obs or structures containing Obs from a json string.
 
     The following structures are supported: Obs, list, numpy.ndarray, Corr
@@ -548,7 +549,7 @@ def load_json(fname: str, verbose: bool=True, gz: bool=True, full_output: bool=F
     return _parse_json_dict(d, verbose, full_output)
 
 
-def _ol_from_dict(ind: Union[dict[Optional[Union[int, bool]], str], dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]], str]], dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]], list[str]]], dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]]]]], reps: str='DICTOBS') -> Union[tuple[list[Any], dict[Optional[Union[int, bool]], str]], tuple[list[Union[Obs, list[Obs], Corr, ndarray]], dict[str, Union[dict[str, Union[str, dict[str, Union[int, str]]]], dict[str, Optional[Union[str, list[str], float]]]]]]]:
+def _ol_from_dict(ind: dict, reps: str='DICTOBS') -> tuple[list, dict]:
     """Convert a dictionary of Obs objects to a list and a dictionary that contains
     placeholders instead of the Obs objects.
 
@@ -628,7 +629,7 @@ def _ol_from_dict(ind: Union[dict[Optional[Union[int, bool]], str], dict[str, Un
     return ol, nd
 
 
-def dump_dict_to_json(od: Union[dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]], str]], dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]], list[str]]], list[Union[Obs, list[Obs], Corr, ndarray]], dict[Optional[Union[int, bool]], str], dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]]]]], fname: str, description: Union[str, float, dict[int, float]]='', indent: int=1, reps: str='DICTOBS', gz: bool=True):
+def dump_dict_to_json(od: dict, fname: str, description: Union[str, dict]='', indent: int=1, reps: str='DICTOBS', gz: bool=True):
     """Export a dict of Obs or structures containing Obs to a .json(.gz) file
 
     Parameters
@@ -668,7 +669,7 @@ def dump_dict_to_json(od: Union[dict[str, Union[dict[str, Union[Obs, list[Obs], 
     dump_to_json(ol, fname, description=desc_dict, indent=indent, gz=gz)
 
 
-def _od_from_list_and_dict(ol: list[Union[Obs, list[Obs], Corr, ndarray]], ind: dict[str, dict[str, Optional[Union[str, dict[str, Union[int, str]], list[str], float]]]], reps: str='DICTOBS') -> dict[str, dict[str, Any]]:
+def _od_from_list_and_dict(ol: list, ind: dict, reps: str='DICTOBS') -> dict[str, dict[str, Any]]:
     """Parse a list of Obs or structures containing Obs and an accompanying
     dict, where the structures have been replaced by placeholders to a
     dict that contains the structures.
@@ -731,7 +732,7 @@ def _od_from_list_and_dict(ol: list[Union[Obs, list[Obs], Corr, ndarray]], ind: 
     return nd
 
 
-def load_json_dict(fname: str, verbose: bool=True, gz: bool=True, full_output: bool=False, reps: str='DICTOBS') -> dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]], str, dict[str, Union[dict[str, Union[Obs, list[Obs], dict[str, Union[int, Obs, Corr, ndarray]]]], dict[str, Optional[Union[str, list[str], Obs, float]]]]]]]:
+def load_json_dict(fname: str, verbose: bool=True, gz: bool=True, full_output: bool=False, reps: str='DICTOBS') -> dict:
     """Import a dict of Obs or structures containing Obs from a .json(.gz) file.
 
     The following structures are supported: Obs, list, numpy.ndarray, Corr

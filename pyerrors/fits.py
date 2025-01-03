@@ -710,7 +710,7 @@ def total_least_squares(x: list[Obs], y: list[Obs], func: Callable, silent: bool
     return output
 
 
-def fit_lin(x: list[Union[Obs, int, float]], y: list[Obs], **kwargs) -> list[Obs]:
+def fit_lin(x: Sequence[Union[Obs, int, float]], y: Sequence[Obs], **kwargs) -> list[Obs]:
     """Performs a linear fit to y = n + m * x and returns two Obs n, m.
 
     Parameters

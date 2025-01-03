@@ -18,9 +18,9 @@ from typing import Any, Optional, Union
 
 
 # Based on https://stackoverflow.com/a/10076823
-def _etree_to_dict(t: _Element) -> dict[str, Union[str, dict[str, str], dict[str, Union[str, dict[str, str]]]]]:
+def _etree_to_dict(t: _Element) -> dict:
     """ Convert the content of an XML file to a python dict"""
-    d = {t.tag: {} if t.attrib else None}
+    d: dict = {t.tag: {} if t.attrib else None}
     children = list(t)
     if children:
         dd = defaultdict(list)
@@ -70,7 +70,7 @@ def _dict_to_xmlstring(d: dict[str, Any]) -> str:
     return iters
 
 
-def _dict_to_xmlstring_spaces(d: dict[str, dict[str, dict[str, Union[str, dict[str, str], list[dict[str, str]]]]]], space: str='  ') -> str:
+def _dict_to_xmlstring_spaces(d: dict, space: str='  ') -> str:
     s = _dict_to_xmlstring(d)
     o = ''
     c = 0
@@ -89,7 +89,7 @@ def _dict_to_xmlstring_spaces(d: dict[str, dict[str, dict[str, Union[str, dict[s
     return o
 
 
-def create_pobs_string(obsl: list[Obs], name: str, spec: str='', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, enstag: None=None) -> str:
+def create_pobs_string(obsl: list[Obs], name: str, spec: str='', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, enstag: Optional[str]=None) -> str:
     """Export a list of Obs or structures containing Obs to an xml string
     according to the Zeuthen pobs format.
 
@@ -119,7 +119,7 @@ def create_pobs_string(obsl: list[Obs], name: str, spec: str='', origin: str='',
 
     if symbol is None:
         symbol = []
-    od = {}
+    od: dict[str, Any] = {}
     ename = obsl[0].e_names[0]
     names = list(obsl[0].deltas.keys())
     nr = len(names)
@@ -182,7 +182,7 @@ def create_pobs_string(obsl: list[Obs], name: str, spec: str='', origin: str='',
     return rs
 
 
-def write_pobs(obsl: list[Obs], fname: str, name: str, spec: str='', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, enstag: None=None, gz: bool=True):
+def write_pobs(obsl: list[Obs], fname: str, name: str, spec: str='', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, enstag: Optional[str]=None, gz: bool=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen pobs format.
 
@@ -223,12 +223,13 @@ def write_pobs(obsl: list[Obs], fname: str, name: str, spec: str='', origin: str
         if not fname.endswith('.gz'):
             fname += '.gz'
 
-        fp = gzip.open(fname, 'wb')
-        fp.write(pobsstring.encode('utf-8'))
+        gp = gzip.open(fname, 'wb')
+        gp.write(pobsstring.encode('utf-8'))
+        gp.close()
     else:
         fp = open(fname, 'w', encoding='utf-8')
         fp.write(pobsstring)
-    fp.close()
+        fp.close()
 
 
 def _import_data(string: str) -> list[Union[int, float]]:
@@ -305,7 +306,7 @@ def _import_cdata(cd: _Element) -> tuple[str, ndarray, ndarray]:
     return cd[0].text.strip(), cov, grad
 
 
-def read_pobs(fname: str, full_output: bool=False, gz: bool=True, separator_insertion: None=None) -> Union[dict[str, Union[str, dict[str, str], list[Obs]]], list[Obs]]:
+def read_pobs(fname: str, full_output: bool=False, gz: bool=True, separator_insertion: None=None) -> Union[dict, list[Obs]]:
     """Import a list of Obs from an xml.gz file in the Zeuthen pobs format.
 
     Tags are not written or recovered automatically.
@@ -358,7 +359,7 @@ def read_pobs(fname: str, full_output: bool=False, gz: bool=True, separator_inse
 
     deltas = []
     names = []
-    idl = []
+    idl: list[list[int]] = []
     for i in range(5, len(pobs)):
         delta, name, idx = _import_rdata(pobs[i])
         deltas.append(delta)
@@ -405,7 +406,7 @@ def read_pobs(fname: str, full_output: bool=False, gz: bool=True, separator_inse
 
 
 # this is based on Mattia Bruno's implementation at https://github.com/mbruno46/pyobs/blob/master/pyobs/IO/xml.py
-def import_dobs_string(content: bytes, full_output: bool=False, separator_insertion: bool=True) -> Union[dict[str, Union[str, dict[str, str], list[Obs]]], list[Obs]]:
+def import_dobs_string(content: bytes, full_output: bool=False, separator_insertion: bool=True) -> Union[dict, list[Obs]]:
     """Import a list of Obs from a string in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -579,7 +580,7 @@ def import_dobs_string(content: bytes, full_output: bool=False, separator_insert
         return res
 
 
-def read_dobs(fname: str, full_output: bool=False, gz: bool=True, separator_insertion: bool=True) -> Union[dict[str, Union[str, dict[str, str], list[Obs]]], list[Obs]]:
+def read_dobs(fname: str, full_output: bool=False, gz: bool=True, separator_insertion: bool=True) -> Union[dict, list[Obs]]:
     """Import a list of Obs from an xml.gz file in the Zeuthen dobs format.
 
     Tags are not written or recovered automatically.
@@ -666,7 +667,7 @@ def _dobsdict_to_xmlstring(d: dict[str, Any]) -> str:
     return iters
 
 
-def _dobsdict_to_xmlstring_spaces(d: dict[str, Union[dict[str, Union[dict[str, str], dict[str, Union[str, dict[str, str]]], dict[str, Union[str, dict[str, Union[str, list[str]]], list[dict[str, Union[str, int, list[dict[str, str]]]]]]]]], dict[str, Union[dict[str, str], dict[str, Union[str, dict[str, str]]], dict[str, Union[str, dict[str, Union[str, list[str]]], list[dict[str, Union[str, int, list[dict[str, str]]]]], list[dict[str, Union[str, list[dict[str, str]]]]]]]]]]], space: str='  ') -> str:
+def _dobsdict_to_xmlstring_spaces(d: dict, space: str='  ') -> str:
     s = _dobsdict_to_xmlstring(d)
     o = ''
     c = 0
@@ -685,7 +686,7 @@ def _dobsdict_to_xmlstring_spaces(d: dict[str, Union[dict[str, Union[dict[str, s
     return o
 
 
-def create_dobs_string(obsl: list[Obs], name: str, spec: str='dobs v1.0', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, who: None=None, enstags: Optional[dict[Any, Any]]=None) -> str:
+def create_dobs_string(obsl: list[Obs], name: str, spec: str='dobs v1.0', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, who: Optional[str]=None, enstags: Optional[dict]=None) -> str:
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .xml.gz file according to the Zeuthen dobs format.
 
@@ -876,7 +877,7 @@ def create_dobs_string(obsl: list[Obs], name: str, spec: str='dobs v1.0', origin
     return rs
 
 
-def write_dobs(obsl: list[Obs], fname: str, name: str, spec: str='dobs v1.0', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, who: None=None, enstags: None=None, gz: bool=True):
+def write_dobs(obsl: list[Obs], fname: str, name: str, spec: str='dobs v1.0', origin: str='', symbol: Optional[list[Union[str, Any]]]=None, who: Optional[str]=None, enstags: Optional[dict]=None, gz: bool=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 

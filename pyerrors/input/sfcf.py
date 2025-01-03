@@ -78,7 +78,7 @@ def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: st
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", silent: bool=False, keyed_out: bool=False, **kwargs) -> dict[str, dict[str, dict[str, dict[str, dict[str, list[Obs]]]]]]:
+def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", silent: bool=False, keyed_out: bool=False, **kwargs) -> dict:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -425,7 +425,7 @@ def _specs2key(*specs) -> str:
     return sep.join(specs)
 
 
-def _read_o_file(cfg_path: str, name: str, needed_keys: list[str], intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], version: str, im: int) -> dict[str, list[float]]:
+def _read_o_file(cfg_path: str, name: str, needed_keys: list[str], intern: dict[str, dict], version: str, im: int) -> dict[str, list[float]]:
     return_vals = {}
     for key in needed_keys:
         file = cfg_path + '/' + name
@@ -463,7 +463,9 @@ def _extract_corr_type(corr_type: str) -> tuple[bool, bool]:
     return b2b, single
 
 
-def _find_files(rep_path: str, prefix: str, compact: bool, files: list[Union[range, str, Any]]=[]) -> list[str]:
+def _find_files(rep_path: str, prefix: str, compact: bool, files: Optional[list]=None) -> list[str]:
+    if files is None:
+        files = []
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
@@ -530,7 +532,7 @@ def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, sile
     return start_read, T
 
 
-def _read_compact_file(rep_path: str, cfg_file: str, intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], needed_keys: list[str], im: int) -> dict[str, list[float]]:
+def _read_compact_file(rep_path: str, cfg_file: str, intern: dict[str, dict], needed_keys: list[str], im: int) -> dict[str, list[float]]:
     return_vals = {}
     with open(rep_path + cfg_file) as fp:
         lines = fp.readlines()
@@ -561,7 +563,7 @@ def _read_compact_file(rep_path: str, cfg_file: str, intern: dict[str, dict[str,
     return return_vals
 
 
-def _read_compact_rep(path: str, rep: str, sub_ls: list[str], intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], needed_keys: list[str], im: int) -> dict[str, list[ndarray]]:
+def _read_compact_rep(path: str, rep: str, sub_ls: list[str], intern: dict[str, dict], needed_keys: list[str], im: int) -> dict[str, list[ndarray]]:
     rep_path = path + '/' + rep + '/'
     no_cfg = len(sub_ls)
 

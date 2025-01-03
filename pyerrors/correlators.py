@@ -76,7 +76,7 @@ class Corr:
 
                 T = data_input[0, 0].T
                 N = data_input.shape[0]
-                input_as_list = []
+                input_as_list: list[Union[None, ndarray]] = []
                 for t in range(T):
                     if any([(item.content[t] is None) for item in data_input.flatten()]):
                         if not all([(item.content[t] is None) for item in data_input.flatten()]):
@@ -100,7 +100,7 @@ class Corr:
 
             if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None])
-                self.content = [np.asarray([item]) if item is not None else None for item in data_input]
+                self.content: list[Union[None, ndarray]] = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
@@ -124,12 +124,13 @@ class Corr:
 
     def __getitem__(self, idx: Union[slice, int]) -> Union[CObs, Obs, ndarray, List[ndarray]]:
         """Return the content of timeslice idx"""
-        if self.content[idx] is None:
+        idx_content = self.content[idx]
+        if idx_content is None:
             return None
-        elif len(self.content[idx]) == 1:
-            return self.content[idx][0]
+        elif len(idx_content) == 1:
+            return idx_content[0]
         else:
-            return self.content[idx]
+            return idx_content
 
     @property
     def reweighted(self):
@@ -154,7 +155,7 @@ class Corr:
 
     gm = gamma_method
 
-    def projected(self, vector_l: Optional[Union[ndarray, List[Optional[ndarray]]]]=None, vector_r: None=None, normalize: bool=False) -> "Corr":
+    def projected(self, vector_l: Optional[Union[ndarray, List[Optional[ndarray]]]]=None, vector_r: Optional[Union[ndarray, List[Optional[ndarray]]]]=None, normalize: bool=False) -> "Corr":
         """We need to project the Correlator with a Vector to get a single value at each timeslice.
 
         The method can use one or two vectors.
@@ -166,7 +167,7 @@ class Corr:
 
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
-        elif (vector_r is None):
+        elif vector_r is None:
             vector_r = vector_l
         if isinstance(vector_l, list) and not isinstance(vector_r, list):
             if len(vector_l) != self.T:
@@ -177,7 +178,7 @@ class Corr:
                 raise ValueError("Length of vector list must be equal to T")
             vector_l = [vector_l] * self.T
 
-        if not isinstance(vector_l, list):
+        if isinstance(vector_l, ndarray) and isinstance(vector_r, ndarray):
             if not vector_l.shape == vector_r.shape == (self.N,):
                 raise ValueError("Vectors are of wrong shape!")
             if normalize:
@@ -239,7 +240,7 @@ class Corr:
                 newcontent.append(None)
             else:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
-        if (all([x is None for x in newcontent])):
+        if all([x is None for x in newcontent]):
             raise ValueError("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
@@ -284,7 +285,7 @@ class Corr:
         """Calculates the per-timeslice trace of a correlator matrix."""
         if self.N == 1:
             raise ValueError("Only works for correlator matrices.")
-        newcontent = []
+        newcontent: list[Union[None, float]] = []
         for t in range(self.T):
             if _check_for_none(self, self.content[t]):
                 newcontent.append(None)
@@ -486,7 +487,7 @@ class Corr:
         offset : int
             Offset the equal spacing
         """
-        new_content = []
+        new_content: list[Union[None, list, ndarray]] = []
         for t in range(self.T):
             if (offset + t) % spacing != 0:
                 new_content.append(None)
@@ -506,7 +507,7 @@ class Corr:
         """
         if self.N != 1:
             raise ValueError("Only one-dimensional correlators can be safely correlated.")
-        new_content = []
+        new_content: list[Union[None, ndarray]] = []
         for x0, t_slice in enumerate(self.content):
             if _check_for_none(self, t_slice):
                 new_content.append(None)
@@ -538,7 +539,7 @@ class Corr:
         """
         if self.N != 1:
             raise Exception("Reweighting only implemented for one-dimensional correlators.")
-        new_content = []
+        new_content: list[Union[None, ndarray]] = []
         for t_slice in self.content:
             if _check_for_none(self, t_slice):
                 new_content.append(None)
@@ -660,8 +661,8 @@ class Corr:
         """
         if self.N != 1:
             raise ValueError("second_deriv only implemented for one-dimensional correlators.")
+        newcontent: list[Union[None, ndarray, Obs]] = []
         if variant == "symmetric":
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -671,7 +672,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
         elif variant == "big_symmetric":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -681,7 +681,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == "improved":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -691,7 +690,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
-            newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None) or (self.content[t] <= 0):
                     newcontent.append(None)
@@ -859,7 +857,7 @@ class Corr:
         else:
             raise ValueError("Unsupported plateau method: " + method)
 
-    def set_prange(self, prange: List[Union[int, float]]):
+    def set_prange(self, prange: List[int]):
         """Sets the attribute prange of the Corr object."""
         if not len(prange) == 2:
             raise ValueError("prange must be a list or array with two values")
@@ -1098,7 +1096,7 @@ class Corr:
         if isinstance(y, Corr):
             if ((self.N != y.N) or (self.T != y.T)):
                 raise ValueError("Addition of Corrs with different shape")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1107,7 +1105,7 @@ class Corr:
             return Corr(newcontent)
 
         elif isinstance(y, (Obs, int, float, CObs, complex)):
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1126,7 +1124,7 @@ class Corr:
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1156,7 +1154,7 @@ class Corr:
                 raise ValueError("Can only multiply correlators by square matrices.")
             if not self.N == y.shape[0]:
                 raise ValueError("matmul: mismatch of matrix dimensions")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1183,7 +1181,7 @@ class Corr:
                 raise ValueError("Can only multiply correlators by square matrices.")
             if not self.N == y.shape[0]:
                 raise ValueError("matmul: mismatch of matrix dimensions")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1197,7 +1195,7 @@ class Corr:
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1232,7 +1230,7 @@ class Corr:
         elif isinstance(y, (int, float)):
             if y == 0:
                 raise ValueError('Division by zero will return undefined correlator')
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)

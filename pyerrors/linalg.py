@@ -48,6 +48,7 @@ def matmul(*operands) -> ndarray:
         Nr = derived_observable(multi_dot_r, extended_operands, array_mode=True)
         Ni = derived_observable(multi_dot_i, extended_operands, array_mode=True)
 
+        assert isinstance(Nr, ndarray) and isinstance(Ni, ndarray)
         res = np.empty_like(Nr)
         for (n, m), entry in np.ndenumerate(Nr):
             res[n, m] = CObs(Nr[n, m], Ni[n, m])

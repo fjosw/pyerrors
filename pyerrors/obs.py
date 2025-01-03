@@ -114,7 +114,7 @@ class Obs:
         self.N: int = 0
         self.idl: dict[str, Union[list[int], range]] = {}
         if idl is not None:
-            for name, idx in sorted(zip(names, idl, strict=True)):
+            for name, idx in sorted(zip(names, idl)):
                 if isinstance(idx, range):
                     self.idl[name] = idx
                 elif isinstance(idx, (list, np.ndarray)):
@@ -130,17 +130,17 @@ class Obs:
                 else:
                     raise TypeError('incompatible type for idl[%s].' % name)
         else:
-            for name, sample in sorted(zip(names, samples, strict=True)):
+            for name, sample in sorted(zip(names, samples)):
                 self.idl[name] = range(1, len(sample) + 1)
 
         if means is not None:
-            for name, sample, mean in sorted(zip(names, samples, means, strict=True)):
+            for name, sample, mean in sorted(zip(names, samples, means)):
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 self.r_values[name] = mean
                 self.deltas[name] = sample
         else:
-            for name, sample in sorted(zip(names, samples, strict=True)):
+            for name, sample in sorted(zip(names, samples)):
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 if len(sample) != self.shape[name]:
@@ -648,7 +648,7 @@ class Obs:
         if save:
             fig1.savefig(save)
 
-        return dict(zip(labels, sizes, strict=True))
+        return dict(zip(labels, sizes))
 
     def dump(self, filename: str, datatype: str="json.gz", description: str="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.

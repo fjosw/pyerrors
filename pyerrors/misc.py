@@ -75,8 +75,11 @@ def dump_object(obj: Corr, name: str, **kwargs):
     -------
     None
     """
-    if 'path' in kwargs:
-        file_name = kwargs.get('path') + '/' + name + '.p'
+    path = kwargs.get('path')
+    if path is not None:
+        if not isinstance(path, str):
+            raise Exception("Path has to be a string.")
+        file_name = path + '/' + name + '.p'
     else:
         file_name = name + '.p'
     with open(file_name, 'wb') as fb:
@@ -100,7 +103,7 @@ def load_object(path: str) -> Union[Obs, Corr]:
         return pickle.load(file)
 
 
-def pseudo_Obs(value: Union[float, int64, float64, int], dvalue: Union[float, float64, int], name: str, samples: int=1000) -> Obs:
+def pseudo_Obs(value: Union[float, int], dvalue: Union[float, int], name: str, samples: int=1000) -> Obs:
     """Generate an Obs object with given value, dvalue and name for test purposes
 
     Parameters
@@ -123,11 +126,11 @@ def pseudo_Obs(value: Union[float, int64, float64, int], dvalue: Union[float, fl
         return Obs([np.zeros(samples) + value], [name])
     else:
         for _ in range(100):
-            deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
+            deltas = np.array([np.random.normal(0.0, dvalue * np.sqrt(samples), samples)])
             deltas -= np.mean(deltas)
             deltas *= dvalue / np.sqrt((np.var(deltas) / samples)) / np.sqrt(1 + 3 / samples)
             deltas += value
-            res = Obs(deltas, [name])
+            res = Obs(list(deltas), [name])
             res.gamma_method(S=2, tau_exp=0)
             if abs(res.dvalue - dvalue) < 1e-10 * dvalue:
                 break
@@ -179,7 +182,7 @@ def gen_correlated_data(means: Union[ndarray, List[float]], cov: ndarray, name: 
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol: Union[List[Obs], List[CObs], ndarray], otype: Type[Obs]=Obs):
+def _assert_equal_properties(ol: Union[List[Obs], List[CObs], ndarray]):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):

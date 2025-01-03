@@ -10,10 +10,10 @@ from ..correlators import Corr
 from .misc import fit_t0
 from .utils import sort_names
 from io import BufferedReader
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 
-def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[List[str]]=None, **kwargs) -> List[Obs]:
+def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[str]]=None, **kwargs) -> list[Obs]:
     """Read rwms format from given folder structure. Returns a list of length nrw
 
     Parameters
@@ -232,7 +232,7 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[List[s
     return result
 
 
-def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs) -> Dict[float, Obs]:
+def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs) -> dict[float, Obs]:
     """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 
@@ -580,7 +580,7 @@ def extract_w0(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent:
     return np.sqrt(fit_t0(tdtt2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'), observable='w0'))
 
 
-def _parse_array_openQCD2(d: int, n: Tuple[int, int], size: int, wa: Union[Tuple[float, float, float, float, float, float, float, float], Tuple[float, float]], quadrupel: bool=False) -> List[List[float]]:
+def _parse_array_openQCD2(d: int, n: tuple[int, int], size: int, wa: Union[tuple[float, float, float, float, float, float, float, float], tuple[float, float]], quadrupel: bool=False) -> list[list[float]]:
     arr = []
     if d == 2:
         for i in range(n[0]):
@@ -599,7 +599,7 @@ def _parse_array_openQCD2(d: int, n: Tuple[int, int], size: int, wa: Union[Tuple
     return arr
 
 
-def _find_files(path: str, prefix: str, postfix: str, ext: str, known_files: Union[str, List[str]]=[]) -> List[str]:
+def _find_files(path: str, prefix: str, postfix: str, ext: str, known_files: Union[str, list[str]]=[]) -> list[str]:
     found = []
     files = []
 
@@ -639,7 +639,7 @@ def _find_files(path: str, prefix: str, postfix: str, ext: str, known_files: Uni
     return files
 
 
-def _read_array_openQCD2(fp: BufferedReader) -> Dict[str, Union[int, Tuple[int, int], List[List[float]]]]:
+def _read_array_openQCD2(fp: BufferedReader) -> dict[str, Union[int, tuple[int, int], list[list[float]]]]:
     t = fp.read(4)
     d = struct.unpack('i', t)[0]
     t = fp.read(4 * d)

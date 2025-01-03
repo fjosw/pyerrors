@@ -1,12 +1,12 @@
 from __future__ import annotations
 import numpy as np
-from numpy import float64, ndarray
-from typing import Any, List, Optional, Union
+from numpy import ndarray
+from typing import Any, Optional, Union
 
 
 class Covobs:
 
-    def __init__(self, mean: Optional[Union[float, float64, int]], cov: Any, name: str, pos: Optional[int]=None, grad: Optional[Union[ndarray, List[float]]]=None):
+    def __init__(self, mean: Optional[Union[float, int]], cov: Any, name: str, pos: Optional[int]=None, grad: Optional[Union[ndarray, list[float]]]=None):
         """ Initialize Covobs object.
 
         Parameters
@@ -82,7 +82,7 @@ class Covobs:
             if ev < 0:
                 raise Exception('Covariance matrix is not positive-semidefinite!')
 
-    def _set_grad(self, grad: Union[List[float], ndarray]):
+    def _set_grad(self, grad: Union[list[float], ndarray]):
         """ Set the gradient of the covobs
 
         Parameters

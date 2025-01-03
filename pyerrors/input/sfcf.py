@@ -7,13 +7,13 @@ from ..obs import Obs
 from .utils import sort_names, check_idl
 import itertools
 from numpy import ndarray
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 
 sep = "/"
 
 
-def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", silent: bool=False, **kwargs) -> List[Obs]:
+def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", silent: bool=False, **kwargs) -> list[Obs]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -78,7 +78,7 @@ def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: st
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path: str, prefix: str, name_list: List[str], quarks_list: List[str]=['.*'], corr_type_list: List[str]=['bi'], noffset_list: List[int]=[0], wf_list: List[int]=[0], wf2_list: List[int]=[0], version: str="1.0c", cfg_separator: str="n", silent: bool=False, keyed_out: bool=False, **kwargs) -> Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, List[Obs]]]]]]:
+def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", silent: bool=False, keyed_out: bool=False, **kwargs) -> dict[str, dict[str, dict[str, dict[str, dict[str, list[Obs]]]]]]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -410,14 +410,14 @@ def read_sfcf_multi(path: str, prefix: str, name_list: List[str], quarks_list: L
     return result_dict
 
 
-def _lists2key(*lists) -> List[str]:
+def _lists2key(*lists) -> list[str]:
     keys = []
     for tup in itertools.product(*lists):
         keys.append(sep.join(tup))
     return keys
 
 
-def _key2specs(key: str) -> List[str]:
+def _key2specs(key: str) -> list[str]:
     return key.split(sep)
 
 
@@ -425,7 +425,7 @@ def _specs2key(*specs) -> str:
     return sep.join(specs)
 
 
-def _read_o_file(cfg_path: str, name: str, needed_keys: List[str], intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], version: str, im: int) -> Dict[str, List[float]]:
+def _read_o_file(cfg_path: str, name: str, needed_keys: list[str], intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], version: str, im: int) -> dict[str, list[float]]:
     return_vals = {}
     for key in needed_keys:
         file = cfg_path + '/' + name
@@ -450,7 +450,7 @@ def _read_o_file(cfg_path: str, name: str, needed_keys: List[str], intern: Dict[
     return return_vals
 
 
-def _extract_corr_type(corr_type: str) -> Tuple[bool, bool]:
+def _extract_corr_type(corr_type: str) -> tuple[bool, bool]:
     if corr_type == 'bb':
         b2b = True
         single = True
@@ -463,7 +463,7 @@ def _extract_corr_type(corr_type: str) -> Tuple[bool, bool]:
     return b2b, single
 
 
-def _find_files(rep_path: str, prefix: str, compact: bool, files: List[Union[range, str, Any]]=[]) -> List[str]:
+def _find_files(rep_path: str, prefix: str, compact: bool, files: list[Union[range, str, Any]]=[]) -> list[str]:
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
@@ -504,7 +504,7 @@ def _make_pattern(version: str, name: str, noffset: str, wf: str, wf2: Union[str
     return pattern
 
 
-def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, silent: bool=False) -> Tuple[int, int]:
+def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, silent: bool=False) -> tuple[int, int]:
     T = 0
 
     with open(file_name, "r") as my_file:
@@ -530,7 +530,7 @@ def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, sile
     return start_read, T
 
 
-def _read_compact_file(rep_path: str, cfg_file: str, intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], needed_keys: List[str], im: int) -> Dict[str, List[float]]:
+def _read_compact_file(rep_path: str, cfg_file: str, intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], needed_keys: list[str], im: int) -> dict[str, list[float]]:
     return_vals = {}
     with open(rep_path + cfg_file) as fp:
         lines = fp.readlines()
@@ -561,7 +561,7 @@ def _read_compact_file(rep_path: str, cfg_file: str, intern: Dict[str, Dict[str,
     return return_vals
 
 
-def _read_compact_rep(path: str, rep: str, sub_ls: List[str], intern: Dict[str, Dict[str, Union[bool, Dict[str, Dict[str, Dict[str, Dict[str, Dict[str, Union[int, str]]]]]], int]]], needed_keys: List[str], im: int) -> Dict[str, List[ndarray]]:
+def _read_compact_rep(path: str, rep: str, sub_ls: list[str], intern: dict[str, dict[str, Union[bool, dict[str, dict[str, dict[str, dict[str, dict[str, Union[int, str]]]]]], int]]], needed_keys: list[str], im: int) -> dict[str, list[ndarray]]:
     rep_path = path + '/' + rep + '/'
     no_cfg = len(sub_ls)
 
@@ -583,7 +583,7 @@ def _read_compact_rep(path: str, rep: str, sub_ls: List[str], intern: Dict[str, 
     return return_vals
 
 
-def _read_chunk(chunk: List[str], gauge_line: int, cfg_sep: str, start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> Tuple[int, List[float]]:
+def _read_chunk(chunk: list[str], gauge_line: int, cfg_sep: str, start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> tuple[int, list[float]]:
     try:
         idl = int(chunk[gauge_line].split(cfg_sep)[-1])
     except Exception:
@@ -600,7 +600,7 @@ def _read_chunk(chunk: List[str], gauge_line: int, cfg_sep: str, start_read: int
     return idl, data
 
 
-def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str, im: int, single: bool) -> Tuple[int, List[int], List[List[float]]]:
+def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str, im: int, single: bool) -> tuple[int, list[int], list[list[float]]]:
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []
@@ -649,7 +649,7 @@ def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str,
         return T, rep_idl, data
 
 
-def _get_rep_names(ls: List[str], ens_name: None=None) -> List[str]:
+def _get_rep_names(ls: list[str], ens_name: None=None) -> list[str]:
     new_names = []
     for entry in ls:
         try:
@@ -664,7 +664,7 @@ def _get_rep_names(ls: List[str], ens_name: None=None) -> List[str]:
     return new_names
 
 
-def _get_appended_rep_names(ls: List[str], prefix: str, name: str, ens_name: None=None) -> List[str]:
+def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: None=None) -> list[str]:
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):

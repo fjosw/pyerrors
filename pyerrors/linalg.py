@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from .obs import derived_observable, CObs, Obs, import_jackknife
 from numpy import ndarray
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 
 def matmul(*operands) -> ndarray:
@@ -262,7 +262,7 @@ def _mat_mat_op(op: Callable, obs: ndarray, **kwargs) -> ndarray:
         return derived_observable(lambda x, **kwargs: op(x), [obs], array_mode=True)[0]
 
 
-def eigh(obs: ndarray, **kwargs) -> Tuple[ndarray, ndarray]:
+def eigh(obs: ndarray, **kwargs) -> tuple[ndarray, ndarray]:
     """Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
@@ -286,7 +286,7 @@ def pinv(obs: ndarray, **kwargs) -> ndarray:
     return derived_observable(lambda x, **kwargs: anp.linalg.pinv(x), obs)
 
 
-def svd(obs: ndarray, **kwargs) -> Tuple[ndarray, ndarray, ndarray]:
+def svd(obs: ndarray, **kwargs) -> tuple[ndarray, ndarray, ndarray]:
     """Computes the singular value decomposition of a matrix of Obs."""
     u = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[0], obs)
     s = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[1], obs)

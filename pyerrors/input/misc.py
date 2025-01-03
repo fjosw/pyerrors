@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs
 from ..fits import fit_lin
-from typing import Dict, Optional
+from typing import Optional
 
 
-def fit_t0(t2E_dict: Dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=False, observable: str='t0') -> Obs:
+def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=False, observable: str='t0') -> Obs:
     """Compute the root of (flow-based) data based on a dictionary that contains
     the necessary information in key-value pairs a la (flow time: observable at flow time).
 

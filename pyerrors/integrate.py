@@ -4,10 +4,10 @@ from .obs import derived_observable, Obs
 from autograd import jacobian
 from scipy.integrate import quad as squad
 from numpy import ndarray
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable, Union
 
 
-def quad(func: Callable, p: Union[List[Union[float, Obs]], List[float], ndarray], a: Union[Obs, float, int], b: Union[Obs, float, int], **kwargs) -> Union[Tuple[Obs, float], Tuple[float, float], Tuple[Obs, float, Dict[str, Union[int, ndarray]]]]:
+def quad(func: Callable, p: Union[list[Union[float, Obs]], list[float], ndarray], a: Union[Obs, float, int], b: Union[Obs, float, int], **kwargs) -> Union[tuple[Obs, float], tuple[float, float], tuple[Obs, float, dict[str, Union[int, ndarray]]]]:
     '''Performs a (one-dimensional) numeric integration of f(p, x) from a to b.
 
     The integration is performed using scipy.integrate.quad().

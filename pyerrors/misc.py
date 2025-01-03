@@ -8,8 +8,8 @@ import pandas as pd
 import pickle
 from .obs import Obs, CObs
 from .version import __version__
-from numpy import float64, int64, ndarray
-from typing import List, Type, Union, TYPE_CHECKING
+from numpy import ndarray
+from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .correlators import Corr
@@ -140,7 +140,7 @@ def pseudo_Obs(value: Union[float, int], dvalue: Union[float, int], name: str, s
         return res
 
 
-def gen_correlated_data(means: Union[ndarray, List[float]], cov: ndarray, name: str, tau: Union[float, ndarray]=0.5, samples: int=1000) -> List[Obs]:
+def gen_correlated_data(means: Union[ndarray, list[float]], cov: ndarray, name: str, tau: Union[float, ndarray]=0.5, samples: int=1000) -> list[Obs]:
     """ Generate observables with given covariance and autocorrelation times.
 
     Parameters
@@ -182,7 +182,7 @@ def gen_correlated_data(means: Union[ndarray, List[float]], cov: ndarray, name: 
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol: Union[List[Obs], List[CObs], ndarray]):
+def _assert_equal_properties(ol: Union[list[Obs], list[CObs], ndarray]):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):

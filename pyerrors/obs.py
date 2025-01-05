@@ -1435,8 +1435,8 @@ def reweight(weight: Obs, obs: Union[ndarray, list[Obs]], **kwargs) -> list[Obs]
         for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise ValueError('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
-        new_samples = []
-        w_deltas = {}
+        new_samples: list = []
+        w_deltas: dict[str, ndarray] = {}
         for name in sorted(obs[i].names):
             w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))

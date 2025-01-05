@@ -36,13 +36,31 @@ class Fit_result(Sequence):
         Hotelling t-squared p-value for correlated fits.
     """
 
-    def __init__(self):
-        self.fit_parameters = None
+    def __init__(self) -> None:
+        self.fit_parameters: Optional[list] = None
+        self.fit_function: Optional[Union[Callable, dict[str, Callable]]] = None
+        self.priors: Optional[Union[list[Obs], dict[int, Obs]]] = None
+        self.method: Optional[str] = None
+        self.iterations: Optional[int] = None
+        self.chisquare: Optional[float] = None
+        self.odr_chisquare: Optional[float] = None
+        self.dof: Optional[int] = None
+        self.p_value: Optional[float] = None
+        self.message: Optional[str] = None
+        self.t2_p_value: Optional[float] = None
+        self.chisquare_by_dof: Optional[float] = None
+        self.chisquare_by_expected_chisquare: Optional[float] = None
+        self.residual_variance: Optional[float] = None
+        self.xplus: Optional[float] = None
 
     def __getitem__(self, idx: int) -> Obs:
+        if self.fit_parameters is None:
+            raise ValueError('No fit parameters available.')
         return self.fit_parameters[idx]
 
     def __len__(self) -> int:
+        if self.fit_parameters is None:
+            raise ValueError('No fit parameters available.')
         return len(self.fit_parameters)
 
     def gamma_method(self, **kwargs):
@@ -64,6 +82,8 @@ class Fit_result(Sequence):
         if hasattr(self, 't2_p_value'):
             my_str += 't\u00B2p-value = ' + f'{self.t2_p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
+        if self.fit_parameters is None:
+            raise ValueError('No fit parameters available.')
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
         return my_str
@@ -338,9 +358,8 @@ def least_squares(x: Any, y: Union[dict[str, ndarray], list[Obs], ndarray, dict[
         p_f = dp_f = np.array([])
         prior_mask = []
         loc_priors = []
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+    x0 = kwargs.get('initial_guess')
+    if x0 is not None:
         if len(x0) != n_parms:
             raise ValueError('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
@@ -359,8 +378,8 @@ def least_squares(x: Any, y: Union[dict[str, ndarray], list[Obs], ndarray, dict[
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
 
     if kwargs.get('correlated_fit') is True:
-        if 'inv_chol_cov_matrix' in kwargs:
-            chol_inv = kwargs.get('inv_chol_cov_matrix')
+        chol_inv = kwargs.get('inv_chol_cov_matrix')
+        if chol_inv is not None:
             if (chol_inv[0].shape[0] != len(dy_f)):
                 raise TypeError('The number of columns of the inverse covariance matrix handed over needs to be equal to the number of y errors.')
             if (chol_inv[0].shape[0] != chol_inv[0].shape[1]):
@@ -389,17 +408,17 @@ def least_squares(x: Any, y: Union[dict[str, ndarray], list[Obs], ndarray, dict[
 
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
-            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
+            tolerance = kwargs.get('tol')
+            if tolerance is None:
+                tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
             fit_result = iminuit.minimize(chisqfunc_uncorr, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
             if kwargs.get('correlated_fit') is True:
                 fit_result = iminuit.minimize(chisqfunc, fit_result.x, tol=tolerance)
             output.iterations = fit_result.nfev
         else:
-            tolerance = 1e-12
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
+            tolerance = kwargs.get('tol')
+            if tolerance is None:
+                tolerance = 1e-12
             fit_result = scipy.optimize.minimize(chisqfunc_uncorr, x0, method=kwargs.get('method'), tol=tolerance)
             if kwargs.get('correlated_fit') is True:
                 fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=tolerance)
@@ -429,8 +448,8 @@ def least_squares(x: Any, y: Union[dict[str, ndarray], list[Obs], ndarray, dict[
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')
 
-    output.chisquare = chisquare
-    output.dof = y_all.shape[-1] - n_parms + len(loc_priors)
+    output.chisquare = float(chisquare)
+    output.dof = int(y_all.shape[-1] - n_parms + len(loc_priors))
     output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     if output.dof > 0:
         output.chisquare_by_dof = output.chisquare / output.dof
@@ -603,8 +622,8 @@ def total_least_squares(x: list[Obs], y: list[Obs], func: Callable, silent: bool
     if np.any(np.asarray(dy_f) <= 0.0):
         raise Exception('No y errors available, run the gamma method first.')
 
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+    x0 = kwargs.get('initial_guess')
+    if x0 is not None:
         if len(x0) != n_parms:
             raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
@@ -890,6 +909,8 @@ def _construct_prior_obs(i_prior: Union[Obs, str], i_n: int) -> Obs:
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        prior_obs = cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        assert isinstance(prior_obs, Obs)
+        return prior_obs
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

@@ -69,7 +69,7 @@ class Obs:
     N_sigma_global = 1.0
     N_sigma_dict: dict[str, int] = {}
 
-    def __init__(self, samples: list[Union[ndarray, list[Any]]], names: list[str], idl: Optional[list[Union[list[int], range]]]=None, **kwargs):
+    def __init__(self, samples: list[Union[ndarray, list[Any]]], names: list[str], idl: Optional[Union[list[list[int]], list[Union[list[int], range]], list[range]]]=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters

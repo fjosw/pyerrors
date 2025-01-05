@@ -517,6 +517,7 @@ def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, sile
             else:
                 start_read = content.count('\n', 0, match.start()) + 5 + b2b
                 end_match = re.search(r'\n\s*\n', content[match.start():])
+                assert end_match is not None
                 T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
             if not T > 0:
                 raise ValueError("Correlator with pattern\n" + pattern + "\nis empty!")

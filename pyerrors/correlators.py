@@ -209,7 +209,7 @@ class Corr:
         newcontent = [None if (item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
-    def plottable(self) -> tuple[list[int], list[float]]:
+    def plottable(self) -> tuple[list, list, list]:
         """Outputs the correlator in a plotable format.
 
         Outputs three lists containing the timeslice index, the value on each
@@ -1415,7 +1415,7 @@ class Corr:
         return Corr(newcontent)
 
 
-def _sort_vectors(vec_set_in: list[Optional[ndarray]], ts: int) -> list[Optional[Union[ndarray, list[ndarray]]]]:
+def _sort_vectors(vec_set_in: list[Optional[ndarray]], ts: int) -> list[Union[None, ndarray, list[ndarray]]]:
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
     if isinstance(vec_set_in[ts][0][0], Obs):

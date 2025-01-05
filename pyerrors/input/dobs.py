@@ -338,8 +338,8 @@ def read_pobs(fname: str, full_output: bool=False, gz: bool=True, separator_inse
     if gz:
         if not fname.endswith('.gz'):
             fname += '.gz'
-        with gzip.open(fname, 'r') as fin:
-            content = fin.read()
+        with gzip.open(fname, 'r') as gin:
+            content = gin.read()
     else:
         if fname.endswith('.gz'):
             warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
@@ -721,7 +721,7 @@ def create_dobs_string(obsl: list[Obs], name: str, spec: str='dobs v1.0', origin
         symbol = []
     if enstags is None:
         enstags = {}
-    od = {}
+    od: dict[str, Any] = {}
     r_names = []
     for o in obsl:
         r_names += [name for name in o.names if name.split('|')[0] in o.mc_names]
@@ -821,7 +821,7 @@ def create_dobs_string(obsl: list[Obs], name: str, spec: str='dobs v1.0', origin
             ed[''].append(ad)
         pd['edata'].append(ed)
 
-        allcov = {}
+        allcov: dict[str, ndarray] = {}
         for o in obsl:
             for cname in o.cov_names:
                 if cname in allcov:
@@ -925,9 +925,10 @@ def write_dobs(obsl: list[Obs], fname: str, name: str, spec: str='dobs v1.0', or
         if not fname.endswith('.gz'):
             fname += '.gz'
 
-        fp = gzip.open(fname, 'wb')
-        fp.write(dobsstring.encode('utf-8'))
+        gp = gzip.open(fname, 'wb')
+        gp.write(dobsstring.encode('utf-8'))
+        gp.close()
     else:
         fp = open(fname, 'w', encoding='utf-8')
         fp.write(dobsstring)
-    fp.close()
+        fp.close()

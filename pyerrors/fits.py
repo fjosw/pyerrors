@@ -55,12 +55,12 @@ class Fit_result(Sequence):
 
     def __getitem__(self, idx: int) -> Obs:
         if self.fit_parameters is None:
-            raise ValueError('No fit parameters available.')
+            raise TypeError('No fit parameters available.')
         return self.fit_parameters[idx]
 
     def __len__(self) -> int:
         if self.fit_parameters is None:
-            raise ValueError('No fit parameters available.')
+            raise TypeError('No fit parameters available.')
         return len(self.fit_parameters)
 
     def gamma_method(self, **kwargs):
@@ -71,19 +71,19 @@ class Fit_result(Sequence):
 
     def __str__(self) -> str:
         my_str = 'Goodness of fit:\n'
-        if hasattr(self, 'chisquare_by_dof'):
+        if self.chisquare_by_dof is not None:
             my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'
-        elif hasattr(self, 'residual_variance'):
+        elif self.residual_variance is not None:
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
-        if hasattr(self, 'chisquare_by_expected_chisquare'):
+        if self.chisquare_by_expected_chisquare is not None:
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
-        if hasattr(self, 'p_value'):
+        if self.p_value is not None:
             my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
-        if hasattr(self, 't2_p_value'):
+        if self.t2_p_value is not None:
             my_str += 't\u00B2p-value = ' + f'{self.t2_p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
         if self.fit_parameters is None:
-            raise ValueError('No fit parameters available.')
+            raise TypeError('No fit parameters available.')
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
         return my_str

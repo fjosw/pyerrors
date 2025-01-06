@@ -30,7 +30,7 @@ def test_grid_dirac():
                   'SigmaYZ',
                   'SigmaZT']:
         pe.dirac.Grid_gamma(gamma)
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.dirac.Grid_gamma('Not a gamma matrix')
 
 
@@ -44,7 +44,7 @@ def test_epsilon_tensor():
              (1, 1, 3) : 0.0}
     for key, value in check.items():
         assert pe.dirac.epsilon_tensor(*key) == value
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.dirac.epsilon_tensor(0, 1, 3)
 
 
@@ -59,5 +59,5 @@ def test_epsilon_tensor_rank4():
              (1, 2, 3, 1) : 0.0}
     for key, value in check.items():
         assert pe.dirac.epsilon_tensor_rank4(*key) == value
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pe.dirac.epsilon_tensor_rank4(0, 1, 3, 4)

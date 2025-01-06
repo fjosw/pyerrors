@@ -130,7 +130,8 @@ def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: l
     check_configs: list[list[int]]
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
-
+    rep_string: str
+        Separator of ensemble name and replicum. Example: In "ensAr0", "r" would be the separator string.
     Returns
     -------
     result: dict[list[Obs]]
@@ -200,9 +201,9 @@ def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: l
     else:
         ens_name = kwargs.get("ens_name")
         if not appended:
-            new_names = _get_rep_names(ls, ens_name)
+            new_names = _get_rep_names(ls, ens_name, rep_sep=(kwargs.get('rep_string', 'r')))
         else:
-            new_names = _get_appended_rep_names(ls, prefix, name_list[0], ens_name)
+            new_names = _get_appended_rep_names(ls, prefix, name_list[0], ens_name, rep_sep=(kwargs.get('rep_string', 'r')))
         new_names = sort_names(new_names)
 
     idl: list[list[int]] = []
@@ -649,22 +650,22 @@ def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str,
         return T, rep_idl, final_data
 
 
-def _get_rep_names(ls: list[str], ens_name: None=None) -> list[str]:
+def _get_rep_names(ls: list[str], ens_name: None=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for entry in ls:
         try:
-            idx = entry.index('r')
+            idx = entry.index(rep_sep)
         except Exception:
             raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
         if ens_name:
-            new_names.append('ens_name' + '|' + entry[idx:])
+            new_names.append(ens_name + '|' + entry[idx:])
         else:
             new_names.append(entry[:idx] + '|' + entry[idx:])
     return new_names
 
 
-def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: None=None) -> list[str]:
+def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: None=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):
@@ -673,12 +674,12 @@ def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: Non
     for entry in ls:
         myentry = entry[:-len(name) - 1]
         try:
-            idx = myentry.index('r')
+            idx = myentry.index(rep_sep)
         except Exception:
             raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
         if ens_name:
-            new_names.append('ens_name' + '|' + entry[idx:])
+            new_names.append(ens_name + '|' + entry[idx:])
         else:
             new_names.append(myentry[:idx] + '|' + myentry[idx:])
     return new_names

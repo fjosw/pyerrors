@@ -127,7 +127,8 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     check_configs: list[list[int]]
         list of list of supposed configs, eg. [range(1,1000)]
         for one replicum with 1000 configs
-
+    rep_string: str
+        Separator of ensemble name and replicum. Example: In "ensAr0", "r" would be the separator string.
     Returns
     -------
     result: dict[list[Obs]]

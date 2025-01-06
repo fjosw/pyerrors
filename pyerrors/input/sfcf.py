@@ -199,9 +199,9 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     else:
         ens_name = kwargs.get("ens_name")
         if not appended:
-            new_names = _get_rep_names(ls, ens_name)
+            new_names = _get_rep_names(ls, ens_name, rep_sep=(kwargs.get('rep_string', 'r')))
         else:
-            new_names = _get_appended_rep_names(ls, prefix, name_list[0], ens_name)
+            new_names = _get_appended_rep_names(ls, prefix, name_list[0], ens_name, rep_sep=(kwargs.get('rep_string', 'r')))
         new_names = sort_names(new_names)
 
     idl = []
@@ -646,22 +646,22 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
         return T, rep_idl, data
 
 
-def _get_rep_names(ls, ens_name=None):
+def _get_rep_names(ls, ens_name=None, rep_sep='r'):
     new_names = []
     for entry in ls:
         try:
-            idx = entry.index('r')
+            idx = entry.index(rep_sep)
         except Exception:
             raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
         if ens_name:
-            new_names.append('ens_name' + '|' + entry[idx:])
+            new_names.append(ens_name + '|' + entry[idx:])
         else:
             new_names.append(entry[:idx] + '|' + entry[idx:])
     return new_names
 
 
-def _get_appended_rep_names(ls, prefix, name, ens_name=None):
+def _get_appended_rep_names(ls, prefix, name, ens_name=None, rep_sep='r'):
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):
@@ -670,12 +670,12 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None):
     for entry in ls:
         myentry = entry[:-len(name) - 1]
         try:
-            idx = myentry.index('r')
+            idx = myentry.index(rep_sep)
         except Exception:
             raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
 
         if ens_name:
-            new_names.append('ens_name' + '|' + entry[idx:])
+            new_names.append(ens_name + '|' + entry[idx:])
         else:
             new_names.append(myentry[:idx] + '|' + myentry[idx:])
     return new_names

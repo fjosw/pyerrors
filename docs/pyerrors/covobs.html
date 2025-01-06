@@ -97,12 +97,12 @@
 
                         <label class="view-source-button" for="mod-covobs-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="k">class</span> <span class="nc">Covobs</span><span class="p">:</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Covobs</span><span class="p">:</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize Covobs object.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">        Parameters</span>
@@ -138,12 +138,12 @@
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_set_grad</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">mean</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span> <span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the variance (= square of the error) of the Covobs</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cov</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">def</span> <span class="nf">_set_cov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_set_cov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the covariance matrix of the covobs</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">        Parameters</span>
@@ -178,7 +178,7 @@
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="k">if</span> <span class="n">ev</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Covariance matrix is not positive-semidefinite!&#39;</span><span class="p">)</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">def</span> <span class="nf">_set_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_set_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the gradient of the covobs</span>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        Parameters</span>
@@ -195,11 +195,11 @@
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid dimension of grad!&#39;</span><span class="p">)</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="nd">@property</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span>
 </span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>    <span class="nd">@property</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad</span>
 </span></pre></div>
 
@@ -216,9 +216,9 @@
 
     </div>
     <a class="headerlink" href="#Covobs"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs-5"><a href="#Covobs-5"><span class="linenos">  5</span></a><span class="k">class</span> <span class="nc">Covobs</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs-5"><a href="#Covobs-5"><span class="linenos">  5</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Covobs</span><span class="p">:</span>
 </span><span id="Covobs-6"><a href="#Covobs-6"><span class="linenos">  6</span></a>
-</span><span id="Covobs-7"><a href="#Covobs-7"><span class="linenos">  7</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="Covobs-7"><a href="#Covobs-7"><span class="linenos">  7</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="Covobs-8"><a href="#Covobs-8"><span class="linenos">  8</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize Covobs object.</span>
 </span><span id="Covobs-9"><a href="#Covobs-9"><span class="linenos">  9</span></a>
 </span><span id="Covobs-10"><a href="#Covobs-10"><span class="linenos"> 10</span></a><span class="sd">        Parameters</span>
@@ -254,12 +254,12 @@
 </span><span id="Covobs-40"><a href="#Covobs-40"><span class="linenos"> 40</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_set_grad</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
 </span><span id="Covobs-41"><a href="#Covobs-41"><span class="linenos"> 41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">mean</span>
 </span><span id="Covobs-42"><a href="#Covobs-42"><span class="linenos"> 42</span></a>
-</span><span id="Covobs-43"><a href="#Covobs-43"><span class="linenos"> 43</span></a>    <span class="k">def</span> <span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Covobs-43"><a href="#Covobs-43"><span class="linenos"> 43</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs-44"><a href="#Covobs-44"><span class="linenos"> 44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the variance (= square of the error) of the Covobs</span>
 </span><span id="Covobs-45"><a href="#Covobs-45"><span class="linenos"> 45</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Covobs-46"><a href="#Covobs-46"><span class="linenos"> 46</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cov</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </span><span id="Covobs-47"><a href="#Covobs-47"><span class="linenos"> 47</span></a>
-</span><span id="Covobs-48"><a href="#Covobs-48"><span class="linenos"> 48</span></a>    <span class="k">def</span> <span class="nf">_set_cov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+</span><span id="Covobs-48"><a href="#Covobs-48"><span class="linenos"> 48</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_set_cov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
 </span><span id="Covobs-49"><a href="#Covobs-49"><span class="linenos"> 49</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the covariance matrix of the covobs</span>
 </span><span id="Covobs-50"><a href="#Covobs-50"><span class="linenos"> 50</span></a>
 </span><span id="Covobs-51"><a href="#Covobs-51"><span class="linenos"> 51</span></a><span class="sd">        Parameters</span>
@@ -294,7 +294,7 @@
 </span><span id="Covobs-80"><a href="#Covobs-80"><span class="linenos"> 80</span></a>            <span class="k">if</span> <span class="n">ev</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
 </span><span id="Covobs-81"><a href="#Covobs-81"><span class="linenos"> 81</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Covariance matrix is not positive-semidefinite!&#39;</span><span class="p">)</span>
 </span><span id="Covobs-82"><a href="#Covobs-82"><span class="linenos"> 82</span></a>
-</span><span id="Covobs-83"><a href="#Covobs-83"><span class="linenos"> 83</span></a>    <span class="k">def</span> <span class="nf">_set_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
+</span><span id="Covobs-83"><a href="#Covobs-83"><span class="linenos"> 83</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_set_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grad</span><span class="p">):</span>
 </span><span id="Covobs-84"><a href="#Covobs-84"><span class="linenos"> 84</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the gradient of the covobs</span>
 </span><span id="Covobs-85"><a href="#Covobs-85"><span class="linenos"> 85</span></a>
 </span><span id="Covobs-86"><a href="#Covobs-86"><span class="linenos"> 86</span></a><span class="sd">        Parameters</span>
@@ -311,11 +311,11 @@
 </span><span id="Covobs-97"><a href="#Covobs-97"><span class="linenos"> 97</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid dimension of grad!&#39;</span><span class="p">)</span>
 </span><span id="Covobs-98"><a href="#Covobs-98"><span class="linenos"> 98</span></a>
 </span><span id="Covobs-99"><a href="#Covobs-99"><span class="linenos"> 99</span></a>    <span class="nd">@property</span>
-</span><span id="Covobs-100"><a href="#Covobs-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Covobs-100"><a href="#Covobs-100"><span class="linenos">100</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs-101"><a href="#Covobs-101"><span class="linenos">101</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span>
 </span><span id="Covobs-102"><a href="#Covobs-102"><span class="linenos">102</span></a>
 </span><span id="Covobs-103"><a href="#Covobs-103"><span class="linenos">103</span></a>    <span class="nd">@property</span>
-</span><span id="Covobs-104"><a href="#Covobs-104"><span class="linenos">104</span></a>    <span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Covobs-104"><a href="#Covobs-104"><span class="linenos">104</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs-105"><a href="#Covobs-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad</span>
 </span></pre></div>
 
@@ -332,7 +332,7 @@
 
     </div>
     <a class="headerlink" href="#Covobs.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.__init__-7"><a href="#Covobs.__init__-7"><span class="linenos"> 7</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.__init__-7"><a href="#Covobs.__init__-7"><span class="linenos"> 7</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="Covobs.__init__-8"><a href="#Covobs.__init__-8"><span class="linenos"> 8</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize Covobs object.</span>
 </span><span id="Covobs.__init__-9"><a href="#Covobs.__init__-9"><span class="linenos"> 9</span></a>
 </span><span id="Covobs.__init__-10"><a href="#Covobs.__init__-10"><span class="linenos">10</span></a><span class="sd">        Parameters</span>
@@ -424,7 +424,7 @@ Gradient of the Covobs wrt. the means belonging to cov.</li>
 
     </div>
     <a class="headerlink" href="#Covobs.errsq"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.errsq-43"><a href="#Covobs.errsq-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.errsq-43"><a href="#Covobs.errsq-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">errsq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs.errsq-44"><a href="#Covobs.errsq-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the variance (= square of the error) of the Covobs</span>
 </span><span id="Covobs.errsq-45"><a href="#Covobs.errsq-45"><span class="linenos">45</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Covobs.errsq-46"><a href="#Covobs.errsq-46"><span class="linenos">46</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cov</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
@@ -446,7 +446,7 @@ Gradient of the Covobs wrt. the means belonging to cov.</li>
     </div>
     <a class="headerlink" href="#Covobs.cov"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.cov-99"><a href="#Covobs.cov-99"><span class="linenos"> 99</span></a>    <span class="nd">@property</span>
-</span><span id="Covobs.cov-100"><a href="#Covobs.cov-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Covobs.cov-100"><a href="#Covobs.cov-100"><span class="linenos">100</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs.cov-101"><a href="#Covobs.cov-101"><span class="linenos">101</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span>
 </span></pre></div>
 
@@ -464,7 +464,7 @@ Gradient of the Covobs wrt. the means belonging to cov.</li>
     </div>
     <a class="headerlink" href="#Covobs.grad"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Covobs.grad-103"><a href="#Covobs.grad-103"><span class="linenos">103</span></a>    <span class="nd">@property</span>
-</span><span id="Covobs.grad-104"><a href="#Covobs.grad-104"><span class="linenos">104</span></a>    <span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Covobs.grad-104"><a href="#Covobs.grad-104"><span class="linenos">104</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">grad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Covobs.grad-105"><a href="#Covobs.grad-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad</span>
 </span></pre></div>
 

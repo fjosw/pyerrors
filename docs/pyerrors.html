@@ -167,8 +167,8 @@ conda<span class="w"> </span>update<span class="w"> </span>-c<span class="w"> </
 <h2 id="basic-example">Basic example</h2>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyerrors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span> <span class="c1"># Initialize an Obs object</span>
 <span class="n">my_new_obs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">my_obs</span><span class="p">)</span> <span class="o">/</span> <span class="n">my_obs</span> <span class="o">**</span> <span class="mi">2</span> <span class="c1"># Construct derived Obs object</span>
@@ -186,7 +186,7 @@ The samples can either be provided as python list or as numpy array.
 The second argument is a list containing the names of the respective Monte Carlo chains as strings. These strings uniquely identify a Monte Carlo chain/ensemble. <strong>It is crucial for the correct error propagation that observations from the same Monte Carlo history are labeled with the same name. See <a href="#multiple-ensemblesreplica">Multiple ensembles/replica</a> for details.</strong></p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pyerrors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pe</span>
 
 <span class="n">my_obs</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
 </code></pre>
@@ -202,8 +202,8 @@ The required derivatives $\bar{f}_\alpha$ are evaluated up to machine precision 
 <p>The <code>Obs</code> class is designed such that mathematical numpy functions can be used on <code>Obs</code> just as for regular floats.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyerrors</span> <span class="k">as</span> <span class="nn">pe</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyerrors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pe</span>
 
 <span class="n">my_obs1</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
 <span class="n">my_obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble_name&#39;</span><span class="p">])</span>
@@ -232,7 +232,7 @@ After having arrived at the derived quantity of interest the <code>gamma_method<
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">5.72046658e-01</span> <span class="o">+/-</span> <span class="mf">7.56746598e-02</span> <span class="p">(</span><span class="mf">33.650</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">2.71422900e+00</span> <span class="o">+/-</span> <span class="mf">6.40320983e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">2.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -249,7 +249,7 @@ The standard value for the parameter $S$ of this automatic windowing procedure i
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.30675201e-01</span> <span class="o">+/-</span> <span class="mf">1.04585650e-01</span> <span class="p">(</span><span class="mf">37.099</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.29909703e+00</span> <span class="o">+/-</span> <span class="mf">9.77310102e-01</span> <span class="n">S</span> <span class="o">=</span> <span class="mf">3.00</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -268,7 +268,7 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">1.70000000e+00</span> <span class="o">+/-</span> <span class="mf">6.28097762e-01</span> <span class="o">+/-</span> <span class="mf">5.79077524e-02</span> <span class="p">(</span><span class="mf">36.947</span><span class="o">%</span><span class="p">)</span>
 <span class="o">&gt;</span>  <span class="n">t_int</span>         <span class="mf">3.27218667e+00</span> <span class="o">+/-</span> <span class="mf">7.99583654e-01</span> <span class="n">tau_exp</span> <span class="o">=</span> <span class="mf">7.20</span><span class="p">,</span>  <span class="n">N_sigma</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="o">&gt;</span> <span class="mi">1000</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble_name&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -286,8 +286,8 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="n">my_sum</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">2</span> <span class="n">ensembles</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble2&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -304,8 +304,8 @@ In this case the error estimate is identical to the sample standard error.</p>
 <span class="o">&gt;</span> <span class="n">Result</span>   <span class="mf">2.00697958e+00</span>
 <span class="o">&gt;</span> <span class="mi">1500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
 <span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span>
-<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
-<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r02&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
+<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r01&#39;</span> <span class="p">:</span> <span class="mi">1000</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="o">&gt;</span>     <span class="err">·</span> <span class="n">Replicum</span> <span class="s1">&#39;r02&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">1</span> <span class="n">to</span> <span class="mi">500</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -333,14 +333,14 @@ Passing arguments to the <code>gamma_method</code> still dominates over the dict
 <span class="n">obs1</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">9.98319881e-01</span>
 <span class="o">&gt;</span> <span class="mi">500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">20</span> <span class="n">to</span> <span class="mi">519</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">20</span> <span class="n">to</span> <span class="mi">519</span><span class="p">)</span>
 
 <span class="c1"># Observable defined on every second configuration between 5 and 1003</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1005</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
 <span class="n">obs2</span><span class="o">.</span><span class="n">details</span><span class="p">()</span>
 <span class="o">&gt;</span> <span class="n">Result</span>         <span class="mf">9.99100712e-01</span>
 <span class="o">&gt;</span> <span class="mi">500</span> <span class="n">samples</span> <span class="ow">in</span> <span class="mi">1</span> <span class="n">ensemble</span><span class="p">:</span>
-<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span> <span class="mi">5</span> <span class="n">to</span> <span class="mi">1003</span> <span class="ow">in</span> <span class="n">steps</span> <span class="n">of</span> <span class="mi">2</span><span class="p">)</span>
+<span class="o">&gt;</span>   <span class="err">·</span> <span class="n">Ensemble</span> <span class="s1">&#39;ensemble1&#39;</span> <span class="p">:</span> <span class="mi">500</span> <span class="n">configurations</span> <span class="p">(</span><span class="kn">from</span><span class="w"> </span><span class="mi">5</span> <span class="n">to</span> <span class="mi">1003</span> <span class="ow">in</span> <span class="n">steps</span> <span class="n">of</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Observable defined on configurations 2, 9, 28, 29 and 501</span>
 <span class="n">obs3</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">Obs</span><span class="p">([</span><span class="n">samples3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;ensemble1&#39;</span><span class="p">],</span> <span class="n">idl</span><span class="o">=</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">501</span><span class="p">]])</span>
@@ -459,7 +459,7 @@ Make sure to check the autocorrelation time with e.g. <code><a href="pyerrors/ob
 <p>This concept is built into the definition of <code>Covobs</code>. In <code><a href="">pyerrors</a></code>, external input is defined by $M$ mean values, a $M\times M$ covariance matrix, where $M=1$ is permissible, and a name that uniquely identifies the covariance matrix. Below, we define the pion mass, based on its mean value and error, 134.9768(5). <strong>Note, that the square of the error enters <code>cov_Obs</code></strong>, since the second argument of this function is the covariance matrix of the <code>Covobs</code>.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn"><a href="pyerrors/obs.html">pyerrors.obs</a></span> <span class="k">as</span> <span class="nn">pe</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn"><a href="pyerrors/obs.html">pyerrors.obs</a></span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pe</span>
 
 <span class="n">mpi</span> <span class="o">=</span> <span class="n">pe</span><span class="o">.</span><span class="n">cov_Obs</span><span class="p">(</span><span class="mf">134.9768</span><span class="p">,</span> <span class="mf">0.0005</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;pi^0 mass&#39;</span><span class="p">)</span>
 <span class="n">mpi</span><span class="o">.</span><span class="n">gamma_method</span><span class="p">()</span>
@@ -504,9 +504,9 @@ where the Jacobian is computed for each derived quantity via automatic different
 <p>Fit functions have to be of the following form</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">autograd.numpy</span> <span class="k">as</span> <span class="nn">anp</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">autograd.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">anp</span>
 
-<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">anp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 </code></pre>
 </div>
@@ -547,7 +547,7 @@ where the Jacobian is computed for each derived quantity via automatic different
 <p>For fit functions with multiple independent variables the fit function can be of the form</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
     <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x2</span>
 </code></pre>
@@ -1151,19 +1151,19 @@ The following entries are optional:</li>
 </span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a>
 </span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a><span class="sd">Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).</span>
 </span><span id="L-479"><a href="#L-479"><span class="linenos">479</span></a><span class="sd">&#39;&#39;&#39;</span>
-</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a><span class="kn">from</span> <span class="nn">.obs</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a><span class="kn">from</span> <span class="nn">.correlators</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a><span class="kn">from</span> <span class="nn">.fits</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a><span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dirac</span> <span class="k">as</span> <span class="n">dirac</span>
-</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="nb">input</span> <span class="k">as</span> <span class="nb">input</span>
-</span><span id="L-486"><a href="#L-486"><span class="linenos">486</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">linalg</span>
-</span><span id="L-487"><a href="#L-487"><span class="linenos">487</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">mpm</span> <span class="k">as</span> <span class="n">mpm</span>
-</span><span id="L-488"><a href="#L-488"><span class="linenos">488</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">roots</span> <span class="k">as</span> <span class="n">roots</span>
-</span><span id="L-489"><a href="#L-489"><span class="linenos">489</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">integrate</span> <span class="k">as</span> <span class="n">integrate</span>
-</span><span id="L-490"><a href="#L-490"><span class="linenos">490</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">special</span> <span class="k">as</span> <span class="n">special</span>
+</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.obs</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.correlators</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fits</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.misc</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">dirac</span> <span class="k">as</span> <span class="n">dirac</span>
+</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="nb">input</span> <span class="k">as</span> <span class="nb">input</span>
+</span><span id="L-486"><a href="#L-486"><span class="linenos">486</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">linalg</span>
+</span><span id="L-487"><a href="#L-487"><span class="linenos">487</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">mpm</span> <span class="k">as</span> <span class="n">mpm</span>
+</span><span id="L-488"><a href="#L-488"><span class="linenos">488</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">roots</span> <span class="k">as</span> <span class="n">roots</span>
+</span><span id="L-489"><a href="#L-489"><span class="linenos">489</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">integrate</span> <span class="k">as</span> <span class="n">integrate</span>
+</span><span id="L-490"><a href="#L-490"><span class="linenos">490</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">special</span> <span class="k">as</span> <span class="n">special</span>
 </span><span id="L-491"><a href="#L-491"><span class="linenos">491</span></a>
-</span><span id="L-492"><a href="#L-492"><span class="linenos">492</span></a><span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>
+</span><span id="L-492"><a href="#L-492"><span class="linenos">492</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>
 </span></pre></div>
 
 

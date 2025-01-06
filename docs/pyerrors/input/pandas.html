@@ -85,17 +85,17 @@
 
                         <label class="view-source-button" for="mod-pandas-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span> <span class="nn">warnings</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span> <span class="nn">gzip</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span> <span class="nn">sqlite3</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span> <span class="nn">..correlators</span> <span class="kn">import</span> <span class="n">Corr</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">.json</span> <span class="kn">import</span> <span class="n">create_json_string</span><span class="p">,</span> <span class="n">import_json_string</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">..obs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Obs</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">..correlators</span><span class="w"> </span><span class="kn">import</span> <span class="n">Corr</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_json_string</span><span class="p">,</span> <span class="n">import_json_string</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="k">def</span> <span class="nf">to_sql</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Write DataFrame including Obs or Corr valued columns to sqlite database.</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">    Parameters</span>
@@ -121,7 +121,7 @@
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="k">def</span> <span class="nf">read_sql</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="k">def</span><span class="w"> </span><span class="nf">read_sql</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">    Parameters</span>
@@ -145,7 +145,7 @@
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="k">return</span> <span class="n">_deserialize_df</span><span class="p">(</span><span class="n">extract_df</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="n">auto_gamma</span><span class="p">)</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="k">def</span> <span class="nf">dump_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="k">def</span><span class="w"> </span><span class="nf">dump_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports a pandas DataFrame containing Obs valued columns to a (gzipped) csv file.</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">    Before making use of pandas to_csv functionality Obs objects are serialized via the standardized</span>
@@ -184,7 +184,7 @@
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">def</span> <span class="nf">load_df</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_df</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Imports a pandas DataFrame from a csv.(gz) file in which Obs objects are serialized as json strings.</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Parameters</span>
@@ -218,7 +218,7 @@
 </span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="k">return</span> <span class="n">_deserialize_df</span><span class="p">(</span><span class="n">re_import</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="n">auto_gamma</span><span class="p">)</span>
 </span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>
 </span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="k">def</span> <span class="nf">_serialize_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_serialize_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializes all Obs or Corr valued columns into json strings according to the pyerrors json specification.</span>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">    Parameters</span>
@@ -239,7 +239,7 @@
 </span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="k">return</span> <span class="n">out</span>
 </span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
 </span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="k">def</span> <span class="nf">_deserialize_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 </span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Deserializes all pyerrors json strings into Obs or Corr objects according to the pyerrors json specification.</span>
 </span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>
 </span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">    Parameters</span>
@@ -275,7 +275,7 @@
 </span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>    <span class="k">return</span> <span class="n">df</span>
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="k">def</span> <span class="nf">_need_to_serialize</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_need_to_serialize</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>    <span class="n">serialize</span> <span class="o">=</span> <span class="kc">False</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -303,7 +303,7 @@
 
     </div>
     <a class="headerlink" href="#to_sql"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="to_sql-12"><a href="#to_sql-12"><span class="linenos">12</span></a><span class="k">def</span> <span class="nf">to_sql</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="to_sql-12"><a href="#to_sql-12"><span class="linenos">12</span></a><span class="k">def</span><span class="w"> </span><span class="nf">to_sql</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;fail&#39;</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="to_sql-13"><a href="#to_sql-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Write DataFrame including Obs or Corr valued columns to sqlite database.</span>
 </span><span id="to_sql-14"><a href="#to_sql-14"><span class="linenos">14</span></a>
 </span><span id="to_sql-15"><a href="#to_sql-15"><span class="linenos">15</span></a><span class="sd">    Parameters</span>
@@ -367,7 +367,7 @@ If True the json strings are gzipped.</li>
 
     </div>
     <a class="headerlink" href="#read_sql"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="read_sql-38"><a href="#read_sql-38"><span class="linenos">38</span></a><span class="k">def</span> <span class="nf">read_sql</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="read_sql-38"><a href="#read_sql-38"><span class="linenos">38</span></a><span class="k">def</span><span class="w"> </span><span class="nf">read_sql</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="read_sql-39"><a href="#read_sql-39"><span class="linenos">39</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute SQL query on sqlite database and obtain DataFrame including Obs or Corr valued columns.</span>
 </span><span id="read_sql-40"><a href="#read_sql-40"><span class="linenos">40</span></a>
 </span><span id="read_sql-41"><a href="#read_sql-41"><span class="linenos">41</span></a><span class="sd">    Parameters</span>
@@ -427,7 +427,7 @@ Dataframe with the content of the sqlite database.</li>
 
     </div>
     <a class="headerlink" href="#dump_df"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="dump_df-62"><a href="#dump_df-62"><span class="linenos">62</span></a><span class="k">def</span> <span class="nf">dump_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="dump_df-62"><a href="#dump_df-62"><span class="linenos">62</span></a><span class="k">def</span><span class="w"> </span><span class="nf">dump_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="dump_df-63"><a href="#dump_df-63"><span class="linenos">63</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports a pandas DataFrame containing Obs valued columns to a (gzipped) csv file.</span>
 </span><span id="dump_df-64"><a href="#dump_df-64"><span class="linenos">64</span></a>
 </span><span id="dump_df-65"><a href="#dump_df-65"><span class="linenos">65</span></a><span class="sd">    Before making use of pandas to_csv functionality Obs objects are serialized via the standardized</span>
@@ -503,7 +503,7 @@ If True, the output is a gzipped csv file. If False, the output is a csv file.</
 
     </div>
     <a class="headerlink" href="#load_df"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="load_df-101"><a href="#load_df-101"><span class="linenos">101</span></a><span class="k">def</span> <span class="nf">load_df</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="load_df-101"><a href="#load_df-101"><span class="linenos">101</span></a><span class="k">def</span><span class="w"> </span><span class="nf">load_df</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">auto_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gz</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 </span><span id="load_df-102"><a href="#load_df-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Imports a pandas DataFrame from a csv.(gz) file in which Obs objects are serialized as json strings.</span>
 </span><span id="load_df-103"><a href="#load_df-103"><span class="linenos">103</span></a>
 </span><span id="load_df-104"><a href="#load_df-104"><span class="linenos">104</span></a><span class="sd">    Parameters</span>

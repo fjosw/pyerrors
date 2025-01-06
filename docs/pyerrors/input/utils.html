@@ -86,12 +86,12 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">&quot;&quot;&quot;Utilities for the input&quot;&quot;&quot;</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span> <span class="nn">re</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">fnmatch</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="k">def</span> <span class="nf">sort_names</span><span class="p">(</span><span class="n">ll</span><span class="p">):</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_names</span><span class="p">(</span><span class="n">ll</span><span class="p">):</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sorts a list of names of replika with searches for `r` and `id` in the replikum string.</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    If this search fails, a fallback method is used,</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    where the strings are simply compared and the first diffeing numeral is used for differentiation.</span>
@@ -138,7 +138,7 @@
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="k">return</span> <span class="n">ll</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="k">def</span> <span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="k">def</span><span class="w"> </span><span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if list of configurations is contained in an idl</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">    Parameters</span>
@@ -168,7 +168,7 @@
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">return</span> <span class="n">miss_str</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="k">def</span> <span class="nf">check_params</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">param_hash</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">param_prefix</span><span class="o">=</span><span class="s2">&quot;parameters_&quot;</span><span class="p">):</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="k">def</span><span class="w"> </span><span class="nf">check_params</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">param_hash</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">param_prefix</span><span class="o">=</span><span class="s2">&quot;parameters_&quot;</span><span class="p">):</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
@@ -243,7 +243,7 @@
 
     </div>
     <a class="headerlink" href="#sort_names"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="sort_names-9"><a href="#sort_names-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">sort_names</span><span class="p">(</span><span class="n">ll</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="sort_names-9"><a href="#sort_names-9"><span class="linenos"> 9</span></a><span class="k">def</span><span class="w"> </span><span class="nf">sort_names</span><span class="p">(</span><span class="n">ll</span><span class="p">):</span>
 </span><span id="sort_names-10"><a href="#sort_names-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sorts a list of names of replika with searches for `r` and `id` in the replikum string.</span>
 </span><span id="sort_names-11"><a href="#sort_names-11"><span class="linenos">11</span></a><span class="sd">    If this search fails, a fallback method is used,</span>
 </span><span id="sort_names-12"><a href="#sort_names-12"><span class="linenos">12</span></a><span class="sd">    where the strings are simply compared and the first diffeing numeral is used for differentiation.</span>
@@ -323,7 +323,7 @@ sorted list</li>
 
     </div>
     <a class="headerlink" href="#check_idl"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="check_idl-56"><a href="#check_idl-56"><span class="linenos">56</span></a><span class="k">def</span> <span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="check_idl-56"><a href="#check_idl-56"><span class="linenos">56</span></a><span class="k">def</span><span class="w"> </span><span class="nf">check_idl</span><span class="p">(</span><span class="n">idl</span><span class="p">,</span> <span class="n">che</span><span class="p">):</span>
 </span><span id="check_idl-57"><a href="#check_idl-57"><span class="linenos">57</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if list of configurations is contained in an idl</span>
 </span><span id="check_idl-58"><a href="#check_idl-58"><span class="linenos">58</span></a>
 </span><span id="check_idl-59"><a href="#check_idl-59"><span class="linenos">59</span></a><span class="sd">    Parameters</span>
@@ -386,7 +386,7 @@ string with integers of which idls are missing</li>
 
     </div>
     <a class="headerlink" href="#check_params"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="check_params-86"><a href="#check_params-86"><span class="linenos"> 86</span></a><span class="k">def</span> <span class="nf">check_params</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">param_hash</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">param_prefix</span><span class="o">=</span><span class="s2">&quot;parameters_&quot;</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="check_params-86"><a href="#check_params-86"><span class="linenos"> 86</span></a><span class="k">def</span><span class="w"> </span><span class="nf">check_params</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">param_hash</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">param_prefix</span><span class="o">=</span><span class="s2">&quot;parameters_&quot;</span><span class="p">):</span>
 </span><span id="check_params-87"><a href="#check_params-87"><span class="linenos"> 87</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="check_params-88"><a href="#check_params-88"><span class="linenos"> 88</span></a><span class="sd">    Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.</span>
 </span><span id="check_params-89"><a href="#check_params-89"><span class="linenos"> 89</span></a>

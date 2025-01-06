@@ -166,12 +166,12 @@
 
                         <label class="view-source-button" for="mod-special-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">import</span> <span class="nn">scipy</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">autograd.extend</span> <span class="kn">import</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">defvjp</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">autograd.scipy.special</span> <span class="kn">import</span> <span class="n">j0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">jn</span><span class="p">,</span> <span class="n">yn</span><span class="p">,</span> <span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">ive</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">betainc</span><span class="p">,</span> <span class="n">betaln</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">autograd.scipy.special</span> <span class="kn">import</span> <span class="n">polygamma</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">digamma</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">gammaln</span><span class="p">,</span> <span class="n">gammainc</span><span class="p">,</span> <span class="n">gammaincc</span><span class="p">,</span> <span class="n">gammasgn</span><span class="p">,</span> <span class="n">rgamma</span><span class="p">,</span> <span class="n">multigammaln</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">autograd.scipy.special</span> <span class="kn">import</span> <span class="n">erf</span><span class="p">,</span> <span class="n">erfc</span><span class="p">,</span> <span class="n">erfinv</span><span class="p">,</span> <span class="n">erfcinv</span><span class="p">,</span> <span class="n">logit</span><span class="p">,</span> <span class="n">expit</span><span class="p">,</span> <span class="n">logsumexp</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">autograd.extend</span><span class="w"> </span><span class="kn">import</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">defvjp</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">autograd.scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">j0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">jn</span><span class="p">,</span> <span class="n">yn</span><span class="p">,</span> <span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">ive</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">betainc</span><span class="p">,</span> <span class="n">betaln</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">autograd.scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygamma</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">digamma</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">gammaln</span><span class="p">,</span> <span class="n">gammainc</span><span class="p">,</span> <span class="n">gammaincc</span><span class="p">,</span> <span class="n">gammasgn</span><span class="p">,</span> <span class="n">rgamma</span><span class="p">,</span> <span class="n">multigammaln</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">autograd.scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">erf</span><span class="p">,</span> <span class="n">erfc</span><span class="p">,</span> <span class="n">erfinv</span><span class="p">,</span> <span class="n">erfcinv</span><span class="p">,</span> <span class="n">logit</span><span class="p">,</span> <span class="n">expit</span><span class="p">,</span> <span class="n">logsumexp</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;betainc&quot;</span><span class="p">,</span> <span class="s2">&quot;betaln&quot;</span><span class="p">,</span>
@@ -181,7 +181,7 @@
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="nd">@primitive</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">def</span> <span class="nf">kn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">def</span><span class="w"> </span><span class="nf">kn</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified Bessel function of the second kind of integer order n&quot;&quot;&quot;</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The order &#39;n&#39; needs to be an integer.&quot;</span><span class="p">)</span>
@@ -206,7 +206,7 @@
     </div>
     <a class="headerlink" href="#beta"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="beta-36"><a href="#beta-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="beta-37"><a href="#beta-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="beta-37"><a href="#beta-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="beta-38"><a href="#beta-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="beta-39"><a href="#beta-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="beta-40"><a href="#beta-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -262,7 +262,7 @@ value of the beta function  </p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -322,7 +322,7 @@ Eq. 5.12.1. <a href="https://dlmf.nist.gov/5.12">https://dlmf.nist.gov/5.12</a>&
     </div>
     <a class="headerlink" href="#betainc"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="betainc-36"><a href="#betainc-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="betainc-37"><a href="#betainc-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="betainc-37"><a href="#betainc-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="betainc-38"><a href="#betainc-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="betainc-39"><a href="#betainc-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="betainc-40"><a href="#betainc-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -390,6 +390,9 @@ without the gamma terms.  One can use the function <code><a href="#beta">beta</a
 function by multiplying the result of <code>betainc(a, b, x)</code> by
 <code>beta(a, b)</code>.</p>
 
+<p>This function wraps the <code>ibeta</code> routine from the
+Boost Math C++ library <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>.</p>
+
 <h6 id="references">References</h6>
 
 <h6 id="examples">Examples</h6>
@@ -397,7 +400,7 @@ function by multiplying the result of <code>betainc(a, b, x)</code> by
 <p>Let \( B(a, b) \) be the <code><a href="#beta">beta</a></code> function.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -443,6 +446,10 @@ where \( F \) is the hypergeometric function <code>hyp2f1</code>:</p>
 <p>NIST Digital Library of Mathematical Functions
 <a href="https://dlmf.nist.gov/8.17">https://dlmf.nist.gov/8.17</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
 </li>
+
+<li id="fn-2">
+<p>The Boost Developers. "Boost C++ Libraries". <a href="https://www.boost.org/">https://www.boost.org/</a>.&#160;<a href="#fnref-2" class="footnoteBackLink" title="Jump back to footnote 2 in the text.">&#8617;</a></p>
+</li>
 </ol>
 </div>
 </div>
@@ -462,7 +469,7 @@ where \( F \) is the hypergeometric function <code>hyp2f1</code>:</p>
     </div>
     <a class="headerlink" href="#betaln"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="betaln-36"><a href="#betaln-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="betaln-37"><a href="#betaln-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="betaln-37"><a href="#betaln-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="betaln-38"><a href="#betaln-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="betaln-39"><a href="#betaln-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="betaln-40"><a href="#betaln-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -510,8 +517,8 @@ Optional output array for function values</li>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">beta</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">betaln</span><span class="p">,</span> <span class="n">beta</span>
 </code></pre>
 </div>
 
@@ -565,7 +572,7 @@ the logarithm of the actual value.</p>
     </div>
     <a class="headerlink" href="#polygamma"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="polygamma-36"><a href="#polygamma-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="polygamma-37"><a href="#polygamma-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="polygamma-37"><a href="#polygamma-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="polygamma-38"><a href="#polygamma-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="polygamma-39"><a href="#polygamma-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="polygamma-40"><a href="#polygamma-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -614,7 +621,7 @@ Real valued input</li>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">special</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">25.5</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">special</span><span class="o">.</span><span class="n">polygamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 <span class="go">array([ 0.64493407,  0.39493407,  0.03999467])</span>
@@ -639,7 +646,7 @@ Real valued input</li>
     </div>
     <a class="headerlink" href="#psi"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="psi-36"><a href="#psi-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="psi-37"><a href="#psi-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="psi-37"><a href="#psi-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="psi-38"><a href="#psi-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="psi-39"><a href="#psi-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="psi-40"><a href="#psi-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -700,7 +707,7 @@ function should maintain full accuracy around the origin.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">psi</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">4</span><span class="n">j</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">psi</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 <span class="go">(1.55035981733341+1.0105022091860445j)</span>
@@ -757,7 +764,7 @@ function should maintain full accuracy around the origin.</p>
     </div>
     <a class="headerlink" href="#digamma"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="digamma-36"><a href="#digamma-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="digamma-37"><a href="#digamma-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="digamma-37"><a href="#digamma-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="digamma-38"><a href="#digamma-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="digamma-39"><a href="#digamma-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="digamma-40"><a href="#digamma-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -818,7 +825,7 @@ function should maintain full accuracy around the origin.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">psi</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">psi</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">4</span><span class="n">j</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">psi</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 <span class="go">(1.55035981733341+1.0105022091860445j)</span>
@@ -875,7 +882,7 @@ function should maintain full accuracy around the origin.</p>
     </div>
     <a class="headerlink" href="#gamma"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="gamma-36"><a href="#gamma-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="gamma-37"><a href="#gamma-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="gamma-37"><a href="#gamma-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="gamma-38"><a href="#gamma-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="gamma-39"><a href="#gamma-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="gamma-40"><a href="#gamma-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -928,16 +935,41 @@ factorial since \( \Gamma(n + 1) = n! \) for natural numbers
 which, combined with the fact that \( \Gamma(1) = 1 \), implies
 the above identity for \( z = n \).</p>
 
+<p>The gamma function has poles at non-negative integers and the sign
+of infinity as z approaches each pole depends upon the direction in
+which the pole is approached. For this reason, the consistent thing
+is for gamma(z) to return NaN at negative integers, and to return
+-inf when x = -0.0 and +inf when x = 0.0, using the signbit of zero
+to signify the direction in which the origin is being approached. This
+is for instance what is recommended for the gamma function in annex F
+entry 9.5.4 of the Iso C 99 standard [isoc99]_.</p>
+
+<p>Prior to SciPy version 1.15, <code>scipy.special.gamma(z)</code> returned <code>+inf</code>
+at each pole. This was fixed in version 1.15, but with the following
+consequence. Expressions where gamma appears in the denominator
+such as</p>
+
+<p><code>gamma(u) * gamma(v) / (gamma(w) * gamma(x))</code></p>
+
+<p>no longer evaluate to 0 if the numerator is well defined but there is a
+pole in the denominator. Instead such expressions evaluate to NaN. We
+recommend instead using the function <code><a href="#rgamma">rgamma</a></code> for the reciprocal gamma
+function in such cases. The above expression could for instance be written
+as</p>
+
+<p><code>gamma(u) * gamma(v) * (rgamma(w) * rgamma(x))</code></p>
+
 <h6 id="references">References</h6>
 
 <p>.. [dlmf] NIST Digital Library of Mathematical Functions
-          <a href="https://dlmf.nist.gov/5.2#E1">https://dlmf.nist.gov/5.2#E1</a></p>
+          <a href="https://dlmf.nist.gov/5.2#E1">https://dlmf.nist.gov/5.2#E1</a>
+.. [isoc99] <a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf">https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf</a></p>
 
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">factorial</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">factorial</span>
 </code></pre>
 </div>
 
@@ -972,7 +1004,7 @@ the above identity for \( z = n \).</p>
 </div>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;gamma(x)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">factorial</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;k*&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
@@ -1002,7 +1034,7 @@ the above identity for \( z = n \).</p>
     </div>
     <a class="headerlink" href="#gammaln"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="gammaln-36"><a href="#gammaln-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="gammaln-37"><a href="#gammaln-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="gammaln-37"><a href="#gammaln-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="gammaln-38"><a href="#gammaln-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="gammaln-39"><a href="#gammaln-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="gammaln-40"><a href="#gammaln-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1071,8 +1103,8 @@ gammasgn(x) * gamma(x)</code>.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -1119,7 +1151,7 @@ gammasgn(x) * gamma(x)</code>.</p>
     </div>
     <a class="headerlink" href="#gammainc"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="gammainc-36"><a href="#gammainc-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="gammainc-37"><a href="#gammainc-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="gammainc-37"><a href="#gammainc-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="gammainc-38"><a href="#gammainc-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="gammainc-39"><a href="#gammainc-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="gammainc-40"><a href="#gammainc-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1188,7 +1220,7 @@ incomplete gamma function.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -1228,7 +1260,7 @@ monotonically increases to 1.</p>
     </div>
     <a class="headerlink" href="#gammaincc"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="gammaincc-36"><a href="#gammaincc-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="gammaincc-37"><a href="#gammaincc-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="gammaincc-37"><a href="#gammaincc-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="gammaincc-38"><a href="#gammaincc-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="gammaincc-39"><a href="#gammaincc-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="gammaincc-40"><a href="#gammaincc-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1297,7 +1329,7 @@ incomplete gamma function.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -1338,7 +1370,7 @@ starts at 1 and monotonically decreases to 0.</p>
     </div>
     <a class="headerlink" href="#gammasgn"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="gammasgn-36"><a href="#gammasgn-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="gammasgn-37"><a href="#gammasgn-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="gammasgn-37"><a href="#gammasgn-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="gammasgn-38"><a href="#gammasgn-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="gammasgn-39"><a href="#gammasgn-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="gammasgn-40"><a href="#gammasgn-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1406,8 +1438,8 @@ np.exp(gammaln(x))</code>.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -1454,7 +1486,7 @@ np.exp(gammaln(x))</code>.</p>
     </div>
     <a class="headerlink" href="#rgamma"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="rgamma-36"><a href="#rgamma-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="rgamma-37"><a href="#rgamma-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="rgamma-37"><a href="#rgamma-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="rgamma-38"><a href="#rgamma-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="rgamma-39"><a href="#rgamma-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="rgamma-40"><a href="#rgamma-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1513,7 +1545,7 @@ more details.</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sc</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
 </code></pre>
 </div>
 
@@ -1559,7 +1591,7 @@ more details.</p>
     </div>
     <a class="headerlink" href="#multigammaln"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="multigammaln-36"><a href="#multigammaln-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="multigammaln-37"><a href="#multigammaln-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="multigammaln-37"><a href="#multigammaln-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="multigammaln-38"><a href="#multigammaln-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="multigammaln-39"><a href="#multigammaln-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="multigammaln-40"><a href="#multigammaln-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1618,8 +1650,8 @@ probability and mathematical statistics).</p>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">multigammaln</span><span class="p">,</span> <span class="n">gammaln</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">multigammaln</span><span class="p">,</span> <span class="n">gammaln</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="mf">23.5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">multigammaln</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
@@ -1652,7 +1684,7 @@ shown above:</p>
     </div>
     <a class="headerlink" href="#kn"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="kn-36"><a href="#kn-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="kn-37"><a href="#kn-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="kn-37"><a href="#kn-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="kn-38"><a href="#kn-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="kn-39"><a href="#kn-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="kn-40"><a href="#kn-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1686,7 +1718,7 @@ shown above:</p>
     </div>
     <a class="headerlink" href="#j0"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="j0-36"><a href="#j0-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="j0-37"><a href="#j0-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="j0-37"><a href="#j0-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="j0-38"><a href="#j0-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="j0-39"><a href="#j0-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="j0-40"><a href="#j0-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1754,7 +1786,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">j0</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">j0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">j0</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.7651976865579665</span>
 </code></pre>
@@ -1763,7 +1795,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Calculate the function at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">j0</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">]))</span>
 <span class="go">array([ 0.22389078,  1.        , -0.39714981])</span>
 </code></pre>
@@ -1772,7 +1804,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Plot the function from -20 to 20.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">j0</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -1807,7 +1839,7 @@ It should not be confused with the spherical Bessel functions (see
     </div>
     <a class="headerlink" href="#y0"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="y0-36"><a href="#y0-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="y0-37"><a href="#y0-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="y0-37"><a href="#y0-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="y0-38"><a href="#y0-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="y0-39"><a href="#y0-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="y0-40"><a href="#y0-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1872,7 +1904,7 @@ two rational functions of degree 6/6 and 7/7.</p>
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">y0</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">y0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y0</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.08825696421567697</span>
 </code></pre>
@@ -1881,7 +1913,7 @@ two rational functions of degree 6/6 and 7/7.</p>
 <p>Calculate at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y0</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]))</span>
 <span class="go">array([-0.44451873,  0.51037567,  0.37685001])</span>
 </code></pre>
@@ -1890,7 +1922,7 @@ two rational functions of degree 6/6 and 7/7.</p>
 <p>Plot the function from 0 to 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">y0</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -1925,7 +1957,7 @@ two rational functions of degree 6/6 and 7/7.</p>
     </div>
     <a class="headerlink" href="#j1"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="j1-36"><a href="#j1-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="j1-37"><a href="#j1-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="j1-37"><a href="#j1-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="j1-38"><a href="#j1-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="j1-39"><a href="#j1-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="j1-40"><a href="#j1-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -1986,7 +2018,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">j1</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">j1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">j1</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.44005058574493355</span>
 </code></pre>
@@ -1995,7 +2027,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Calculate the function at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">j1</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">]))</span>
 <span class="go">array([-0.57672481,  0.        , -0.06604333])</span>
 </code></pre>
@@ -2004,7 +2036,7 @@ It should not be confused with the spherical Bessel functions (see
 <p>Plot the function from -20 to 20.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">j1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -2039,7 +2071,7 @@ It should not be confused with the spherical Bessel functions (see
     </div>
     <a class="headerlink" href="#y1"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="y1-36"><a href="#y1-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="y1-37"><a href="#y1-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="y1-37"><a href="#y1-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="y1-38"><a href="#y1-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="y1-39"><a href="#y1-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="y1-40"><a href="#y1-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2100,7 +2132,7 @@ rational functions of degree 5/5.</p>
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">y1</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">y1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">-0.7812128213002888</span>
 </code></pre>
@@ -2109,7 +2141,7 @@ rational functions of degree 5/5.</p>
 <p>Calculate at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]))</span>
 <span class="go">array([-1.47147239, -0.10703243,  0.32467442])</span>
 </code></pre>
@@ -2118,7 +2150,7 @@ rational functions of degree 5/5.</p>
 <p>Plot the function from 0 to 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">y1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -2153,7 +2185,7 @@ rational functions of degree 5/5.</p>
     </div>
     <a class="headerlink" href="#jn"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="jn-36"><a href="#jn-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="jn-37"><a href="#jn-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="jn-37"><a href="#jn-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="jn-38"><a href="#jn-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="jn-39"><a href="#jn-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="jn-40"><a href="#jn-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2228,7 +2260,7 @@ term is explicitly omitted for <code>v</code> values such that <code>v = floor(v
 <p>Evaluate the function of order 0 at one point.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">jv</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">jv</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">jv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.7651976865579666</span>
 </code></pre>
@@ -2255,7 +2287,7 @@ providing a list or NumPy array as argument for the <code>v</code> parameter:</p
 array for <code>z</code>.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">jv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
 <span class="go">array([ 0.22389078,  1.        , -0.26005195])</span>
@@ -2283,7 +2315,7 @@ To calculate the orders 0 and 1 for an 1D array:</p>
 <p>Plot the functions of order 0 to 3 from -10 to 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -2320,7 +2352,7 @@ of a Complex Argument and Nonnegative Order",
     </div>
     <a class="headerlink" href="#yn"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="yn-36"><a href="#yn-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="yn-37"><a href="#yn-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="yn-37"><a href="#yn-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="yn-38"><a href="#yn-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="yn-39"><a href="#yn-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="yn-40"><a href="#yn-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2381,7 +2413,7 @@ the routine for <code><a href="#y0">y0</a></code> or <code><a href="#y1">y1</a><
 <p>Evaluate the function of order 0 at one point.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">yn</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">yn</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.08825696421567697</span>
 </code></pre>
@@ -2408,7 +2440,7 @@ providing a list or NumPy array as argument for the <code>v</code> parameter:</p
 array for <code>z</code>.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">yn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
 <span class="go">array([-0.44451873,  0.37685001,  0.22352149])</span>
@@ -2436,7 +2468,7 @@ To calculate the orders 0 and 1 for an 1D array:</p>
 <p>Plot the functions of order 0 to 3 from 0 to 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -2473,7 +2505,7 @@ To calculate the orders 0 and 1 for an 1D array:</p>
     </div>
     <a class="headerlink" href="#i0"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="i0-36"><a href="#i0-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="i0-37"><a href="#i0-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="i0-37"><a href="#i0-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="i0-38"><a href="#i0-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="i0-39"><a href="#i0-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="i0-40"><a href="#i0-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2536,7 +2568,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">i0</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">i0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">i0</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">1.2660658777520082</span>
 </code></pre>
@@ -2545,7 +2577,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Calculate at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">i0</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]))</span>
 <span class="go">array([2.2795853 , 1.        , 7.37820343])</span>
 </code></pre>
@@ -2554,7 +2586,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Plot the function from -10 to 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">i0</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -2589,7 +2621,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
     </div>
     <a class="headerlink" href="#i1"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="i1-36"><a href="#i1-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="i1-37"><a href="#i1-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="i1-37"><a href="#i1-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="i1-38"><a href="#i1-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="i1-39"><a href="#i1-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="i1-40"><a href="#i1-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2653,7 +2685,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Calculate the function at one point:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">i1</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">i1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">i1</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
 <span class="go">0.5651591039924851</span>
 </code></pre>
@@ -2662,7 +2694,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Calculate the function at several points:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">i1</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">]))</span>
 <span class="go">array([-1.59063685,  0.        , 61.34193678])</span>
 </code></pre>
@@ -2671,7 +2703,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 <p>Plot the function between -10 and 10.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">i1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -2706,7 +2738,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
     </div>
     <a class="headerlink" href="#iv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="iv-36"><a href="#iv-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="iv-37"><a href="#iv-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="iv-37"><a href="#iv-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="iv-38"><a href="#iv-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="iv-39"><a href="#iv-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="iv-40"><a href="#iv-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2786,7 +2818,7 @@ second kind, evaluated using the AMOS routine <code>zbesk</code>.</p>
 <p>Evaluate the function of order 0 at one point.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">iv</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">iv</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
 <span class="go">1.2660658777520084</span>
 </code></pre>
@@ -2813,7 +2845,7 @@ providing a list or NumPy array as argument for the <code>v</code> parameter:</p
 array for <code>z</code>.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
 <span class="go">array([2.2795853 , 1.        , 4.88079259])</span>
@@ -2841,7 +2873,7 @@ To calculate the orders 0 and 1 for an 1D array:</p>
 <p>Plot the functions of order 0 to 3 from -5 to 5.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">5.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -2882,7 +2914,7 @@ of a Complex Argument and Nonnegative Order",
     </div>
     <a class="headerlink" href="#ive"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="ive-36"><a href="#ive-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="ive-37"><a href="#ive-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="ive-37"><a href="#ive-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="ive-38"><a href="#ive-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="ive-39"><a href="#ive-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="ive-40"><a href="#ive-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -2969,9 +3001,9 @@ while <code><a href="#ive">ive</a></code> does not due to the exponential scalin
 a finite number.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">iv</span><span class="p">,</span> <span class="n">ive</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">iv</span><span class="p">,</span> <span class="n">ive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iv</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">1000.</span><span class="p">),</span> <span class="n">ive</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">1000.</span><span class="p">)</span>
 <span class="go">(inf, 0.01256056218254712)</span>
 </code></pre>
@@ -3049,7 +3081,7 @@ of a Complex Argument and Nonnegative Order",
     </div>
     <a class="headerlink" href="#erf"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="erf-36"><a href="#erf-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="erf-37"><a href="#erf-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="erf-37"><a href="#erf-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="erf-38"><a href="#erf-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="erf-39"><a href="#erf-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="erf-40"><a href="#erf-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3103,9 +3135,9 @@ The values of the error function at the given points <code>x</code>.</li>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">special</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">special</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$x$&#39;</span><span class="p">)</span>
@@ -3136,7 +3168,7 @@ The values of the error function at the given points <code>x</code>.</li>
     </div>
     <a class="headerlink" href="#erfc"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="erfc-36"><a href="#erfc-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="erfc-37"><a href="#erfc-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="erfc-37"><a href="#erfc-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="erfc-38"><a href="#erfc-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="erfc-39"><a href="#erfc-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="erfc-40"><a href="#erfc-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3182,9 +3214,9 @@ Optional output array for the function results</li>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">special</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">special</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$x$&#39;</span><span class="p">)</span>
@@ -3215,7 +3247,7 @@ Optional output array for the function results</li>
     </div>
     <a class="headerlink" href="#erfinv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="erfinv-36"><a href="#erfinv-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="erfinv-37"><a href="#erfinv-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="erfinv-37"><a href="#erfinv-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="erfinv-38"><a href="#erfinv-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="erfinv-39"><a href="#erfinv-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="erfinv-40"><a href="#erfinv-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3266,12 +3298,19 @@ The inverse of erf of y, element-wise</li>
 <code><a href="#erfc">erfc</a></code>:  Complementary error function, <code>1 - erf(x)</code><br />
 <code><a href="#erfcinv">erfcinv</a></code>:  Inverse of the complementary error function  </p>
 
+<h6 id="notes">Notes</h6>
+
+<p>This function wraps the <code>erf_inv</code> routine from the
+Boost Math C++ library <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>.</p>
+
+<h6 id="references">References</h6>
+
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erfinv</span><span class="p">,</span> <span class="n">erf</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">erfinv</span><span class="p">,</span> <span class="n">erf</span>
 </code></pre>
 </div>
 
@@ -3310,6 +3349,15 @@ The inverse of erf of y, element-wise</li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre>
 </div>
+
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn-1">
+<p>The Boost Developers. "Boost C++ Libraries". <a href="https://www.boost.org/">https://www.boost.org/</a>.&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
+</li>
+</ol>
+</div>
 </div>
 
 
@@ -3327,7 +3375,7 @@ The inverse of erf of y, element-wise</li>
     </div>
     <a class="headerlink" href="#erfcinv"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="erfcinv-36"><a href="#erfcinv-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="erfcinv-37"><a href="#erfcinv-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="erfcinv-37"><a href="#erfcinv-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="erfcinv-38"><a href="#erfcinv-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="erfcinv-39"><a href="#erfcinv-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="erfcinv-40"><a href="#erfcinv-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3383,9 +3431,9 @@ The inverse of erfc of y, element-wise</li>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erfcinv</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">erfcinv</span>
 </code></pre>
 </div>
 
@@ -3433,7 +3481,7 @@ The inverse of erfc of y, element-wise</li>
     </div>
     <a class="headerlink" href="#logit"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="logit-36"><a href="#logit-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="logit-37"><a href="#logit-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="logit-37"><a href="#logit-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="logit-38"><a href="#logit-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="logit-39"><a href="#logit-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="logit-40"><a href="#logit-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3451,8 +3499,7 @@ The inverse of erfc of y, element-wise</li>
 
             <div class="docstring"><p>logit(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
 
-<p>"""
-logit(x, out=None)</p>
+<p>logit(x, out=None)</p>
 
 <p>Logit ufunc for ndarrays.</p>
 
@@ -3491,8 +3538,8 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">logit</span><span class="p">,</span> <span class="n">expit</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">logit</span><span class="p">,</span> <span class="n">expit</span>
 </code></pre>
 </div>
 
@@ -3513,7 +3560,7 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 <p>Plot logit(x) for x in [0, 1]:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">501</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">logit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -3541,7 +3588,7 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
     </div>
     <a class="headerlink" href="#expit"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="expit-36"><a href="#expit-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="expit-37"><a href="#expit-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="expit-37"><a href="#expit-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="expit-38"><a href="#expit-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="expit-39"><a href="#expit-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="expit-40"><a href="#expit-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3598,8 +3645,8 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span><span class="p">,</span> <span class="n">logit</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">expit</span><span class="p">,</span> <span class="n">logit</span>
 </code></pre>
 </div>
 
@@ -3620,7 +3667,7 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 <p>Plot expit(x) for x in [-6, 6]:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">121</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -3648,7 +3695,7 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
     </div>
     <a class="headerlink" href="#logsumexp"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="logsumexp-36"><a href="#logsumexp-36"><span class="linenos">36</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f_raw</span><span class="p">)</span>
-</span><span id="logsumexp-37"><a href="#logsumexp-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="logsumexp-37"><a href="#logsumexp-37"><span class="linenos">37</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">f_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="logsumexp-38"><a href="#logsumexp-38"><span class="linenos">38</span></a>        <span class="n">boxed_args</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">node_constructor</span> <span class="o">=</span> <span class="n">find_top_boxed_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </span><span id="logsumexp-39"><a href="#logsumexp-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="n">boxed_args</span><span class="p">:</span>
 </span><span id="logsumexp-40"><a href="#logsumexp-40"><span class="linenos">40</span></a>            <span class="n">argvals</span> <span class="o">=</span> <span class="n">subvals</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[(</span><span class="n">argnum</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="k">for</span> <span class="n">argnum</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxed_args</span><span class="p">])</span>
@@ -3722,11 +3769,15 @@ If <code>return_sign</code> is False, only one result is returned.</li>
 only handles two arguments. <code>logaddexp.reduce</code> is similar to this
 function, but may be less stable.</p>
 
+<p>The logarithm is a multivalued function: for each \( x \) there is an
+infinite number of \( z \) such that \( exp(z) = x \). The convention
+is to return the \( z \) whose imaginary part lies in \( (-pi, pi] \).</p>
+
 <h6 id="examples">Examples</h6>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">logsumexp</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">logsumexp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">logsumexp</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="go">9.4586297444267107</span>

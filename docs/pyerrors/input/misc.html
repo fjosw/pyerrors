@@ -79,19 +79,19 @@
 
                         <label class="view-source-button" for="mod-misc-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span> <span class="nn">fnmatch</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span> <span class="nn">re</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">struct</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span> <span class="nn">warnings</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># Thinly-wrapped numpy</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">gridspec</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">..obs</span> <span class="kn">import</span> <span class="n">Obs</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">..fits</span> <span class="kn">import</span> <span class="n">fit_lin</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>  <span class="c1"># Thinly-wrapped numpy</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">gridspec</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">..obs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Obs</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">..fits</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_lin</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="k">def</span> <span class="nf">fit_t0</span><span class="p">(</span><span class="n">t2E_dict</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="s1">&#39;t0&#39;</span><span class="p">):</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fit_t0</span><span class="p">(</span><span class="n">t2E_dict</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="s1">&#39;t0&#39;</span><span class="p">):</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the root of (flow-based) data based on a dictionary that contains</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">    the necessary information in key-value pairs a la (flow time: observable at flow time).</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
@@ -178,7 +178,7 @@
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="k">return</span> <span class="o">-</span><span class="n">fit_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">fit_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">def</span> <span class="nf">read_pbp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">def</span><span class="w"> </span><span class="nf">read_pbp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read pbp format from given folder structure.</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    Parameters</span>
@@ -312,7 +312,7 @@
 
     </div>
     <a class="headerlink" href="#fit_t0"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="fit_t0-14"><a href="#fit_t0-14"><span class="linenos">14</span></a><span class="k">def</span> <span class="nf">fit_t0</span><span class="p">(</span><span class="n">t2E_dict</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="s1">&#39;t0&#39;</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fit_t0-14"><a href="#fit_t0-14"><span class="linenos">14</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fit_t0</span><span class="p">(</span><span class="n">t2E_dict</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">plot_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">observable</span><span class="o">=</span><span class="s1">&#39;t0&#39;</span><span class="p">):</span>
 </span><span id="fit_t0-15"><a href="#fit_t0-15"><span class="linenos">15</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the root of (flow-based) data based on a dictionary that contains</span>
 </span><span id="fit_t0-16"><a href="#fit_t0-16"><span class="linenos">16</span></a><span class="sd">    the necessary information in key-value pairs a la (flow time: observable at flow time).</span>
 </span><span id="fit_t0-17"><a href="#fit_t0-17"><span class="linenos">17</span></a>
@@ -447,7 +447,7 @@ The root of the data series.</li>
 
     </div>
     <a class="headerlink" href="#read_pbp"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="read_pbp-101"><a href="#read_pbp-101"><span class="linenos">101</span></a><span class="k">def</span> <span class="nf">read_pbp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="read_pbp-101"><a href="#read_pbp-101"><span class="linenos">101</span></a><span class="k">def</span><span class="w"> </span><span class="nf">read_pbp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="read_pbp-102"><a href="#read_pbp-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read pbp format from given folder structure.</span>
 </span><span id="read_pbp-103"><a href="#read_pbp-103"><span class="linenos">103</span></a>
 </span><span id="read_pbp-104"><a href="#read_pbp-104"><span class="linenos">104</span></a><span class="sd">    Parameters</span>

@@ -233,7 +233,7 @@ class Obs:
         else:
             fft = True
 
-        def _parse_kwarg(kwarg_name):
+        def _parse_kwarg(kwarg_name: str):
             if kwarg_name in kwargs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):

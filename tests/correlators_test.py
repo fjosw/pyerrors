@@ -129,7 +129,7 @@ def test_m_eff():
     with pytest.warns(RuntimeWarning):
         my_corr.m_eff('sinh')
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         my_corr.m_eff('unkown_variant')
 
 
@@ -140,7 +140,7 @@ def test_m_eff_negative_values():
         assert m_eff_log[padding + 1] is None
         m_eff_cosh = my_corr.m_eff('cosh')
         assert m_eff_cosh[padding + 1] is None
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             my_corr.m_eff('logsym')
 
 
@@ -155,7 +155,7 @@ def test_correlate():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(10, 0.1, 't'), pe.pseudo_Obs(0, 0.05, 't')])
     corr1 = my_corr.correlate(my_corr)
     corr2 = my_corr.correlate(my_corr[0])
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         corr3 = my_corr.correlate(7.3)
 
 
@@ -176,9 +176,9 @@ def test_fit_correlator():
     assert fit_res[0] == my_corr[0]
     assert fit_res[1] == my_corr[1] - my_corr[0]
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         my_corr.fit(f, "from 0 to 3")
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         my_corr.fit(f, [0, 2, 3])
 
 
@@ -256,11 +256,11 @@ def test_prange():
     corr = pe.correlators.Corr(corr_content)
 
     corr.set_prange([2, 4])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         corr.set_prange([2])
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         corr.set_prange([2, 2.3])
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         corr.set_prange([4, 1])
 
 

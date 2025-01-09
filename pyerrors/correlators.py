@@ -101,7 +101,7 @@ class Corr:
                 self.N = 1
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
-                noNull = [a for a in self.content if not (a is None)]  # To check if the matrices are correct for all undefined elements
+                noNull = [a for a in self.content if a is not None]  # To check if the matrices are correct for all undefined elements
                 self.N = noNull[0].shape[0]
                 if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
                     raise ValueError("Smearing matrices are not NxN.")
@@ -141,7 +141,7 @@ class Corr:
     def gamma_method(self, **kwargs):
         """Apply the gamma method to the content of the Corr."""
         for item in self.content:
-            if not (item is None):
+            if item is not None:
                 if self.N == 1:
                     item[0].gamma_method(**kwargs)
                 else:
@@ -159,7 +159,7 @@ class Corr:
         By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
         """
         if self.N == 1:
-            raise Exception("Trying to project a Corr, that already has N=1.")
+            raise ValueError("Trying to project a Corr, that already has N=1.")
 
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
@@ -167,16 +167,16 @@ class Corr:
             vector_r = vector_l
         if isinstance(vector_l, list) and not isinstance(vector_r, list):
             if len(vector_l) != self.T:
-                raise Exception("Length of vector list must be equal to T")
+                raise ValueError("Length of vector list must be equal to T")
             vector_r = [vector_r] * self.T
         if isinstance(vector_r, list) and not isinstance(vector_l, list):
             if len(vector_r) != self.T:
-                raise Exception("Length of vector list must be equal to T")
+                raise ValueError("Length of vector list must be equal to T")
             vector_l = [vector_l] * self.T
 
         if not isinstance(vector_l, list):
             if not vector_l.shape == vector_r.shape == (self.N,):
-                raise Exception("Vectors are of wrong shape!")
+                raise ValueError("Vectors are of wrong shape!")
             if normalize:
                 vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
             newcontent = [None if _check_for_none(self, item) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
@@ -201,7 +201,7 @@ class Corr:
             Second index to be picked.
         """
         if self.N == 1:
-            raise Exception("Trying to pick item from projected Corr")
+            raise ValueError("Trying to pick item from projected Corr")
         newcontent = [None if (item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
@@ -212,8 +212,8 @@ class Corr:
         timeslice and the error on each timeslice.
         """
         if self.N != 1:
-            raise Exception("Can only make Corr[N=1] plottable")
-        x_list = [x for x in range(self.T) if not self.content[x] is None]
+            raise ValueError("Can only make Corr[N=1] plottable")
+        x_list = [x for x in range(self.T) if self.content[x] is not None]
         y_list = [y[0].value for y in self.content if y is not None]
         y_err_list = [y[0].dvalue for y in self.content if y is not None]
 
@@ -222,9 +222,9 @@ class Corr:
     def symmetric(self):
         """ Symmetrize the correlator around x0=0."""
         if self.N != 1:
-            raise Exception('symmetric cannot be safely applied to multi-dimensional correlators.')
+            raise ValueError('symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
-            raise Exception("Can not symmetrize odd T")
+            raise ValueError("Can not symmetrize odd T")
 
         if self.content[0] is not None:
             if np.argmax(np.abs([o[0].value if o is not None else 0 for o in self.content])) != 0:
@@ -237,7 +237,7 @@ class Corr:
             else:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
         if (all([x is None for x in newcontent])):
-            raise Exception("Corr could not be symmetrized: No redundant values")
+            raise ValueError("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
     def anti_symmetric(self):
@@ -245,7 +245,7 @@ class Corr:
         if self.N != 1:
             raise TypeError('anti_symmetric cannot be safely applied to multi-dimensional correlators.')
         if self.T % 2 != 0:
-            raise Exception("Can not symmetrize odd T")
+            raise ValueError("Can not symmetrize odd T")
 
         test = 1 * self
         test.gamma_method()
@@ -259,7 +259,7 @@ class Corr:
             else:
                 newcontent.append(0.5 * (self.content[t] - self.content[self.T - t]))
         if (all([x is None for x in newcontent])):
-            raise Exception("Corr could not be symmetrized: No redundant values")
+            raise ValueError("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
     def is_matrix_symmetric(self):
@@ -292,7 +292,7 @@ class Corr:
     def matrix_symmetric(self):
         """Symmetrizes the correlator matrices on every timeslice."""
         if self.N == 1:
-            raise Exception("Trying to symmetrize a correlator matrix, that already has N=1.")
+            raise ValueError("Trying to symmetrize a correlator matrix, that already has N=1.")
         if self.is_matrix_symmetric():
             return 1.0 * self
         else:
@@ -336,10 +336,10 @@ class Corr:
         '''
 
         if self.N == 1:
-            raise Exception("GEVP methods only works on correlator matrices and not single correlators.")
+            raise ValueError("GEVP methods only works on correlator matrices and not single correlators.")
         if ts is not None:
             if (ts <= t0):
-                raise Exception("ts has to be larger than t0.")
+                raise ValueError("ts has to be larger than t0.")
 
         if "sorted_list" in kwargs:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
@@ -371,9 +371,9 @@ class Corr:
 
         if sort is None:
             if (ts is None):
-                raise Exception("ts is required if sort=None.")
+                raise ValueError("ts is required if sort=None.")
             if (self.content[t0] is None) or (self.content[ts] is None):
-                raise Exception("Corr not defined at t0/ts.")
+                raise ValueError("Corr not defined at t0/ts.")
             Gt = _get_mat_at_t(ts)
             reordered_vecs = _GEVP_solver(Gt, G0, method=method, chol_inv=chol_inv)
             if kwargs.get('auto_gamma', False) and vector_obs:
@@ -391,14 +391,14 @@ class Corr:
                     all_vecs.append(None)
             if sort == "Eigenvector":
                 if ts is None:
-                    raise Exception("ts is required for the Eigenvector sorting method.")
+                    raise ValueError("ts is required for the Eigenvector sorting method.")
                 all_vecs = _sort_vectors(all_vecs, ts)
 
             reordered_vecs = [[v[s] if v is not None else None for v in all_vecs] for s in range(self.N)]
             if kwargs.get('auto_gamma', False) and vector_obs:
                 [[[o.gm() for o in evn] for evn in ev if evn is not None] for ev in reordered_vecs]
         else:
-            raise Exception("Unknown value for 'sort'. Choose 'Eigenvalue', 'Eigenvector' or None.")
+            raise ValueError("Unknown value for 'sort'. Choose 'Eigenvalue', 'Eigenvector' or None.")
 
         if "state" in kwargs:
             return reordered_vecs[kwargs.get("state")]
@@ -435,7 +435,7 @@ class Corr:
         """
 
         if self.N != 1:
-            raise Exception("Multi-operator Prony not implemented!")
+            raise NotImplementedError("Multi-operator Prony not implemented!")
 
         array = np.empty([N, N], dtype="object")
         new_content = []
@@ -502,7 +502,7 @@ class Corr:
             correlator or a Corr of same length.
         """
         if self.N != 1:
-            raise Exception("Only one-dimensional correlators can be safely correlated.")
+            raise ValueError("Only one-dimensional correlators can be safely correlated.")
         new_content = []
         for x0, t_slice in enumerate(self.content):
             if _check_for_none(self, t_slice):
@@ -516,7 +516,7 @@ class Corr:
                 elif isinstance(partner, Obs):  # Should this include CObs?
                     new_content.append(np.array([correlate(o, partner) for o in t_slice]))
                 else:
-                    raise Exception("Can only correlate with an Obs or a Corr.")
+                    raise TypeError("Can only correlate with an Obs or a Corr.")
 
         return Corr(new_content)
 
@@ -583,7 +583,7 @@ class Corr:
             Available choice: symmetric, forward, backward, improved, log, default: symmetric
         """
         if self.N != 1:
-            raise Exception("deriv only implemented for one-dimensional correlators.")
+            raise ValueError("deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -592,7 +592,7 @@ class Corr:
                 else:
                     newcontent.append(0.5 * (self.content[t + 1] - self.content[t - 1]))
             if (all([x is None for x in newcontent])):
-                raise Exception('Derivative is undefined at all timeslices')
+                raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[1, 1])
         elif variant == "forward":
             newcontent = []
@@ -602,7 +602,7 @@ class Corr:
                 else:
                     newcontent.append(self.content[t + 1] - self.content[t])
             if (all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[0, 1])
         elif variant == "backward":
             newcontent = []
@@ -612,7 +612,7 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] - self.content[t - 1])
             if (all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 0])
         elif variant == "improved":
             newcontent = []
@@ -622,7 +622,7 @@ class Corr:
                 else:
                     newcontent.append((1 / 12) * (self.content[t - 2] - 8 * self.content[t - 1] + 8 * self.content[t + 1] - self.content[t + 2]))
             if (all([x is None for x in newcontent])):
-                raise Exception('Derivative is undefined at all timeslices')
+                raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
             newcontent = []
@@ -632,11 +632,11 @@ class Corr:
                 else:
                     newcontent.append(np.log(self.content[t]))
             if (all([x is None for x in newcontent])):
-                raise Exception("Log is undefined at all timeslices")
+                raise ValueError("Log is undefined at all timeslices")
             logcorr = Corr(newcontent)
             return self * logcorr.deriv('symmetric')
         else:
-            raise Exception("Unknown variant.")
+            raise ValueError("Unknown variant.")
 
     def second_deriv(self, variant="symmetric"):
         r"""Return the second derivative of the correlator with respect to x0.
@@ -656,7 +656,7 @@ class Corr:
                     $$f(x) = \tilde{\partial}^2_0 log(f(x_0))+(\tilde{\partial}_0 log(f(x_0)))^2$$
         """
         if self.N != 1:
-            raise Exception("second_deriv only implemented for one-dimensional correlators.")
+            raise ValueError("second_deriv only implemented for one-dimensional correlators.")
         if variant == "symmetric":
             newcontent = []
             for t in range(1, self.T - 1):
@@ -665,7 +665,7 @@ class Corr:
                 else:
                     newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
             if (all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
         elif variant == "big_symmetric":
             newcontent = []
@@ -675,7 +675,7 @@ class Corr:
                 else:
                     newcontent.append((self.content[t + 2] - 2 * self.content[t] + self.content[t - 2]) / 4)
             if (all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == "improved":
             newcontent = []
@@ -685,7 +685,7 @@ class Corr:
                 else:
                     newcontent.append((1 / 12) * (-self.content[t + 2] + 16 * self.content[t + 1] - 30 * self.content[t] + 16 * self.content[t - 1] - self.content[t - 2]))
             if (all([x is None for x in newcontent])):
-                raise Exception("Derivative is undefined at all timeslices")
+                raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
             newcontent = []
@@ -695,11 +695,11 @@ class Corr:
                 else:
                     newcontent.append(np.log(self.content[t]))
             if (all([x is None for x in newcontent])):
-                raise Exception("Log is undefined at all timeslices")
+                raise ValueError("Log is undefined at all timeslices")
             logcorr = Corr(newcontent)
             return self * (logcorr.second_deriv('symmetric') + (logcorr.deriv('symmetric'))**2)
         else:
-            raise Exception("Unknown variant.")
+            raise ValueError("Unknown variant.")
 
     def m_eff(self, variant='log', guess=1.0):
         """Returns the effective mass of the correlator as correlator object
@@ -728,7 +728,7 @@ class Corr:
                 else:
                     newcontent.append(self.content[t] / self.content[t + 1])
             if (all([x is None for x in newcontent])):
-                raise Exception('m_eff is undefined at all timeslices')
+                raise ValueError('m_eff is undefined at all timeslices')
 
             return np.log(Corr(newcontent, padding=[0, 1]))
 
@@ -742,7 +742,7 @@ class Corr:
                 else:
                     newcontent.append(self.content[t - 1] / self.content[t + 1])
             if (all([x is None for x in newcontent])):
-                raise Exception('m_eff is undefined at all timeslices')
+                raise ValueError('m_eff is undefined at all timeslices')
 
             return np.log(Corr(newcontent, padding=[1, 1])) / 2
 
@@ -767,7 +767,7 @@ class Corr:
                 else:
                     newcontent.append(np.abs(find_root(self.content[t][0] / self.content[t + 1][0], root_function, guess=guess)))
             if (all([x is None for x in newcontent])):
-                raise Exception('m_eff is undefined at all timeslices')
+                raise ValueError('m_eff is undefined at all timeslices')
 
             return Corr(newcontent, padding=[0, 1])
 
@@ -779,11 +779,11 @@ class Corr:
                 else:
                     newcontent.append((self.content[t + 1] + self.content[t - 1]) / (2 * self.content[t]))
             if (all([x is None for x in newcontent])):
-                raise Exception("m_eff is undefined at all timeslices")
+                raise ValueError("m_eff is undefined at all timeslices")
             return np.arccosh(Corr(newcontent, padding=[1, 1]))
 
         else:
-            raise Exception('Unknown variant.')
+            raise ValueError('Unknown variant.')
 
     def fit(self, function, fitrange=None, silent=False, **kwargs):
         r'''Fits function to the data
@@ -801,7 +801,7 @@ class Corr:
             Decides whether output is printed to the standard output.
         '''
         if self.N != 1:
-            raise Exception("Correlator must be projected before fitting")
+            raise ValueError("Correlator must be projected before fitting")
 
         if fitrange is None:
             if self.prange:
@@ -810,12 +810,12 @@ class Corr:
                 fitrange = [0, self.T - 1]
         else:
             if not isinstance(fitrange, list):
-                raise Exception("fitrange has to be a list with two elements")
+                raise TypeError("fitrange has to be a list with two elements")
             if len(fitrange) != 2:
-                raise Exception("fitrange has to have exactly two elements [fit_start, fit_stop]")
+                raise ValueError("fitrange has to have exactly two elements [fit_start, fit_stop]")
 
-        xs = np.array([x for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
-        ys = np.array([self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if not self.content[x] is None])
+        xs = np.array([x for x in range(fitrange[0], fitrange[1] + 1) if self.content[x] is not None])
+        ys = np.array([self.content[x][0] for x in range(fitrange[0], fitrange[1] + 1) if self.content[x] is not None])
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         return result
 
@@ -840,9 +840,9 @@ class Corr:
             else:
                 raise Exception("no plateau range provided")
         if self.N != 1:
-            raise Exception("Correlator must be projected before getting a plateau.")
+            raise ValueError("Correlator must be projected before getting a plateau.")
         if (all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):
-            raise Exception("plateau is undefined at all timeslices in plateaurange.")
+            raise ValueError("plateau is undefined at all timeslices in plateaurange.")
         if auto_gamma:
             self.gamma_method()
         if method == "fit":
@@ -854,16 +854,16 @@ class Corr:
             return returnvalue
 
         else:
-            raise Exception("Unsupported plateau method: " + method)
+            raise ValueError("Unsupported plateau method: " + method)
 
     def set_prange(self, prange):
         """Sets the attribute prange of the Corr object."""
         if not len(prange) == 2:
-            raise Exception("prange must be a list or array with two values")
+            raise ValueError("prange must be a list or array with two values")
         if not ((isinstance(prange[0], int)) and (isinstance(prange[1], int))):
-            raise Exception("Start and end point must be integers")
-        if not (0 <= prange[0] <= self.T and 0 <= prange[1] <= self.T and prange[0] < prange[1]):
-            raise Exception("Start and end point must define a range in the interval 0,T")
+            raise TypeError("Start and end point must be integers")
+        if not (0 <= prange[0] <= self.T and 0 <= prange[1] <= self.T and prange[0] <= prange[1]):
+            raise ValueError("Start and end point must define a range in the interval 0,T")
 
         self.prange = prange
         return
@@ -900,7 +900,7 @@ class Corr:
             Optional title of the figure.
         """
         if self.N != 1:
-            raise Exception("Correlator must be projected before plotting")
+            raise ValueError("Correlator must be projected before plotting")
 
         if auto_gamma:
             self.gamma_method()
@@ -941,7 +941,7 @@ class Corr:
                         hide_from = None
                     ax1.errorbar(x[:hide_from], y[:hide_from], y_err[:hide_from], label=corr.tag, mfc=plt.rcParams['axes.facecolor'])
             else:
-                raise Exception("'comp' must be a correlator or a list of correlators.")
+                raise TypeError("'comp' must be a correlator or a list of correlators.")
 
         if plateau:
             if isinstance(plateau, Obs):
@@ -950,14 +950,14 @@ class Corr:
                 ax1.axhline(y=plateau.value, linewidth=2, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--', label=str(plateau))
                 ax1.axhspan(plateau.value - plateau.dvalue, plateau.value + plateau.dvalue, alpha=0.25, color=plt.rcParams['text.color'], ls='-')
             else:
-                raise Exception("'plateau' must be an Obs")
+                raise TypeError("'plateau' must be an Obs")
 
         if references:
             if isinstance(references, list):
                 for ref in references:
                     ax1.axhline(y=ref, linewidth=1, color=plt.rcParams['text.color'], alpha=0.6, marker=',', ls='--')
             else:
-                raise Exception("'references' must be a list of floating pint values.")
+                raise TypeError("'references' must be a list of floating pint values.")
 
         if self.prange:
             ax1.axvline(self.prange[0], 0, 1, ls='-', marker=',', color="black", zorder=0)
@@ -991,7 +991,7 @@ class Corr:
             if isinstance(save, str):
                 fig.savefig(save, bbox_inches='tight')
             else:
-                raise Exception("'save' has to be a string.")
+                raise TypeError("'save' has to be a string.")
 
     def spaghetti_plot(self, logscale=True):
         """Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.
@@ -1002,7 +1002,7 @@ class Corr:
             Determines whether the scale of the y-axis is logarithmic or standard.
         """
         if self.N != 1:
-            raise Exception("Correlator needs to be projected first.")
+            raise ValueError("Correlator needs to be projected first.")
 
         mc_names = list(set([item for sublist in [sum(map(o[0].e_content.get, o[0].mc_names), []) for o in self.content if o is not None] for item in sublist]))
         x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content) if o is not None]
@@ -1044,7 +1044,7 @@ class Corr:
         elif datatype == "pickle":
             dump_object(self, filename, **kwargs)
         else:
-            raise Exception("Unknown datatype " + str(datatype))
+            raise ValueError("Unknown datatype " + str(datatype))
 
     def print(self, print_range=None):
         print(self.__repr__(print_range))
@@ -1094,7 +1094,7 @@ class Corr:
     def __add__(self, y):
         if isinstance(y, Corr):
             if ((self.N != y.N) or (self.T != y.T)):
-                raise Exception("Addition of Corrs with different shape")
+                raise ValueError("Addition of Corrs with different shape")
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
@@ -1122,7 +1122,7 @@ class Corr:
     def __mul__(self, y):
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
-                raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
+                raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
@@ -1193,7 +1193,7 @@ class Corr:
     def __truediv__(self, y):
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
-                raise Exception("Multiplication of Corr object requires N=N or N=1 and T=T")
+                raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
@@ -1207,16 +1207,16 @@ class Corr:
                     newcontent[t] = None
 
             if all([item is None for item in newcontent]):
-                raise Exception("Division returns completely undefined correlator")
+                raise ValueError("Division returns completely undefined correlator")
             return Corr(newcontent)
 
         elif isinstance(y, (Obs, CObs)):
             if isinstance(y, Obs):
                 if y.value == 0:
-                    raise Exception('Division by zero will return undefined correlator')
+                    raise ValueError('Division by zero will return undefined correlator')
             if isinstance(y, CObs):
                 if y.is_zero():
-                    raise Exception('Division by zero will return undefined correlator')
+                    raise ValueError('Division by zero will return undefined correlator')
 
             newcontent = []
             for t in range(self.T):
@@ -1228,7 +1228,7 @@ class Corr:
 
         elif isinstance(y, (int, float)):
             if y == 0:
-                raise Exception('Division by zero will return undefined correlator')
+                raise ValueError('Division by zero will return undefined correlator')
             newcontent = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
@@ -1284,7 +1284,7 @@ class Corr:
                 if np.isnan(tmp_sum.value):
                     newcontent[t] = None
         if all([item is None for item in newcontent]):
-            raise Exception('Operation returns undefined correlator')
+            raise ValueError('Operation returns undefined correlator')
         return Corr(newcontent)
 
     def sin(self):
@@ -1392,13 +1392,13 @@ class Corr:
         '''
 
         if self.N == 1:
-            raise Exception('Method cannot be applied to one-dimensional correlators.')
+            raise ValueError('Method cannot be applied to one-dimensional correlators.')
         if basematrix is None:
             basematrix = self
         if Ntrunc >= basematrix.N:
-            raise Exception('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
+            raise ValueError('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
         if basematrix.N != self.N:
-            raise Exception('basematrix and targetmatrix have to be of the same size.')
+            raise ValueError('basematrix and targetmatrix have to be of the same size.')
 
         evecs = basematrix.GEVP(t0proj, tproj, sort=None)[:Ntrunc]
 

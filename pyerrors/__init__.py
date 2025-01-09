@@ -481,12 +481,12 @@ from .obs import *
 from .correlators import *
 from .fits import *
 from .misc import *
-from . import dirac
-from . import input
-from . import linalg
-from . import mpm
-from . import roots
-from . import integrate
-from . import special
+from . import dirac as dirac
+from . import input as input
+from . import linalg as linalg
+from . import mpm as mpm
+from . import roots as roots
+from . import integrate as integrate
+from . import special as special
 
-from .version import __version__
+from .version import __version__ as __version__

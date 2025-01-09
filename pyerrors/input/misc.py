@@ -99,11 +99,15 @@ def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=
     return -fit_result[0] / fit_result[1]
 
 
-def read_pbp(path, prefix, **kwargs):
+def read_pbp(path: str, prefix: str, **kwargs):
     """Read pbp format from given folder structure.
 
     Parameters
     ----------
+    path : str
+        Directory to read pbp from
+    prefix : str
+        Prefix of the files to be read
     r_start : list
         list which contains the first config to be read for each replicum
     r_stop : list

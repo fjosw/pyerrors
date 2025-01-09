@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import fnmatch
 import re
@@ -8,9 +9,10 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs
 from ..fits import fit_lin
+from typing import Optional
 
 
-def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
+def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=False, observable: str='t0') -> Obs:
     """Compute the root of (flow-based) data based on a dictionary that contains
     the necessary information in key-value pairs a la (flow time: observable at flow time).
 
@@ -97,11 +99,15 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
     return -fit_result[0] / fit_result[1]
 
 
-def read_pbp(path, prefix, **kwargs):
+def read_pbp(path: str, prefix: str, **kwargs):
     """Read pbp format from given folder structure.
 
     Parameters
     ----------
+    path : str
+        Directory to read pbp from
+    prefix : str
+        Prefix of the files to be read
     r_start : list
         list which contains the first config to be read for each replicum
     r_stop : list

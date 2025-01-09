@@ -34,10 +34,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install dvipng texlive-latex-extra texlive-fonts-recommended cm-super
-          uv pip install wheel
-          uv pip install .
-          uv pip install pytest nbmake
-          uv pip install -U matplotlib!=3.7.0 # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.
+          uv pip install wheel --system
+          uv pip install . --system
+          uv pip install pytest nbmake --system
+          uv pip install -U matplotlib!=3.7.0 --system # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.
 
       - name: Run tests
         run: pytest -vv --nbmake examples/*.ipynb

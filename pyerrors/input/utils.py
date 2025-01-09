@@ -53,7 +53,7 @@ def sort_names(ll: list[str]) -> list[str]:
     return ll
 
 
-def check_idl(idl, che):
+def check_idl(idl: list, che: list) -> str:
     """Checks if list of configurations is contained in an idl
 
     Parameters
@@ -83,7 +83,7 @@ def check_idl(idl, che):
     return miss_str
 
 
-def check_params(path, param_hash, prefix, param_prefix="parameters_"):
+def check_params(path: str, param_hash: str, prefix: str, param_prefix: str ="parameters_") -> dict[str, list]:
     """
     Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.
 

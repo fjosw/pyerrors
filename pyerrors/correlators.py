@@ -588,8 +588,8 @@ class Corr:
         """
         if self.N != 1:
             raise ValueError("deriv only implemented for one-dimensional correlators.")
+        newcontent: list[Union[None, ndarray, Obs]] = []
         if variant == "symmetric":
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -599,7 +599,6 @@ class Corr:
                 raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[1, 1])
         elif variant == "forward":
-            newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -609,7 +608,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[0, 1])
         elif variant == "backward":
-            newcontent = []
             for t in range(1, self.T):
                 if (self.content[t - 1] is None) or (self.content[t] is None):
                     newcontent.append(None)
@@ -619,7 +617,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 0])
         elif variant == "improved":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -629,7 +626,6 @@ class Corr:
                 raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
-            newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None) or (self.content[t] <= 0):
                     newcontent.append(None)

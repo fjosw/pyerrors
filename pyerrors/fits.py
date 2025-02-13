@@ -293,7 +293,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if len(key_ls) > 1:
         for key in key_ls:
             if np.asarray(yd[key]).shape != funcd[key](np.arange(n_parms), xd[key]).shape:
-                raise ValueError(f"Fit function {key} returns the wrong shape ({funcd[key](np.arange(n_parms), xd[key]).shape} instead of {xd[key].shape})\nIf the fit function is just a constant you could try adding x*0 to get the correct shape.")
+                raise ValueError(f"Fit function {key} returns the wrong shape ({funcd[key](np.arange(n_parms), xd[key]).shape} instead of {np.asarray(yd[key]).shape})\nIf the fit function is just a constant you could try adding x*0 to get the correct shape.")
 
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))

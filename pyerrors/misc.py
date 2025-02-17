@@ -29,7 +29,7 @@ def print_config():
         print(f"{key: <10}\t {value}")
 
 
-def errorbar(x, y, axes=plt, **kwargs):
+def errorbar(x: Union[ndarray[int, float, Obs], list[int, float, Obs]], y: Union[ndarray[int, float, Obs], list[int, float, Obs]], axes=plt, **kwargs):
     """pyerrors wrapper for the errorbars method of matplotlib
 
     Parameters

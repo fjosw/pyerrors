@@ -1,12 +1,12 @@
 from __future__ import annotations
 import numpy as np
 from numpy import ndarray
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 
 class Covobs:
 
-    def __init__(self, mean: Optional[Union[float, int]], cov: Any, name: str, pos: Optional[int]=None, grad: Optional[Union[ndarray, list[float]]]=None):
+    def __init__(self, mean: Union[float, int], cov: Union[list, ndarray], name: str, pos: Optional[int]=None, grad: Optional[Union[ndarray, list[float]]]=None):
         """ Initialize Covobs object.
 
         Parameters
@@ -47,7 +47,7 @@ class Covobs:
         """
         return np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)).item()
 
-    def _set_cov(self, cov: Any):
+    def _set_cov(self, cov: Union[list, ndarray]):
         """ Set the covariance matrix of the covobs
 
         Parameters

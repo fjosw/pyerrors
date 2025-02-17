@@ -409,3 +409,14 @@ def assert_equal_Obs(to, ro):
                 print(kw, "does not match.")
                 return False
     return True
+
+
+def test_meas_uuid(tmp_path):
+    meas = pe.Meas(0.3, 0.2)
+
+    for obs in [meas, meas + 1, meas * pe.pseudo_Obs(0.1, 0.001, "obs|r1")]:
+        with pytest.raises(ValueError):
+            jsonio.dump_to_json([obs], "test_file", indent=1, description='[This file should not be writable]')
+
+    name_meas = pe.Meas(0.3, 0.2, name="my name")
+    jsonio.dump_to_json([name_meas], "test_file", indent=1, description='[This file should be writable]')

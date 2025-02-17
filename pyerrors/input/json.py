@@ -136,7 +136,8 @@ def create_json_string(ol, description='', indent=1):
             samples.append([np.nan] * len(value))
             names.append(key)
             idl.append(value)
-        my_obs = Obs(samples, names, idl)
+        my_obs = Obs(np.array(samples), names, idl, means=[np.nan for n in names])
+        my_obs._value = np.nan
         my_obs._covobs = obs._covobs
         for name in obs._covobs:
             my_obs.names.append(name)
@@ -331,7 +332,8 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         cd = _gen_covobsd_from_cdatad(o.get('cdata', {}))
 
         if od:
-            ret = Obs([[ddi[0] + values[0] for ddi in di] for di in od['deltas']], od['names'], idl=od['idl'])
+            r_offsets = [np.average([ddi[0] for ddi in di]) for di in od['deltas']]
+            ret = Obs([np.array([ddi[0] for ddi in od['deltas'][i]]) - r_offsets[i] for i in range(len(od['deltas']))], od['names'], idl=od['idl'], means=[ro + values[0] for ro in r_offsets])
             ret._value = values[0]
         else:
             ret = Obs([], [], means=[])
@@ -356,7 +358,8 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         taglist = o.get('tag', layout * [None])
         for i in range(layout):
             if od:
-                ret.append(Obs([list(di[:, i] + values[i]) for di in od['deltas']], od['names'], idl=od['idl']))
+                r_offsets = np.array([np.average(di[:, i]) for di in od['deltas']])
+                ret.append(Obs([od['deltas'][j][:, i] - r_offsets[j] for j in range(len(od['deltas']))], od['names'], idl=od['idl'], means=[ro + values[i] for ro in r_offsets]))
                 ret[-1]._value = values[i]
             else:
                 ret.append(Obs([], [], means=[]))
@@ -383,7 +386,8 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
         taglist = o.get('tag', N * [None])
         for i in range(N):
             if od:
-                ret.append(Obs([di[:, i] + values[i] for di in od['deltas']], od['names'], idl=od['idl']))
+                r_offsets = np.array([np.average(di[:, i]) for di in od['deltas']])
+                ret.append(Obs([od['deltas'][j][:, i] - r_offsets[j] for j in range(len(od['deltas']))], od['names'], idl=od['idl'], means=[ro + values[i] for ro in r_offsets]))
                 ret[-1]._value = values[i]
             else:
                 ret.append(Obs([], [], means=[]))

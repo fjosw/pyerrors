@@ -337,7 +337,7 @@ def test_dobsio():
 
     tt4 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(1, 101, 1), range(2, 202, 2)])
 
-    ol = [o2, o3, o4, do, o5, tt, tt4, np.log(tt4 / o5**2), np.exp(o5 + np.log(co3 / tt3 + o4) / tt)]
+    ol = [o2, o3, o4, do, o5, tt, tt4, np.log(tt4 / o5**2), np.exp(o5 + np.log(co3 / tt3 + o4) / tt), o4.reweight(o4)]
     print(ol)
     fname = 'test_rw'
 
@@ -362,9 +362,12 @@ def test_dobsio():
 
 
 def test_reconstruct_non_linear_r_obs(tmp_path):
-    to = pe.Obs([np.random.rand(500), np.random.rand(500), np.random.rand(111)],
-                ["e|r1", "e|r2", "my_new_ensemble_54^£$|8'[@124435%6^7&()~#"],
-                idl=[range(1, 501), range(0, 500), range(1, 999, 9)])
+    to = (
+        pe.Obs([np.random.rand(500), np.random.rand(500)],
+                ["e|r1", "e|r2", ],
+                idl=[range(1, 501), range(0, 500)])
+        + pe.Obs([np.random.rand(111)], ["my_new_ensemble_54^£$|8'[@124435%6^7&()~#"], idl=[range(1, 999, 9)])
+        )
     to = np.log(to ** 2) / to
     to.dump((tmp_path / "test_equality").as_posix())
     ro = pe.input.json.load_json((tmp_path / "test_equality").as_posix())
@@ -372,9 +375,12 @@ def test_reconstruct_non_linear_r_obs(tmp_path):
 
 
 def test_reconstruct_non_linear_r_obs_list(tmp_path):
-    to = pe.Obs([np.random.rand(500), np.random.rand(500), np.random.rand(111)],
-                ["e|r1", "e|r2", "my_new_ensemble_54^£$|8'[@124435%6^7&()~#"],
-                idl=[range(1, 501), range(0, 500), range(1, 999, 9)])
+    to = (
+        pe.Obs([np.random.rand(500), np.random.rand(500)],
+                ["e|r1", "e|r2", ],
+                idl=[range(1, 501), range(0, 500)])
+        + pe.Obs([np.random.rand(111)], ["my_new_ensemble_54^£$|8'[@124435%6^7&()~#"], idl=[range(1, 999, 9)])
+        )
     to = np.log(to ** 2) / to
     for to_list in [[to, to, to], np.array([to, to, to])]:
         pe.input.json.dump_to_json(to_list, (tmp_path / "test_equality_list").as_posix())

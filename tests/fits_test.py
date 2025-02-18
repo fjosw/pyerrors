@@ -223,6 +223,9 @@ def test_inv_cov_matrix_input_least_squares():
             diff_inv_cov_combined_fit.gamma_method()
             assert(diff_inv_cov_combined_fit.is_zero(atol=1e-12))
 
+        with pytest.raises(ValueError):
+            pe.least_squares(x_dict, data_dict, fitf_dict,  correlated_fit = True, inv_chol_cov_matrix = [corr,chol_inv_keys_combined_fit])
+
 def test_least_squares_invalid_inv_cov_matrix_input():
     xvals = []
     yvals = []

@@ -596,7 +596,9 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     return arr
 
 
-def _find_files(path, prefix, postfix, ext, known_files=[]):
+def _find_files(path, prefix, postfix, ext, known_files=None):
+    if known_files is None:
+        known_files = []
     found = []
     files = []
 
@@ -1268,7 +1270,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                 idl_wanted = True
                 if 'idl' in kwargs:
                     idl_wanted = (cnfg in expected_idl[repnum])
-                    left_idl = left_idl - set([cnfg])
+                    left_idl = left_idl - {cnfg}
                 if idl_wanted:
                     cnfgs[repnum].append(cnfg)
 

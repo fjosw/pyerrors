@@ -112,7 +112,7 @@ def check_params(path, param_hash, prefix, param_prefix="parameters_"):
     # Exclude folders with different names
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*'):
-            ls = list(set(ls) - set([exc]))
+            ls = list(set(ls) - {exc})
 
     ls = sort_names(ls)
     nums = {}

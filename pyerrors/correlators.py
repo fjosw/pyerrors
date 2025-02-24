@@ -42,7 +42,7 @@ class Corr:
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
 
-    def __init__(self, data_input, padding=[0, 0], prange=None):
+    def __init__(self, data_input, padding=None, prange=None):
         """ Initialize a Corr object.
 
         Parameters
@@ -58,6 +58,8 @@ class Corr:
             region identified for this correlator.
         """
 
+        if padding is None:
+            padding = [0, 0]
         if isinstance(data_input, np.ndarray):
             if data_input.ndim == 1:
                 data_input = list(data_input)
@@ -105,7 +107,7 @@ class Corr:
                 self.N = noNull[0].shape[0]
                 if self.N > 1 and noNull[0].shape[0] != noNull[0].shape[1]:
                     raise ValueError("Smearing matrices are not NxN.")
-                if (not all([item.shape == noNull[0].shape for item in noNull])):
+                if not all([item.shape == noNull[0].shape for item in noNull]):
                     raise ValueError("Items in data_input are not of identical shape." + str(noNull))
             else:
                 raise TypeError("'data_input' contains item of wrong type.")
@@ -236,7 +238,7 @@ class Corr:
                 newcontent.append(None)
             else:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
-        if (all([x is None for x in newcontent])):
+        if all([x is None for x in newcontent]):
             raise ValueError("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
@@ -300,7 +302,7 @@ class Corr:
             return 0.5 * (Corr(transposed) + self)
 
     def GEVP(self, t0, ts=None, sort="Eigenvalue", vector_obs=False, **kwargs):
-        r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
+        r"""Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
 
         The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the
         largest eigenvalue(s). The eigenvector(s) for the individual states can be accessed via slicing
@@ -333,12 +335,12 @@ class Corr:
            Method used to solve the GEVP.
            - "eigh": Use scipy.linalg.eigh to solve the GEVP. (default for vector_obs=False)
            - "cholesky": Use manually implemented solution via the Cholesky decomposition. Automatically chosen if vector_obs==True.
-        '''
+        """
 
         if self.N == 1:
             raise ValueError("GEVP methods only works on correlator matrices and not single correlators.")
         if ts is not None:
-            if (ts <= t0):
+            if ts <= t0:
                 raise ValueError("ts has to be larger than t0.")
 
         if "sorted_list" in kwargs:
@@ -786,7 +788,7 @@ class Corr:
             raise ValueError('Unknown variant.')
 
     def fit(self, function, fitrange=None, silent=False, **kwargs):
-        r'''Fits function to the data
+        r"""Fits function to the data
 
         Parameters
         ----------
@@ -799,7 +801,7 @@ class Corr:
             If not specified, self.prange or all timeslices are used.
         silent : bool
             Decides whether output is printed to the standard output.
-        '''
+        """
         if self.N != 1:
             raise ValueError("Correlator must be projected before fitting")
 
@@ -878,6 +880,8 @@ class Corr:
         comp : Corr or list of Corr
             Correlator or list of correlators which are plotted for comparison.
             The tags of these correlators are used as labels if available.
+        y_range : list
+            list of two values, determining the range of the y-axis e.g. [0, 12].
         logscale : bool
             Sets y-axis to logscale.
         plateau : Obs
@@ -1093,7 +1097,7 @@ class Corr:
 
     def __add__(self, y):
         if isinstance(y, Corr):
-            if ((self.N != y.N) or (self.T != y.T)):
+            if (self.N != y.N) or (self.T != y.T):
                 raise ValueError("Addition of Corrs with different shape")
             newcontent = []
             for t in range(self.T):
@@ -1338,21 +1342,21 @@ class Corr:
 
     @property
     def real(self):
-        def return_real(obs_OR_cobs):
-            if isinstance(obs_OR_cobs.flatten()[0], CObs):
-                return np.vectorize(lambda x: x.real)(obs_OR_cobs)
+        def return_real(obs_or_cobs):
+            if isinstance(obs_or_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.real)(obs_or_cobs)
             else:
-                return obs_OR_cobs
+                return obs_or_cobs
 
         return self._apply_func_to_corr(return_real)
 
     @property
     def imag(self):
-        def return_imag(obs_OR_cobs):
-            if isinstance(obs_OR_cobs.flatten()[0], CObs):
-                return np.vectorize(lambda x: x.imag)(obs_OR_cobs)
+        def return_imag(obs_or_cobs):
+            if isinstance(obs_or_cobs.flatten()[0], CObs):
+                return np.vectorize(lambda x: x.imag)(obs_or_cobs)
             else:
-                return obs_OR_cobs * 0  # So it stays the right type
+                return obs_or_cobs * 0  # So it stays the right type
 
         return self._apply_func_to_corr(return_imag)
 
@@ -1396,7 +1400,7 @@ class Corr:
         if basematrix is None:
             basematrix = self
         if Ntrunc >= basematrix.N:
-            raise ValueError('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
+            raise ValueError('Cannot truncate using Ntrunc <= %d' % basematrix.N)
         if basematrix.N != self.N:
             raise ValueError('basematrix and targetmatrix have to be of the same size.')
 
@@ -1495,7 +1499,7 @@ def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
             def matmul(*operands):
                 return np.linalg.multi_dot(operands)
         N = Gt.shape[0]
-        output = [[] for j in range(N)]
+        output = [[] for _ in range(N)]
         if chol_inv is None:
             chol = cholesky(G0)  # This will automatically report if the matrix is not pos-def
             chol_inv = inv(chol)

@@ -12,7 +12,7 @@ def test_jsonio():
     o = pe.pseudo_Obs(1.0, .2, 'one')
     o2 = pe.pseudo_Obs(0.5, .1, 'two|r1')
     o3 = pe.pseudo_Obs(0.5, .1, 'two|r2')
-    o4 = pe.merge_obs([o2, o3])
+    o4 = pe.merge_obs([o2, o3, pe.pseudo_Obs(0.5, .1, 'two|r3', samples=3221)])
     otag = 'This has been merged!'
     o4.tag = otag
     do = o - .2 * o4
@@ -101,8 +101,8 @@ def test_json_string_reconstruction():
 
 
 def test_json_corr_io():
-    my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']) for o in range(8)]
-    rw_list = pe.reweight(pe.Obs([np.random.normal(1.0, 0.1, 100)], ['ens1']), my_list)
+    my_list = [pe.Obs([np.random.normal(1.0, 0.1, 100), np.random.normal(1.0, 0.1, 321)], ['ens1|r1', 'ens1|r2'], idl=[range(1, 201, 2), range(321)]) for o in range(8)]
+    rw_list = pe.reweight(pe.Obs([np.random.normal(1.0, 0.1, 100), np.random.normal(1.0, 0.1, 321)], ['ens1|r1', 'ens1|r2'], idl=[range(1, 201, 2), range(321)]), my_list)
 
     for obs_list in [my_list, rw_list]:
         for tag in [None, "test"]:
@@ -111,40 +111,51 @@ def test_json_corr_io():
                 for corr_tag in [None, 'my_Corr_tag']:
                     for prange in [None, [3, 6]]:
                         for gap in [False, True]:
-                            my_corr = pe.Corr(obs_list, padding=[pad, pad], prange=prange)
-                            my_corr.tag = corr_tag
-                            if gap:
-                                my_corr.content[4] = None
-                            pe.input.json.dump_to_json(my_corr, 'corr')
-                            recover = pe.input.json.load_json('corr')
-                            os.remove('corr.json.gz')
-                            assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
-                            for index, entry in enumerate(my_corr):
-                                if entry is None:
-                                    assert recover[index] is None
-                            assert my_corr.tag == recover.tag
-                            assert my_corr.prange == recover.prange
-                            assert my_corr.reweighted == recover.reweighted
+                            for mult in [1., pe.cov_Obs([12.22, 1.21], [.212**2, .11**2], 'renorm')[0]]:
+                                my_corr = mult * pe.Corr(obs_list, padding=[pad, pad], prange=prange)
+                                my_corr.tag = corr_tag
+                                if gap:
+                                    my_corr.content[4] = None
+                                pe.input.json.dump_to_json(my_corr, 'corr')
+                                recover = pe.input.json.load_json('corr')
+                                os.remove('corr.json.gz')
+                                assert np.all([o.is_zero() for o in [x for x in (my_corr - recover) if x is not None]])
+                                for index, entry in enumerate(my_corr):
+                                    if entry is None:
+                                        assert recover[index] is None
+                                assert my_corr.tag == recover.tag
+                                assert my_corr.prange == recover.prange
+                                assert my_corr.reweighted == recover.reweighted
 
 
 def test_json_corr_2d_io():
-    obs_list = [np.array([[pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test'), pe.pseudo_Obs(0.0, 0.1 * i, 'test')], [pe.pseudo_Obs(0.0, 0.1 * i, 'test'), pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test')]]) for i in range(4)]
+    obs_list = [np.array([
+        [
+         pe.merge_obs([pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test|r2'), pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test|r1', samples=321)]), 
+         pe.merge_obs([pe.pseudo_Obs(0.0, 0.1 * i, 'test|r2'), pe.pseudo_Obs(0.0, 0.1 * i, 'test|r1', samples=321)]),
+        ], 
+        [
+         pe.merge_obs([pe.pseudo_Obs(0.0, 0.1 * i, 'test|r2'), pe.pseudo_Obs(0.0, 0.1 * i, 'test|r1', samples=321),]),
+         pe.merge_obs([pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test|r2'), pe.pseudo_Obs(1.0 + i, 0.1 * i, 'test|r1', samples=321)]),
+        ],
+        ]) for i in range(4)]
 
     for tag in [None, "test"]:
         obs_list[3][0, 1].tag = tag
         for padding in [0, 1]:
             for prange in [None, [3, 6]]:
-                my_corr = pe.Corr(obs_list, padding=[padding, padding], prange=prange)
-                my_corr.tag = tag
-                pe.input.json.dump_to_json(my_corr, 'corr')
-                recover = pe.input.json.load_json('corr')
-                os.remove('corr.json.gz')
-                assert np.all([np.all([o.is_zero() for o in q]) for q in [x.ravel() for x in (my_corr - recover) if x is not None]])
-                for index, entry in enumerate(my_corr):
-                    if entry is None:
-                        assert recover[index] is None
-                assert my_corr.tag == recover.tag
-                assert my_corr.prange == recover.prange
+                for mult in [1., pe.cov_Obs([12.22, 1.21], [.212**2, .11**2], 'renorm')[0]]:
+                    my_corr = mult * pe.Corr(obs_list, padding=[padding, padding], prange=prange)
+                    my_corr.tag = tag
+                    pe.input.json.dump_to_json(my_corr, 'corr')
+                    recover = pe.input.json.load_json('corr')
+                    os.remove('corr.json.gz')
+                    assert np.all([np.all([o.is_zero() for o in q]) for q in [x.ravel() for x in (my_corr - recover) if x is not None]])
+                    for index, entry in enumerate(my_corr):
+                        if entry is None:
+                            assert recover[index] is None
+                    assert my_corr.tag == recover.tag
+                    assert my_corr.prange == recover.prange
 
 
 def test_json_dict_io():
@@ -211,6 +222,7 @@ def test_json_dict_io():
             'd': pe.pseudo_Obs(.01, .001, 'testd', samples=10) * pe.cov_Obs(1, .01, 'cov1'),
             'se': None,
             'sf': 1.2,
+            'k': pe.cov_Obs(.1, .001**2, 'cov') * pe.merge_obs([pe.pseudo_Obs(1.0, 0.1, 'test|r2'), pe.pseudo_Obs(1.0, 0.1, 'test|r1', samples=321)]),
         }
     }
 
@@ -314,7 +326,7 @@ def test_dobsio():
 
     o2 = pe.pseudo_Obs(0.5, .1, 'two|r1')
     o3 = pe.pseudo_Obs(0.5, .1, 'two|r2')
-    o4 = pe.merge_obs([o2, o3])
+    o4 = pe.merge_obs([o2, o3, pe.pseudo_Obs(0.5, .1, 'two|r3', samples=3221)])
     otag = 'This has been merged!'
     o4.tag = otag
     do = o - .2 * o4
@@ -328,7 +340,7 @@ def test_dobsio():
     o5 /= co2[0]
     o5.tag = 2 * otag
 
-    tt1 = pe.Obs([np.random.rand(100), np.random.rand(100)], ['t|r1', 't|r2'], idl=[range(2, 202, 2), range(22, 222, 2)])
+    tt1 = pe.Obs([np.random.rand(100), np.random.rand(102)], ['t|r1', 't|r2'], idl=[range(2, 202, 2), range(22, 226, 2)])
     tt3 = pe.Obs([np.random.rand(102)], ['qe|r1'])
 
     tt = tt1 + tt3
@@ -363,9 +375,9 @@ def test_dobsio():
 
 def test_reconstruct_non_linear_r_obs(tmp_path):
     to = (
-        pe.Obs([np.random.rand(500), np.random.rand(500)],
+        pe.Obs([np.random.rand(500), np.random.rand(1200)],
                 ["e|r1", "e|r2", ],
-                idl=[range(1, 501), range(0, 500)])
+                idl=[range(1, 501), range(0, 1200)])
         + pe.Obs([np.random.rand(111)], ["my_new_ensemble_54^£$|8'[@124435%6^7&()~#"], idl=[range(1, 999, 9)])
         )
     to = np.log(to ** 2) / to
@@ -376,9 +388,9 @@ def test_reconstruct_non_linear_r_obs(tmp_path):
 
 def test_reconstruct_non_linear_r_obs_list(tmp_path):
     to = (
-        pe.Obs([np.random.rand(500), np.random.rand(500)],
+        pe.Obs([np.random.rand(500), np.random.rand(1200)],
                 ["e|r1", "e|r2", ],
-                idl=[range(1, 501), range(0, 500)])
+                idl=[range(1, 501), range(0, 1200)])
         + pe.Obs([np.random.rand(111)], ["my_new_ensemble_54^£$|8'[@124435%6^7&()~#"], idl=[range(1, 999, 9)])
         )
     to = np.log(to ** 2) / to

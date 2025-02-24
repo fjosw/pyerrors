@@ -133,10 +133,10 @@ def create_json_string(ol, description='', indent=1):
         names = []
         idl = []
         for key, value in obs.idl.items():
-            samples.append([np.nan] * len(value))
+            samples.append(np.array([np.nan] * len(value)))
             names.append(key)
             idl.append(value)
-        my_obs = Obs(np.array(samples), names, idl, means=[np.nan for n in names])
+        my_obs = Obs(samples, names, idl, means=[np.nan for n in names])
         my_obs._value = np.nan
         my_obs._covobs = obs._covobs
         for name in obs._covobs:

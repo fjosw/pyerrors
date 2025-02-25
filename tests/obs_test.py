@@ -333,7 +333,7 @@ def test_derived_observables():
 
 def test_multi_ens():
     names = ['A0', 'A1|r001', 'A1|r002']
-    test_obs = pe.Obs([np.random.rand(50), np.random.rand(50), np.random.rand(50)], names)
+    test_obs = pe.Obs([np.random.rand(50)], names[:1]) + pe.Obs([np.random.rand(50), np.random.rand(50)], names[1:])
     assert test_obs.e_names == ['A0', 'A1']
     assert test_obs.e_content['A0'] == ['A0']
     assert test_obs.e_content['A1'] == ['A1|r001', 'A1|r002']
@@ -344,6 +344,9 @@ def test_multi_ens():
         my_sum += pe.Obs([np.random.rand(50)], [str(i)])
         ensembles.append(str(i))
     assert my_sum.e_names == sorted(ensembles)
+
+    with pytest.raises(ValueError):
+        test_obs = pe.Obs([np.random.rand(50), np.random.rand(50), np.random.rand(50)], names)
 
 
 def test_multi_ens2():
@@ -498,18 +501,25 @@ def test_reweighting():
     with pytest.raises(ValueError):
         pe.reweight(my_irregular_obs, [my_obs])
 
+    my_merged_obs = my_obs + pe.Obs([np.random.rand(1000)], ['q'])
+    with pytest.raises(ValueError):
+        pe.reweight(my_merged_obs, [my_merged_obs])
+
 
 def test_merge_obs():
-    my_obs1 = pe.Obs([np.random.rand(100)], ['t'])
-    my_obs2 = pe.Obs([np.random.rand(100)], ['q'], idl=[range(1, 200, 2)])
+    my_obs1 = pe.Obs([np.random.normal(1, .1, 100)], ['t|1'])
+    my_obs2 = pe.Obs([np.random.normal(1, .1, 100)], ['t|2'], idl=[range(1, 200, 2)])
     merged = pe.merge_obs([my_obs1, my_obs2])
-    diff = merged - my_obs2 - my_obs1
-    assert diff == -(my_obs1.value + my_obs2.value) / 2
+    diff = merged - (my_obs2 + my_obs1) / 2
+    assert np.isclose(0, diff.value, atol=1e-16)
     with pytest.raises(ValueError):
         pe.merge_obs([my_obs1, my_obs1])
     my_covobs = pe.cov_Obs(1.0, 0.003, 'cov')
     with pytest.raises(ValueError):
         pe.merge_obs([my_obs1, my_covobs])
+    my_obs3 = pe.Obs([np.random.rand(100)], ['q|2'], idl=[range(1, 200, 2)])
+    with pytest.raises(ValueError):
+        pe.merge_obs([my_obs1, my_obs3])
 
 
 
@@ -542,6 +552,9 @@ def test_correlate():
     my_obs6 = pe.Obs([np.random.rand(100)], ['t'], idl=[range(5, 505, 5)])
     corr3 = pe.correlate(my_obs5, my_obs6)
     assert my_obs5.idl == corr3.idl
+    my_obs7 = pe.Obs([np.random.rand(99)], ['q'])
+    with pytest.raises(ValueError):
+        pe.correlate(my_obs1, my_obs7)
 
     my_new_obs = pe.Obs([np.random.rand(100)], ['q3'])
     with pytest.raises(ValueError):
@@ -681,14 +694,14 @@ def test_gamma_method_irregular():
     assert (a.dvalue - 5 * a.ddvalue < expe and expe < a.dvalue + 5 * a.ddvalue)
 
     arr2 = np.random.normal(1, .2, size=N)
-    afull = pe.Obs([arr, arr2], ['a1', 'a2'])
+    afull = pe.Obs([arr], ['a1']) + pe.Obs([arr2], ['a2'])
 
     configs = np.ones_like(arr2)
     for i in np.random.uniform(0, len(arr2), size=int(.8*N)):
         configs[int(i)] = 0
     zero_arr2 = [arr2[i] for i in range(len(arr2)) if not configs[i] == 0]
     idx2 = [i + 1 for i in range(len(configs)) if configs[i] == 1]
-    a = pe.Obs([zero_arr, zero_arr2], ['a1', 'a2'], idl=[idx, idx2])
+    a = pe.Obs([zero_arr], ['a1'], idl=[idx]) + pe.Obs([zero_arr2], ['a2'], idl=[idx2])
 
     afull.gamma_method()
     a.gamma_method()
@@ -1022,7 +1035,7 @@ def test_correlation_intersection_of_idls():
 
 
 def test_covariance_non_identical_objects():
-    obs1 = pe.Obs([np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 732)], ["ens|r1", "ens|r2", "ens2"])
+    obs1 = pe.Obs([np.random.normal(1.0, 0.1, 1000), np.random.normal(1.0, 0.1, 1000)], ["ens|r1", "ens|r2"]) + pe.Obs([np.random.normal(1.0, 0.1, 732)], ['ens2'])
     obs1.gamma_method()
     obs2 = obs1 + 1e-18
     obs2.gamma_method()
@@ -1106,6 +1119,9 @@ def test_reweight_method():
     obs1 = pe.pseudo_Obs(0.2, 0.01, 'test')
     rw = pe.pseudo_Obs(0.999, 0.001, 'test')
     assert obs1.reweight(rw) == pe.reweight(rw, [obs1])[0]
+    rw2 = pe.pseudo_Obs(0.999, 0.001, 'test2')
+    with pytest.raises(ValueError):
+        obs1.reweight(rw2)
 
 
 def test_jackknife():

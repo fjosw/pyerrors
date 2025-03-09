@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.0] - 2025-03-09
+
+### Added
+- Explicit checks of the provided inverse matrix for correlated fits #259
+
+### Changed
+- Compute derivative for pow explicitly instead of relying on autograd. This results in a ~4x speedup for pow operations #246
+- More explicit exception types #248
+
+### Fixed
+- Removed the possibility to create an Obs from data on several replica #258
+- Fix range in `set_prange` #247
+- Fix ensemble name handling in sfcf input modules #253
+- Correct error message for fit shape mismatch #257
+
 ## [2.13.0] - 2024-11-03
 
 ### Added

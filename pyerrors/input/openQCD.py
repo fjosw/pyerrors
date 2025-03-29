@@ -16,8 +16,8 @@ from typing import Optional, Union, TypedDict, Unpack
 class rwms_kwargs(TypedDict):
     files: list[str]
     postfix: str
-    r_start: list[Union[int]]
-    r_stop: list[Union[int]]
+    r_start: list[int]
+    r_stop: list[int]
     r_step: int
     
 
@@ -71,11 +71,11 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
 
     replica = len(ls)
 
-    r_start: list[Union[int, None]] = kwargs.get('r_start', [None] * replica)
+    r_start: list[int] = kwargs.get('r_start', [-1] * replica)
     if len(r_start) != replica:
         raise Exception('r_start does not match number of replicas')
 
-    r_stop: list[Union[int, None]] = kwargs.get('r_stop', [None] * replica)
+    r_stop: list[int] = kwargs.get('r_stop', [-1] * replica)
     if len(r_stop) != replica:
         raise Exception('r_stop does not match number of replicas')
 
@@ -283,34 +283,22 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
         Dictionary with the flowed action density at flow times t
     """
 
-    if 'files' in kwargs:
-        known_files = kwargs.get('files')
-    else:
-        known_files = []
+    known_files = kwargs.get('files', [])
 
     ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
 
     replica = len(ls)
 
-    if 'r_start' in kwargs:
-        r_start = kwargs.get('r_start')
-        if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
-        r_start = [o if o else None for o in r_start]
-    else:
-        r_start = [None] * replica
+    
+    r_start: list[int] = kwargs.get('r_start', [-1] * replica)
+    if len(r_start) != replica:
+        raise Exception('r_start does not match number of replicas')
 
-    if 'r_stop' in kwargs:
-        r_stop = kwargs.get('r_stop')
-        if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
-    else:
-        r_stop = [None] * replica
+    r_stop: list[int] = kwargs.get('r_start', [-1] * replica)
+    if len(r_stop) != replica:
+        raise Exception('r_start does not match number of replicas')
 
-    if 'r_step' in kwargs:
-        r_step = kwargs.get('r_step')
-    else:
-        r_step = 1
+    r_step = kwargs.get('r_step', 1)
 
     print('Extract flowed Yang-Mills action density from', prefix, ',', replica, 'replica')
 

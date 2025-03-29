@@ -652,7 +652,7 @@ def _read_append_rep(filename: str, pattern: str, b2b: bool, cfg_separator: str,
         return T, rep_idl, final_data
 
 
-def _get_rep_names(ls: list[str], ens_name: None=None, rep_sep: str ='r') -> list[str]:
+def _get_rep_names(ls: list[str], ens_name: Optional[str]=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for entry in ls:
         try:
@@ -667,7 +667,7 @@ def _get_rep_names(ls: list[str], ens_name: None=None, rep_sep: str ='r') -> lis
     return new_names
 
 
-def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: None=None, rep_sep: str ='r') -> list[str]:
+def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: Optional[str]=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):

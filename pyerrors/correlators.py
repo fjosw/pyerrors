@@ -45,7 +45,7 @@ class Corr:
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
 
-    def __init__(self, data_input: Any, padding: list[int]=[0, 0], prange: Optional[list[int]]=None):
+    def __init__(self, data_input: list[Obs, CObs], padding: list[int]=[0, 0], prange: Optional[list[int]]=None):
         """ Initialize a Corr object.
 
         Parameters
@@ -285,7 +285,7 @@ class Corr:
         """Calculates the per-timeslice trace of a correlator matrix."""
         if self.N == 1:
             raise ValueError("Only works for correlator matrices.")
-        newcontent: list[Union[None, float]] = []
+        newcontent: list[Union[None, Obs, CObs]] = []
         for t in range(self.T):
             if _check_for_none(self, self.content[t]):
                 newcontent.append(None)
@@ -715,8 +715,8 @@ class Corr:
         """
         if self.N != 1:
             raise Exception('Correlator must be projected before getting m_eff')
+        newcontent: list[Union[None, Obs]] = []
         if variant == 'log':
-            newcontent = []
             for t in range(self.T - 1):
                 if ((self.content[t] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -730,7 +730,6 @@ class Corr:
             return np.log(Corr(newcontent, padding=[0, 1]))
 
         elif variant == 'logsym':
-            newcontent = []
             for t in range(1, self.T - 1):
                 if ((self.content[t - 1] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -752,7 +751,6 @@ class Corr:
             def root_function(x, d):
                 return func(x * (t - self.T / 2)) / func(x * (t + 1 - self.T / 2)) - d
 
-            newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -769,7 +767,6 @@ class Corr:
             return Corr(newcontent, padding=[0, 1])
 
         elif variant == 'arccosh':
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None) or (self.content[t][0].value == 0):
                     newcontent.append(None)
@@ -782,7 +779,7 @@ class Corr:
         else:
             raise ValueError('Unknown variant.')
 
-    def fit(self, function: Callable, fitrange: Optional[Union[str, list[int]]]=None, silent: bool=False, **kwargs) -> Fit_result:
+    def fit(self, function: Callable, fitrange: Optional[list[int]]=None, silent: bool=False, **kwargs) -> Fit_result:
         r'''Fits function to the data
 
         Parameters
@@ -865,7 +862,7 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range: Optional[list[int]]=None, comp: Optional[Corr]=None, y_range: None=None, logscale: bool=False, plateau: None=None, fit_res: Optional[Fit_result]=None, fit_key: Optional[str]=None, ylabel: None=None, save: None=None, auto_gamma: bool=False, hide_sigma: None=None, references: None=None, title: None=None):
+    def show(self, x_range: Optional[list[int]]=None, comp: Optional[Corr]=None, y_range: Optional[list[int, float]]=None, logscale: bool=False, plateau: Optional[Obs, float, int]=None, fit_res: Optional[Fit_result]=None, fit_key: Optional[str]=None, ylabel: Optional[str]=None, save: Optional[str]=None, auto_gamma: bool=False, hide_sigma: Optional[int, float]=None, references: Optional[list[float]]=None, title: Optional[str]=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
@@ -1081,14 +1078,14 @@ class Corr:
 
     __array_priority__ = 10000
 
-    def __eq__(self, y: Union[Corr, Obs, int]) -> ndarray:
+    def __eq__(self, y: Any) -> ndarray:
         if isinstance(y, Corr):
             comp = np.asarray(y.content, dtype=object)
         else:
             comp = np.asarray(y)
         return np.asarray(self.content, dtype=object) == comp
 
-    def __add__(self, y: Any) -> "Corr":
+    def __add__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if ((self.N != y.N) or (self.T != y.T)):
                 raise ValueError("Addition of Corrs with different shape")
@@ -1116,7 +1113,7 @@ class Corr:
         else:
             raise TypeError("Corr + wrong type")
 
-    def __mul__(self, y: Any) -> "Corr":
+    def __mul__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
@@ -1187,7 +1184,7 @@ class Corr:
         else:
             return NotImplemented
 
-    def __truediv__(self, y: Union[Corr, float, ndarray, int]) -> "Corr":
+    def __truediv__(self, y: Union[Corr, Obs, CObs, int, float, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
@@ -1245,10 +1242,10 @@ class Corr:
         newcontent = [None if _check_for_none(self, item) else -1. * item for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
-    def __sub__(self, y: Union[Corr, float, ndarray, int]) -> "Corr":
+    def __sub__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self + (-y)
 
-    def __pow__(self, y: Union[float, int]) -> "Corr":
+    def __pow__(self, y: Union[Obs, CObs, float, int]) -> "Corr":
         if isinstance(y, (Obs, int, float, CObs)):
             newcontent = [None if _check_for_none(self, item) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
@@ -1321,16 +1318,16 @@ class Corr:
         return self._apply_func_to_corr(np.arctanh)
 
     # Right hand side operations (require tweak in main module to work)
-    def __radd__(self, y):
+    def __radd__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self + y
 
-    def __rsub__(self, y: int) -> "Corr":
+    def __rsub__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return -self + y
 
-    def __rmul__(self, y: Union[float, int]) -> "Corr":
+    def __rmul__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self * y
 
-    def __rtruediv__(self, y: int) -> "Corr":
+    def __rtruediv__(self, y: Union[Corr, Obs, CObs, int, float, ndarray]) -> "Corr":
         return (self / y) ** (-1)
 
     @property
@@ -1353,7 +1350,7 @@ class Corr:
 
         return self._apply_func_to_corr(return_imag)
 
-    def prune(self, Ntrunc: int, tproj: int=3, t0proj: int=2, basematrix: None=None) -> "Corr":
+    def prune(self, Ntrunc: int, tproj: int=3, t0proj: int=2, basematrix: Optional[ndarray]=None) -> "Corr":
         r''' Project large correlation matrix to lowest states
 
         This method can be used to reduce the size of an (N x N) correlation matrix
@@ -1448,7 +1445,7 @@ def _check_for_none(corr: Corr, entry: Optional[ndarray]) -> bool:
     return len(list(filter(None, np.asarray(entry).flatten()))) < corr.N ** 2
 
 
-def _GEVP_solver(Gt: Optional[ndarray], G0: ndarray, method: str='eigh', chol_inv: Optional[ndarray]=None) -> ndarray:
+def _GEVP_solver(Gt: ndarray, G0: ndarray, method: str='eigh', chol_inv: Optional[ndarray]=None) -> ndarray:
     r"""Helper function for solving the GEVP and sorting the eigenvectors.
 
     Solves $G(t)v_i=\lambda_i G(t_0)v_i$ and returns the eigenvectors v_i

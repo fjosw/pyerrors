@@ -827,8 +827,19 @@ def residual_plot(x: ndarray, y: list[Obs], func: Callable, fit_res: list[Obs], 
     plt.draw()
 
 
-def error_band(x: list[int], func: Callable, beta: list[Obs]) -> ndarray:
+def error_band(x: list[int], func: Callable, beta: Union[Fit_result, list[Obs]]) -> ndarray:
     """Calculate the error band for an array of sample values x, for given fit function func with optimized parameters beta.
+
+    Parameters
+    ----------
+    x : list[int]
+        A list of sample points where the error band is evaluated.
+
+    func : Callable
+        The function representing the fit model.
+
+    beta : Union[Fit_result, list[Obs]]
+        Optimized fit parameters.
 
     Returns
     -------

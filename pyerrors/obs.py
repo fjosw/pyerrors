@@ -12,7 +12,7 @@ from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
-from numpy import bool, float64, int64, ndarray
+from numpy import float64, int64, ndarray
 from typing import Any, Callable, Optional, Union, Sequence, TYPE_CHECKING
 
 if sys.version_info >= (3, 10):
@@ -233,7 +233,7 @@ class Obs:
         else:
             fft = True
 
-        def _parse_kwarg(kwarg_name):
+        def _parse_kwarg(kwarg_name: str):
             if kwarg_name in kwargs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
@@ -501,7 +501,7 @@ class Obs:
         """
         return np.isclose(0.0, self.value, 1e-14, atol) and all(np.allclose(0.0, delta, 1e-14, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), 1e-14, atol) for delta in self.covobs.values())
 
-    def plot_tauint(self, save: None=None):
+    def plot_tauint(self, save: Optional[str]=None):
         """Plot integrated autocorrelation time for each ensemble.
 
         Parameters
@@ -541,7 +541,7 @@ class Obs:
             if save:
                 fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self, save: None=None):
+    def plot_rho(self, save: Optional[str]=None):
         """Plot normalized autocorrelation function time for each ensemble.
 
         Parameters
@@ -626,7 +626,7 @@ class Obs:
             plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
-    def plot_piechart(self, save: None=None) -> dict[str, float64]:
+    def plot_piechart(self, save: Optional[str]=None) -> dict[str, float64]:
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions.
 
@@ -708,7 +708,7 @@ class Obs:
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
-    def export_bootstrap(self, samples: int=500, random_numbers: Optional[ndarray]=None, save_rng: None=None) -> ndarray:
+    def export_bootstrap(self, samples: int=500, random_numbers: Optional[ndarray]=None, save_rng: Optional[str]=None) -> ndarray:
         """Export bootstrap samples from the Obs
 
         Parameters
@@ -784,19 +784,19 @@ class Obs:
         return int(m.hexdigest(), 16) & 0xFFFFFFFF
 
     # Overload comparisons
-    def __lt__(self, other: Union[Obs, float, float64]) -> Union[bool, bool]:
+    def __lt__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value < other
 
-    def __le__(self, other: Union[Obs, float, int]) -> bool:
+    def __le__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value <= other
 
-    def __gt__(self, other: Union[Obs, float]) -> Union[bool, bool]:
+    def __gt__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value > other
 
-    def __ge__(self, other: Union[Obs, float, int]) -> Union[bool, bool]:
+    def __ge__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value >= other
 
-    def __eq__(self, other: Optional[Union[Obs, float64, int, float]]) -> Union[bool, bool]:
+    def __eq__(self, other: Optional[Union[Obs, float, float64, int]]) -> bool:
         if other is None:
             return False
         return (self - other).is_zero()
@@ -815,10 +815,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
 
-    def __radd__(self, y: Union[float, int]) -> Union[Obs, NotImplementedType, CObs, ndarray]:
+    def __radd__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return self + y
 
-    def __mul__(self, y: Any) -> Union[Obs, ndarray, CObs, NotImplementedType]:
+    def __mul__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] * x[1], [self, y], man_grad=[y.value, self.value])
         else:
@@ -831,10 +831,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
-    def __rmul__(self, y: Union[float, int]) -> Union[Obs, NotImplementedType, CObs, ndarray]:
+    def __rmul__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return self * y
 
-    def __sub__(self, y: Any) -> Union[Obs, NotImplementedType, ndarray]:
+    def __sub__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] - x[1], [self, y], man_grad=[1, -1])
         else:
@@ -845,7 +845,7 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
-    def __rsub__(self, y: Union[float, int]) -> Union[Obs, NotImplementedType, CObs, ndarray]:
+    def __rsub__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return -1 * (self - y)
 
     def __pos__(self) -> Obs:
@@ -959,6 +959,8 @@ class CObs:
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
+    gm = gamma_method
+
     def is_zero(self) -> bool:
         """Checks whether both real and imaginary part are zero within machine precision."""
         return self.real == 0.0 and self.imag == 0.0
@@ -1057,7 +1059,7 @@ class CObs:
         return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
 
 
-def gamma_method(x: Union[Corr, Obs, ndarray, list[Obs]], **kwargs) -> ndarray:
+def gamma_method(x: Union[Corr, Obs, CObs, ndarray, list[Obs, CObs]], **kwargs) -> ndarray:
     """Vectorized version of the gamma_method applicable to lists or arrays of Obs.
 
     See docstring of pe.Obs.gamma_method for details.
@@ -1192,7 +1194,7 @@ def _expand_deltas_for_merge(deltas: ndarray, idx: Union[range, list[int]], shap
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx) * scalefactor
 
 
-def derived_observable(func: Callable, data: Any, array_mode: bool=False, **kwargs) -> Union[Obs, ndarray]:
+def derived_observable(func: Callable, data: Union[list[Obs], ndarray], array_mode: bool=False, **kwargs) -> Union[Obs, ndarray]:
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
     Parameters

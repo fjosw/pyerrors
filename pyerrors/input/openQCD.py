@@ -10,7 +10,7 @@ from ..correlators import Corr
 from .misc import fit_t0
 from .utils import sort_names
 from io import BufferedReader
-from typing import Optional, Union, TypedDict, Unpack
+from typing import Optional, Union, TypedDict
 
 
 class rwms_kwargs(TypedDict):
@@ -21,7 +21,7 @@ class rwms_kwargs(TypedDict):
     r_step: int
 
 
-def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[str]]=None, **kwargs: Unpack[rwms_kwargs]) -> list[Obs]:
+def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[str]]=None, **kwargs: rwms_kwargs) -> list[Obs]:
     """Read rwms format from given folder structure. Returns a list of length nrw
 
     Parameters
@@ -225,7 +225,7 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
     return result
 
 
-def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs: Unpack[rwms_kwargs]) -> dict[float, Obs]:
+def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs: rwms_kwargs) -> dict[float, Obs]:
     """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 

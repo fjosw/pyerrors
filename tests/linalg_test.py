@@ -34,7 +34,7 @@ def test_matmul():
             my_list = []
             length = 100 + np.random.randint(200)
             for i in range(dim ** 2):
-                my_list.append(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']))
+                my_list.append(pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2']))
             my_array = const * np.array(my_list).reshape((dim, dim))
             tt = pe.linalg.matmul(my_array, my_array) - my_array @ my_array
             for t, e in np.ndenumerate(tt):
@@ -43,8 +43,8 @@ def test_matmul():
             my_list = []
             length = 100 + np.random.randint(200)
             for i in range(dim ** 2):
-                my_list.append(pe.CObs(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']),
-                                       pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2'])))
+                my_list.append(pe.CObs(pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2']),
+                                       pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2'])))
             my_array = np.array(my_list).reshape((dim, dim)) * const
             tt = pe.linalg.matmul(my_array, my_array) - my_array @ my_array
             for t, e in np.ndenumerate(tt):
@@ -151,7 +151,7 @@ def test_multi_dot():
         my_list = []
         length = 1000 + np.random.randint(200)
         for i in range(dim ** 2):
-            my_list.append(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']))
+            my_list.append(pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2']))
         my_array = pe.cov_Obs(1.0, 0.002, 'cov') * np.array(my_list).reshape((dim, dim))
         tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
         for t, e in np.ndenumerate(tt):
@@ -160,8 +160,8 @@ def test_multi_dot():
         my_list = []
         length = 1000 + np.random.randint(200)
         for i in range(dim ** 2):
-            my_list.append(pe.CObs(pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2']),
-                                   pe.Obs([np.random.rand(length), np.random.rand(length + 1)], ['t1', 't2'])))
+            my_list.append(pe.CObs(pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2']),
+                                   pe.Obs([np.random.rand(length)], ['t1']) + pe.Obs([np.random.rand(length + 1)], ['t2'])))
         my_array = np.array(my_list).reshape((dim, dim)) * pe.cov_Obs(1.0, 0.002, 'cov')
         tt = pe.linalg.matmul(my_array, my_array, my_array, my_array) - my_array @ my_array @ my_array @ my_array
         for t, e in np.ndenumerate(tt):
@@ -209,7 +209,7 @@ def test_irregular_matrix_inverse():
     for idl in [range(8, 508, 10), range(250, 273), [2, 8, 19, 20, 78, 99, 828, 10548979]]:
         irregular_array = []
         for i in range(dim ** 2):
-            irregular_array.append(pe.Obs([np.random.normal(1.1, 0.2, len(idl)), np.random.normal(0.25, 0.1, 10)], ['ens1', 'ens2'], idl=[idl, range(1, 11)]))
+            irregular_array.append(pe.Obs([np.random.normal(1.1, 0.2, len(idl))], ['ens1'], idl=[idl]) + pe.Obs([np.random.normal(0.25, 0.1, 10)], ['ens2'], idl=[range(1, 11)]))
         irregular_matrix = np.array(irregular_array).reshape((dim, dim)) * pe.cov_Obs(1.0, 0.002, 'cov') * pe.pseudo_Obs(1.0, 0.002, 'ens2|r23')
 
         invertible_irregular_matrix = np.identity(dim) + irregular_matrix @ irregular_matrix.T

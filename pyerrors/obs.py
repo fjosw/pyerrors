@@ -95,6 +95,8 @@ class Obs:
                     raise ValueError('Names are not unique.')
                 if not all(isinstance(x, str) for x in names):
                     raise TypeError('All names have to be strings.')
+                if len(set([o.split('|')[0] for o in names])) > 1:
+                    raise ValueError('Cannot initialize Obs based on multiple ensembles. Please average separate Obs from each ensemble.')
             else:
                 if not isinstance(names[0], str):
                     raise TypeError('All names have to be strings.')
@@ -1434,6 +1436,8 @@ def reweight(weight: Obs, obs: Union[ndarray, list[Obs]], **kwargs) -> list[Obs]
             raise ValueError('Error: Not possible to reweight an Obs that contains covobs!')
         if not set(obs[i].names).issubset(weight.names):
             raise ValueError('Error: Ensembles do not fit')
+        if len(obs[i].mc_names) > 1 or len(weight.mc_names) > 1:
+            raise ValueError('Error: Cannot reweight an Obs that contains multiple ensembles.')
         for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise ValueError('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
@@ -1469,9 +1473,12 @@ def correlate(obs_a: Obs, obs_b: Obs) -> Obs:
     -----
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
-    Currently only works if ensembles are identical (this is not strictly necessary).
+    Only works if a single ensemble is present in the Obs.
+    Currently only works if ensemble content is identical (this is not strictly necessary).
     """
 
+    if len(obs_a.mc_names) > 1 or len(obs_b.mc_names) > 1:
+        raise ValueError('Error: Cannot correlate Obs that contain multiple ensembles.')
     if sorted(obs_a.names) != sorted(obs_b.names):
         raise ValueError(f"Ensembles do not fit {set(sorted(obs_a.names)) ^ set(sorted(obs_b.names))}")
     if len(obs_a.cov_names) or len(obs_b.cov_names):
@@ -1781,8 +1788,13 @@ def import_bootstrap(boots: ndarray, name: str, random_numbers: ndarray) -> Obs:
     return ret
 
 
+<<<<<<< HEAD
 def merge_obs(list_of_obs: list[Obs]) -> Obs:
-    """Combine all observables in list_of_obs into one new observable
+    """Combine all observables in list_of_obs into one new observable.
+    This allows to merge Obs that have been computed on multiple replica
+    of the same ensemble.
+    If you like to merge Obs that are based on several ensembles, please
+    average them yourself.
 
     Parameters
     ----------

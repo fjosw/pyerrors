@@ -1788,7 +1788,6 @@ def import_bootstrap(boots: ndarray, name: str, random_numbers: ndarray) -> Obs:
     return ret
 
 
-<<<<<<< HEAD
 def merge_obs(list_of_obs: list[Obs]) -> Obs:
     """Combine all observables in list_of_obs into one new observable.
     This allows to merge Obs that have been computed on multiple replica

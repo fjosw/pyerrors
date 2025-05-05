@@ -167,7 +167,7 @@ def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: l
         appended = False
     ls: list = kwargs.get("replica", [])
     if ls == []:
-        
+
         for (dirpath, dirnames, filenames) in os.walk(path):
             if not appended:
                 ls.extend(dirnames)

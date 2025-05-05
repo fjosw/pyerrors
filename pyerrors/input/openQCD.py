@@ -19,7 +19,6 @@ class rwms_kwargs(TypedDict):
     r_start: list[int]
     r_stop: list[int]
     r_step: int
-    
 
 
 def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[str]]=None, **kwargs: Unpack[rwms_kwargs]) -> list[Obs]:
@@ -65,7 +64,6 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
     postfix: str = kwargs.get('postfix', '')
 
     known_files: list[str] = kwargs.get('files', [])
-        
 
     ls = _find_files(path, prefix, postfix, 'dat', known_files=known_files)
 
@@ -289,7 +287,6 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
 
     replica = len(ls)
 
-    
     r_start: list[int] = kwargs.get('r_start', [-1] * replica)
     if len(r_start) != replica:
         raise Exception('r_start does not match number of replicas')
@@ -302,7 +299,6 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
 
     print('Extract flowed Yang-Mills action density from', prefix, ',', replica, 'replica')
 
-    
     rep_names: list[str] = kwargs.get('names', [])
     if len(rep_names) == 0:
         rep_names = []

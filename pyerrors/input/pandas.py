@@ -1,6 +1,7 @@
 import warnings
 import gzip
 import sqlite3
+from contextlib import closing
 import pandas as pd
 from ..obs import Obs
 from ..correlators import Corr
@@ -29,7 +30,7 @@ def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
     None
     """
     se_df = _serialize_df(df, gz=gz)
-    with sqlite3.connect(db) as con:
+    with closing(sqlite3.connect(db)) as con:
         se_df.to_sql(table_name, con=con, if_exists=if_exists, index=False, **kwargs)
 
 
@@ -51,7 +52,7 @@ def read_sql(sql, db, auto_gamma=False, **kwargs):
     data : pandas.DataFrame
         Dataframe with the content of the sqlite database.
     """
-    with sqlite3.connect(db) as con:
+    with closing(sqlite3.connect(db)) as con:
         extract_df = pd.read_sql(sql, con=con, **kwargs)
     return _deserialize_df(extract_df, auto_gamma=auto_gamma)
 

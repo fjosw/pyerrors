@@ -82,6 +82,8 @@ class Obs:
                     raise ValueError('Names are not unique.')
                 if not all(isinstance(x, str) for x in names):
                     raise TypeError('All names have to be strings.')
+                if len(set([o.split('|')[0] for o in names])) > 1:
+                    raise ValueError('Cannot initialize Obs based on multiple ensembles. Please average separate Obs from each ensemble.')
             else:
                 if not isinstance(names[0], str):
                     raise TypeError('All names have to be strings.')
@@ -222,7 +224,7 @@ class Obs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
                     if tmp < 0:
-                        raise Exception(kwarg_name + ' has to be larger or equal to 0.')
+                        raise ValueError(kwarg_name + ' has to be larger or equal to 0.')
                     for e, e_name in enumerate(self.e_names):
                         getattr(self, kwarg_name)[e_name] = tmp
                 else:
@@ -291,7 +293,7 @@ class Obs:
                 texp = self.tau_exp[e_name]
                 # Critical slowing down analysis
                 if w_max // 2 <= 1:
-                    raise Exception("Need at least 8 samples for tau_exp error analysis")
+                    raise ValueError("Need at least 8 samples for tau_exp error analysis")
                 for n in range(1, w_max // 2):
                     _compute_drho(n + 1)
                     if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
@@ -620,7 +622,7 @@ class Obs:
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
         if np.isclose(0.0, self._dvalue, atol=1e-15):
-            raise Exception('Error is 0.0')
+            raise ValueError('Error is 0.0')
         labels = self.e_names
         sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
         fig1, ax1 = plt.subplots()
@@ -659,7 +661,7 @@ class Obs:
             with open(file_name + '.p', 'wb') as fb:
                 pickle.dump(self, fb)
         else:
-            raise Exception("Unknown datatype " + str(datatype))
+            raise TypeError("Unknown datatype " + str(datatype))
 
     def export_jackknife(self):
         """Export jackknife samples from the Obs
@@ -676,7 +678,7 @@ class Obs:
         """
 
         if len(self.names) != 1:
-            raise Exception("'export_jackknife' is only implemented for Obs defined on one ensemble and replicum.")
+            raise ValueError("'export_jackknife' is only implemented for Obs defined on one ensemble and replicum.")
 
         name = self.names[0]
         full_data = self.deltas[name] + self.r_values[name]
@@ -711,7 +713,7 @@ class Obs:
             should agree with samples from a full bootstrap analysis up to O(1/N).
         """
         if len(self.names) != 1:
-            raise Exception("'export_boostrap' is only implemented for Obs defined on one ensemble and replicum.")
+            raise ValueError("'export_boostrap' is only implemented for Obs defined on one ensemble and replicum.")
 
         name = self.names[0]
         length = self.N
@@ -1267,7 +1269,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     if 'man_grad' in kwargs:
         deriv = np.asarray(kwargs.get('man_grad'))
         if new_values.shape + data.shape != deriv.shape:
-            raise Exception('Manual derivative does not have correct shape.')
+            raise ValueError('Manual derivative does not have correct shape.')
     elif kwargs.get('num_grad') is True:
         if multi > 0:
             raise Exception('Multi mode currently not supported for numerical derivative')
@@ -1333,7 +1335,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         new_covobs = {name: Covobs(0, allcov[name], name, grad=new_grad[name]) for name in new_grad}
 
         if not set(new_covobs.keys()).isdisjoint(new_deltas.keys()):
-            raise Exception('The same name has been used for deltas and covobs!')
+            raise ValueError('The same name has been used for deltas and covobs!')
         new_samples = []
         new_means = []
         new_idl = []
@@ -1374,7 +1376,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
         Has to be a subset of idx_old.
     """
     if not len(deltas) == len(idx_old):
-        raise Exception('Length of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
+        raise ValueError('Length of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas
@@ -1382,7 +1384,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
         return deltas
     indices = np.intersect1d(idx_old, idx_new, assume_unique=True, return_indices=True)[1]
     if len(indices) < len(idx_new):
-        raise Exception('Error in _reduce_deltas: Config of idx_new not in idx_old')
+        raise ValueError('Error in _reduce_deltas: Config of idx_new not in idx_old')
     return np.array(deltas)[indices]
 
 
@@ -1404,12 +1406,14 @@ def reweight(weight, obs, **kwargs):
     result = []
     for i in range(len(obs)):
         if len(obs[i].cov_names):
-            raise Exception('Error: Not possible to reweight an Obs that contains covobs!')
+            raise ValueError('Error: Not possible to reweight an Obs that contains covobs!')
         if not set(obs[i].names).issubset(weight.names):
-            raise Exception('Error: Ensembles do not fit')
+            raise ValueError('Error: Ensembles do not fit')
+        if len(obs[i].mc_names) > 1 or len(weight.mc_names) > 1:
+            raise ValueError('Error: Cannot reweight an Obs that contains multiple ensembles.')
         for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
-                raise Exception('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
+                raise ValueError('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
         new_samples = []
         w_deltas = {}
         for name in sorted(obs[i].names):
@@ -1442,18 +1446,21 @@ def correlate(obs_a, obs_b):
     -----
     Keep in mind to only correlate primary observables which have not been reweighted
     yet. The reweighting has to be applied after correlating the observables.
-    Currently only works if ensembles are identical (this is not strictly necessary).
+    Only works if a single ensemble is present in the Obs.
+    Currently only works if ensemble content is identical (this is not strictly necessary).
     """
 
+    if len(obs_a.mc_names) > 1 or len(obs_b.mc_names) > 1:
+        raise ValueError('Error: Cannot correlate Obs that contain multiple ensembles.')
     if sorted(obs_a.names) != sorted(obs_b.names):
-        raise Exception(f"Ensembles do not fit {set(sorted(obs_a.names)) ^ set(sorted(obs_b.names))}")
+        raise ValueError(f"Ensembles do not fit {set(sorted(obs_a.names)) ^ set(sorted(obs_b.names))}")
     if len(obs_a.cov_names) or len(obs_b.cov_names):
-        raise Exception('Error: Not possible to correlate Obs that contain covobs!')
+        raise ValueError('Error: Not possible to correlate Obs that contain covobs!')
     for name in obs_a.names:
         if obs_a.shape[name] != obs_b.shape[name]:
-            raise Exception('Shapes of ensemble', name, 'do not fit')
+            raise ValueError('Shapes of ensemble', name, 'do not fit')
         if obs_a.idl[name] != obs_b.idl[name]:
-            raise Exception('idl of ensemble', name, 'do not fit')
+            raise ValueError('idl of ensemble', name, 'do not fit')
 
     if obs_a.reweighted is True:
         warnings.warn("The first observable is already reweighted.", RuntimeWarning)
@@ -1555,7 +1562,7 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
 
     condn = np.linalg.cond(corr)
     if condn > 0.1 / np.finfo(float).eps:
-        raise Exception(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
+        raise ValueError(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
     if condn > 1e13:
         warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
     chol = np.linalg.cholesky(corr)
@@ -1636,7 +1643,7 @@ def _smooth_eigenvalues(corr, E):
         Number of eigenvalues to be left substantially unchanged
     """
     if not (2 < E < corr.shape[0] - 1):
-        raise Exception(f"'E' has to be between 2 and the dimension of the correlation matrix minus 1 ({corr.shape[0] - 1}).")
+        raise ValueError(f"'E' has to be between 2 and the dimension of the correlation matrix minus 1 ({corr.shape[0] - 1}).")
     vals, vec = np.linalg.eigh(corr)
     lambda_min = np.mean(vals[:-E])
     vals[vals < lambda_min] = lambda_min
@@ -1755,7 +1762,11 @@ def import_bootstrap(boots, name, random_numbers):
 
 
 def merge_obs(list_of_obs):
-    """Combine all observables in list_of_obs into one new observable
+    """Combine all observables in list_of_obs into one new observable.
+    This allows to merge Obs that have been computed on multiple replica
+    of the same ensemble.
+    If you like to merge Obs that are based on several ensembles, please
+    average them yourself.
 
     Parameters
     ----------
@@ -1768,9 +1779,9 @@ def merge_obs(list_of_obs):
     """
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
-        raise Exception('list_of_obs contains duplicate replica: %s' % (str(replist)))
+        raise ValueError('list_of_obs contains duplicate replica: %s' % (str(replist)))
     if any([len(o.cov_names) for o in list_of_obs]):
-        raise Exception('Not possible to merge data that contains covobs!')
+        raise ValueError('Not possible to merge data that contains covobs!')
     new_dict = {}
     idl_dict = {}
     for o in list_of_obs:
@@ -1821,7 +1832,7 @@ def cov_Obs(means, cov, name, grad=None):
     for i in range(len(means)):
         ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
     if ol[0].covobs[name].N != len(means):
-        raise Exception('You have to provide %d mean values!' % (ol[0].N))
+        raise ValueError('You have to provide %d mean values!' % (ol[0].N))
     if len(ol) == 1:
         return ol[0]
     return ol
@@ -1837,7 +1848,7 @@ def _determine_gap(o, e_content, e_name):
 
     gap = min(gaps)
     if not np.all([gi % gap == 0 for gi in gaps]):
-        raise Exception(f"Replica for ensemble {e_name} do not have a common spacing.", gaps)
+        raise ValueError(f"Replica for ensemble {e_name} do not have a common spacing.", gaps)
 
     return gap
 

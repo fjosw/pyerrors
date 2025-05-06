@@ -293,7 +293,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if len(key_ls) > 1:
         for key in key_ls:
             if np.asarray(yd[key]).shape != funcd[key](np.arange(n_parms), xd[key]).shape:
-                raise ValueError(f"Fit function {key} returns the wrong shape ({funcd[key](np.arange(n_parms), xd[key]).shape} instead of {xd[key].shape})\nIf the fit function is just a constant you could try adding x*0 to get the correct shape.")
+                raise ValueError(f"Fit function {key} returns the wrong shape ({funcd[key](np.arange(n_parms), xd[key]).shape} instead of {np.asarray(yd[key]).shape})\nIf the fit function is just a constant you could try adding x*0 to get the correct shape.")
 
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
@@ -365,6 +365,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             if (chol_inv[1] != key_ls):
                 raise ValueError('The keys of inverse covariance matrix are not the same or do not appear in the same order as the x and y values.')
             chol_inv = chol_inv[0]
+            if np.any(np.diag(chol_inv) <= 0) or (not np.all(chol_inv == np.tril(chol_inv))):
+                raise ValueError('The inverse covariance matrix inv_chol_cov_matrix[0] has to be a lower triangular matrix constructed from a Cholesky decomposition.')
         else:
             corr = covariance(y_all, correlation=True, **kwargs)
             inverrdiag = np.diag(1 / np.asarray(dy_f))

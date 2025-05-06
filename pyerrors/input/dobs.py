@@ -79,7 +79,7 @@ def _dict_to_xmlstring_spaces(d, space='  '):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if not '<%s' % ('/') in li:
+            if '<%s' % ('/') not in li:
                 c += 1
         cm = False
     return o
@@ -529,7 +529,8 @@ def import_dobs_string(content, full_output=False, separator_insertion=True):
                 deltas.append(repdeltas)
                 idl.append(repidl)
 
-        res.append(Obs(deltas, obs_names, idl=idl))
+        obsmeans = [np.average(deltas[j]) for j in range(len(deltas))]
+        res.append(Obs([np.array(deltas[j]) - obsmeans[j] for j in range(len(obsmeans))], obs_names, idl=idl, means=obsmeans))
         res[-1]._value = mean[i]
     _check(len(e_names) == ne)
 
@@ -671,7 +672,7 @@ def _dobsdict_to_xmlstring_spaces(d, space='  '):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if not '<%s' % ('/') in li:
+            if '<%s' % ('/') not in li:
                 c += 1
         cm = False
     return o

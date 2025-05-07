@@ -69,11 +69,11 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
 
     replica = len(ls)
 
-    r_start: list[int] = kwargs.get('r_start', [-1] * replica)
+    r_start: list[Union[int, None]] = kwargs.get('r_start', [None] * replica)
     if len(r_start) != replica:
         raise Exception('r_start does not match number of replicas')
 
-    r_stop: list[int] = kwargs.get('r_stop', [-1] * replica)
+    r_stop: list[Union[int, None]] = kwargs.get('r_stop', [None] * replica)
     if len(r_stop) != replica:
         raise Exception('r_stop does not match number of replicas')
 
@@ -287,13 +287,13 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
 
     replica = len(ls)
 
-    r_start: list[int] = kwargs.get('r_start', [-1] * replica)
+    r_start: list[Union[int, None]] = kwargs.get('r_start', [None] * replica)
     if len(r_start) != replica:
         raise Exception('r_start does not match number of replicas')
 
-    r_stop: list[int] = kwargs.get('r_start', [-1] * replica)
+    r_stop: list[Union[int, None]] = kwargs.get('r_stop', [None] * replica)
     if len(r_stop) != replica:
-        raise Exception('r_start does not match number of replicas')
+        raise Exception('r_stop does not match number of replicas')
 
     r_step = kwargs.get('r_step', 1)
 

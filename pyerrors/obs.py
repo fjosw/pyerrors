@@ -159,11 +159,11 @@ class Obs:
         self.tag = None
 
     @property
-    def value(self) -> Union[float, int64, float64, int]:
+    def value(self) -> float:
         return self._value
 
     @property
-    def dvalue(self) -> Union[float, float64]:
+    def dvalue(self) -> float:
         return self._dvalue
 
     @property
@@ -481,7 +481,7 @@ class Obs:
         """
         return reweight(weight, [self])[0]
 
-    def is_zero_within_error(self, sigma: Union[float, int]=1) -> Union[bool, bool]:
+    def is_zero_within_error(self, sigma: float=1) -> bool:
         """Checks whether the observable is zero within 'sigma' standard errors.
 
         Parameters
@@ -493,7 +493,7 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, atol: float=1e-10) -> Union[bool, bool]:
+    def is_zero(self, atol: float=1e-10) -> bool:
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters
@@ -867,7 +867,7 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
 
-    def __rtruediv__(self, y: Union[float, int]) -> Obs:
+    def __rtruediv__(self, y: float) -> Obs:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [y, self], man_grad=[1 / self.value, - y.value / self.value ** 2])
         else:
@@ -878,13 +878,13 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
 
-    def __pow__(self, y: Union[Obs, float, int]) -> Obs:
+    def __pow__(self, y: Union[Obs, float]) -> Obs:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] ** x[1], [self, y], man_grad=[y.value * self.value ** (y.value - 1), self.value ** y.value * np.log(self.value)])
         else:
             return derived_observable(lambda x, **kwargs: x[0] ** y, [self], man_grad=[y * self.value ** (y - 1)])
 
-    def __rpow__(self, y: Union[float, int]) -> Obs:
+    def __rpow__(self, y: float) -> Obs:
         return derived_observable(lambda x, **kwargs: y ** x[0], [self], man_grad=[y ** self.value * np.log(y)])
 
     def __abs__(self) -> Obs:
@@ -941,7 +941,7 @@ class CObs:
     """Class for a complex valued observable."""
     __slots__ = ['_real', '_imag', 'tag']
 
-    def __init__(self, real: Obs, imag: Union[Obs, float, int]=0.0):
+    def __init__(self, real: Obs, imag: Union[Obs, float]=0.0):
         self._real = real
         self._imag = imag
         self.tag = None
@@ -951,7 +951,7 @@ class CObs:
         return self._real
 
     @property
-    def imag(self) -> Union[Obs, float, int]:
+    def imag(self) -> Union[Obs, float]:
         return self._imag
 
     def gamma_method(self, **kwargs):
@@ -979,7 +979,7 @@ class CObs:
         else:
             return CObs(self.real + other, self.imag)
 
-    def __radd__(self, y: Union[complex, float, Obs, int]) -> "CObs":
+    def __radd__(self, y: Union[complex, Obs]) -> "CObs":
         return self + y
 
     def __sub__(self, other: Any) -> Union[CObs, ndarray]:
@@ -990,7 +990,7 @@ class CObs:
         else:
             return CObs(self.real - other, self.imag)
 
-    def __rsub__(self, other: Union[complex, float, Obs, int]) -> "CObs":
+    def __rsub__(self, other: Union[complex, Obs]) -> "CObs":
         return -1 * (self - other)
 
     def __mul__(self, other: Any) -> Union[CObs, ndarray]:
@@ -1012,7 +1012,7 @@ class CObs:
         else:
             return CObs(self.real * other, self.imag * other)
 
-    def __rmul__(self, other: Union[complex, Obs, CObs, float, int]) -> "CObs":
+    def __rmul__(self, other: Union[complex, Obs, CObs]) -> "CObs":
         return self * other
 
     def __truediv__(self, other: Any) -> Union[CObs, ndarray]:
@@ -1024,7 +1024,7 @@ class CObs:
         else:
             return CObs(self.real / other, self.imag / other)
 
-    def __rtruediv__(self, other: Union[complex, float, Obs, CObs, int]) -> CObs:
+    def __rtruediv__(self, other: Union[complex, Obs, CObs]) -> CObs:
         r = self.real ** 2 + self.imag ** 2
         if hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs((self.real * other.real + self.imag * other.imag) / r, (self.real * other.imag - self.imag * other.real) / r)
@@ -1164,7 +1164,7 @@ def _intersection_idx(idl: list[Union[range, list[int]]]) -> Union[range, list[i
     return idinter
 
 
-def _expand_deltas_for_merge(deltas: ndarray, idx: Union[range, list[int]], shape: int, new_idx: Union[range, list[int]], scalefactor: Union[float, int]) -> ndarray:
+def _expand_deltas_for_merge(deltas: ndarray, idx: Union[range, list[int]], shape: int, new_idx: Union[range, list[int]], scalefactor: float) -> ndarray:
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.

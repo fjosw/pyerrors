@@ -38,6 +38,8 @@ jobs:
 
       - name: Install
         run: |
+          sudo apt update
+          sudo apt install libhdf5-dev
           uv pip install wheel --system
           uv pip install . --system
           uv pip install pytest pytest-cov pytest-benchmark hypothesis --system

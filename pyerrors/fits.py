@@ -131,7 +131,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
         0.548(23), 500(40) or 0.5(0.4)
     silent : bool, optional
-        If true all output to the console is omitted (default False).
+        If True all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
         non-linear fits with many parameters. In case of correlated fits the guess is used to perform
@@ -139,10 +139,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
-        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
+        migrad of iminuit. If no method is specified, Levenberg–Marquardt is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
     tol: float, optional
-        can be used (only for combined fits and methods other than Levenberg-Marquard) to set the tolerance for convergence
+        can be used (only for combined fits and methods other than Levenberg–Marquardt) to set the tolerance for convergence
         to a different value to either speed up convergence at the cost of a larger error on the fitted parameters (and possibly
         invalid estimates for parameter uncertainties) or smaller values to get more accurate parameter values
         The stopping criterion depends on the method, e.g. migrad: edm_max = 0.002 * tol * errordef (EDM criterion: edm < edm_max)
@@ -152,7 +152,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
     inv_chol_cov_matrix [array,list], optional
-        array: shape = (no of y values) X (no of y values)
+        array: shape = (number of y values) X (number of y values)
         list:   for an uncombined fit: [""]
                 for a combined fit: list of keys belonging to the corr_matrix saved in the array, must be the same as the keys of the y dict in alphabetical order
         If correlated_fit=True is set as well, can provide an inverse covariance matrix (y errors, dy_f included!) of your own choosing for a correlated fit.
@@ -168,6 +168,9 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If True, a quantile-quantile plot of the fit result is generated (default False).
     num_grad : bool
         Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
+    n_parms : int, optional
+        Number of fit parameters. Overrides automatic detection of parameter count.
+        Useful when autodetection fails. Must match the length of initial_guess or priors (if provided).
 
     Returns
     -------
@@ -269,26 +272,38 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         raise Exception("No y errors available, run the gamma method first.")
 
     # number of fit parameters
-    n_parms_ls = []
-    for key in key_ls:
-        if not callable(funcd[key]):
-            raise TypeError('func (key=' + key + ') is not a function.')
-        if np.asarray(xd[key]).shape[-1] != len(yd[key]):
-            raise ValueError('x and y input (key=' + key + ') do not have the same length')
-        for n_loc in range(100):
-            try:
-                funcd[key](np.arange(n_loc), x_all.T[0])
-            except TypeError:
-                continue
-            except IndexError:
-                continue
+    if 'n_parms' in kwargs:
+        n_parms = kwargs.get('n_parms')
+        if not isinstance(n_parms, int):
+            raise TypeError(
+                f"'n_parms' must be an integer, got {n_parms!r} "
+                f"of type {type(n_parms).__name__}."
+            )
+        if n_parms <= 0:
+            raise ValueError(
+                f"'n_parms' must be a positive integer, got {n_parms}."
+            )
+    else:
+        n_parms_ls = []
+        for key in key_ls:
+            if not callable(funcd[key]):
+                raise TypeError('func (key=' + key + ') is not a function.')
+            if np.asarray(xd[key]).shape[-1] != len(yd[key]):
+                raise ValueError('x and y input (key=' + key + ') do not have the same length')
+            for n_loc in range(100):
+                try:
+                    funcd[key](np.arange(n_loc), x_all.T[0])
+                except TypeError:
+                    continue
+                except IndexError:
+                    continue
+                else:
+                    break
             else:
-                break
-        else:
-            raise RuntimeError("Fit function (key=" + key + ") is not valid.")
-        n_parms_ls.append(n_loc)
+                raise RuntimeError("Fit function (key=" + key + ") is not valid.")
+            n_parms_ls.append(n_loc)
 
-    n_parms = max(n_parms_ls)
+        n_parms = max(n_parms_ls)
 
     if len(key_ls) > 1:
         for key in key_ls:
@@ -535,17 +550,20 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work.
     silent : bool, optional
-        If true all output to the console is omitted (default False).
+        If True all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for non-linear
         fits with many parameters.
     expected_chisquare : bool
-        If true prints the expected chisquare which is
+        If True prints the expected chisquare which is
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
     num_grad : bool
-        Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
+        Use numerical differentiation instead of automatic differentiation to perform the error propagation (default False).
+    n_parms : int, optional
+        Number of fit parameters. Overrides automatic detection of parameter count.
+        Useful when autodetection fails. Must match the length of initial_guess (if provided).
 
     Notes
     -----
@@ -575,19 +593,32 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
-    for i in range(42):
-        try:
-            func(np.arange(i), x.T[0])
-        except TypeError:
-            continue
-        except IndexError:
-            continue
-        else:
-            break
+    if 'n_parms' in kwargs:
+        n_parms = kwargs.get('n_parms')
+        if not isinstance(n_parms, int):
+            raise TypeError(
+                f"'n_parms' must be an integer, got {n_parms!r} "
+                f"of type {type(n_parms).__name__}."
+            )
+        if n_parms <= 0:
+            raise ValueError(
+                f"'n_parms' must be a positive integer, got {n_parms}."
+            )
     else:
-        raise RuntimeError("Fit function is not valid.")
+        for i in range(100):
+            try:
+                func(np.arange(i), x.T[0])
+            except TypeError:
+                continue
+            except IndexError:
+                continue
+            else:
+                break
+        else:
+            raise RuntimeError("Fit function is not valid.")
 
-    n_parms = i
+        n_parms = i
+
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
 

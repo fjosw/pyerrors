@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.15.0] - 2025-10-10
+
+### Added
+- Option to explicitly specify the number of fit parameters added.
+
 ## [2.14.0] - 2025-03-09
 
 ### Added

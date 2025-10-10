@@ -1098,6 +1098,7 @@ def test_combined_fit_xerr():
     }
     xd = {k: np.transpose([[1 + .01 * np.random.uniform(), 2] for i in range(len(yd[k]))]) for k in fitd}
     pe.fits.least_squares(xd, yd, fitd)
+    pe.fits.least_squares(xd, yd, fitd, n_parms=4)
 
 
 def test_x_multidim_fit():
@@ -1340,6 +1341,54 @@ def test_combined_fit_constant_shape():
     funcs = {"a": lambda a, x: a[0] + a[1] * x,
              "": lambda a, x: a[1] + x * 0}
     pe.fits.least_squares(x, y, funcs, method='migrad')
+    pe.fits.least_squares(x, y, funcs, method='migrad', n_parms=2)
+
+def test_fit_n_parms():
+    # Function that fails if the number of parameters is not specified:
+    def fcn(p, x):                                                          
+        # Assumes first half of terms are A second half are E 
+        NTerms = int(len(p)/2)
+        A = anp.array(p[0:NTerms])[:, np.newaxis]   # shape (n, 1)                                                  
+        E_P = anp.array(p[NTerms:])[:, np.newaxis]    # shape (n, 1)
+        # This if statement handles the case where x is a single value rather than an array                                        
+        if isinstance(x, anp.float64) or isinstance(x, anp.int64) or isinstance(x, float)  or isinstance(x, int):
+            x = anp.array([x])[np.newaxis, :]             # shape (1, m)                                            
+        else:
+            x = anp.array(x)[np.newaxis, :]             # shape (1, m)                                              
+        exp_term = anp.exp(-E_P * x)                      
+        weighted_sum = A * exp_term                            # shape (n, m)                                      
+        return anp.mean(weighted_sum, axis=0)       # shape(m)
+
+    c = pe.Corr([pe.pseudo_Obs(2. * np.exp(-.2 * t) + .4 * np.exp(+.4 * t) + .4 * np.exp(-.6 * t), .1, 'corr') for t in range(12)])
+
+    c.fit(fcn, n_parms=2)
+    c.fit(fcn, n_parms=4)
+
+    xf = [pe.pseudo_Obs(t, .05, 'corr') for t in range(c.T)]
+    yf = [c[t] for t in range(c.T)]
+    pe.fits.total_least_squares(xf, yf, fcn, n_parms=2)
+    pe.fits.total_least_squares(xf, yf, fcn, n_parms=4)
+
+    # Is expected to fail, this is what is fixed with n_parms
+    with pytest.raises(RuntimeError):
+        c.fit(fcn, )
+    with pytest.raises(RuntimeError):
+        pe.fits.total_least_squares(xf, yf, fcn, )
+    # Test for positivity
+    with pytest.raises(ValueError):
+        c.fit(fcn, n_parms=-2)
+    with pytest.raises(ValueError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=-4)
+    # Have to pass an interger
+    with pytest.raises(TypeError):
+        c.fit(fcn, n_parms=2.)
+    with pytest.raises(TypeError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=1.2343)
+    # Improper number of parameters (function should fail)
+    with pytest.raises(ValueError):
+        c.fit(fcn, n_parms=7)
+    with pytest.raises(ValueError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=5)
 
 
 def fit_general(x, y, func, silent=False, **kwargs):

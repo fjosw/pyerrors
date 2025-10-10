@@ -571,7 +571,6 @@ def _ol_from_dict(ind, reps='DICTOBS'):
     counter = 0
 
     def dict_replace_obs(d):
-        nonlocal ol
         nonlocal counter
         x = {}
         for k, v in d.items():
@@ -592,7 +591,6 @@ def _ol_from_dict(ind, reps='DICTOBS'):
         return x
 
     def list_replace_obs(li):
-        nonlocal ol
         nonlocal counter
         x = []
         for e in li:
@@ -613,7 +611,6 @@ def _ol_from_dict(ind, reps='DICTOBS'):
         return x
 
     def obslist_replace_obs(li):
-        nonlocal ol
         nonlocal counter
         il = []
         for e in li:
@@ -694,7 +691,6 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
 
     def dict_replace_string(d):
         nonlocal counter
-        nonlocal ol
         x = {}
         for k, v in d.items():
             if isinstance(v, dict):
@@ -710,7 +706,6 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
 
     def list_replace_string(li):
         nonlocal counter
-        nonlocal ol
         x = []
         for e in li:
             if isinstance(e, list):

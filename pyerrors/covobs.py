@@ -1,9 +1,12 @@
+from __future__ import annotations
 import numpy as np
+from numpy import ndarray
+from typing import Optional, Union
 
 
 class Covobs:
 
-    def __init__(self, mean, cov, name, pos=None, grad=None):
+    def __init__(self, mean: Union[float, int], cov: Union[list, ndarray], name: str, pos: Optional[int]=None, grad: Optional[Union[ndarray, list[float]]]=None):
         """ Initialize Covobs object.
 
         Parameters
@@ -39,12 +42,12 @@ class Covobs:
             self._set_grad(grad)
         self.value = mean
 
-    def errsq(self):
+    def errsq(self) -> float:
         """ Return the variance (= square of the error) of the Covobs
         """
         return np.dot(np.transpose(self.grad), np.dot(self.cov, self.grad)).item()
 
-    def _set_cov(self, cov):
+    def _set_cov(self, cov: Union[list, ndarray]):
         """ Set the covariance matrix of the covobs
 
         Parameters
@@ -79,7 +82,7 @@ class Covobs:
             if ev < 0:
                 raise Exception('Covariance matrix is not positive-semidefinite!')
 
-    def _set_grad(self, grad):
+    def _set_grad(self, grad: Union[list[float], ndarray]):
         """ Set the gradient of the covobs
 
         Parameters
@@ -96,9 +99,9 @@ class Covobs:
             raise Exception('Invalid dimension of grad!')
 
     @property
-    def cov(self):
+    def cov(self) -> ndarray:
         return self._cov
 
     @property
-    def grad(self):
+    def grad(self) -> ndarray:
         return self._grad

@@ -1,11 +1,12 @@
 """Utilities for the input"""
 
+from __future__ import annotations
 import re
 import fnmatch
 import os
 
 
-def sort_names(ll):
+def sort_names(ll: list[str]) -> list[str]:
     """Sorts a list of names of replika with searches for `r` and `id` in the replikum string.
     If this search fails, a fallback method is used,
     where the strings are simply compared and the first diffeing numeral is used for differentiation.
@@ -52,7 +53,7 @@ def sort_names(ll):
     return ll
 
 
-def check_idl(idl, che):
+def check_idl(idl: list, che: list) -> str:
     """Checks if list of configurations is contained in an idl
 
     Parameters
@@ -82,7 +83,7 @@ def check_idl(idl, che):
     return miss_str
 
 
-def check_params(path, param_hash, prefix, param_prefix="parameters_"):
+def check_params(path: str, param_hash: str, prefix: str, param_prefix: str ="parameters_") -> dict[str, str]:
     """
     Check if, for sfcf, the parameter hashes at the end of the parameter files are in fact the expected one.
 

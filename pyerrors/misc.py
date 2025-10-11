@@ -1,3 +1,4 @@
+from __future__ import annotations
 import platform
 import numpy as np
 import scipy
@@ -5,8 +6,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
-from .obs import Obs
+from .obs import Obs, CObs
 from .version import __version__
+from numpy import ndarray
+from typing import Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .correlators import Corr
 
 
 def print_config():
@@ -23,7 +29,7 @@ def print_config():
         print(f"{key: <10}\t {value}")
 
 
-def errorbar(x, y, axes=plt, **kwargs):
+def errorbar(x: Union[ndarray[int, float, Obs], list[int, float, Obs]], y: Union[ndarray[int, float, Obs], list[int, float, Obs]], axes=plt, **kwargs):
     """pyerrors wrapper for the errorbars method of matplotlib
 
     Parameters
@@ -54,7 +60,7 @@ def errorbar(x, y, axes=plt, **kwargs):
     axes.errorbar(val["x"], val["y"], xerr=err["x"], yerr=err["y"], **kwargs)
 
 
-def dump_object(obj, name, **kwargs):
+def dump_object(obj: Corr, name: str, **kwargs):
     """Dump object into pickle file.
 
     Parameters
@@ -70,15 +76,18 @@ def dump_object(obj, name, **kwargs):
     -------
     None
     """
-    if 'path' in kwargs:
-        file_name = kwargs.get('path') + '/' + name + '.p'
+    path = kwargs.get('path')
+    if path is not None:
+        if not isinstance(path, str):
+            raise Exception("Path has to be a string.")
+        file_name = path + '/' + name + '.p'
     else:
         file_name = name + '.p'
     with open(file_name, 'wb') as fb:
         pickle.dump(obj, fb)
 
 
-def load_object(path):
+def load_object(path: str) -> Union[Obs, Corr]:
     """Load object from pickle file.
 
     Parameters
@@ -95,7 +104,7 @@ def load_object(path):
         return pickle.load(file)
 
 
-def pseudo_Obs(value, dvalue, name, samples=1000):
+def pseudo_Obs(value: Union[float, int], dvalue: Union[float, int], name: str, samples: int=1000) -> Obs:
     """Generate an Obs object with given value, dvalue and name for test purposes
 
     Parameters
@@ -118,11 +127,11 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         return Obs([np.zeros(samples) + value], [name])
     else:
         for _ in range(100):
-            deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
+            deltas = np.array([np.random.normal(0.0, dvalue * np.sqrt(samples), samples)])
             deltas -= np.mean(deltas)
             deltas *= dvalue / np.sqrt((np.var(deltas) / samples)) / np.sqrt(1 + 3 / samples)
             deltas += value
-            res = Obs(deltas, [name])
+            res = Obs(list(deltas), [name])
             res.gamma_method(S=2, tau_exp=0)
             if abs(res.dvalue - dvalue) < 1e-10 * dvalue:
                 break
@@ -132,7 +141,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         return res
 
 
-def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
+def gen_correlated_data(means: Union[ndarray, list[float]], cov: ndarray, name: str, tau: Union[float, ndarray]=0.5, samples: int=1000) -> list[Obs]:
     """ Generate observables with given covariance and autocorrelation times.
 
     Parameters
@@ -174,7 +183,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol, otype=Obs):
+def _assert_equal_properties(ol: Union[list[Obs], list[CObs], ndarray]):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):

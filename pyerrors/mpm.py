@@ -1,10 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import scipy.linalg
 from .obs import Obs
 from .linalg import svd, eig
+from typing import Optional
 
 
-def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
+def matrix_pencil_method(corrs: list[Obs], k: int=1, p: Optional[int]=None, **kwargs) -> list[Obs]:
     """Matrix pencil method to extract k energy levels from data
 
     Implementation of the matrix pencil method based on

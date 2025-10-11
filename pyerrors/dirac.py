@@ -32,8 +32,8 @@ def epsilon_tensor(i, j, k):
     elem : int
         Element (i,j,k) of the epsilon tensor of rank 3
     """
-    test_set = set((i, j, k))
-    if not (test_set <= set((1, 2, 3)) or test_set <= set((0, 1, 2))):
+    test_set = {i, j, k}
+    if not (test_set <= {1, 2, 3} or test_set <= {0, 1, 2}):
         raise ValueError("Unexpected input", i, j, k)
 
     return (i - j) * (j - k) * (k - i) / 2
@@ -50,8 +50,8 @@ def epsilon_tensor_rank4(i, j, k, o):
     elem : int
         Element (i,j,k,o) of the epsilon tensor of rank 4
     """
-    test_set = set((i, j, k, o))
-    if not (test_set <= set((1, 2, 3, 4)) or test_set <= set((0, 1, 2, 3))):
+    test_set = {i, j, k, o}
+    if not (test_set <= {1, 2, 3, 4} or test_set <= {0, 1, 2, 3}):
         raise ValueError("Unexpected input", i, j, k, o)
 
     return (i - j) * (j - k) * (k - i) * (i - o) * (j - o) * (o - k) / 12

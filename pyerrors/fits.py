@@ -71,7 +71,7 @@ class Fit_result(Sequence):
 
 
 def least_squares(x, y, func, priors=None, silent=False, **kwargs):
-    r'''Performs a non-linear fit to y = func(x).
+    r"""Performs a non-linear fit to y = func(x).
         ```
 
     Parameters
@@ -227,7 +227,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     chisquare/d.o.f.: 0.5388013574561786 # random
     fit parameters [1.11897846 0.96361162 0.92325319] # random
 
-    '''
+    """
     output = Fit_result()
 
     if (isinstance(x, dict) and isinstance(y, dict) and isinstance(func, dict)):
@@ -521,7 +521,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
 
 def total_least_squares(x, y, func, silent=False, **kwargs):
-    r'''Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
+    r"""Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     Parameters
     ----------
@@ -573,7 +573,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     -------
     output : Fit_result
         Parameters and information on the fitted result.
-    '''
+    """
 
     output = Fit_result()
 

@@ -800,8 +800,7 @@ def test_prune_with_Nones():
 
     tmp_corr = unpadded_corr.prune(Ntrunc, t0proj=t0proj-front_padding, tproj=tproj-front_padding)
     pruned_then_padded = pe.Corr(tmp_corr.content, padding=[front_padding, back_padding])
-    with pytest.raises(ValueError):
-        padded_then_pruned = padded_corr.prune(Ntrunc, t0proj=t0proj, tproj=tproj)
+    padded_then_pruned = padded_corr.prune(Ntrunc, t0proj=t0proj, tproj=tproj)
 
     for t in range(T):
         assert np.all(pruned_then_padded.content[t] == padded_then_pruned.content[t])

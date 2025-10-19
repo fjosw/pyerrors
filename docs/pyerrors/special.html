@@ -338,9 +338,7 @@ Eq. 5.12.1. <a href="https://dlmf.nist.gov/5.12">https://dlmf.nist.gov/5.12</a>&
 </span></pre></div>
 
 
-            <div class="docstring"><p>betainc(x1, x2, x3, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>betainc(a, b, x, out=None)</p>
+            <div class="docstring"><p>betainc(a, b, x, out=None)</p>
 
 <p>Regularized incomplete beta function.</p>
 
@@ -374,10 +372,14 @@ Optional output array for the function values</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#beta">beta</a></code>:  beta function<br />
-<code>betaincinv</code>:  inverse of the regularized incomplete beta function<br />
-<code>betaincc</code>:  complement of the regularized incomplete beta function<br />
-<code>scipy.stats.beta</code>:  beta distribution  </p>
+<p><code>beta()`
+beta`, `function`  
+</code>betaincinv()<code>
+inverse</code>, <code>of</code>, <code>the</code>, <code>regularized</code>, <code>incomplete</code>, <code><a href="#beta">beta</a></code>, <code>function</code><br />
+<code>betaincc()`
+complement`, `of`, `the`, `regularized`, `incomplete`, `beta`, `function`  
+</code>scipy.stats.beta()<code>
+beta</code>, <code>distribution</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -390,8 +392,39 @@ without the gamma terms.  One can use the function <code><a href="#beta">beta</a
 function by multiplying the result of <code>betainc(a, b, x)</code> by
 <code>beta(a, b)</code>.</p>
 
+<p><code>betainc(a, b, x)</code> is treated as a two parameter family of functions
+of a single variable <code>x</code>, rather than as a function of three variables.
+This impacts only the limiting cases <code>a = 0</code>, <code>b = 0</code>, <code>a = inf</code>,
+<code>b = inf</code>.</p>
+
+<p>In general</p>
+
+<p>$$\lim_{(a, b) \rightarrow (a_0, b_0)} \mathrm{betainc}(a, b, x)$$</p>
+
+<p>is treated as a pointwise limit in <code>x</code>. Thus for example,
+<code>betainc(0, b, 0)</code> equals <code>0</code> for <code>b &gt; 0</code>, although it would be
+indeterminate when considering the simultaneous limit <code>(a, x) -&gt; (0+, 0+)</code>.</p>
+
 <p>This function wraps the <code>ibeta</code> routine from the
 Boost Math C++ library <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>.</p>
+
+<p><code><a href="#betainc">betainc</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -1050,9 +1083,7 @@ as</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>gammaln(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>gammaln(x, out=None)</p>
+            <div class="docstring"><p>gammaln(x, out=None)</p>
 
 <p>Logarithm of the absolute value of the gamma function.</p>
 
@@ -1080,8 +1111,10 @@ Optional output array for the function results</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#gammasgn">gammasgn</a></code>:  sign of the gamma function<br />
-<code>loggamma</code>:  principal branch of the logarithm of the gamma function  </p>
+<p><code>gammasgn()`
+sign`, `of`, `the`, `gamma`, `function`  
+</code>loggamma()<code>
+principal</code>, <code>branch</code>, <code>of</code>, <code>the</code>, <code>logarithm</code>, <code>of</code>, <code>the</code>, <code><a href="#gamma">gamma</a></code>, <code>function</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1094,6 +1127,24 @@ with complex numbers via the relation <code>exp(gammaln(x)) =
 gammasgn(x) * gamma(x)</code>.</p>
 
 <p>For complex-valued log-gamma, use <code>loggamma</code> instead of <code><a href="#gammaln">gammaln</a></code>.</p>
+
+<p><code><a href="#gammaln">gammaln</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -1167,9 +1218,7 @@ gammasgn(x) * gamma(x)</code>.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>gammainc(x1, x2, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>gammainc(a, x, out=None)</p>
+            <div class="docstring"><p>gammainc(a, x, out=None)</p>
 
 <p>Regularized lower incomplete gamma function.</p>
 
@@ -1198,9 +1247,12 @@ Optional output array for the function values</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#gammaincc">gammaincc</a></code>:  regularized upper incomplete gamma function<br />
-<code>gammaincinv</code>:  inverse of the regularized lower incomplete gamma function<br />
-<code>gammainccinv</code>:  inverse of the regularized upper incomplete gamma function  </p>
+<p><code>gammaincc()`
+regularized`, `upper`, `incomplete`, `gamma`, `function`  
+</code>gammaincinv()<code>
+inverse</code>, <code>of</code>, <code>the</code>, <code>regularized</code>, <code>lower</code>, <code>incomplete</code>, <code><a href="#gamma">gamma</a></code>, <code>function</code><br />
+`<code>gammainccinv()</code>
+inverse<code>,</code>of<code>,</code>the<code>,</code>regularized<code>,</code>upper<code>,</code>incomplete<code>,</code>gamma<code>,</code>function`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1209,6 +1261,24 @@ gammaincc(a, x) = 1</code> where <code><a href="#gammaincc">gammaincc</a></code>
 incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
+
+<p><code><a href="#gammainc">gammainc</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -1276,9 +1346,7 @@ monotonically increases to 1.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>gammaincc(x1, x2, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>gammaincc(a, x, out=None)</p>
+            <div class="docstring"><p>gammaincc(a, x, out=None)</p>
 
 <p>Regularized upper incomplete gamma function.</p>
 
@@ -1307,9 +1375,12 @@ Optional output array for the function values</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#gammainc">gammainc</a></code>:  regularized lower incomplete gamma function<br />
-<code>gammaincinv</code>:  inverse of the regularized lower incomplete gamma function<br />
-<code>gammainccinv</code>:  inverse of the regularized upper incomplete gamma function  </p>
+<p><code>gammainc()`
+regularized`, `lower`, `incomplete`, `gamma`, `function`  
+</code>gammaincinv()<code>
+inverse</code>, <code>of</code>, <code>the</code>, <code>regularized</code>, <code>lower</code>, <code>incomplete</code>, <code><a href="#gamma">gamma</a></code>, <code>function</code><br />
+`<code>gammainccinv()</code>
+inverse<code>,</code>of<code>,</code>the<code>,</code>regularized<code>,</code>upper<code>,</code>incomplete<code>,</code>gamma<code>,</code>function`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1318,6 +1389,24 @@ gammaincc(a, x) = 1</code> where <code><a href="#gammainc">gammainc</a></code> i
 incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
+
+<p><code><a href="#gammaincc">gammaincc</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -2521,9 +2610,7 @@ To calculate the orders 0 and 1 for an 1D array:</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>i0(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>i0(x, out=None)</p>
+            <div class="docstring"><p>i0(x, out=None)</p>
 
 <p>Modified Bessel function of order 0.</p>
 
@@ -2551,8 +2638,10 @@ Value of the modified Bessel function of order 0 at <code>x</code>.</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#iv">iv</a></code>:  Modified Bessel function of any order<br />
-<code>i0e</code>:  Exponentially scaled modified Bessel function of order 0  </p>
+<p><code>iv()`
+Modified`, `Bessel`, `function`, `of`, `any`, `order`  
+</code>i0e()<code>
+Exponentially</code>, <code>scaled</code>, <code>modified</code>, <code>Bessel</code>, <code>function</code>, <code>of</code>, <code>order</code>, <code>0</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2560,6 +2649,24 @@ Value of the modified Bessel function of order 0 at <code>x</code>.</li>
 Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i0">i0</a></code>.</p>
+
+<p><code><a href="#i0">i0</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -2637,9 +2744,7 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>i1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>i1(x, out=None)</p>
+            <div class="docstring"><p>i1(x, out=None)</p>
 
 <p>Modified Bessel function of order 1.</p>
 
@@ -2668,8 +2773,10 @@ Value of the modified Bessel function of order 1 at <code>x</code>.</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#iv">iv</a></code>:  Modified Bessel function of the first kind<br />
-<code>i1e</code>:  Exponentially scaled modified Bessel function of order 1  </p>
+<p><code>iv()`
+Modified`, `Bessel`, `function`, `of`, `the`, `first`, `kind`  
+</code>i1e()<code>
+Exponentially</code>, <code>scaled</code>, <code>modified</code>, <code>Bessel</code>, <code>function</code>, <code>of</code>, <code>order</code>, <code>1</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2677,6 +2784,24 @@ Value of the modified Bessel function of order 1 at <code>x</code>.</li>
 Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i1">i1</a></code>.</p>
+
+<p><code><a href="#i1">i1</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -3097,9 +3222,7 @@ of a Complex Argument and Nonnegative Order",
 </span></pre></div>
 
 
-            <div class="docstring"><p>erf(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>erf(z, out=None)</p>
+            <div class="docstring"><p>erf(z, out=None)</p>
 
 <p>Returns the error function of complex argument.</p>
 
@@ -3123,12 +3246,31 @@ The values of the error function at the given points <code>x</code>.</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>erfc,</code>, <code>erfinv,</code>, <code>erfcinv,</code>, <code>wofz,</code>, <code>erfcx,</code>, <code>erfi</code>  </p>
+<p><code>erfc()`,`,</code>erfinv()<code>,</code>, <code>erfcinv()`,`,</code>wofz()<code>,</code>, <code>erfcx()`,`,</code>erfi()<code>
+..</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
 <p>The cumulative of the unit normal distribution is given by
 <code>Phi(z) = 1/2[1 + erf(z/sqrt(2))]</code>.</p>
+
+<p><code><a href="#erf">erf</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -3184,9 +3326,7 @@ The values of the error function at the given points <code>x</code>.</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>erfc(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>erfc(x, out=None)</p>
+            <div class="docstring"><p>erfc(x, out=None)</p>
 
 <p>Complementary error function, <code>1 - erf(x)</code>.</p>
 
@@ -3207,7 +3347,28 @@ Optional output array for the function results</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>erf,</code>, <code>erfi,</code>, <code>erfcx,</code>, <code>dawsn,</code>, <code>wofz</code>  </p>
+<p><code>erf()`,`,</code>erfi()<code>,</code>, <code>erfcx()`,`,</code>dawsn()<code>,</code>, `<code>wofz()</code>
+..`  </p>
+
+<h6 id="notes">Notes</h6>
+
+<p><code><a href="#erfc">erfc</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="references">References</h6>
 
@@ -3497,9 +3658,7 @@ The inverse of erfc of y, element-wise</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>logit(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>logit(x, out=None)</p>
+            <div class="docstring"><p>logit(x, out=None)</p>
 
 <p>Logit ufunc for ndarrays.</p>
 
@@ -3525,7 +3684,8 @@ are logit of the corresponding entry of x.</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#expit">expit</a></code>  </p>
+<p>`<code><a href="#expit">expit()</a></code>
+..`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -3534,6 +3694,24 @@ keyword arguments. For more information
 see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a></p>
 
 <p><em>New in version 0.10.0.</em></p>
+
+<p><code><a href="#logit">logit</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -3604,9 +3782,7 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 </span></pre></div>
 
 
-            <div class="docstring"><p>expit(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>expit(x, out=None)</p>
+            <div class="docstring"><p>expit(x, out=None)</p>
 
 <p>Expit (a.k.a. logistic sigmoid) ufunc for ndarrays.</p>
 
@@ -3632,7 +3808,8 @@ are <code><a href="#expit">expit</a></code> of the corresponding entry of x.</li
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#logit">logit</a></code>  </p>
+<p>`<code><a href="#logit">logit()</a></code>
+..`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -3641,6 +3818,24 @@ keyword arguments. For more information
 see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a></p>
 
 <p><em>New in version 0.10.0.</em></p>
+
+<p><code><a href="#expit">expit</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -3761,7 +3956,10 @@ If <code>return_sign</code> is False, only one result is returned.</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>numpy.logaddexp,</code>, <code>numpy.logaddexp2</code>  </p>
+<p><code>numpy.logaddexp`
+..`  
+</code>numpy.logaddexp2<code>
+..</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -3772,6 +3970,24 @@ function, but may be less stable.</p>
 <p>The logarithm is a multivalued function: for each \( x \) there is an
 infinite number of \( z \) such that \( exp(z) = x \). The convention
 is to return the \( z \) whose imaginary part lies in \( (-pi, pi] \).</p>
+
+<p><code><a href="#logsumexp">logsumexp</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
 
 <h6 id="examples">Examples</h6>
 

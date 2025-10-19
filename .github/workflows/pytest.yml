@@ -42,5 +42,10 @@ jobs:
           uv pip install pytest pytest-cov pytest-benchmark hypothesis --system
           uv pip freeze --system
 
-      - name: Run tests
+      - name: Run tests with -Werror
+        if: matrix.python-version != '3.14'
+        run: pytest --cov=pyerrors -vv -Werror
+
+      - name: Run tests without -Werror for python 3.14
+        if: matrix.python-version == '3.14'
         run: pytest --cov=pyerrors -vv

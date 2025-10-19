@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.15.1] - 2025-10-19
+
+### Fixed
+- Fixed handling of padding in Correlator prune method.
+
 ## [2.15.0] - 2025-10-10
 
 ### Added

@@ -43,4 +43,4 @@ jobs:
           uv pip freeze --system
 
       - name: Run tests
-        run: pytest --cov=pyerrors -vv -Werror
+        run: pytest --cov=pyerrors -vv

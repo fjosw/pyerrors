@@ -472,7 +472,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             hat_vector = prepare_hat_matrix()
             A = W @ hat_vector
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W) + len(loc_priors)
             output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
             if not silent:
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)

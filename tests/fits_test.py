@@ -1611,3 +1611,81 @@ def old_prior_fit(x, y, func, priors, silent=False, **kwargs):
         qqplot(x, y, func, result)
 
     return output
+
+def test_dof_prior_fit():
+    """Performs an uncorrelated fit with a prior to uncorrelated data then
+    the expected chisquare and the usual dof need to agree"""
+    N = 5
+
+    def fitf(a, x):
+        return a[0] + 0 * x
+
+    x = [1. for i in range(N)]
+    y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+    [o.gm() for o in y]
+    res = pe.fits.least_squares(x, y, fitf, expected_chisquare=True, priors=[pe.cov_Obs(3, 1, 'p')])
+    assert res.chisquare_by_expected_chisquare == res.chisquare_by_dof
+    
+    num_samples = 400
+    N = 10
+
+    x = norm.rvs(size=(N, num_samples)) # generate random numbers
+
+    r = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            if(i==j):
+                r[i, j] = 1.0 # element in correlation matrix
+
+    errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2]) # set y errors
+    for i in range(N):
+        for j in range(N):
+            if(i==j):
+                r[i, j] *= errl[i] * errl[j] # element in covariance matrix
+
+    c = cholesky(r, lower=True)
+    y = np.dot(c, x)
+    x = np.arange(N)
+    x_dict = {}
+    y_dict = {}
+    for i,item in enumerate(x):
+        x_dict[str(item)] = [x[i]]
+
+    for linear in [True, False]:
+        data = []
+        for i in range(N):
+            if linear:
+                data.append(pe.Obs([[i + 1 + o for o in y[i]]], ['ens'+str(i)]))
+            else:
+                data.append(pe.Obs([[np.exp(-(i + 1)) + np.exp(-(i + 1)) * o for o in y[i]]], ['ens'+str(i)]))
+
+        [o.gamma_method() for o in data]
+
+        data_dict = {}
+        for i,item in enumerate(x):
+            data_dict[str(item)] = [data[i]]
+
+        corr = pe.covariance(data, correlation=True)
+        chol = np.linalg.cholesky(corr)
+        covdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
+        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+        chol_inv_keys = [""]
+        chol_inv_keys_combined_fit = [str(item) for i,item in enumerate(x)]
+
+        if linear:
+            def fitf(p, x):
+                return p[1] + p[0] * x
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
+        else:
+            def fitf(p, x):
+                return p[1] * anp.exp(-p[0] * x)
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
+
+        fit_exp = pe.least_squares(x, data, fitf, expected_chisquare=True, priors = {0:pe.cov_Obs(1.0, 1, 'p')})
+        fit_cov = pe.least_squares(x, data, fitf,  correlated_fit = True, inv_chol_cov_matrix = [chol_inv,chol_inv_keys],  priors = {0:pe.cov_Obs(1.0, 1, 'p')})
+        assert np.isclose(fit_exp.chisquare_by_expected_chisquare,fit_exp.chisquare_by_dof,atol=1e-8)
+        assert np.isclose(fit_exp.chisquare_by_expected_chisquare,fit_cov.chisquare_by_dof,atol=1e-8)

@@ -361,7 +361,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             for rep, file in enumerate(name_ls):
                 rep_idl = []
                 filename = path + '/' + file
-                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'], cfg_func, cfg_func_args)
+                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], im, intern[name]['single'], cfg_func, cfg_func_args)
                 if rep == 0:
                     intern[name]['T'] = T
                     for t in range(intern[name]['T']):
@@ -602,7 +602,7 @@ def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
     return data
 
 
-def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single, idl_func, cfg_func_args):
+def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args):
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []
@@ -641,7 +641,7 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single, idl_func
             try:
                 idl = idl_func(chunk[gauge_line], *cfg_func_args)
             except Exception:
-                raise Exception("Couldn't parse idl from directory, problem with chunk of lines", start+1, "to", stop+1)
+                raise Exception("Couldn't parse idl from file", filename, ", problem with chunk of lines", start+1, "to", stop+1)
             data = _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)

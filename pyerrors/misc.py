@@ -174,7 +174,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     return [Obs([dat], [name]) for dat in corr_data.T]
 
 
-def _assert_equal_properties(ol, otype=Obs):
+def _assert_equal_properties(ol):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):

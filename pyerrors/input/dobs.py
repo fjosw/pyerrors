@@ -85,7 +85,7 @@ def _dict_to_xmlstring_spaces(d, space='  '):
     return o
 
 
-def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
+def create_pobs_string(obsl, name, spec='', origin='', symbol=None, enstag=None):
     """Export a list of Obs or structures containing Obs to an xml string
     according to the Zeuthen pobs format.
 
@@ -113,6 +113,8 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
         XML formatted string of the input data
     """
 
+    if symbol is None:
+        symbol = []
     od = {}
     ename = obsl[0].e_names[0]
     names = list(obsl[0].deltas.keys())
@@ -176,7 +178,7 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
     return rs
 
 
-def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz=True):
+def write_pobs(obsl, fname, name, spec='', origin='', symbol=None, enstag=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen pobs format.
 
@@ -206,6 +208,8 @@ def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz
     -------
     None
     """
+    if symbol is None:
+        symbol = []
     pobsstring = create_pobs_string(obsl, name, spec, origin, symbol, enstag)
 
     if not fname.endswith('.xml') and not fname.endswith('.gz'):
@@ -309,7 +313,7 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned as list.
-    separatior_insertion: str or int
+    separator_insertion: str or int
         str: replace all occurences of "separator_insertion" within the replica names
         by "|%s" % (separator_insertion) when constructing the names of the replica.
         int: Insert the separator "|" at the position given by separator_insertion.
@@ -409,7 +413,7 @@ def import_dobs_string(content, full_output=False, separator_insertion=True):
     full_output : bool
         If True, a dict containing auxiliary information and the data is returned.
         If False, only the data is returned as list.
-    separatior_insertion: str, int or bool
+    separator_insertion: str, int or bool
         str: replace all occurences of "separator_insertion" within the replica names
         by "|%s" % (separator_insertion) when constructing the names of the replica.
         int: Insert the separator "|" at the position given by separator_insertion.
@@ -678,7 +682,7 @@ def _dobsdict_to_xmlstring_spaces(d, space='  '):
     return o
 
 
-def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None):
+def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=None, who=None, enstags=None):
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .xml.gz file according to the Zeuthen dobs format.
 
@@ -709,6 +713,8 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     xml_str : str
         XML string generated from the data
     """
+    if symbol is None:
+        symbol = []
     if enstags is None:
         enstags = {}
     od = {}
@@ -867,7 +873,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     return rs
 
 
-def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None, gz=True):
+def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=None, who=None, enstags=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 
@@ -901,6 +907,8 @@ def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=No
     -------
     None
     """
+    if symbol is None:
+        symbol = []
     if enstags is None:
         enstags = {}
 

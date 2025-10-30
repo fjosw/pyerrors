@@ -9,8 +9,7 @@ import itertools
 
 sep = "/"
 
-
-def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", silent=False, **kwargs):
+def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", cfg_func=None, silent=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -71,11 +70,11 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     """
     ret = read_sfcf_multi(path, prefix, [name], quarks_list=[quarks], corr_type_list=[corr_type],
                           noffset_list=[noffset], wf_list=[wf], wf2_list=[wf2], version=version,
-                          cfg_separator=cfg_separator, silent=silent, **kwargs)
+                          cfg_separator=cfg_separator, cfg_func=cfg_func, silent=silent, **kwargs)
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", silent=False, keyed_out=False, **kwargs):
+def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", cfg_func=None, silent=False, keyed_out=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -245,6 +244,17 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     for key in needed_keys:
         internal_ret_dict[key] = []
 
+
+    def _default_idl_func(cfg_string, cfg_sep):
+        return int(cfg_string.split(cfg_sep)[-1])
+    
+    if cfg_func is None:
+        print("Default idl function in use.")
+        cfg_func = _default_idl_func
+        cfg_func_args = [cfg_separator]
+    else:
+        cfg_func_args = kwargs.get("cfg_func_args", [])
+
     if not appended:
         for i, item in enumerate(ls):
             rep_path = path + '/' + item
@@ -268,7 +278,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             for cfg in sub_ls:
                 try:
                     if compact:
-                        rep_idl.append(int(cfg.split(cfg_separator)[-1]))
+                        rep_idl.append(cfg_func(cfg, *cfg_func_args))
                     else:
                         rep_idl.append(int(cfg[3:]))
                 except Exception:
@@ -351,7 +361,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             for rep, file in enumerate(name_ls):
                 rep_idl = []
                 filename = path + '/' + file
-                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'])
+                T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], cfg_separator, im, intern[name]['single'], cfg_func, cfg_func_args)
                 if rep == 0:
                     intern[name]['T'] = T
                     for t in range(intern[name]['T']):
@@ -406,7 +416,6 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
                             result_dict[name][quarks][str(off)][str(w)][str(0)] = result
     return result_dict
-
 
 def _lists2key(*lists):
     keys = []
@@ -580,15 +589,8 @@ def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
                 return_vals[key][t][cfg] = cfg_data[key][t]
     return return_vals
 
-def _default_idl_func(gauge_line_string, cfg_sep):
-    return int(gauge_line_string.split(cfg_sep)[-1])
 
-def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single, idl_func = _default_idl_func):
-    try:
-        idl = idl_func(chunk[gauge_line], cfg_sep)
-    except Exception:
-        raise Exception("Couldn't parse idl from directory, problem with chunk around line ", gauge_line)
-
+def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
     found_pat = ""
     data = []
     for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
@@ -597,10 +599,10 @@ def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, patte
         for t, line in enumerate(chunk[start_read:start_read + T]):
             floats = list(map(float, line.split()))
             data.append(floats[im + 1 - single])
-    return idl, data
+    return data
 
 
-def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
+def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single, idl_func, cfg_func_args):
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []
@@ -636,8 +638,11 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
             start = data_starts[cnfg]
             stop = start + data_starts[1]
             chunk = content[start:stop]
-            print(start)
-            idl, data = _read_chunk(chunk, gauge_line, cfg_separator, start_read, T, corr_line, b2b, pattern, im, single)
+            try:
+                idl = idl_func(chunk[gauge_line], *cfg_func_args)
+            except Exception:
+                raise Exception("Couldn't parse idl from directory, problem with chunk of lines", start+1, "to", stop+1)
+            data = _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)
 

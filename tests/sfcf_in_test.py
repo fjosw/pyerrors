@@ -24,10 +24,10 @@ def build_test_environment(path, env_type, cfgs, reps):
             os.mkdir(path + "/data_c/data_c_r"+str(i))
             for j in range(1, cfgs+1):
                 shutil.copy(path + "/data_c/data_c_r0/data_c_r0_n1", path + "/data_c/data_c_r"+str(i)+"/data_c_r"+str(i)+"_n"+str(j))
-    elif env_type == "a":
+    elif env_type in ["a", "apf"]:
         for i in range(1, reps):
             for corr in ["f_1", "f_A", "F_V0"]:
-                shutil.copy(path + "/data_a/data_a_r0." + corr, path + "/data_a/data_a_r" + str(i) + "." + corr)
+                shutil.copy(path + "/data_" + env_type + "/data_" + env_type + "_r0." + corr, path + "/data_" + env_type + "/data_" + env_type + "_r" + str(i) + "." + corr)
 
 
 def test_o_bb(tmp_path):
@@ -276,12 +276,60 @@ def test_a_bb(tmp_path):
     assert f_1[0].value == 351.1941525454502
 
 
+def test_a_bb_external_idl_func(tmp_path):
+    build_test_environment(str(tmp_path), "a", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1])
+    f_1 = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_1", quarks="lquark lquark", wf=0, wf2=0, version="2.0a", corr_type="bb", cfg_func=extract_idl)
+    print(f_1)
+    assert len(f_1) == 1
+    assert list(f_1[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_1[0].value == 351.1941525454502
+
+
+def test_a_bb_external_idl_func_postfix(tmp_path):
+    build_test_environment(str(tmp_path), "apf", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1][:-5])
+    f_1 = sfin.read_sfcf(str(tmp_path) + "/data_apf", "data_apf", "f_1", quarks="lquark lquark", wf=0, wf2=0, version="2.0a", corr_type="bb", cfg_func=extract_idl)
+    print(f_1)
+    assert len(f_1) == 1
+    assert list(f_1[0].shape.keys()) == ["data_apf_|r0", "data_apf_|r1", "data_apf_|r2"]
+    assert f_1[0].value == 351.1941525454502
+
+
 def test_a_bi(tmp_path):
     build_test_environment(str(tmp_path), "a", 5, 3)
     f_A = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_A", quarks="lquark lquark", wf=0, version="2.0a")
     print(f_A)
     assert len(f_A) == 3
     assert list(f_A[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
+
+
+def test_a_bi_external_idl_func(tmp_path):
+    build_test_environment(str(tmp_path), "a", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1])
+    f_A = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "f_A", quarks="lquark lquark", wf=0, version="2.0a", cfg_func=extract_idl)
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
+
+
+def test_a_bi_external_idl_func_postfix(tmp_path):
+    build_test_environment(str(tmp_path), "apf", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1][:-5])
+    f_A = sfin.read_sfcf(str(tmp_path) + "/data_apf", "data_apf", "f_A", quarks="lquark lquark", wf=0, version="2.0a", cfg_func=extract_idl)
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["data_apf_|r0", "data_apf_|r1", "data_apf_|r2"]
     assert f_A[0].value == 65.4711887279723
     assert f_A[1].value == 1.0447210336915187
     assert f_A[2].value == -41.025094911185185
@@ -311,6 +359,31 @@ def test_a_bib(tmp_path):
     print(f_V0)
     assert len(f_V0) == 3
     assert list(f_V0[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_V0[0] == 683.6776090085115
+    assert f_V0[1] == 661.3188585582334
+    assert f_V0[2] == 683.6776090081005
+
+
+def test_a_bib_external_idl_func(tmp_path):
+    build_test_environment(str(tmp_path), "a", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1])
+    f_V0 = sfin.read_sfcf(str(tmp_path) + "/data_a", "data_a", "F_V0", quarks="lquark lquark", wf=0, wf2=0, version="2.0a", corr_type="bib", cfg_func=extract_idl)
+    print(f_V0)
+    assert len(f_V0) == 3
+    assert list(f_V0[0].shape.keys()) == ["data_a_|r0", "data_a_|r1", "data_a_|r2"]
+    assert f_V0[0] == 683.6776090085115
+    assert f_V0[1] == 661.3188585582334
+    assert f_V0[2] == 683.6776090081005
+
+def test_a_bib_external_idl_func_postfix(tmp_path):
+    build_test_environment(str(tmp_path), "apf", 5, 3)
+    def extract_idl(s: str) -> int:
+        return int(s.split("n")[-1][:-5])
+    f_V0 = sfin.read_sfcf(str(tmp_path) + "/data_apf", "data_apf", "F_V0", quarks="lquark lquark", wf=0, wf2=0, version="2.0a", corr_type="bib", cfg_func=extract_idl)
+    print(f_V0)
+    assert len(f_V0) == 3
+    assert list(f_V0[0].shape.keys()) == ["data_apf_|r0", "data_apf_|r1", "data_apf_|r2"]
     assert f_V0[0] == 683.6776090085115
     assert f_V0[1] == 661.3188585582334
     assert f_V0[2] == 683.6776090081005

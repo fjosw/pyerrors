@@ -580,10 +580,12 @@ def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
                 return_vals[key][t][cfg] = cfg_data[key][t]
     return return_vals
 
+def _default_idl_func(gauge_line_string, cfg_sep):
+    return int(gauge_line_string.split(cfg_sep)[-1])
 
-def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single):
+def _read_chunk(chunk, gauge_line, cfg_sep, start_read, T, corr_line, b2b, pattern, im, single, idl_func = _default_idl_func):
     try:
-        idl = int(chunk[gauge_line].split(cfg_sep)[-1])
+        idl = idl_func(chunk[gauge_line], cfg_sep)
     except Exception:
         raise Exception("Couldn't parse idl from directory, problem with chunk around line ", gauge_line)
 
@@ -634,6 +636,7 @@ def _read_append_rep(filename, pattern, b2b, cfg_separator, im, single):
             start = data_starts[cnfg]
             stop = start + data_starts[1]
             chunk = content[start:stop]
+            print(start)
             idl, data = _read_chunk(chunk, gauge_line, cfg_separator, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)

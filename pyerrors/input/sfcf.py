@@ -9,6 +9,7 @@ import itertools
 
 sep = "/"
 
+
 def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", cfg_func=None, silent=False, **kwargs):
     """Read sfcf files from given folder structure.
 
@@ -244,10 +245,9 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     for key in needed_keys:
         internal_ret_dict[key] = []
 
-
     def _default_idl_func(cfg_string, cfg_sep):
         return int(cfg_string.split(cfg_sep)[-1])
-    
+
     if cfg_func is None:
         print("Default idl function in use.")
         cfg_func = _default_idl_func
@@ -416,6 +416,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
                             result_dict[name][quarks][str(off)][str(w)][str(0)] = result
     return result_dict
+
 
 def _lists2key(*lists):
     keys = []
@@ -641,7 +642,7 @@ def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args
             try:
                 idl = idl_func(chunk[gauge_line], *cfg_func_args)
             except Exception:
-                raise Exception("Couldn't parse idl from file", filename, ", problem with chunk of lines", start+1, "to", stop+1)
+                raise Exception("Couldn't parse idl from file", filename, ", problem with chunk of lines", start + 1, "to", stop + 1)
             data = _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)

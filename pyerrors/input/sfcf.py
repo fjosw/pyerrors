@@ -8,7 +8,7 @@ from .utils import sort_names, check_idl
 import itertools
 from numpy import ndarray
 from typing import Any, Union, Optional, Literal
-from Collections.abc import Callable
+from collections.abc import Callable
 
 
 sep = "/"

@@ -7,9 +7,10 @@ from ..obs import Obs, CObs
 from ..correlators import Corr
 from ..dirac import epsilon_tensor_rank4
 from .misc import fit_t0
+from typing import Union, Optional
 
 
-def _get_files(path, filestem, idl):
+def _get_files(path: str, filestem: str, idl: list[int]):
     ls = os.listdir(path)
 
     # Clean up file list
@@ -45,7 +46,7 @@ def _get_files(path, filestem, idl):
     if np.any(dc < 0):
         raise Exception("Unsorted files")
     if len(dc) == 1:
-        idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
+        idx = list(range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0]))
     elif idl:
         idx = idl
     else:
@@ -54,7 +55,7 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
+def read_hd5(filestem: str, ens_id: str, group: str, attrs: Optional[Union[dict, int]]=None, idl=None, part="real") -> Corr:
     r'''Read hadrons hdf5 file and extract entry based on attributes.
 
     Parameters
@@ -122,20 +123,21 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
             for k, i in h5file[group + '/' + entry].attrs.items():
                 infos.append(k + ': ' + i[0].decode())
         h5file.close()
-    corr_data = np.array(corr_data)
+    corr_data_array = np.array(corr_data)
 
     if part == "complex":
         l_obs = []
-        for c in corr_data.T:
+        for c in corr_data_array.T:
             l_obs.append(CObs(Obs([c.real], [ens_id], idl=[idx]),
                               Obs([c.imag], [ens_id], idl=[idx])))
+        corr = Corr(l_obs)
     else:
         corr_data = getattr(corr_data, part)
-        l_obs = []
-        for c in corr_data.T:
-            l_obs.append(Obs([c], [ens_id], idl=[idx]))
-
-    corr = Corr(l_obs)
+        p_obs = []
+        for c in corr_data_array.T:
+            p_obs.append(Obs([c], [ens_id], idl=[idx]))
+        corr = Corr(p_obs)
+    
     corr.tag = r", ".join(infos)
     return corr
 

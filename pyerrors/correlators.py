@@ -1399,13 +1399,15 @@ class Corr:
         tmpmat = np.empty((Ntrunc, Ntrunc), dtype=object)
         rmat = []
         for t in range(basematrix.T):
-            for i in range(Ntrunc):
-                for j in range(Ntrunc):
-                    tmpmat[i][j] = evecs[i].T @ self[t] @ evecs[j]
-            rmat.append(np.copy(tmpmat))
+            if self.content[t] is None:
+                rmat.append(None)
+            else:
+                for i in range(Ntrunc):
+                    for j in range(Ntrunc):
+                        tmpmat[i][j] = evecs[i].T @ self[t] @ evecs[j]
+                rmat.append(np.copy(tmpmat))
 
-        newcontent = [None if (self.content[t] is None) else rmat[t] for t in range(self.T)]
-        return Corr(newcontent)
+        return Corr(rmat)
 
 
 def _sort_vectors(vec_set_in: list[Optional[ndarray]], ts: int) -> list[Union[None, ndarray, list[ndarray]]]:

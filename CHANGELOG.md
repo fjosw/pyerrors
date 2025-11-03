@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.16.0] - 2025-10-30
+
+### Added
+- Support for custom configuration number extraction in the sfcf input module.
+
+### Fixed
+- Calculation of expected chisquare in connection with priors.
+
+### Changed
+- Support for python<3.10 was dropped.
+
+## [2.15.1] - 2025-10-19
+
+### Fixed
+- Fixed handling of padding in Correlator prune method.
+
+## [2.15.0] - 2025-10-10
+
+### Added
+- Option to explicitly specify the number of fit parameters added.
+
 ## [2.14.0] - 2025-03-09
 
 ### Added

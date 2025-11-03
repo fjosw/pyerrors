@@ -156,7 +156,7 @@ class Obs:
         self.ddvalue: float = 0.0
         self.reweighted = False
 
-        self.tag = None
+        self.tag: Any = None
 
     @property
     def value(self) -> float:

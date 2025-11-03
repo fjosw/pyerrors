@@ -10,7 +10,7 @@ from ..correlators import Corr
 from .misc import fit_t0
 from .utils import sort_names
 from io import BufferedReader
-from typing import Optional, Union, TypedDict
+from typing import Optional, Union
 
 
 def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[str]]=None, **kwargs) -> list[Obs]:
@@ -215,7 +215,7 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
     return result
 
 
-def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs: rwms_kwargs) -> dict[float, Obs]:
+def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: int, spatial_extent: int, postfix: str='ms', **kwargs) -> dict[float, Obs]:
     """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 
@@ -843,7 +843,7 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
     r_start = kwargs.get('r_start', [0] * replica)
     if len(r_start) != replica:
         raise ValueError('r_start does not match number of replicas')
-    
+
     r_stop = kwargs.get('r_stop', [-1] * replica)
     if len(r_stop) != replica:
         raise ValueError('r_stop does not match number of replicas')

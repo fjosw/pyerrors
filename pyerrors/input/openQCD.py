@@ -1000,7 +1000,8 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
 
         truncated_file = file[:-len(postfix)]
 
-        if "names" not in kwargs:
+        rep_names = kwargs.get("names", [])
+        if len(rep_names) == 0:
             try:
                 idx = truncated_file.index('r')
             except Exception:
@@ -1008,9 +1009,6 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
                     raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
             ens_name = truncated_file[:idx]
             rep_names.append(ens_name + '|' + truncated_file[idx:].split(".")[0])
-        else:
-            names = kwargs.get("names")
-            rep_names = names
 
         deltas.append(Q_top)
 
@@ -1046,8 +1044,8 @@ def qtop_projection(qtop: Obs, target: int=0) -> Obs:
     for n in qtop.deltas:
         proj_qtop.append(np.array([1 if round(qtop.r_values[n] + q) == target else 0 for q in qtop.deltas[n]]))
 
-    reto = Obs(proj_qtop, qtop.names, idl=[qtop.idl[name] for name in qtop.names])
-    return reto
+    qtop_projected = Obs(proj_qtop, qtop.names, idl=[qtop.idl[name] for name in qtop.names])
+    return qtop_projected
 
 
 def read_qtop_sector(path: str, prefix: str, c: float, target: int=0, **kwargs) -> Obs:

@@ -14,7 +14,7 @@ from collections.abc import Callable
 sep = "/"
 
 
-def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", cfg_func: Callable | None = None, silent: bool=False, **kwargs) -> list[Obs]:
+def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", cfg_func: Optional[Callable] = None, silent: bool=False, **kwargs) -> list[Obs]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -79,7 +79,7 @@ def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: st
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", cfg_func: Callable | None = None, silent: bool=False, keyed_out: bool=False, **kwargs) -> dict:
+def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", cfg_func: Optional[Callable] = None, silent: bool=False, keyed_out: bool=False, **kwargs) -> dict:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -247,7 +247,7 @@ def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: l
     for key in needed_keys:
         internal_ret_dict[key] = []
 
-    def _default_idl_func(cfg_string, cfg_sep):
+    def _default_idl_func(cfg_string: str, cfg_sep: str):
         return int(cfg_string.split(cfg_sep)[-1])
 
     if cfg_func is None:
@@ -596,7 +596,7 @@ def _read_compact_rep(path: str, rep: str, sub_ls: list[str], intern: dict[str, 
     return return_vals
 
 
-def _read_chunk_data(chunk: list[str], start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> tuple[int, list[float]]:
+def _read_chunk_data(chunk: list[str], start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> list[float]:
     found_pat = ""
     data = []
     for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
@@ -608,7 +608,7 @@ def _read_chunk_data(chunk: list[str], start_read: int, T: int, corr_line: int, 
     return data
 
 
-def _read_append_rep(filename: str, pattern: str, b2b: bool, im: int, single: bool, idl_func: Callable[str, list], cfg_func_args: list) -> tuple[int, list[int], list[list[float]]]:
+def _read_append_rep(filename: str, pattern: str, b2b: bool, im: int, single: bool, idl_func: Callable, cfg_func_args: list) -> tuple[int, list[int], list[list[float]]]:
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []

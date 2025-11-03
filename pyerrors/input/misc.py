@@ -60,7 +60,10 @@ def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=
 
     fit_result = fit_lin(x, y)
 
+    retval = (-fit_result[0] / fit_result[1])
+
     if plot_fit is True:
+        retval.gamma_method()
         plt.figure()
         gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
         ax0 = plt.subplot(gs[0])
@@ -72,8 +75,6 @@ def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=
         yplot = [fit_result[0] + fit_result[1] * xi for xi in xplot]
         [yi.gamma_method() for yi in yplot]
         ax0.fill_between(xplot, y1=[yi.value - yi.dvalue for yi in yplot], y2=[yi.value + yi.dvalue for yi in yplot])
-        retval = (-fit_result[0] / fit_result[1])
-        retval.gamma_method()
         ylim = ax0.get_ylim()
         ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
         ax0.set_ylim(ylim)
@@ -96,7 +97,7 @@ def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=
         ax1.set_xlabel(r'$t/a^2$')
 
         plt.draw()
-    return -fit_result[0] / fit_result[1]
+    return retval
 
 
 def read_pbp(path: str, prefix: str, **kwargs):

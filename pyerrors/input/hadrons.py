@@ -137,7 +137,7 @@ def read_hd5(filestem: str, ens_id: str, group: str, attrs: Optional[Union[dict,
         for c in corr_data_array.T:
             p_obs.append(Obs([c], [ens_id], idl=[idx]))
         corr = Corr(p_obs)
-    
+
     corr.tag = r", ".join(infos)
     return corr
 

@@ -136,21 +136,15 @@ def read_pbp(path: str, prefix: str, **kwargs):
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
     replica = len(ls)
 
-    if 'r_start' in kwargs:
-        r_start = kwargs.get('r_start')
-        if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
-        # Adjust Configuration numbering to python index
-        r_start = [o - 1 if o else None for o in r_start]
-    else:
-        r_start = [None] * replica
+    r_start = kwargs.get('r_start', [1] * replica)
+    if len(r_start) != replica:
+        raise Exception('r_start does not match number of replicas')
+    # Adjust Configuration numbering to python index
+    r_start = [o - 1 if o else None for o in r_start]
 
-    if 'r_stop' in kwargs:
-        r_stop = kwargs.get('r_stop')
-        if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
-    else:
-        r_stop = [None] * replica
+    r_stop = kwargs.get('r_stop', [-1] * replica)
+    if len(r_stop) != replica:
+        raise Exception('r_stop does not match number of replicas')
 
     print(r'Read <bar{psi}\psi> from', prefix[:-1], ',', replica, 'replica', end='')
 
@@ -159,10 +153,10 @@ def read_pbp(path: str, prefix: str, **kwargs):
         print_err = 1
         print()
 
-    deltas = []
+    deltas: list[list[float]] = []
 
     for rep in range(replica):
-        tmp_array = []
+        tmp_array: list[list[float]] = []
         with open(path + '/' + ls[rep], 'rb') as fp:
 
             t = fp.read(4)  # number of reweighting factors

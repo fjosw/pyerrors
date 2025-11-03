@@ -816,8 +816,8 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
 
     if version not in known_versions:
         raise Exception("Unknown openQCD version.")
-    if "steps" in kwargs:
-        steps = kwargs.get("steps")
+
+    steps = kwargs.get("steps", 0)
 
     postfix = kwargs.get("postfix", "")
     if version == "sfqcd":
@@ -940,12 +940,12 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
         if len(np.unique(np.diff(traj_list))) != 1:
             raise Exception("Irregularities in stepsize found")
         else:
-            if 'steps' in kwargs:
+            if steps == 0:
+                steps = traj_list[1] - traj_list[0]
+            else:
                 if steps != traj_list[1] - traj_list[0]:
                     raise Exception("steps and the found stepsize are not the same")
-            else:
-                steps = traj_list[1] - traj_list[0]
-
+                
         configlist.append([tr // steps // dtr_cnfg for tr in traj_list])
         if configlist[-1][0] > 1:
             offset = configlist[-1][0] - 1

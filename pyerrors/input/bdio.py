@@ -4,7 +4,7 @@ import autograd.numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 
 
-def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
+def read_ADerrors(file_path: str, bdio_path: str='./libbdio.so'):
     """ Extract generic MCMC data from a bdio file
 
     read_ADerrors requires bdio to be compiled into a shared library. This can be achieved by
@@ -160,7 +160,7 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
     return return_list
 
 
-def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
+def write_ADerrors(obs_list: list, file_path: str, bdio_path: str='./libbdio.so'):
     """ Write Obs to a bdio file according to ADerrors conventions
 
     read_mesons requires bdio to be compiled into a shared library. This can be achieved by
@@ -172,8 +172,10 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
 
     Parameters
     ----------
-    file_path -- path to the bdio file
-    bdio_path -- path to the shared bdio library libbdio.so (default ./libbdio.so)
+    file_path : str
+        path to the bdio file
+    bdio_path : str
+        path to the shared bdio library libbdio.so (default ./libbdio.so)
 
     Returns
     -------
@@ -290,15 +292,15 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
     return 0
 
 
-def _get_kwd(string, key):
+def _get_kwd(string: str, key: str):
     return (string.split(key, 1)[1]).split(" ", 1)[0]
 
 
-def _get_corr_name(string, key):
+def _get_corr_name(string: str, key: str):
     return (string.split(key, 1)[1]).split(' NDIM=', 1)[0]
 
 
-def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
+def read_mesons(file_path: str, bdio_path: str='./libbdio.so', **kwargs):
     """ Extract mesons data from a bdio file and return it as a dictionary
 
     The dictionary can be accessed with a tuple consisting of (type, source_position, kappa1, kappa2)
@@ -513,7 +515,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
     return result
 
 
-def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
+def read_dSdm(file_path: str, bdio_path: str='./libbdio.so', **kwargs):
     """ Extract dSdm data from a bdio file and return it as a dictionary
 
     The dictionary can be accessed with a tuple consisting of (type, kappa)

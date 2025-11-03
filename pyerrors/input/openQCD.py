@@ -210,8 +210,8 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
     result = []
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
 
-    for t in range(nrw):
-        result.append(Obs(deltas[t], rep_names, idl=idl))
+    for k in range(nrw):
+        result.append(Obs(deltas[k], rep_names, idl=idl))
     return result
 
 
@@ -277,11 +277,11 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
 
     replica = len(ls)
 
-    r_start: list[Union[int, None]] = kwargs.get('r_start', [None] * replica)
+    r_start: list[int] = kwargs.get('r_start', [0] * replica)
     if len(r_start) != replica:
         raise Exception('r_start does not match number of replicas')
 
-    r_stop: list[Union[int, None]] = kwargs.get('r_stop', [None] * replica)
+    r_stop: list[int] = kwargs.get('r_stop', [-1] * replica)
     if len(r_stop) != replica:
         raise Exception('r_stop does not match number of replicas')
 
@@ -355,7 +355,7 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
             offset = configlist[-1][0] - 1
             configlist[-1] = [item - offset for item in configlist[-1]]
 
-        if r_start[rep] is None:
+        if r_start[rep] == 0:
             r_start_index.append(0)
         else:
             try:
@@ -364,7 +364,7 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
 
-        if r_stop[rep] is None:
+        if r_stop[rep] == -1:
             r_stop_index.append(len(configlist[-1]) - 1)
         else:
             try:
@@ -818,43 +818,36 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
         raise Exception("Unknown openQCD version.")
     if "steps" in kwargs:
         steps = kwargs.get("steps")
+
+    postfix = kwargs.get("postfix", "")
     if version == "sfqcd":
         if "L" in kwargs:
             supposed_L = kwargs.get("L")
         else:
             supposed_L = None
-        postfix = "gfms"
+        if postfix == "":
+            postfix = "gfms"
     else:
         if "L" not in kwargs:
             raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
-        postfix = "ms"
+        if postfix == "":
+            postfix = "ms"
 
-    if "postfix" in kwargs:
-        postfix = kwargs.get("postfix")
-
-    if "files" in kwargs:
-        known_files = kwargs.get("files")
-    else:
-        known_files = []
+    known_files = kwargs.get("files", [])
 
     files = _find_files(path, prefix, postfix, "dat", known_files=known_files)
+    replica = len(files)
 
-    if 'r_start' in kwargs:
-        r_start = kwargs.get('r_start')
-        if len(r_start) != len(files):
-            raise Exception('r_start does not match number of replicas')
-        r_start = [o if o else None for o in r_start]
-    else:
-        r_start = [None] * len(files)
+    r_start = kwargs.get('r_start', [0] * replica)
+    if len(r_start) != replica:
+        raise ValueError('r_start does not match number of replicas')
+    
+    r_stop = kwargs.get('r_stop', [-1] * replica)
+    if len(r_stop) != replica:
+        raise ValueError('r_stop does not match number of replicas')
 
-    if 'r_stop' in kwargs:
-        r_stop = kwargs.get('r_stop')
-        if len(r_stop) != len(files):
-            raise Exception('r_stop does not match number of replicas')
-    else:
-        r_stop = [None] * len(files)
     rep_names = []
 
     zeuthen = kwargs.get('Zeuthen_flow', False)
@@ -960,7 +953,7 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
                 offset, offset * steps))
             configlist[-1] = [item - offset for item in configlist[-1]]
 
-        if r_start[rep] is None:
+        if r_start[rep] == 0:
             r_start_index.append(0)
         else:
             try:
@@ -969,7 +962,7 @@ def _read_flow_obs(path: str, prefix: str, c: float, dtr_cnfg: int=1, version: s
                 raise Exception('Config %d not in file with range [%d, %d]' % (
                     r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
 
-        if r_stop[rep] is None:
+        if r_stop[rep] == -1:
             r_stop_index.append(len(configlist[-1]) - 1)
         else:
             try:
@@ -1161,7 +1154,7 @@ def read_ms5_xsf(path: str, prefix: str, qc: str, corr: str, sep: str="r", **kwa
 
     # test if the input is correct
     if qc not in ['dd', 'ud', 'du', 'uu']:
-        raise Exception("Unknown quark conbination!")
+        raise Exception("Unknown quark combination!")
 
     if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
         raise Exception("Unknown correlator!")

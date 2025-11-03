@@ -101,7 +101,7 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
     r_stop_index = []
 
     for rep in range(replica):
-        tmp_array: list[list] = []
+        tmp_array: list[list[float]] = []
         with open(path + '/' + ls[rep], 'rb') as fp:
 
             t = fp.read(4)  # number of reweighting factors
@@ -162,8 +162,8 @@ def read_rwms(path: str, prefix: str, version: str='2.0', names: Optional[list[s
                         for j in range(nfct[i]):
                             t = fp.read(8 * nsrc[i])
                             t = fp.read(8 * nsrc[i])
-                            tmp_rw: list[float] = struct.unpack('d' * nsrc[i], t)
-                            tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw)))
+                            tmp_rw_unpacked = struct.unpack('d' * nsrc[i], t)
+                            tmp_nfct *= np.mean(np.exp(-np.asarray(tmp_rw_unpacked)))
                             if print_err:
                                 print(config_no, i, j,
                                       np.mean(np.exp(-np.asarray(tmp_rw))),
@@ -383,9 +383,9 @@ def _extract_flowed_energy_density(path: str, prefix: str, dtr_read: int, xmin: 
     E_dict = {}
     for n in range(nn + 1):
         samples: list[list[float]] = []
-        for nrep, rep in enumerate(Ysum):
+        for nrep, rep_data in enumerate(Ysum):
             samples.append([])
-            for cnfg in rep:
+            for cnfg in rep_data:
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep] + 1][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)

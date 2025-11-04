@@ -776,7 +776,7 @@ def fit_lin(x: Sequence[Union[Obs, int, float]], y: Sequence[Obs], **kwargs) -> 
     Returns
     -------
     fit_parameters : list[Obs]
-        LIist of fitted observables.
+        List of fitted observables.
     """
 
     def f(a, x):
@@ -879,7 +879,10 @@ def error_band(x: list[int], func: Callable, beta: Union[Fit_result, list[Obs]])
     err : np.array(Obs)
         Error band for an array of sample values x
     """
-    cov = covariance(beta)
+    if isinstance(beta, Fit_result):
+        cov = covariance(np.array(beta.fit_parameters))
+    else:
+        cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 
@@ -890,9 +893,9 @@ def error_band(x: list[int], func: Callable, beta: Union[Fit_result, list[Obs]])
     err = []
     for i, item in enumerate(x):
         err.append(np.sqrt(deriv[i] @ cov @ deriv[i]))
-    err = np.array(err)
+    err_array = np.array(err)
 
-    return err
+    return err_array
 
 
 def ks_test(objects: Optional[list[Fit_result]]=None):
@@ -916,7 +919,7 @@ def ks_test(objects: Optional[list[Fit_result]]=None):
     else:
         obs_list = objects
 
-    p_values = [o.p_value for o in obs_list]
+    p_values = np.asarray([o.p_value for o in obs_list])
 
     bins = len(p_values)
     x = np.arange(0, 1.001, 0.001)
@@ -928,7 +931,7 @@ def ks_test(objects: Optional[list[Fit_result]]=None):
     plt.title(str(bins) + ' p-values')
 
     n = np.arange(1, bins + 1) / np.float64(bins)
-    Xs = np.sort(p_values)
+    Xs: ndarray[float] = np.sort(p_values)
     plt.step(Xs, n)
     diffs = n - Xs
     loc_max_diff = np.argmax(np.abs(diffs))

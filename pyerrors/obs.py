@@ -653,7 +653,7 @@ class Obs:
         return dict(zip(labels, sizes))
 
     def dump(self, filename: str, datatype: str="json.gz", description: str="", **kwargs):
-        """Dump the Obs to a file 'name' of chosen format.
+        """Dump the Obs to a file 'filename' of chosen datatype.
 
         Parameters
         ----------
@@ -1822,7 +1822,7 @@ def merge_obs(list_of_obs: list[Obs]) -> Obs:
     return o
 
 
-def cov_Obs(means: Union[int, list[float], float, list[int]], cov: Any, name: str, grad: None=None) -> Union[Obs, list[Obs]]:
+def cov_Obs(means: Union[int, list[float], float, list[int]], cov: Any, name: str, grad: Optional[Union[list, ndarray]]=None) -> Union[Obs, list[Obs]]:
     """Create an Obs based on mean(s) and a covariance matrix
 
     Parameters

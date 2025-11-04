@@ -10,7 +10,6 @@ from .misc import dump_object, _assert_equal_properties
 from .fits import least_squares, Fit_result
 from .roots import find_root
 from . import linalg
-from .input.json import dump_to_json
 from numpy import ndarray, ufunc
 from typing import Any, Callable, Optional, Union, Literal
 
@@ -46,7 +45,7 @@ class Corr:
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
 
-    def __init__(self, data_input: Union[list[Obs, CObs], list[ndarray[ndarray[Obs, CObs]]], ndarray[ndarray[Corr]]], padding: list[int]=[0, 0], prange: Optional[list[int]]=None):
+    def __init__(self, data_input: Union[list[Obs, CObs], list[ndarray[ndarray[Obs, CObs]]], ndarray[ndarray]], padding: list[int]=[0, 0], prange: Optional[list[int]]=None):
         """ Initialize a Corr object.
 
         Parameters
@@ -1030,6 +1029,7 @@ class Corr:
             specifies a custom path for the file (default '.')
         """
         if datatype == "json.gz":
+            from .input.json import dump_to_json
             path = kwargs.get("path", ".")
             file_name = path + '/' + filename
             dump_to_json(self, file_name)

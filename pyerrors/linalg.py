@@ -3,7 +3,7 @@ import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from .obs import derived_observable, CObs, Obs, import_jackknife
 from numpy import ndarray
-from typing import Callable, Union
+from typing import Callable, Union, Literal
 
 
 def matmul(*operands) -> ndarray:
@@ -24,7 +24,7 @@ def matmul(*operands) -> ndarray:
             extended_operands.append(tmp[0])
             extended_operands.append(tmp[1])
 
-        def multi_dot(operands, part):
+        def multi_dot(operands, part: Literal["Real", "Imag"]):
             stack_r = operands[0]
             stack_i = operands[1]
             for op_r, op_i in zip(operands[2::2], operands[3::2]):
@@ -55,7 +55,7 @@ def matmul(*operands) -> ndarray:
 
         return res
     else:
-        def multi_dot(operands):
+        def multi_dot(operands, part: Literal["Real", "Imag"]):
             stack = operands[0]
             for op in operands[1:]:
                 stack = stack @ op
@@ -75,25 +75,25 @@ def jack_matmul(*operands) -> ndarray:
     For large matrices this is considerably faster compared to matmul.
     """
 
-    def _exp_to_jack(matrix):
+    def _export_to_jack(matrix):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = entry.export_jackknife()
         return base_matrix
 
-    def _imp_from_jack(matrix, name, idl):
+    def _import_from_jack(matrix, name, idl):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = import_jackknife(entry, name, [idl])
         return base_matrix
 
-    def _exp_to_jack_c(matrix):
+    def _export_to_jack_c(matrix):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
         return base_matrix
 
-    def _imp_from_jack_c(matrix, name, idl):
+    def _import_from_jack_c(matrix, name, idl):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = CObs(import_jackknife(entry.real, name, [idl]),
@@ -104,24 +104,24 @@ def jack_matmul(*operands) -> ndarray:
         name = operands[0].flat[0].real.names[0]
         idl = operands[0].flat[0].real.idl[name]
 
-        r = _exp_to_jack_c(operands[0])
+        r = _export_to_jack_c(operands[0])
         for op in operands[1:]:
             if isinstance(op.flat[0], CObs):
-                r = r @ _exp_to_jack_c(op)
+                r = r @ _export_to_jack_c(op)
             else:
                 r = r @ op
-        return _imp_from_jack_c(r, name, idl)
+        return _import_from_jack_c(r, name, idl)
     else:
         name = operands[0].flat[0].names[0]
         idl = operands[0].flat[0].idl[name]
 
-        r = _exp_to_jack(operands[0])
+        r = _export_to_jack(operands[0])
         for op in operands[1:]:
             if isinstance(op.flat[0], Obs):
-                r = r @ _exp_to_jack(op)
+                r = r @ _export_to_jack(op)
             else:
                 r = r @ op
-        return _imp_from_jack(r, name, idl)
+        return _import_from_jack(r, name, idl)
 
 
 def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
@@ -136,25 +136,25 @@ def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
         Obs valued.
     """
 
-    def _exp_to_jack(matrix):
+    def _export_to_jack(matrix):
         base_matrix = []
         for index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
-    def _exp_to_jack_c(matrix):
+    def _export_to_jack_c(matrix):
         base_matrix = []
         for index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.real.export_jackknife() + 1j * entry.imag.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
-    def _imp_from_jack(matrix, name, idl):
+    def _import_from_jack(matrix, name, idl):
         base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
         for index in np.ndindex(matrix.shape[:-1]):
             base_matrix[index] = import_jackknife(matrix[index], name, [idl])
         return base_matrix
 
-    def _imp_from_jack_c(matrix, name, idl):
+    def _import_from_jack_c(matrix, name, idl):
         base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
         for index in np.ndindex(matrix.shape[:-1]):
             base_matrix[index] = CObs(import_jackknife(matrix[index].real, name, [idl]),
@@ -174,9 +174,9 @@ def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
     conv_operands = []
     for op in operands:
         if isinstance(op.flat[0], CObs):
-            conv_operands.append(_exp_to_jack_c(op))
+            conv_operands.append(_export_to_jack_c(op))
         elif isinstance(op.flat[0], Obs):
-            conv_operands.append(_exp_to_jack(op))
+            conv_operands.append(_export_to_jack(op))
         else:
             conv_operands.append(op)
 
@@ -186,9 +186,9 @@ def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
     jack_einsum = np.einsum(extended_subscripts, *conv_operands, optimize=einsum_path)
 
     if jack_einsum.dtype == complex:
-        result = _imp_from_jack_c(jack_einsum, name, idl)
+        result = _import_from_jack_c(jack_einsum, name, idl)
     elif jack_einsum.dtype == float:
-        result = _imp_from_jack(jack_einsum, name, idl)
+        result = _import_from_jack(jack_einsum, name, idl)
     else:
         raise Exception("Result has unexpected datatype")
 

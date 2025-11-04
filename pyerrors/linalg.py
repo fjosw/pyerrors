@@ -55,7 +55,7 @@ def matmul(*operands) -> ndarray:
 
         return res
     else:
-        def multi_dot(operands, part: Literal["Real", "Imag"]):
+        def multi_dot(operands):
             stack = operands[0]
             for op in operands[1:]:
                 stack = stack @ op

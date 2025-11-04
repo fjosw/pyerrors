@@ -24,7 +24,7 @@ identity = np.array(
     dtype=complex)
 
 
-def epsilon_tensor(i: int, j: int, k: int) -> float:
+def epsilon_tensor(i: int, j: int, k: int) -> int:
     """Rank-3 epsilon tensor
 
     Based on https://codegolf.stackexchange.com/a/160375
@@ -38,10 +38,10 @@ def epsilon_tensor(i: int, j: int, k: int) -> float:
     if not (test_set <= set((1, 2, 3)) or test_set <= set((0, 1, 2))):
         raise ValueError("Unexpected input", i, j, k)
 
-    return (i - j) * (j - k) * (k - i) / 2
+    return int((i - j) * (j - k) * (k - i) / 2)
 
 
-def epsilon_tensor_rank4(i: int, j: int, k: int, o: int) -> float:
+def epsilon_tensor_rank4(i: int, j: int, k: int, o: int) -> int:
     """Rank-4 epsilon tensor
 
     Extension of https://codegolf.stackexchange.com/a/160375
@@ -56,7 +56,7 @@ def epsilon_tensor_rank4(i: int, j: int, k: int, o: int) -> float:
     if not (test_set <= set((1, 2, 3, 4)) or test_set <= set((0, 1, 2, 3))):
         raise ValueError("Unexpected input", i, j, k, o)
 
-    return (i - j) * (j - k) * (k - i) * (i - o) * (j - o) * (o - k) / 12
+    return int((i - j) * (j - k) * (k - i) * (i - o) * (j - o) * (o - k) / 12)
 
 
 def Grid_gamma(gamma_tag: str) -> ndarray:

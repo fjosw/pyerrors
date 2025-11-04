@@ -39,7 +39,7 @@ jobs:
         run: |
           uv pip install wheel --system
           uv pip install . --system
-          uv pip install pytest pytest-cov pytest-benchmark hypothesis --system
+          uv pip install pytest pytest-cov pytest-benchmark hypothesis typing_extensions --system
           uv pip freeze --system
 
       - name: Run tests with -Werror

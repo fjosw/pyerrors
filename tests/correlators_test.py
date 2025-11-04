@@ -181,6 +181,8 @@ def test_fit_correlator():
     with pytest.raises(ValueError):
         my_corr.fit(f, [0, 2, 3])
 
+    fit_res = my_corr.fit(f, fitrange=[0, 1])
+
 
 def test_plateau():
     my_corr = pe.correlators.Corr([pe.pseudo_Obs(1.01324, 0.05, 't'), pe.pseudo_Obs(1.042345, 0.008, 't')])
@@ -226,7 +228,7 @@ def test_utility():
     corr.print()
     corr.print([2, 4])
     corr.show()
-    corr.show(comp=corr)
+    corr.show(comp=corr, x_range=[2, 5.], y_range=[2, 3.], hide_sigma=0.5, references=[.1, .2, .6], title='TEST')
 
     corr.dump('test_dump', datatype="pickle", path='.')
     corr.dump('test_dump', datatype="pickle")

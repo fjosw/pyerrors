@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import fnmatch
 import re
@@ -8,9 +9,10 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from ..obs import Obs
 from ..fits import fit_lin
+from typing import Optional
 
 
-def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
+def fit_t0(t2E_dict: dict[float, Obs], fit_range: int, plot_fit: Optional[bool]=False, observable: str='t0') -> Obs:
     """Compute the root of (flow-based) data based on a dictionary that contains
     the necessary information in key-value pairs a la (flow time: observable at flow time).
 
@@ -58,7 +60,10 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
 
     fit_result = fit_lin(x, y)
 
+    retval = (-fit_result[0] / fit_result[1])
+
     if plot_fit is True:
+        retval.gamma_method()
         plt.figure()
         gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1], wspace=0.0, hspace=0.0)
         ax0 = plt.subplot(gs[0])
@@ -70,8 +75,6 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
         yplot = [fit_result[0] + fit_result[1] * xi for xi in xplot]
         [yi.gamma_method() for yi in yplot]
         ax0.fill_between(xplot, y1=[yi.value - yi.dvalue for yi in yplot], y2=[yi.value + yi.dvalue for yi in yplot])
-        retval = (-fit_result[0] / fit_result[1])
-        retval.gamma_method()
         ylim = ax0.get_ylim()
         ax0.fill_betweenx(ylim, x1=retval.value - retval.dvalue, x2=retval.value + retval.dvalue, color='gray', alpha=0.4)
         ax0.set_ylim(ylim)
@@ -94,14 +97,18 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
         ax1.set_xlabel(r'$t/a^2$')
 
         plt.draw()
-    return -fit_result[0] / fit_result[1]
+    return retval
 
 
-def read_pbp(path, prefix, **kwargs):
+def read_pbp(path: str, prefix: str, **kwargs):
     """Read pbp format from given folder structure.
 
     Parameters
     ----------
+    path : str
+        Directory to read pbp from
+    prefix : str
+        Prefix of the files to be read
     r_start : list
         list which contains the first config to be read for each replicum
     r_stop : list
@@ -129,21 +136,15 @@ def read_pbp(path, prefix, **kwargs):
         ls.sort(key=lambda x: int(re.findall(r'\d+', x[len(prefix):])[0]))
     replica = len(ls)
 
-    if 'r_start' in kwargs:
-        r_start = kwargs.get('r_start')
-        if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
-        # Adjust Configuration numbering to python index
-        r_start = [o - 1 if o else None for o in r_start]
-    else:
-        r_start = [None] * replica
+    r_start = kwargs.get('r_start', [1] * replica)
+    if len(r_start) != replica:
+        raise Exception('r_start does not match number of replicas')
+    # Adjust Configuration numbering to python index
+    r_start = [o - 1 if o else None for o in r_start]
 
-    if 'r_stop' in kwargs:
-        r_stop = kwargs.get('r_stop')
-        if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
-    else:
-        r_stop = [None] * replica
+    r_stop = kwargs.get('r_stop', [-1] * replica)
+    if len(r_stop) != replica:
+        raise Exception('r_stop does not match number of replicas')
 
     print(r'Read <bar{psi}\psi> from', prefix[:-1], ',', replica, 'replica', end='')
 
@@ -152,10 +153,10 @@ def read_pbp(path, prefix, **kwargs):
         print_err = 1
         print()
 
-    deltas = []
+    deltas: list[list[float]] = []
 
     for rep in range(replica):
-        tmp_array = []
+        tmp_array: list[list[float]] = []
         with open(path + '/' + ls[rep], 'rb') as fp:
 
             t = fp.read(4)  # number of reweighting factors

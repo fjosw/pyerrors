@@ -4,3 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.ruff.lint]
 ignore = ["F403"]
+
+[tool.mypy]
+warn_unused_configs = true
+ignore_missing_imports = true

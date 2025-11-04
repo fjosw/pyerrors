@@ -1,10 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import scipy.linalg
 from .obs import Obs
 from .linalg import svd, eig
+from typing import Optional
 
 
-def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
+def matrix_pencil_method(corrs: list[Obs], k: int=1, p: Optional[int]=None, **kwargs) -> list[Obs]:
     """Matrix pencil method to extract k energy levels from data
 
     Implementation of the matrix pencil method based on
@@ -50,10 +52,10 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
     matrix = []
     for n in range(data_sets):
         matrix.append(scipy.linalg.hankel(data[n][:n_data - p], data[n][n_data - p - 1:]))
-    matrix = np.array(matrix)
+    matrix_array = np.array(matrix)
     # Construct y1 and y2
-    y1 = np.concatenate(matrix[:, :, :p])
-    y2 = np.concatenate(matrix[:, :, 1:])
+    y1 = np.concatenate(matrix_array[:, :, :p])
+    y2 = np.concatenate(matrix_array[:, :, 1:])
     # Apply SVD to y2
     u, s, vh = svd(y2, **kwargs)
     # Construct z from y1 and SVD of y2, setting all singular values beyond the kth to zero

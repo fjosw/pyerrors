@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import fnmatch
 import re
@@ -5,12 +6,15 @@ import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from .utils import sort_names, check_idl
 import itertools
+from numpy import ndarray
+from typing import Any, Union, Optional, Literal
+from collections.abc import Callable
 
 
 sep = "/"
 
 
-def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, wf2=0, version="1.0c", cfg_separator="n", cfg_func=None, silent=False, **kwargs):
+def read_sfcf(path: str, prefix: str, name: str, quarks: str='.*', corr_type: str="bi", noffset: int=0, wf: int=0, wf2: int=0, version: str="1.0c", cfg_separator: str="n", cfg_func: Optional[Callable] = None, silent: bool=False, **kwargs) -> list[Obs]:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -75,7 +79,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", cfg_func=None, silent=False, keyed_out=False, **kwargs):
+def read_sfcf_multi(path: str, prefix: str, name_list: list[str], quarks_list: list[str]=['.*'], corr_type_list: list[str]=['bi'], noffset_list: list[int]=[0], wf_list: list[int]=[0], wf2_list: list[int]=[0], version: str="1.0c", cfg_separator: str="n", cfg_func: Optional[Callable] = None, silent: bool=False, keyed_out: bool=False, **kwargs) -> dict:
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -140,14 +144,14 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             dict[name][quarks][offset][wf][wf2] = list[Obs]
     """
 
-    if kwargs.get('im'):
+    im: Literal[1, 0] = 0
+    part: str = 'real'
+
+    if kwargs.get('im', False):
         im = 1
         part = 'imaginary'
-    else:
-        im = 0
-        part = 'real'
 
-    known_versions = ["0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a", "2.0a"]
+    known_versions: list = ["0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a", "2.0a"]
 
     if version not in known_versions:
         raise Exception("This version is not known!")
@@ -162,10 +166,9 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     else:
         compact = False
         appended = False
-    ls = []
-    if "replica" in kwargs:
-        ls = kwargs.get("replica")
-    else:
+    ls: list = kwargs.get("replica", [])
+    if ls == []:
+
         for (dirpath, dirnames, filenames) in os.walk(path):
             if not appended:
                 ls.extend(dirnames)
@@ -178,7 +181,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*'):
                 ls = list(set(ls) - set([exc]))
-
+    replica: int = 0
     if not appended:
         ls = sort_names(ls)
         replica = len(ls)
@@ -190,13 +193,12 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     if not silent:
         print('Read', part, 'part of', name_list, 'from', prefix[:-1], ',', replica, 'replica')
 
-    if 'names' in kwargs:
-        new_names = kwargs.get('names')
+    new_names = kwargs.get('names')
+    if new_names is not None:
         if len(new_names) != len(set(new_names)):
             raise Exception("names are not unique!")
         if len(new_names) != replica:
             raise Exception('names should have the length', replica)
-
     else:
         ens_name = kwargs.get("ens_name")
         if not appended:
@@ -205,14 +207,14 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             new_names = _get_appended_rep_names(ls, prefix, name_list[0], ens_name, rep_sep=(kwargs.get('rep_string', 'r')))
         new_names = sort_names(new_names)
 
-    idl = []
+    idl: list[list[int]] = []
 
-    noffset_list = [str(x) for x in noffset_list]
-    wf_list = [str(x) for x in wf_list]
-    wf2_list = [str(x) for x in wf2_list]
+    noffset_strings: list[str] = [str(x) for x in noffset_list]
+    wf_strings: list[str] = [str(x) for x in wf_list]
+    wf2_strings: list[str] = [str(x) for x in wf2_list]
 
     # setup dict structures
-    intern = {}
+    intern: dict[str, Any] = {}
     for name, corr_type in zip(name_list, corr_type_list):
         intern[name] = {}
         b2b, single = _extract_corr_type(corr_type)
@@ -221,31 +223,31 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         intern[name]["spec"] = {}
         for quarks in quarks_list:
             intern[name]["spec"][quarks] = {}
-            for off in noffset_list:
+            for off in noffset_strings:
                 intern[name]["spec"][quarks][off] = {}
-                for w in wf_list:
+                for w in wf_strings:
                     intern[name]["spec"][quarks][off][w] = {}
                     if b2b:
-                        for w2 in wf2_list:
+                        for w2 in wf2_strings:
                             intern[name]["spec"][quarks][off][w][w2] = {}
                             intern[name]["spec"][quarks][off][w][w2]["pattern"] = _make_pattern(version, name, off, w, w2, intern[name]['b2b'], quarks)
                     else:
                         intern[name]["spec"][quarks][off][w]["0"] = {}
                         intern[name]["spec"][quarks][off][w]["0"]["pattern"] = _make_pattern(version, name, off, w, 0, intern[name]['b2b'], quarks)
 
-    internal_ret_dict = {}
+    internal_ret_dict: dict[str, list] = {}
     needed_keys = []
     for name, corr_type in zip(name_list, corr_type_list):
         b2b, single = _extract_corr_type(corr_type)
         if b2b:
-            needed_keys.extend(_lists2key([name], quarks_list, noffset_list, wf_list, wf2_list))
+            needed_keys.extend(_lists2key([name], quarks_list, noffset_strings, wf_strings, wf2_strings))
         else:
-            needed_keys.extend(_lists2key([name], quarks_list, noffset_list, wf_list, ["0"]))
+            needed_keys.extend(_lists2key([name], quarks_list, noffset_strings, wf_strings, ["0"]))
 
     for key in needed_keys:
         internal_ret_dict[key] = []
 
-    def _default_idl_func(cfg_string, cfg_sep):
+    def _default_idl_func(cfg_string: str, cfg_sep: str):
         return int(cfg_string.split(cfg_sep)[-1])
 
     if cfg_func is None:
@@ -296,9 +298,9 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                     if version == "0.0" or not compact:
                         file = path + '/' + item + '/' + sub_ls[0] + '/' + name
                     if corr_type_list[name_index] == 'bi':
-                        name_keys = _lists2key(quarks_list, noffset_list, wf_list, ["0"])
+                        name_keys = _lists2key(quarks_list, noffset_strings, wf_strings, ["0"])
                     else:
-                        name_keys = _lists2key(quarks_list, noffset_list, wf_list, wf2_list)
+                        name_keys = _lists2key(quarks_list, noffset_strings, wf_strings, wf2_strings)
                     for key in name_keys:
                         specs = _key2specs(key)
                         quarks = specs[0]
@@ -314,7 +316,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         intern[name]["T"] = T
                         # preparing the datastructure
                         # the correlators get parsed into...
-                        deltas = []
+                        deltas: list[list] = []
                         for j in range(intern[name]["T"]):
                             deltas.append([])
                         internal_ret_dict[sep.join([name, key])] = deltas
@@ -327,7 +329,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         internal_ret_dict[key][t].append(rep_deltas[key][t])
             else:
                 for key in needed_keys:
-                    rep_data = []
+                    rep_data: list = []
                     name = _key2specs(key)[0]
                     for subitem in sub_ls:
                         cfg_path = path + '/' + item + '/' + subitem
@@ -335,8 +337,8 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         rep_data.append(file_data)
                     for t in range(intern[name]["T"]):
                         internal_ret_dict[key][t].append([])
-                        for cfg in range(no_cfg):
-                            internal_ret_dict[key][t][i].append(rep_data[cfg][key][t])
+                        for cfg_number in range(no_cfg):
+                            internal_ret_dict[key][t][i].append(rep_data[cfg_number][key][t])
     else:
         for key in needed_keys:
             specs = _key2specs(key)
@@ -345,10 +347,9 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             off = specs[2]
             w = specs[3]
             w2 = specs[4]
-            if "files" in kwargs:
-                if isinstance(kwargs.get("files"), list) and all(isinstance(f, str) for f in kwargs.get("files")):
-                    name_ls = kwargs.get("files")
-                else:
+            name_ls = kwargs.get("files")
+            if name_ls is not None:
+                if not (isinstance(name_ls, list) and all(isinstance(f, str) for f in name_ls)):
                     raise TypeError("In append mode, files has to be of type list[str]!")
             else:
                 name_ls = ls
@@ -360,6 +361,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             deltas = []
             for rep, file in enumerate(name_ls):
                 rep_idl = []
+                rep_data = []
                 filename = path + '/' + file
                 T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], im, intern[name]['single'], cfg_func, cfg_func_args)
                 if rep == 0:
@@ -372,12 +374,12 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 if name == name_list[0]:
                     idl.append(rep_idl)
 
-    if kwargs.get("check_configs") is True:
+    che: Union[list[list[int]], None] = kwargs.get("check_configs", None)
+    if che is not None:
         if not silent:
             print("Checking for missing configs...")
-        che = kwargs.get("check_configs")
         if not (len(che) == len(idl)):
-            raise Exception("check_configs has to be the same length as replica!")
+            raise Exception("check_configs has to have an entry for each replicum!")
         for r in range(len(idl)):
             if not silent:
                 print("checking " + new_names[r])
@@ -385,7 +387,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
         if not silent:
             print("Done")
 
-    result_dict = {}
+    result_dict: dict[str, Any] = {}
     if keyed_out:
         for key in needed_keys:
             name = _key2specs(key)[0]
@@ -398,12 +400,12 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             result_dict[name] = {}
             for quarks in quarks_list:
                 result_dict[name][quarks] = {}
-                for off in noffset_list:
+                for off in noffset_strings:
                     result_dict[name][quarks][off] = {}
-                    for w in wf_list:
+                    for w in wf_strings:
                         result_dict[name][quarks][off][w] = {}
                         if corr_type != 'bi':
-                            for w2 in wf2_list:
+                            for w2 in wf2_strings:
                                 key = _specs2key(name, quarks, off, w, w2)
                                 result = []
                                 for t in range(intern[name]["T"]):
@@ -418,22 +420,22 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     return result_dict
 
 
-def _lists2key(*lists):
+def _lists2key(*lists) -> list[str]:
     keys = []
     for tup in itertools.product(*lists):
         keys.append(sep.join(tup))
     return keys
 
 
-def _key2specs(key):
+def _key2specs(key: str) -> list[str]:
     return key.split(sep)
 
 
-def _specs2key(*specs):
+def _specs2key(*specs) -> str:
     return sep.join(specs)
 
 
-def _read_o_file(cfg_path, name, needed_keys, intern, version, im):
+def _read_o_file(cfg_path: str, name: str, needed_keys: list[str], intern: dict[str, dict], version: str, im: int) -> dict[str, list[float]]:
     return_vals = {}
     for key in needed_keys:
         file = cfg_path + '/' + name
@@ -458,7 +460,7 @@ def _read_o_file(cfg_path, name, needed_keys, intern, version, im):
     return return_vals
 
 
-def _extract_corr_type(corr_type):
+def _extract_corr_type(corr_type: str) -> tuple[bool, bool]:
     if corr_type == 'bb':
         b2b = True
         single = True
@@ -471,7 +473,9 @@ def _extract_corr_type(corr_type):
     return b2b, single
 
 
-def _find_files(rep_path, prefix, compact, files=[]):
+def _find_files(rep_path: str, prefix: str, compact: bool, files: Optional[list]=None) -> list[str]:
+    if files is None:
+        files = []
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
@@ -498,7 +502,7 @@ def _find_files(rep_path, prefix, compact, files=[]):
     return files
 
 
-def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
+def _make_pattern(version: str, name: str, noffset: str, wf: str, wf2: Union[str, int], b2b: bool, quarks: str) -> str:
     if version == "0.0":
         pattern = "# " + name + " : offset " + str(noffset) + ", wf " + str(wf)
         if b2b:
@@ -512,7 +516,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
     return pattern
 
 
-def _find_correlator(file_name, version, pattern, b2b, silent=False):
+def _find_correlator(file_name: str, version: str, pattern: str, b2b: bool, silent: bool=False) -> tuple[int, int]:
     T = 0
 
     with open(file_name, "r") as my_file:
@@ -526,6 +530,7 @@ def _find_correlator(file_name, version, pattern, b2b, silent=False):
             else:
                 start_read = content.count('\n', 0, match.start()) + 5 + b2b
                 end_match = re.search(r'\n\s*\n', content[match.start():])
+                assert end_match is not None
                 T = content[match.start():].count('\n', 0, end_match.start()) - 4 - b2b
             if not T > 0:
                 raise ValueError("Correlator with pattern\n" + pattern + "\nis empty!")
@@ -538,7 +543,7 @@ def _find_correlator(file_name, version, pattern, b2b, silent=False):
     return start_read, T
 
 
-def _read_compact_file(rep_path, cfg_file, intern, needed_keys, im):
+def _read_compact_file(rep_path: str, cfg_file: str, intern: dict[str, dict], needed_keys: list[str], im: int) -> dict[str, list[float]]:
     return_vals = {}
     with open(rep_path + cfg_file) as fp:
         lines = fp.readlines()
@@ -569,7 +574,7 @@ def _read_compact_file(rep_path, cfg_file, intern, needed_keys, im):
     return return_vals
 
 
-def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
+def _read_compact_rep(path: str, rep: str, sub_ls: list[str], intern: dict[str, dict], needed_keys: list[str], im: int) -> dict[str, list[ndarray]]:
     rep_path = path + '/' + rep + '/'
     no_cfg = len(sub_ls)
 
@@ -591,7 +596,7 @@ def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
     return return_vals
 
 
-def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
+def _read_chunk_data(chunk: list[str], start_read: int, T: int, corr_line: int, b2b: bool, pattern: str, im: int, single: bool) -> list[float]:
     found_pat = ""
     data = []
     for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
@@ -603,7 +608,7 @@ def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
     return data
 
 
-def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args):
+def _read_append_rep(filename: str, pattern: str, b2b: bool, im: int, single: bool, idl_func: Callable, cfg_func_args: list) -> tuple[int, list[int], list[list[float]]]:
     with open(filename, 'r') as fp:
         content = fp.readlines()
         data_starts = []
@@ -647,16 +652,16 @@ def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args
             rep_idl.append(idl)
             rep_data.append(data)
 
-        data = []
+        final_data: list[list[float]] = []
 
         for t in range(T):
-            data.append([])
+            final_data.append([])
             for c in range(len(rep_data)):
-                data[t].append(rep_data[c][t])
-        return T, rep_idl, data
+                final_data[t].append(rep_data[c][t])
+        return T, rep_idl, final_data
 
 
-def _get_rep_names(ls, ens_name=None, rep_sep='r'):
+def _get_rep_names(ls: list[str], ens_name: Optional[str]=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for entry in ls:
         try:
@@ -671,7 +676,7 @@ def _get_rep_names(ls, ens_name=None, rep_sep='r'):
     return new_names
 
 
-def _get_appended_rep_names(ls, prefix, name, ens_name=None, rep_sep='r'):
+def _get_appended_rep_names(ls: list[str], prefix: str, name: str, ens_name: Optional[str]=None, rep_sep: str ='r') -> list[str]:
     new_names = []
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*.' + name):

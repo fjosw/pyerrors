@@ -1,3 +1,4 @@
+from __future__ import annotations
 import warnings
 from itertools import permutations
 import numpy as np
@@ -6,9 +7,11 @@ import matplotlib.pyplot as plt
 import scipy.linalg
 from .obs import Obs, reweight, correlate, CObs
 from .misc import dump_object, _assert_equal_properties
-from .fits import least_squares
+from .fits import least_squares, Fit_result
 from .roots import find_root
 from . import linalg
+from numpy import ndarray, ufunc
+from typing import Any, Callable, Optional, Union, Literal
 
 
 class Corr:
@@ -42,7 +45,7 @@ class Corr:
 
     __slots__ = ["content", "N", "T", "tag", "prange"]
 
-    def __init__(self, data_input, padding=[0, 0], prange=None):
+    def __init__(self, data_input: Union[list[Obs, CObs], list[ndarray[ndarray[Obs, CObs]]], ndarray[ndarray]], padding: list[int]=[0, 0], prange: Optional[list[int]]=None):
         """ Initialize a Corr object.
 
         Parameters
@@ -73,7 +76,7 @@ class Corr:
 
                 T = data_input[0, 0].T
                 N = data_input.shape[0]
-                input_as_list = []
+                input_as_list: list[Union[None, ndarray]] = []
                 for t in range(T):
                     if any([(item.content[t] is None) for item in data_input.flatten()]):
                         if not all([(item.content[t] is None) for item in data_input.flatten()]):
@@ -97,7 +100,7 @@ class Corr:
 
             if all([isinstance(item, (Obs, CObs)) or item is None for item in data_input]):
                 _assert_equal_properties([o for o in data_input if o is not None])
-                self.content = [np.asarray([item]) if item is not None else None for item in data_input]
+                self.content: list[Union[None, ndarray]] = [np.asarray([item]) if item is not None else None for item in data_input]
                 self.N = 1
             elif all([isinstance(item, np.ndarray) or item is None for item in data_input]) and any([isinstance(item, np.ndarray) for item in data_input]):
                 self.content = data_input
@@ -119,14 +122,15 @@ class Corr:
         self.T = len(self.content)
         self.prange = prange
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: Union[slice, int]) -> Union[CObs, Obs, ndarray, list[ndarray]]:
         """Return the content of timeslice idx"""
-        if self.content[idx] is None:
+        idx_content = self.content[idx]
+        if idx_content is None:
             return None
-        elif len(self.content[idx]) == 1:
-            return self.content[idx][0]
+        elif len(idx_content) == 1:
+            return idx_content[0]
         else:
-            return self.content[idx]
+            return idx_content
 
     @property
     def reweighted(self):
@@ -151,7 +155,7 @@ class Corr:
 
     gm = gamma_method
 
-    def projected(self, vector_l=None, vector_r=None, normalize=False):
+    def projected(self, vector_l: Optional[Union[ndarray, list[Optional[ndarray]]]]=None, vector_r: Optional[Union[ndarray, list[Optional[ndarray]]]]=None, normalize: bool=False) -> "Corr":
         """We need to project the Correlator with a Vector to get a single value at each timeslice.
 
         The method can use one or two vectors.
@@ -163,7 +167,7 @@ class Corr:
 
         if vector_l is None:
             vector_l, vector_r = np.asarray([1.] + (self.N - 1) * [0.]), np.asarray([1.] + (self.N - 1) * [0.])
-        elif (vector_r is None):
+        elif vector_r is None:
             vector_r = vector_l
         if isinstance(vector_l, list) and not isinstance(vector_r, list):
             if len(vector_l) != self.T:
@@ -174,7 +178,7 @@ class Corr:
                 raise ValueError("Length of vector list must be equal to T")
             vector_l = [vector_l] * self.T
 
-        if not isinstance(vector_l, list):
+        if isinstance(vector_l, ndarray) and isinstance(vector_r, ndarray):
             if not vector_l.shape == vector_r.shape == (self.N,):
                 raise ValueError("Vectors are of wrong shape!")
             if normalize:
@@ -190,7 +194,7 @@ class Corr:
             newcontent = [None if (_check_for_none(self, self.content[t]) or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
-    def item(self, i, j):
+    def item(self, i: int, j: int) -> "Corr":
         """Picks the element [i,j] from every matrix and returns a correlator containing one Obs per timeslice.
 
         Parameters
@@ -205,7 +209,7 @@ class Corr:
         newcontent = [None if (item is None) else item[i, j] for item in self.content]
         return Corr(newcontent)
 
-    def plottable(self):
+    def plottable(self) -> tuple[list, list, list]:
         """Outputs the correlator in a plotable format.
 
         Outputs three lists containing the timeslice index, the value on each
@@ -219,7 +223,7 @@ class Corr:
 
         return x_list, y_list, y_err_list
 
-    def symmetric(self):
+    def symmetric(self) -> "Corr":
         """ Symmetrize the correlator around x0=0."""
         if self.N != 1:
             raise ValueError('symmetric cannot be safely applied to multi-dimensional correlators.')
@@ -236,11 +240,11 @@ class Corr:
                 newcontent.append(None)
             else:
                 newcontent.append(0.5 * (self.content[t] + self.content[self.T - t]))
-        if (all([x is None for x in newcontent])):
+        if all([x is None for x in newcontent]):
             raise ValueError("Corr could not be symmetrized: No redundant values")
         return Corr(newcontent, prange=self.prange)
 
-    def anti_symmetric(self):
+    def anti_symmetric(self) -> "Corr":
         """Anti-symmetrize the correlator around x0=0."""
         if self.N != 1:
             raise TypeError('anti_symmetric cannot be safely applied to multi-dimensional correlators.')
@@ -277,11 +281,11 @@ class Corr:
                         return False
         return True
 
-    def trace(self):
+    def trace(self) -> "Corr":
         """Calculates the per-timeslice trace of a correlator matrix."""
         if self.N == 1:
             raise ValueError("Only works for correlator matrices.")
-        newcontent = []
+        newcontent: list[Union[None, Obs, CObs]] = []
         for t in range(self.T):
             if _check_for_none(self, self.content[t]):
                 newcontent.append(None)
@@ -289,7 +293,7 @@ class Corr:
                 newcontent.append(np.trace(self.content[t]))
         return Corr(newcontent)
 
-    def matrix_symmetric(self):
+    def matrix_symmetric(self) -> "Corr":
         """Symmetrizes the correlator matrices on every timeslice."""
         if self.N == 1:
             raise ValueError("Trying to symmetrize a correlator matrix, that already has N=1.")
@@ -299,7 +303,7 @@ class Corr:
             transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
 
-    def GEVP(self, t0, ts=None, sort="Eigenvalue", vector_obs=False, **kwargs):
+    def GEVP(self, t0: int, ts: Optional[int]=None, sort: Optional[Literal["Eigenvalue", "Eigenvector"]]="Eigenvalue", vector_obs: bool=False, **kwargs) -> Union[list[list[Optional[ndarray]]], ndarray, list[Optional[ndarray]]]:
         r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
 
         The eigenvectors are sorted according to the descending eigenvalues, the zeroth eigenvector(s) correspond to the
@@ -405,7 +409,7 @@ class Corr:
         else:
             return reordered_vecs
 
-    def Eigenvalue(self, t0, ts=None, state=0, sort="Eigenvalue", **kwargs):
+    def Eigenvalue(self, t0: int, ts: Optional[int]=None, state: int=0, sort: Optional[Literal["Eigenvalue", "Eigenvector"]]="Eigenvalue", **kwargs) -> "Corr":
         """Determines the eigenvalue of the GEVP by solving and projecting the correlator
 
         Parameters
@@ -418,7 +422,7 @@ class Corr:
         vec = self.GEVP(t0, ts=ts, sort=sort, **kwargs)[state]
         return self.projected(vec)
 
-    def Hankel(self, N, periodic=False):
+    def Hankel(self, N: int, periodic: bool=False) -> "Corr":
         """Constructs an NxN Hankel matrix
 
         C(t) c(t+1) ... c(t+n-1)
@@ -459,7 +463,7 @@ class Corr:
 
         return Corr(new_content)
 
-    def roll(self, dt):
+    def roll(self, dt: int) -> "Corr":
         """Periodically shift the correlator by dt timeslices
 
         Parameters
@@ -469,11 +473,11 @@ class Corr:
         """
         return Corr(list(np.roll(np.array(self.content, dtype=object), dt, axis=0)))
 
-    def reverse(self):
+    def reverse(self) -> "Corr":
         """Reverse the time ordering of the Corr"""
         return Corr(self.content[:: -1])
 
-    def thin(self, spacing=2, offset=0):
+    def thin(self, spacing: int=2, offset: int=0) -> "Corr":
         """Thin out a correlator to suppress correlations
 
         Parameters
@@ -483,7 +487,7 @@ class Corr:
         offset : int
             Offset the equal spacing
         """
-        new_content = []
+        new_content: list[Union[None, list, ndarray]] = []
         for t in range(self.T):
             if (offset + t) % spacing != 0:
                 new_content.append(None)
@@ -491,7 +495,7 @@ class Corr:
                 new_content.append(self.content[t])
         return Corr(new_content)
 
-    def correlate(self, partner):
+    def correlate(self, partner: Union[Corr, Obs]) -> "Corr":
         """Correlate the correlator with another correlator or Obs
 
         Parameters
@@ -503,7 +507,7 @@ class Corr:
         """
         if self.N != 1:
             raise ValueError("Only one-dimensional correlators can be safely correlated.")
-        new_content = []
+        new_content: list[Union[None, ndarray]] = []
         for x0, t_slice in enumerate(self.content):
             if _check_for_none(self, t_slice):
                 new_content.append(None)
@@ -520,7 +524,7 @@ class Corr:
 
         return Corr(new_content)
 
-    def reweight(self, weight, **kwargs):
+    def reweight(self, weight: Obs, **kwargs) -> "Corr":
         """Reweight the correlator.
 
         Parameters
@@ -535,7 +539,7 @@ class Corr:
         """
         if self.N != 1:
             raise Exception("Reweighting only implemented for one-dimensional correlators.")
-        new_content = []
+        new_content: list[Union[None, ndarray]] = []
         for t_slice in self.content:
             if _check_for_none(self, t_slice):
                 new_content.append(None)
@@ -543,7 +547,7 @@ class Corr:
                 new_content.append(np.array(reweight(weight, t_slice, **kwargs)))
         return Corr(new_content)
 
-    def T_symmetry(self, partner, parity=+1):
+    def T_symmetry(self, partner: "Corr", parity: int=+1) -> "Corr":
         """Return the time symmetry average of the correlator and its partner
 
         Parameters
@@ -573,19 +577,19 @@ class Corr:
 
         return (self + T_partner) / 2
 
-    def deriv(self, variant="symmetric"):
+    def deriv(self, variant: Literal["symmetric", "forward", "backward", "improved", "log"]="symmetric") -> "Corr":
         """Return the first derivative of the correlator with respect to x0.
 
         Parameters
         ----------
         variant : str
             decides which definition of the finite differences derivative is used.
-            Available choice: symmetric, forward, backward, improved, log, default: symmetric
+            Available choices: symmetric, forward, backward, improved, log, default: symmetric
         """
         if self.N != 1:
             raise ValueError("deriv only implemented for one-dimensional correlators.")
+        newcontent: list[Union[None, ndarray, Obs]] = []
         if variant == "symmetric":
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -595,7 +599,6 @@ class Corr:
                 raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[1, 1])
         elif variant == "forward":
-            newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -605,7 +608,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[0, 1])
         elif variant == "backward":
-            newcontent = []
             for t in range(1, self.T):
                 if (self.content[t - 1] is None) or (self.content[t] is None):
                     newcontent.append(None)
@@ -615,7 +617,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 0])
         elif variant == "improved":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -625,7 +626,6 @@ class Corr:
                 raise ValueError('Derivative is undefined at all timeslices')
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
-            newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None) or (self.content[t] <= 0):
                     newcontent.append(None)
@@ -638,7 +638,7 @@ class Corr:
         else:
             raise ValueError("Unknown variant.")
 
-    def second_deriv(self, variant="symmetric"):
+    def second_deriv(self, variant: Literal["symmetric", "big_symmetric", "improved", "log"]="symmetric") -> "Corr":
         r"""Return the second derivative of the correlator with respect to x0.
 
         Parameters
@@ -657,8 +657,8 @@ class Corr:
         """
         if self.N != 1:
             raise ValueError("second_deriv only implemented for one-dimensional correlators.")
+        newcontent: list[Union[None, ndarray, Obs]] = []
         if variant == "symmetric":
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
@@ -668,7 +668,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
         elif variant == "big_symmetric":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -678,7 +677,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == "improved":
-            newcontent = []
             for t in range(2, self.T - 2):
                 if (self.content[t - 2] is None) or (self.content[t - 1] is None) or (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 2] is None):
                     newcontent.append(None)
@@ -688,7 +686,6 @@ class Corr:
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[2, 2])
         elif variant == 'log':
-            newcontent = []
             for t in range(self.T):
                 if (self.content[t] is None) or (self.content[t] <= 0):
                     newcontent.append(None)
@@ -701,7 +698,7 @@ class Corr:
         else:
             raise ValueError("Unknown variant.")
 
-    def m_eff(self, variant='log', guess=1.0):
+    def m_eff(self, variant: Literal["log", "cosh", "periodic", "sinh", "arccosh", "logsym"]='log', guess: float=1.0) -> "Corr":
         """Returns the effective mass of the correlator as correlator object
 
         Parameters
@@ -718,8 +715,8 @@ class Corr:
         """
         if self.N != 1:
             raise Exception('Correlator must be projected before getting m_eff')
+        newcontent: list[Union[None, Obs]] = []
         if variant == 'log':
-            newcontent = []
             for t in range(self.T - 1):
                 if ((self.content[t] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -733,7 +730,6 @@ class Corr:
             return np.log(Corr(newcontent, padding=[0, 1]))
 
         elif variant == 'logsym':
-            newcontent = []
             for t in range(1, self.T - 1):
                 if ((self.content[t - 1] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -755,7 +751,6 @@ class Corr:
             def root_function(x, d):
                 return func(x * (t - self.T / 2)) / func(x * (t + 1 - self.T / 2)) - d
 
-            newcontent = []
             for t in range(self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t + 1][0].value == 0):
                     newcontent.append(None)
@@ -772,7 +767,6 @@ class Corr:
             return Corr(newcontent, padding=[0, 1])
 
         elif variant == 'arccosh':
-            newcontent = []
             for t in range(1, self.T - 1):
                 if (self.content[t] is None) or (self.content[t + 1] is None) or (self.content[t - 1] is None) or (self.content[t][0].value == 0):
                     newcontent.append(None)
@@ -785,7 +779,7 @@ class Corr:
         else:
             raise ValueError('Unknown variant.')
 
-    def fit(self, function, fitrange=None, silent=False, **kwargs):
+    def fit(self, function: Callable, fitrange: Optional[list[int]]=None, silent: bool=False, **kwargs) -> Fit_result:
         r'''Fits function to the data
 
         Parameters
@@ -819,7 +813,7 @@ class Corr:
         result = least_squares(xs, ys, function, silent=silent, **kwargs)
         return result
 
-    def plateau(self, plateau_range=None, method="fit", auto_gamma=False):
+    def plateau(self, plateau_range: Optional[list[int]]=None, method: Literal['fit', 'avg']="fit", auto_gamma: bool=False) -> Obs:
         """ Extract a plateau value from a Corr object
 
         Parameters
@@ -856,7 +850,7 @@ class Corr:
         else:
             raise ValueError("Unsupported plateau method: " + method)
 
-    def set_prange(self, prange):
+    def set_prange(self, prange: list[int]):
         """Sets the attribute prange of the Corr object."""
         if not len(prange) == 2:
             raise ValueError("prange must be a list or array with two values")
@@ -868,7 +862,7 @@ class Corr:
         self.prange = prange
         return
 
-    def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, fit_key=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None, title=None):
+    def show(self, x_range: Optional[list[int]]=None, comp: Optional[Corr]=None, y_range: Optional[list[int, float]]=None, logscale: bool=False, plateau: Union[Obs, float, int, None]=None, fit_res: Optional[Fit_result]=None, fit_key: Optional[str]=None, ylabel: Optional[str]=None, save: Optional[str]=None, auto_gamma: bool=False, hide_sigma: Union[int, float, None]=None, references: Optional[list[float]]=None, title: Optional[str]=None):
         """Plots the correlator using the tag of the correlator as label if available.
 
         Parameters
@@ -993,7 +987,7 @@ class Corr:
             else:
                 raise TypeError("'save' has to be a string.")
 
-    def spaghetti_plot(self, logscale=True):
+    def spaghetti_plot(self, logscale: bool=True):
         """Produces a spaghetti plot of the correlator suited to monitor exceptional configurations.
 
         Parameters
@@ -1022,7 +1016,7 @@ class Corr:
             plt.title(name)
             plt.draw()
 
-    def dump(self, filename, datatype="json.gz", **kwargs):
+    def dump(self, filename: str, datatype: str="json.gz", **kwargs):
         """Dumps the Corr into a file of chosen type
         Parameters
         ----------
@@ -1036,20 +1030,18 @@ class Corr:
         """
         if datatype == "json.gz":
             from .input.json import dump_to_json
-            if 'path' in kwargs:
-                file_name = kwargs.get('path') + '/' + filename
-            else:
-                file_name = filename
+            path = kwargs.get("path", ".")
+            file_name = path + '/' + filename
             dump_to_json(self, file_name)
         elif datatype == "pickle":
             dump_object(self, filename, **kwargs)
         else:
             raise ValueError("Unknown datatype " + str(datatype))
 
-    def print(self, print_range=None):
+    def print(self, print_range: Optional[list[int]]=None):
         print(self.__repr__(print_range))
 
-    def __repr__(self, print_range=None):
+    def __repr__(self, print_range: Optional[list[int]]=None) -> str:
         if print_range is None:
             print_range = [0, None]
 
@@ -1074,7 +1066,7 @@ class Corr:
                 content_string += '\n'
         return content_string
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     # We define the basic operations, that can be performed with correlators.
@@ -1084,18 +1076,18 @@ class Corr:
 
     __array_priority__ = 10000
 
-    def __eq__(self, y):
+    def __eq__(self, y: Any) -> ndarray[bool, None]:
         if isinstance(y, Corr):
             comp = np.asarray(y.content, dtype=object)
         else:
             comp = np.asarray(y)
         return np.asarray(self.content, dtype=object) == comp
 
-    def __add__(self, y):
+    def __add__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if ((self.N != y.N) or (self.T != y.T)):
                 raise ValueError("Addition of Corrs with different shape")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1104,7 +1096,7 @@ class Corr:
             return Corr(newcontent)
 
         elif isinstance(y, (Obs, int, float, CObs, complex)):
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1119,11 +1111,11 @@ class Corr:
         else:
             raise TypeError("Corr + wrong type")
 
-    def __mul__(self, y):
+    def __mul__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1147,13 +1139,13 @@ class Corr:
         else:
             raise TypeError("Corr * wrong type")
 
-    def __matmul__(self, y):
+    def __matmul__(self, y: Union[Corr, ndarray]) -> "Corr":
         if isinstance(y, np.ndarray):
             if y.ndim != 2 or y.shape[0] != y.shape[1]:
                 raise ValueError("Can only multiply correlators by square matrices.")
             if not self.N == y.shape[0]:
                 raise ValueError("matmul: mismatch of matrix dimensions")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1174,13 +1166,13 @@ class Corr:
         else:
             return NotImplemented
 
-    def __rmatmul__(self, y):
+    def __rmatmul__(self, y: ndarray) -> "Corr":
         if isinstance(y, np.ndarray):
             if y.ndim != 2 or y.shape[0] != y.shape[1]:
                 raise ValueError("Can only multiply correlators by square matrices.")
             if not self.N == y.shape[0]:
                 raise ValueError("matmul: mismatch of matrix dimensions")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1190,11 +1182,11 @@ class Corr:
         else:
             return NotImplemented
 
-    def __truediv__(self, y):
+    def __truediv__(self, y: Union[Corr, Obs, CObs, int, float, ndarray]) -> "Corr":
         if isinstance(y, Corr):
             if not ((self.N == 1 or y.N == 1 or self.N == y.N) and self.T == y.T):
                 raise ValueError("Multiplication of Corr object requires N=N or N=1 and T=T")
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]) or _check_for_none(y, y.content[t]):
                     newcontent.append(None)
@@ -1229,7 +1221,7 @@ class Corr:
         elif isinstance(y, (int, float)):
             if y == 0:
                 raise ValueError('Division by zero will return undefined correlator')
-            newcontent = []
+            newcontent: list[Union[None, ndarray, Obs]] = []
             for t in range(self.T):
                 if _check_for_none(self, self.content[t]):
                     newcontent.append(None)
@@ -1244,37 +1236,37 @@ class Corr:
         else:
             raise TypeError('Corr / wrong type')
 
-    def __neg__(self):
+    def __neg__(self) -> "Corr":
         newcontent = [None if _check_for_none(self, item) else -1. * item for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
-    def __sub__(self, y):
+    def __sub__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self + (-y)
 
-    def __pow__(self, y):
+    def __pow__(self, y: Union[Obs, CObs, float, int]) -> "Corr":
         if isinstance(y, (Obs, int, float, CObs)):
             newcontent = [None if _check_for_none(self, item) else item**y for item in self.content]
             return Corr(newcontent, prange=self.prange)
         else:
             raise TypeError('Type of exponent not supported')
 
-    def __abs__(self):
+    def __abs__(self) -> "Corr":
         newcontent = [None if _check_for_none(self, item) else np.abs(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
     # The numpy functions:
-    def sqrt(self):
+    def sqrt(self) -> "Corr":
         return self ** 0.5
 
-    def log(self):
+    def log(self) -> "Corr":
         newcontent = [None if _check_for_none(self, item) else np.log(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
-    def exp(self):
+    def exp(self) -> "Corr":
         newcontent = [None if _check_for_none(self, item) else np.exp(item) for item in self.content]
         return Corr(newcontent, prange=self.prange)
 
-    def _apply_func_to_corr(self, func):
+    def _apply_func_to_corr(self, func: Union[Callable, ufunc]) -> "Corr":
         newcontent = [None if _check_for_none(self, item) else func(item) for item in self.content]
         for t in range(self.T):
             if _check_for_none(self, newcontent[t]):
@@ -1287,57 +1279,57 @@ class Corr:
             raise ValueError('Operation returns undefined correlator')
         return Corr(newcontent)
 
-    def sin(self):
+    def sin(self) -> "Corr":
         return self._apply_func_to_corr(np.sin)
 
-    def cos(self):
+    def cos(self) -> "Corr":
         return self._apply_func_to_corr(np.cos)
 
-    def tan(self):
+    def tan(self) -> "Corr":
         return self._apply_func_to_corr(np.tan)
 
-    def sinh(self):
+    def sinh(self) -> "Corr":
         return self._apply_func_to_corr(np.sinh)
 
-    def cosh(self):
+    def cosh(self) -> "Corr":
         return self._apply_func_to_corr(np.cosh)
 
-    def tanh(self):
+    def tanh(self) -> "Corr":
         return self._apply_func_to_corr(np.tanh)
 
-    def arcsin(self):
+    def arcsin(self) -> "Corr":
         return self._apply_func_to_corr(np.arcsin)
 
-    def arccos(self):
+    def arccos(self) -> "Corr":
         return self._apply_func_to_corr(np.arccos)
 
-    def arctan(self):
+    def arctan(self) -> "Corr":
         return self._apply_func_to_corr(np.arctan)
 
-    def arcsinh(self):
+    def arcsinh(self) -> "Corr":
         return self._apply_func_to_corr(np.arcsinh)
 
-    def arccosh(self):
+    def arccosh(self) -> "Corr":
         return self._apply_func_to_corr(np.arccosh)
 
-    def arctanh(self):
+    def arctanh(self) -> "Corr":
         return self._apply_func_to_corr(np.arctanh)
 
     # Right hand side operations (require tweak in main module to work)
-    def __radd__(self, y):
+    def __radd__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self + y
 
-    def __rsub__(self, y):
+    def __rsub__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return -self + y
 
-    def __rmul__(self, y):
+    def __rmul__(self, y: Union[Corr, Obs, CObs, int, float, complex, ndarray]) -> "Corr":
         return self * y
 
-    def __rtruediv__(self, y):
+    def __rtruediv__(self, y: Union[Corr, Obs, CObs, int, float, ndarray]) -> "Corr":
         return (self / y) ** (-1)
 
     @property
-    def real(self):
+    def real(self) -> "Corr":
         def return_real(obs_OR_cobs):
             if isinstance(obs_OR_cobs.flatten()[0], CObs):
                 return np.vectorize(lambda x: x.real)(obs_OR_cobs)
@@ -1347,7 +1339,7 @@ class Corr:
         return self._apply_func_to_corr(return_real)
 
     @property
-    def imag(self):
+    def imag(self) -> "Corr":
         def return_imag(obs_OR_cobs):
             if isinstance(obs_OR_cobs.flatten()[0], CObs):
                 return np.vectorize(lambda x: x.imag)(obs_OR_cobs)
@@ -1356,7 +1348,7 @@ class Corr:
 
         return self._apply_func_to_corr(return_imag)
 
-    def prune(self, Ntrunc, tproj=3, t0proj=2, basematrix=None):
+    def prune(self, Ntrunc: int, tproj: int=3, t0proj: int=2, basematrix: Optional[ndarray]=None) -> "Corr":
         r''' Project large correlation matrix to lowest states
 
         This method can be used to reduce the size of an (N x N) correlation matrix
@@ -1416,7 +1408,7 @@ class Corr:
         return Corr(rmat)
 
 
-def _sort_vectors(vec_set_in, ts):
+def _sort_vectors(vec_set_in: list[Optional[ndarray]], ts: int) -> list[Union[None, ndarray, list[ndarray]]]:
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
     if isinstance(vec_set_in[ts][0][0], Obs):
@@ -1448,12 +1440,12 @@ def _sort_vectors(vec_set_in, ts):
     return sorted_vec_set
 
 
-def _check_for_none(corr, entry):
+def _check_for_none(corr: Corr, entry: Optional[ndarray]) -> bool:
     """Checks if entry for correlator corr is None"""
     return len(list(filter(None, np.asarray(entry).flatten()))) < corr.N ** 2
 
 
-def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
+def _GEVP_solver(Gt: ndarray, G0: ndarray, method: str='eigh', chol_inv: Optional[ndarray]=None) -> ndarray:
     r"""Helper function for solving the GEVP and sorting the eigenvectors.
 
     Solves $G(t)v_i=\lambda_i G(t_0)v_i$ and returns the eigenvectors v_i

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import scipy
 import numpy as np
 from autograd.extend import primitive, defvjp

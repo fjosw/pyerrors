@@ -1,3 +1,5 @@
+from __future__ import annotations
+import sys
 import warnings
 import hashlib
 import pickle
@@ -10,6 +12,16 @@ from scipy.stats import skew, skewtest, kurtosis, kurtosistest
 import numdifftools as nd
 from itertools import groupby
 from .covobs import Covobs
+from numpy import float64, int64, ndarray
+from typing import Any, Callable, Optional, Union, Sequence, TYPE_CHECKING
+
+if sys.version_info >= (3, 10):
+    from types import NotImplementedType
+else:
+    NotImplementedType = type(NotImplemented)
+
+if TYPE_CHECKING:
+    from .correlators import Corr
 
 # Improve print output of numpy.ndarrays containing Obs objects.
 np.set_printoptions(formatter={'object': lambda x: str(x)})
@@ -51,13 +63,13 @@ class Obs:
                  'idl', 'tag', '_covobs', '__dict__']
 
     S_global = 2.0
-    S_dict = {}
+    S_dict: dict[str, float] = {}
     tau_exp_global = 0.0
-    tau_exp_dict = {}
+    tau_exp_dict: dict[str, float] = {}
     N_sigma_global = 1.0
-    N_sigma_dict = {}
+    N_sigma_dict: dict[str, int] = {}
 
-    def __init__(self, samples, names, idl=None, **kwargs):
+    def __init__(self, samples: list[Union[ndarray, list[Any]]], names: list[str], idl: Optional[Union[list[list[int]], list[Union[list[int], range]], list[range]]]=None, **kwargs):
         """ Initialize Obs object.
 
         Parameters
@@ -70,7 +82,8 @@ class Obs:
             list of ranges or lists on which the samples are defined
         """
 
-        if kwargs.get("means") is None and len(samples):
+        means: Optional[list[float]] = kwargs.get("means")
+        if means is None and len(samples):
             if len(samples) != len(names):
                 raise ValueError('Length of samples and names incompatible.')
             if idl is not None:
@@ -87,18 +100,21 @@ class Obs:
             else:
                 if not isinstance(names[0], str):
                     raise TypeError('All names have to be strings.')
+            # This check does not work because of nan hacks in the json.gz export
+            # if not all((isinstance(o, np.ndarray) and o.ndim == 1) for o in samples):
+            #     raise TypeError('All samples have to be 1d numpy arrays.')
             if min(len(x) for x in samples) <= 4:
                 raise ValueError('Samples have to have at least 5 entries.')
 
-        self.names = sorted(names)
+        self.names: list[str] = sorted(names)
         self.shape = {}
-        self.r_values = {}
-        self.deltas = {}
-        self._covobs = {}
+        self.r_values: dict[str, float] = {}
+        self.deltas: dict[str, ndarray] = {}
+        self._covobs: dict[str, Covobs] = {}
 
-        self._value = 0
-        self.N = 0
-        self.idl = {}
+        self._value: float = 0.0
+        self.N: int = 0
+        self.idl: dict[str, Union[list[int], range]] = {}
         if idl is not None:
             for name, idx in sorted(zip(names, idl)):
                 if isinstance(idx, range):
@@ -114,13 +130,13 @@ class Obs:
                     else:
                         self.idl[name] = list(idx)
                 else:
-                    raise TypeError('incompatible type for idl[%s].' % (name))
+                    raise TypeError('incompatible type for idl[%s].' % name)
         else:
             for name, sample in sorted(zip(names, samples)):
                 self.idl[name] = range(1, len(sample) + 1)
 
-        if kwargs.get("means") is not None:
-            for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
+        if means is not None:
+            for name, sample, mean in sorted(zip(names, samples, means)):
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 self.r_values[name] = mean
@@ -132,38 +148,38 @@ class Obs:
                 if len(sample) != self.shape[name]:
                     raise ValueError('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
                 self.r_values[name] = np.mean(sample)
-                self.deltas[name] = sample - self.r_values[name]
+                self.deltas[name] = np.asarray(sample) - self.r_values[name]
                 self._value += self.shape[name] * self.r_values[name]
             self._value /= self.N
 
-        self._dvalue = 0.0
-        self.ddvalue = 0.0
+        self._dvalue: float = 0.0
+        self.ddvalue: float = 0.0
         self.reweighted = False
 
-        self.tag = None
+        self.tag: Any = None
 
     @property
-    def value(self):
+    def value(self) -> float:
         return self._value
 
     @property
-    def dvalue(self):
+    def dvalue(self) -> float:
         return self._dvalue
 
     @property
-    def e_names(self):
+    def e_names(self) -> list[str]:
         return sorted(set([o.split('|')[0] for o in self.names]))
 
     @property
-    def cov_names(self):
+    def cov_names(self) -> list[Union[Any, str]]:
         return sorted(set([o for o in self.covobs.keys()]))
 
     @property
-    def mc_names(self):
+    def mc_names(self) -> list[Union[Any, str]]:
         return sorted(set([o.split('|')[0] for o in self.names if o not in self.cov_names]))
 
     @property
-    def e_content(self):
+    def e_content(self) -> dict[str, list[str]]:
         res = {}
         for e, e_name in enumerate(self.e_names):
             res[e_name] = sorted(filter(lambda x: x.startswith(e_name + '|'), self.names))
@@ -172,7 +188,7 @@ class Obs:
         return res
 
     @property
-    def covobs(self):
+    def covobs(self) -> dict[str, Covobs]:
         return self._covobs
 
     def gamma_method(self, **kwargs):
@@ -219,7 +235,7 @@ class Obs:
         else:
             fft = True
 
-        def _parse_kwarg(kwarg_name):
+        def _parse_kwarg(kwarg_name: str):
             if kwarg_name in kwargs:
                 tmp = kwargs.get(kwarg_name)
                 if isinstance(tmp, (int, float)):
@@ -343,7 +359,7 @@ class Obs:
 
     gm = gamma_method
 
-    def _calc_gamma(self, deltas, idx, shape, w_max, fft, gapsize):
+    def _calc_gamma(self, deltas: ndarray, idx: Union[range, list[int], list[int64]], shape: int, w_max: Union[int64, int], fft: bool, gapsize: Union[int64, int]) -> ndarray:
         """Calculate Gamma_{AA} from the deltas, which are defined on idx.
            idx is assumed to be a contiguous range (possibly with a stepsize != 1)
 
@@ -379,7 +395,7 @@ class Obs:
 
         return gamma
 
-    def details(self, ens_content=True):
+    def details(self, ens_content: bool=True):
         """Output detailed properties of the Obs.
 
         Parameters
@@ -427,19 +443,21 @@ class Obs:
                     my_string = '  ' + "\u00B7 Ensemble '" + key + "' "
                     if len(value) == 1:
                         my_string += f': {self.shape[value[0]]} configurations'
-                        if isinstance(self.idl[value[0]], range):
-                            my_string += f' (from {self.idl[value[0]].start} to {self.idl[value[0]][-1]}' + int(self.idl[value[0]].step != 1) * f' in steps of {self.idl[value[0]].step}' + ')'
+                        my_idl = self.idl[value[0]]
+                        if isinstance(my_idl, range):
+                            my_string += f' (from {my_idl.start} to {my_idl[-1]}' + int(my_idl.step != 1) * f' in steps of {my_idl.step}' + ')'
                         else:
-                            my_string += f' (irregular range from {self.idl[value[0]][0]} to {self.idl[value[0]][-1]})'
+                            my_string += f' (irregular range from {my_idl[0]} to {my_idl[-1]})'
                     else:
                         sublist = []
                         for v in value:
                             my_substring = '    ' + "\u00B7 Replicum '" + v[len(key) + 1:] + "' "
                             my_substring += f': {self.shape[v]} configurations'
-                            if isinstance(self.idl[v], range):
-                                my_substring += f' (from {self.idl[v].start} to {self.idl[v][-1]}' + int(self.idl[v].step != 1) * f' in steps of {self.idl[v].step}' + ')'
+                            my_idl = self.idl[v]
+                            if isinstance(my_idl, range):
+                                my_substring += f' (from {my_idl.start} to {my_idl[-1]}' + int(my_idl.step != 1) * f' in steps of {my_idl.step}' + ')'
                             else:
-                                my_substring += f' (irregular range from {self.idl[v][0]} to {self.idl[v][-1]})'
+                                my_substring += f' (irregular range from {my_idl[0]} to {my_idl[-1]})'
                             sublist.append(my_substring)
 
                         my_string += '\n' + '\n'.join(sublist)
@@ -448,7 +466,7 @@ class Obs:
                 my_string_list.append(my_string)
             print('\n'.join(my_string_list))
 
-    def reweight(self, weight):
+    def reweight(self, weight: "Obs") -> "Obs":
         """Reweight the obs with given rewighting factors.
 
         Parameters
@@ -463,7 +481,7 @@ class Obs:
         """
         return reweight(weight, [self])[0]
 
-    def is_zero_within_error(self, sigma=1):
+    def is_zero_within_error(self, sigma: float=1) -> bool:
         """Checks whether the observable is zero within 'sigma' standard errors.
 
         Parameters
@@ -475,7 +493,7 @@ class Obs:
         """
         return self.is_zero() or np.abs(self.value) <= sigma * self._dvalue
 
-    def is_zero(self, atol=1e-10):
+    def is_zero(self, atol: float=1e-10) -> bool:
         """Checks whether the observable is zero within a given tolerance.
 
         Parameters
@@ -485,7 +503,7 @@ class Obs:
         """
         return np.isclose(0.0, self.value, 1e-14, atol) and all(np.allclose(0.0, delta, 1e-14, atol) for delta in self.deltas.values()) and all(np.allclose(0.0, delta.errsq(), 1e-14, atol) for delta in self.covobs.values())
 
-    def plot_tauint(self, save=None):
+    def plot_tauint(self, save: Optional[str]=None):
         """Plot integrated autocorrelation time for each ensemble.
 
         Parameters
@@ -525,7 +543,7 @@ class Obs:
             if save:
                 fig.savefig(save + "_" + str(e))
 
-    def plot_rho(self, save=None):
+    def plot_rho(self, save: Optional[str]=None):
         """Plot normalized autocorrelation function time for each ensemble.
 
         Parameters
@@ -578,7 +596,7 @@ class Obs:
             plt.title('Replica distribution' + e_name + ' (mean=0, var=1)')
             plt.draw()
 
-    def plot_history(self, expand=True):
+    def plot_history(self, expand: bool=True):
         """Plot derived Monte Carlo history for each ensemble
 
         Parameters
@@ -610,7 +628,7 @@ class Obs:
             plt.title(e_name + f'\nskew: {skew(y_test):.3f} (p={skewtest(y_test).pvalue:.3f}), kurtosis: {kurtosis(y_test):.3f} (p={kurtosistest(y_test).pvalue:.3f})')
             plt.draw()
 
-    def plot_piechart(self, save=None):
+    def plot_piechart(self, save: Optional[str]=None) -> dict[str, float64]:
         """Plot piechart which shows the fractional contribution of each
         ensemble to the error and returns a dictionary containing the fractions.
 
@@ -624,7 +642,7 @@ class Obs:
         if np.isclose(0.0, self._dvalue, atol=1e-15):
             raise ValueError('Error is 0.0')
         labels = self.e_names
-        sizes = [self.e_dvalue[name] ** 2 for name in labels] / self._dvalue ** 2
+        sizes = np.array([self.e_dvalue[name] ** 2 for name in labels]) / self._dvalue ** 2
         fig1, ax1 = plt.subplots()
         ax1.pie(sizes, labels=labels, startangle=90, normalize=True)
         ax1.axis('equal')
@@ -634,8 +652,8 @@ class Obs:
 
         return dict(zip(labels, sizes))
 
-    def dump(self, filename, datatype="json.gz", description="", **kwargs):
-        """Dump the Obs to a file 'name' of chosen format.
+    def dump(self, filename: str, datatype: str="json.gz", description: str="", **kwargs):
+        """Dump the Obs to a file 'filename' of chosen datatype.
 
         Parameters
         ----------
@@ -649,8 +667,11 @@ class Obs:
         path : str
             specifies a custom path for the file (default '.')
         """
-        if 'path' in kwargs:
-            file_name = kwargs.get('path') + '/' + filename
+        path = kwargs.get('path')
+        if path is not None:
+            if not isinstance(path, str):
+                raise TypeError('path has to be a string.')
+            file_name = path + '/' + filename
         else:
             file_name = filename
 
@@ -663,7 +684,7 @@ class Obs:
         else:
             raise TypeError("Unknown datatype " + str(datatype))
 
-    def export_jackknife(self):
+    def export_jackknife(self) -> ndarray:
         """Export jackknife samples from the Obs
 
         Returns
@@ -689,7 +710,7 @@ class Obs:
         tmp_jacks[1:] = (n * mean - full_data) / (n - 1)
         return tmp_jacks
 
-    def export_bootstrap(self, samples=500, random_numbers=None, save_rng=None):
+    def export_bootstrap(self, samples: int=500, random_numbers: Optional[ndarray]=None, save_rng: Optional[str]=None) -> ndarray:
         """Export bootstrap samples from the Obs
 
         Parameters
@@ -732,16 +753,16 @@ class Obs:
         ret[1:] = proj @ (self.deltas[name] + self.r_values[name])
         return ret
 
-    def __float__(self):
+    def __float__(self) -> float:
         return float(self.value)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'Obs[' + str(self) + ']'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _format_uncertainty(self.value, self._dvalue)
 
-    def __format__(self, format_type):
+    def __format__(self, format_type: str) -> str:
         if format_type == "":
             significance = 2
         else:
@@ -754,35 +775,36 @@ class Obs:
                     my_str = char + my_str
         return my_str
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         hash_tuple = (np.array([self.value]).astype(np.float32).data.tobytes(),)
         hash_tuple += tuple([o.astype(np.float32).data.tobytes() for o in self.deltas.values()])
         hash_tuple += tuple([np.array([o.errsq()]).astype(np.float32).data.tobytes() for o in self.covobs.values()])
         hash_tuple += tuple([o.encode() for o in self.names])
         m = hashlib.md5()
-        [m.update(o) for o in hash_tuple]
+        for o in hash_tuple:
+            m.update(o)
         return int(m.hexdigest(), 16) & 0xFFFFFFFF
 
     # Overload comparisons
-    def __lt__(self, other):
+    def __lt__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value < other
 
-    def __le__(self, other):
+    def __le__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value <= other
 
-    def __gt__(self, other):
+    def __gt__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value > other
 
-    def __ge__(self, other):
+    def __ge__(self, other: Union[Obs, float, float64, int]) -> bool:
         return self.value >= other
 
-    def __eq__(self, other):
+    def __eq__(self, other: Optional[Union[Obs, float, float64, int]]) -> bool:
         if other is None:
             return False
         return (self - other).is_zero()
 
     # Overload math operations
-    def __add__(self, y):
+    def __add__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] + x[1], [self, y], man_grad=[1, 1])
         else:
@@ -795,10 +817,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] + y, [self], man_grad=[1])
 
-    def __radd__(self, y):
+    def __radd__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return self + y
 
-    def __mul__(self, y):
+    def __mul__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] * x[1], [self, y], man_grad=[y.value, self.value])
         else:
@@ -811,10 +833,10 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] * y, [self], man_grad=[y])
 
-    def __rmul__(self, y):
+    def __rmul__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return self * y
 
-    def __sub__(self, y):
+    def __sub__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] - x[1], [self, y], man_grad=[1, -1])
         else:
@@ -825,16 +847,16 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] - y, [self], man_grad=[1])
 
-    def __rsub__(self, y):
+    def __rsub__(self, y: Any) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return -1 * (self - y)
 
-    def __pos__(self):
+    def __pos__(self) -> Obs:
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> Union[Obs, NotImplementedType, CObs, ndarray]:
         return -1 * self
 
-    def __truediv__(self, y):
+    def __truediv__(self, y: Any) -> Union[Obs, NotImplementedType, ndarray]:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [self, y], man_grad=[1 / y.value, - self.value / y.value ** 2])
         else:
@@ -845,7 +867,7 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: x[0] / y, [self], man_grad=[1 / y])
 
-    def __rtruediv__(self, y):
+    def __rtruediv__(self, y: float) -> Obs:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] / x[1], [y, self], man_grad=[1 / self.value, - y.value / self.value ** 2])
         else:
@@ -856,62 +878,62 @@ class Obs:
             else:
                 return derived_observable(lambda x, **kwargs: y / x[0], [self], man_grad=[-y / self.value ** 2])
 
-    def __pow__(self, y):
+    def __pow__(self, y: Union[Obs, float]) -> Obs:
         if isinstance(y, Obs):
             return derived_observable(lambda x, **kwargs: x[0] ** x[1], [self, y], man_grad=[y.value * self.value ** (y.value - 1), self.value ** y.value * np.log(self.value)])
         else:
             return derived_observable(lambda x, **kwargs: x[0] ** y, [self], man_grad=[y * self.value ** (y - 1)])
 
-    def __rpow__(self, y):
+    def __rpow__(self, y: float) -> Obs:
         return derived_observable(lambda x, **kwargs: y ** x[0], [self], man_grad=[y ** self.value * np.log(y)])
 
-    def __abs__(self):
+    def __abs__(self) -> Obs:
         return derived_observable(lambda x: anp.abs(x[0]), [self])
 
     # Overload numpy functions
-    def sqrt(self):
+    def sqrt(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.sqrt(x[0]), [self], man_grad=[1 / 2 / np.sqrt(self.value)])
 
-    def log(self):
+    def log(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.log(x[0]), [self], man_grad=[1 / self.value])
 
-    def exp(self):
+    def exp(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.exp(x[0]), [self], man_grad=[np.exp(self.value)])
 
-    def sin(self):
+    def sin(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.sin(x[0]), [self], man_grad=[np.cos(self.value)])
 
-    def cos(self):
+    def cos(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.cos(x[0]), [self], man_grad=[-np.sin(self.value)])
 
-    def tan(self):
+    def tan(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.tan(x[0]), [self], man_grad=[1 / np.cos(self.value) ** 2])
 
-    def arcsin(self):
+    def arcsin(self) -> Obs:
         return derived_observable(lambda x: anp.arcsin(x[0]), [self])
 
-    def arccos(self):
+    def arccos(self) -> Obs:
         return derived_observable(lambda x: anp.arccos(x[0]), [self])
 
-    def arctan(self):
+    def arctan(self) -> Obs:
         return derived_observable(lambda x: anp.arctan(x[0]), [self])
 
-    def sinh(self):
+    def sinh(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.sinh(x[0]), [self], man_grad=[np.cosh(self.value)])
 
-    def cosh(self):
+    def cosh(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.cosh(x[0]), [self], man_grad=[np.sinh(self.value)])
 
-    def tanh(self):
+    def tanh(self) -> Obs:
         return derived_observable(lambda x, **kwargs: np.tanh(x[0]), [self], man_grad=[1 / np.cosh(self.value) ** 2])
 
-    def arcsinh(self):
+    def arcsinh(self) -> Obs:
         return derived_observable(lambda x: anp.arcsinh(x[0]), [self])
 
-    def arccosh(self):
+    def arccosh(self) -> Obs:
         return derived_observable(lambda x: anp.arccosh(x[0]), [self])
 
-    def arctanh(self):
+    def arctanh(self) -> Obs:
         return derived_observable(lambda x: anp.arctanh(x[0]), [self])
 
 
@@ -919,17 +941,17 @@ class CObs:
     """Class for a complex valued observable."""
     __slots__ = ['_real', '_imag', 'tag']
 
-    def __init__(self, real, imag=0.0):
+    def __init__(self, real: Obs, imag: Union[Obs, float]=0.0):
         self._real = real
         self._imag = imag
         self.tag = None
 
     @property
-    def real(self):
+    def real(self) -> Obs:
         return self._real
 
     @property
-    def imag(self):
+    def imag(self) -> Union[Obs, float]:
         return self._imag
 
     def gamma_method(self, **kwargs):
@@ -939,14 +961,16 @@ class CObs:
         if isinstance(self.imag, Obs):
             self.imag.gamma_method(**kwargs)
 
-    def is_zero(self):
+    gm = gamma_method
+
+    def is_zero(self) -> bool:
         """Checks whether both real and imaginary part are zero within machine precision."""
         return self.real == 0.0 and self.imag == 0.0
 
-    def conjugate(self):
+    def conjugate(self) -> CObs:
         return CObs(self.real, -self.imag)
 
-    def __add__(self, other):
+    def __add__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return other + self
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -955,10 +979,10 @@ class CObs:
         else:
             return CObs(self.real + other, self.imag)
 
-    def __radd__(self, y):
+    def __radd__(self, y: Union[complex, Obs]) -> "CObs":
         return self + y
 
-    def __sub__(self, other):
+    def __sub__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return -1 * (other - self)
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -966,14 +990,14 @@ class CObs:
         else:
             return CObs(self.real - other, self.imag)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Union[complex, Obs]) -> "CObs":
         return -1 * (self - other)
 
-    def __mul__(self, other):
+    def __mul__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return other * self
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
-            if all(isinstance(i, Obs) for i in [self.real, self.imag, other.real, other.imag]):
+            if isinstance(self.real, Obs) and isinstance(self.imag, Obs) and isinstance(other.real, Obs) and isinstance(other.imag, Obs):
                 return CObs(derived_observable(lambda x, **kwargs: x[0] * x[1] - x[2] * x[3],
                                                [self.real, other.real, self.imag, other.imag],
                                                man_grad=[other.real.value, self.real.value, -other.imag.value, -self.imag.value]),
@@ -988,10 +1012,10 @@ class CObs:
         else:
             return CObs(self.real * other, self.imag * other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Union[complex, Obs, CObs]) -> "CObs":
         return self * other
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Any) -> Union[CObs, ndarray]:
         if isinstance(other, np.ndarray):
             return 1 / (other / self)
         elif hasattr(other, 'real') and hasattr(other, 'imag'):
@@ -1000,32 +1024,35 @@ class CObs:
         else:
             return CObs(self.real / other, self.imag / other)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other: Union[complex, Obs, CObs]) -> CObs:
         r = self.real ** 2 + self.imag ** 2
         if hasattr(other, 'real') and hasattr(other, 'imag'):
             return CObs((self.real * other.real + self.imag * other.imag) / r, (self.real * other.imag - self.imag * other.real) / r)
         else:
             return CObs(self.real * other / r, -self.imag * other / r)
 
-    def __abs__(self):
+    def __abs__(self) -> Obs:
         return np.sqrt(self.real**2 + self.imag**2)
 
-    def __pos__(self):
+    def __pos__(self) -> "CObs":
         return self
 
-    def __neg__(self):
+    def __neg__(self) -> "CObs":
         return -1 * self
 
-    def __eq__(self, other):
-        return self.real == other.real and self.imag == other.imag
+    def __eq__(self, other: object) -> bool:
+        if hasattr(other, 'real') and hasattr(other, 'imag'):
+            return self.real == other.real and self.imag == other.imag
+        else:
+            return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'CObs[' + str(self) + ']'
 
-    def __format__(self, format_type):
+    def __format__(self, format_type: str) -> str:
         if format_type == "":
             significance = 2
             format_type = "2"
@@ -1034,7 +1061,7 @@ class CObs:
         return f"({self.real:{format_type}}{self.imag:+{significance}}j)"
 
 
-def gamma_method(x, **kwargs):
+def gamma_method(x: Union[Corr, Obs, CObs, ndarray, list[Obs, CObs]], **kwargs) -> ndarray:
     """Vectorized version of the gamma_method applicable to lists or arrays of Obs.
 
     See docstring of pe.Obs.gamma_method for details.
@@ -1045,7 +1072,7 @@ def gamma_method(x, **kwargs):
 gm = gamma_method
 
 
-def _format_uncertainty(value, dvalue, significance=2):
+def _format_uncertainty(value: Union[float, float64, int], dvalue: Union[float, float64, int], significance: int=2) -> str:
     """Creates a string of a value and its error in paranthesis notation, e.g., 13.02(45)"""
     if dvalue == 0.0 or (not np.isfinite(dvalue)):
         return str(value)
@@ -1062,7 +1089,7 @@ def _format_uncertainty(value, dvalue, significance=2):
         return f"{value:.{max(0, int(significance - fexp - 1))}f}({dvalue:2.{max(0, int(significance - fexp - 1))}f})"
 
 
-def _expand_deltas(deltas, idx, shape, gapsize):
+def _expand_deltas(deltas: ndarray, idx: Union[range, list[int], list[int64]], shape: int, gapsize: Union[int64, int]) -> ndarray:
     """Expand deltas defined on idx to a regular range with spacing gapsize between two
        configurations and where holes are filled by 0.
        If idx is of type range, the deltas are not changed if the idx.step == gapsize.
@@ -1088,7 +1115,7 @@ def _expand_deltas(deltas, idx, shape, gapsize):
     return ret
 
 
-def _merge_idx(idl):
+def _merge_idx(idl: list[Union[list[Union[int, int]], range, list[int]]]) -> Union[list[Union[int, int]], range, list[int]]:
     """Returns the union of all lists in idl as range or sorted list
 
     Parameters
@@ -1111,7 +1138,7 @@ def _merge_idx(idl):
     return idunion
 
 
-def _intersection_idx(idl):
+def _intersection_idx(idl: list[Union[range, list[int]]]) -> Union[range, list[int]]:
     """Returns the intersection of all lists in idl as range or sorted list
 
     Parameters
@@ -1137,7 +1164,7 @@ def _intersection_idx(idl):
     return idinter
 
 
-def _expand_deltas_for_merge(deltas, idx, shape, new_idx, scalefactor):
+def _expand_deltas_for_merge(deltas: ndarray, idx: Union[range, list[int]], shape: int, new_idx: Union[range, list[int]], scalefactor: float) -> ndarray:
     """Expand deltas defined on idx to the list of configs that is defined by new_idx.
        New, empty entries are filled by 0. If idx and new_idx are of type range, the smallest
        common divisor of the step sizes is used as new step size.
@@ -1169,7 +1196,7 @@ def _expand_deltas_for_merge(deltas, idx, shape, new_idx, scalefactor):
     return np.array([ret[new_idx[i] - new_idx[0]] for i in range(len(new_idx))]) * len(new_idx) / len(idx) * scalefactor
 
 
-def derived_observable(func, data, array_mode=False, **kwargs):
+def derived_observable(func: Callable, data: Union[list[Obs], ndarray], array_mode: bool=False, **kwargs) -> Union[Obs, ndarray]:
     """Construct a derived Obs according to func(data, **kwargs) using automatic differentiation.
 
     Parameters
@@ -1207,7 +1234,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             if isinstance(raveled_data[i], (int, float)):
                 raveled_data[i] = cov_Obs(raveled_data[i], 0.0, "###dummy_covobs###")
 
-    allcov = {}
+    allcov: dict[str, ndarray] = {}
     for o in raveled_data:
         for name in o.cov_names:
             if name in allcov:
@@ -1297,8 +1324,8 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                 self.grad = np.zeros((N, 1))
 
         new_covobs_lengths = dict(set([y for x in [[(n, o.covobs[n].N) for n in o.cov_names] for o in raveled_data] for y in x]))
-        d_extracted = {}
-        g_extracted = {}
+        d_extracted: dict[str, list] = {}
+        g_extracted: dict[str, list] = {}
         for name in new_sample_names:
             d_extracted[name] = []
             ens_length = len(new_idl_d[name])
@@ -1359,7 +1386,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
     return final_result
 
 
-def _reduce_deltas(deltas, idx_old, idx_new):
+def _reduce_deltas(deltas: Union[list[float], ndarray], idx_old: Union[range, list[int]], idx_new: Union[range, list[int], ndarray]) -> Union[list[float], ndarray]:
     """Extract deltas defined on idx_old on all configs of idx_new.
 
     Assumes, that idx_old and idx_new are correctly defined idl, i.e., they
@@ -1388,7 +1415,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
     return np.array(deltas)[indices]
 
 
-def reweight(weight, obs, **kwargs):
+def reweight(weight: Obs, obs: Union[ndarray, list[Obs]], **kwargs) -> list[Obs]:
     """Reweight a list of observables.
 
     Parameters
@@ -1414,8 +1441,8 @@ def reweight(weight, obs, **kwargs):
         for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
                 raise ValueError('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
-        new_samples = []
-        w_deltas = {}
+        new_samples: list = []
+        w_deltas: dict[str, ndarray] = {}
         for name in sorted(obs[i].names):
             w_deltas[name] = _reduce_deltas(weight.deltas[name], weight.idl[name], obs[i].idl[name])
             new_samples.append((w_deltas[name] + weight.r_values[name]) * (obs[i].deltas[name] + obs[i].r_values[name]))
@@ -1432,7 +1459,7 @@ def reweight(weight, obs, **kwargs):
     return result
 
 
-def correlate(obs_a, obs_b):
+def correlate(obs_a: Obs, obs_b: Obs) -> Obs:
     """Correlate two observables.
 
     Parameters
@@ -1478,7 +1505,7 @@ def correlate(obs_a, obs_b):
     return o
 
 
-def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
+def covariance(obs: Union[ndarray, list[Obs]], visualize: bool=False, correlation: bool=False, smooth: Optional[int]=None, **kwargs) -> ndarray:
     r'''Calculates the error covariance matrix of a set of observables.
 
     WARNING: This function should be used with care, especially for observables with support on multiple
@@ -1548,7 +1575,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     return cov
 
 
-def invert_corr_cov_cholesky(corr, inverrdiag):
+def invert_corr_cov_cholesky(corr: ndarray, inverrdiag: ndarray) -> ndarray:
     """Constructs a lower triangular matrix `chol` via the Cholesky decomposition of the correlation matrix `corr`
        and then returns the inverse covariance matrix `chol_inv` as a lower triangular matrix by solving `chol * x = inverrdiag`.
 
@@ -1571,7 +1598,7 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
     return chol_inv
 
 
-def sort_corr(corr, kl, yd):
+def sort_corr(corr: ndarray, kl: list[str], yd: dict[str, list[Obs]]) -> ndarray:
     """ Reorders a correlation matrix to match the alphabetical order of its underlying y data.
 
     The ordering of the input correlation matrix `corr` is given by the list of keys `kl`.
@@ -1634,7 +1661,7 @@ def sort_corr(corr, kl, yd):
     return corr_sorted
 
 
-def _smooth_eigenvalues(corr, E):
+def _smooth_eigenvalues(corr: ndarray, E: int) -> ndarray:
     """Eigenvalue smoothing as described in hep-lat/9412087
 
     corr : np.ndarray
@@ -1651,7 +1678,7 @@ def _smooth_eigenvalues(corr, E):
     return vec @ np.diag(vals) @ vec.T
 
 
-def _covariance_element(obs1, obs2):
+def _covariance_element(obs1: Obs, obs2: Obs) -> Union[float, float64]:
     """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
 
     def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
@@ -1711,7 +1738,7 @@ def _covariance_element(obs1, obs2):
     return dvalue
 
 
-def import_jackknife(jacks, name, idl=None):
+def import_jackknife(jacks: ndarray, name: str, idl: Optional[list[Union[list[int], range]]]=None) -> Obs:
     """Imports jackknife samples and returns an Obs
 
     Parameters
@@ -1731,7 +1758,7 @@ def import_jackknife(jacks, name, idl=None):
     return new_obs
 
 
-def import_bootstrap(boots, name, random_numbers):
+def import_bootstrap(boots: ndarray, name: str, random_numbers: ndarray) -> Obs:
     """Imports bootstrap samples and returns an Obs
 
     Parameters
@@ -1761,7 +1788,7 @@ def import_bootstrap(boots, name, random_numbers):
     return ret
 
 
-def merge_obs(list_of_obs):
+def merge_obs(list_of_obs: list[Obs]) -> Obs:
     """Combine all observables in list_of_obs into one new observable.
     This allows to merge Obs that have been computed on multiple replica
     of the same ensemble.
@@ -1783,11 +1810,11 @@ def merge_obs(list_of_obs):
     if any([len(o.cov_names) for o in list_of_obs]):
         raise ValueError('Not possible to merge data that contains covobs!')
     new_dict = {}
-    idl_dict = {}
+    idl_dict: dict[str, Union[range, list[int]]] = {}
     for o in list_of_obs:
         new_dict.update({key: o.deltas.get(key, 0) + o.r_values.get(key, 0)
                         for key in set(o.deltas) | set(o.r_values)})
-        idl_dict.update({key: o.idl.get(key, 0) for key in set(o.deltas)})
+        idl_dict.update({key: o.idl.get(key) for key in set(o.deltas)})
 
     names = sorted(new_dict.keys())
     o = Obs([new_dict[name] for name in names], names, idl=[idl_dict[name] for name in names])
@@ -1795,7 +1822,7 @@ def merge_obs(list_of_obs):
     return o
 
 
-def cov_Obs(means, cov, name, grad=None):
+def cov_Obs(means: Union[int, list[float], float, list[int]], cov: Any, name: str, grad: Optional[Union[list, ndarray]]=None) -> Union[Obs, list[Obs]]:
     """Create an Obs based on mean(s) and a covariance matrix
 
     Parameters
@@ -1838,13 +1865,14 @@ def cov_Obs(means, cov, name, grad=None):
     return ol
 
 
-def _determine_gap(o, e_content, e_name):
+def _determine_gap(o: Obs, e_content: dict[str, list[str]], e_name: str) -> Union[int64, int]:
     gaps = []
     for r_name in e_content[e_name]:
-        if isinstance(o.idl[r_name], range):
-            gaps.append(o.idl[r_name].step)
+        my_idl = o.idl[r_name]
+        if isinstance(my_idl, range):
+            gaps.append(my_idl.step)
         else:
-            gaps.append(np.min(np.diff(o.idl[r_name])))
+            gaps.append(np.min(np.diff(my_idl)))
 
     gap = min(gaps)
     if not np.all([gi % gap == 0 for gi in gaps]):
@@ -1853,7 +1881,7 @@ def _determine_gap(o, e_content, e_name):
     return gap
 
 
-def _check_lists_equal(idl):
+def _check_lists_equal(idl: Sequence[Union[list[int], list[Union[int64, int]], range, ndarray]]):
     '''
     Use groupby to efficiently check whether all elements of idl are identical.
     Returns True if all elements are equal, otherwise False.

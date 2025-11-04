@@ -7,9 +7,10 @@ from ..obs import Obs, CObs
 from ..correlators import Corr
 from ..dirac import epsilon_tensor_rank4
 from .misc import fit_t0
+from typing import Union, Optional
 
 
-def _get_files(path, filestem, idl):
+def _get_files(path: str, filestem: str, idl: list[int]):
     ls = os.listdir(path)
 
     # Clean up file list
@@ -45,7 +46,7 @@ def _get_files(path, filestem, idl):
     if np.any(dc < 0):
         raise Exception("Unsorted files")
     if len(dc) == 1:
-        idx = range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0])
+        idx = list(range(cnfg_numbers[0], cnfg_numbers[-1] + dc[0], dc[0]))
     elif idl:
         idx = idl
     else:
@@ -54,7 +55,7 @@ def _get_files(path, filestem, idl):
     return filtered_files, idx
 
 
-def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
+def read_hd5(filestem: str, ens_id: str, group: str, attrs: Optional[Union[dict, int]]=None, idl=None, part="real") -> Corr:
     r'''Read hadrons hdf5 file and extract entry based on attributes.
 
     Parameters
@@ -122,25 +123,26 @@ def read_hd5(filestem, ens_id, group, attrs=None, idl=None, part="real"):
             for k, i in h5file[group + '/' + entry].attrs.items():
                 infos.append(k + ': ' + i[0].decode())
         h5file.close()
-    corr_data = np.array(corr_data)
+    corr_data_array = np.array(corr_data)
 
     if part == "complex":
         l_obs = []
-        for c in corr_data.T:
+        for c in corr_data_array.T:
             l_obs.append(CObs(Obs([c.real], [ens_id], idl=[idx]),
                               Obs([c.imag], [ens_id], idl=[idx])))
+        corr = Corr(l_obs)
     else:
         corr_data = getattr(corr_data, part)
-        l_obs = []
-        for c in corr_data.T:
-            l_obs.append(Obs([c], [ens_id], idl=[idx]))
+        p_obs = []
+        for c in corr_data_array.T:
+            p_obs.append(Obs([c], [ens_id], idl=[idx]))
+        corr = Corr(p_obs)
 
-    corr = Corr(l_obs)
     corr.tag = r", ".join(infos)
     return corr
 
 
-def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=None):
+def read_meson_hd5(path: str, filestem: str, ens_id: str, meson: str='meson_0', idl: Optional[range]=None, gammas: Optional[tuple[str, ...]]=None):
     r'''Read hadrons meson hdf5 file and extract the meson labeled 'meson'
 
     Parameters
@@ -154,7 +156,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
     meson : str
         label of the meson to be extracted, standard value meson_0 which
         corresponds to the pseudoscalar pseudoscalar two-point function.
-    gammas : tuple of strings
+    gammas : tuple[str]
         Instrad of a meson label one can also provide a tuple of two strings
         indicating the gamma matrices at sink and source (gamma_snk, gamma_src).
         ("Gamma5", "Gamma5") corresponds to the pseudoscalar pseudoscalar
@@ -179,7 +181,7 @@ def read_meson_hd5(path, filestem, ens_id, meson='meson_0', idl=None, gammas=Non
                     part="real")
 
 
-def _extract_real_arrays(path, files, tree, keys):
+def _extract_real_arrays(path: str, files: list[str], tree: str, keys: list[str]):
     corr_data = {}
     for key in keys:
         corr_data[key] = []
@@ -197,7 +199,7 @@ def _extract_real_arrays(path, files, tree, keys):
     return corr_data
 
 
-def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_range=5, idl=None, **kwargs):
+def extract_t0_hd5(path: str, filestem: str, ens_id: str, obs='Clover energy density', fit_range: int=5, idl: Optional[range]=None, **kwargs):
     r'''Read hadrons FlowObservables hdf5 file and extract t0
 
     Parameters
@@ -245,7 +247,7 @@ def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_rang
     return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
-def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):
+def read_DistillationContraction_hd5(path: str, ens_id: str, diagrams: list[str]=["direct"], idl: Optional[range]=None):
     """Read hadrons DistillationContraction hdf5 files in given directory structure
 
     Parameters
@@ -254,7 +256,7 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
         path to the directories to read
     ens_id : str
         name of the ensemble, required for internal bookkeeping
-    diagrams : list
+    diagrams : list[str]
         List of strings of the diagrams to extract, e.g. ["direct", "box", "cross"].
     idl : range
         If specified only configurations in the given range are read in.
@@ -382,7 +384,7 @@ class Npr_matrix(np.ndarray):
         self.mom_out = getattr(obj, 'mom_out', None)
 
 
-def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
+def read_ExternalLeg_hd5(path: str, filestem: str, ens_id: str, idl: Optional[range]=None):
     """Read hadrons ExternalLeg hdf5 file and output an array of CObs
 
     Parameters
@@ -427,7 +429,7 @@ def read_ExternalLeg_hd5(path, filestem, ens_id, idl=None):
     return Npr_matrix(matrix, mom_in=mom)
 
 
-def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
+def read_Bilinear_hd5(path: str, filestem: str, ens_id: str, idl: Optional[range]=None):
     """Read hadrons Bilinear hdf5 file and output an array of CObs
 
     Parameters
@@ -486,7 +488,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     return result_dict
 
 
-def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
+def read_Fourquark_hd5(path: str, filestem: str, ens_id: str, idl: Optional[range]=None, vertices: list[str]=["VA", "AV"]):
     """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
 
     Parameters
@@ -572,7 +574,7 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
     return result_dict
 
 
-def _get_lorentz_names(name):
+def _get_lorentz_names(name: str):
     lorentz_index = ['X', 'Y', 'Z', 'T']
 
     res = []

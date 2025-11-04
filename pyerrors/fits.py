@@ -1,3 +1,4 @@
+from __future__ import annotations
 import gc
 from collections.abc import Sequence
 import warnings
@@ -15,6 +16,8 @@ from autograd import elementwise_grad as egrad
 from numdifftools import Jacobian as num_jacobian
 from numdifftools import Hessian as num_hessian
 from .obs import Obs, derived_observable, covariance, cov_Obs, invert_corr_cov_cholesky
+from numpy import ndarray
+from typing import Any, Callable, Optional, Union
 
 
 class Fit_result(Sequence):
@@ -33,13 +36,31 @@ class Fit_result(Sequence):
         Hotelling t-squared p-value for correlated fits.
     """
 
-    def __init__(self):
-        self.fit_parameters = None
+    def __init__(self) -> None:
+        self.fit_parameters: Optional[list] = None
+        self.fit_function: Optional[Union[Callable, dict[str, Callable]]] = None
+        self.priors: Optional[Union[list[Obs], dict[int, Obs]]] = None
+        self.method: Optional[str] = None
+        self.iterations: Optional[int] = None
+        self.chisquare: Optional[float] = None
+        self.odr_chisquare: Optional[float] = None
+        self.dof: Optional[int] = None
+        self.p_value: Optional[float] = None
+        self.message: Optional[str] = None
+        self.t2_p_value: Optional[float] = None
+        self.chisquare_by_dof: Optional[float] = None
+        self.chisquare_by_expected_chisquare: Optional[float] = None
+        self.residual_variance: Optional[float] = None
+        self.xplus: Optional[float] = None
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Obs:
+        if self.fit_parameters is None:
+            raise TypeError('No fit parameters available.')
         return self.fit_parameters[idx]
 
-    def __len__(self):
+    def __len__(self) -> int:
+        if self.fit_parameters is None:
+            raise TypeError('No fit parameters available.')
         return len(self.fit_parameters)
 
     def gamma_method(self, **kwargs):
@@ -48,29 +69,31 @@ class Fit_result(Sequence):
 
     gm = gamma_method
 
-    def __str__(self):
+    def __str__(self) -> str:
         my_str = 'Goodness of fit:\n'
-        if hasattr(self, 'chisquare_by_dof'):
+        if self.chisquare_by_dof is not None:
             my_str += '\u03C7\u00b2/d.o.f. = ' + f'{self.chisquare_by_dof:2.6f}' + '\n'
-        elif hasattr(self, 'residual_variance'):
+        elif self.residual_variance is not None:
             my_str += 'residual variance = ' + f'{self.residual_variance:2.6f}' + '\n'
-        if hasattr(self, 'chisquare_by_expected_chisquare'):
+        if self.chisquare_by_expected_chisquare is not None:
             my_str += '\u03C7\u00b2/\u03C7\u00b2exp  = ' + f'{self.chisquare_by_expected_chisquare:2.6f}' + '\n'
-        if hasattr(self, 'p_value'):
+        if self.p_value is not None:
             my_str += 'p-value   = ' + f'{self.p_value:2.4f}' + '\n'
-        if hasattr(self, 't2_p_value'):
+        if self.t2_p_value is not None:
             my_str += 't\u00B2p-value = ' + f'{self.t2_p_value:2.4f}' + '\n'
         my_str += 'Fit parameters:\n'
+        if self.fit_parameters is None:
+            raise TypeError('No fit parameters available.')
         for i_par, par in enumerate(self.fit_parameters):
             my_str += str(i_par) + '\t' + ' ' * int(par >= 0) + str(par).rjust(int(par < 0.0)) + '\n'
         return my_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         m = max(map(len, list(self.__dict__.keys()))) + 1
         return '\n'.join([key.rjust(m) + ': ' + repr(value) for key, value in sorted(self.__dict__.items())])
 
 
-def least_squares(x, y, func, priors=None, silent=False, **kwargs):
+def least_squares(x: Any, y: Union[dict[str, ndarray], list[Obs], ndarray, dict[str, list[Obs]]], func: Union[Callable, dict[str, Callable]], priors: Optional[Union[dict[int, str], list[str], list[Obs], dict[int, Obs]]]=None, silent: bool=False, **kwargs) -> Fit_result:
     r'''Performs a non-linear fit to y = func(x).
         ```
 
@@ -350,9 +373,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         p_f = dp_f = np.array([])
         prior_mask = []
         loc_priors = []
-
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+    x0 = kwargs.get('initial_guess')
+    if x0 is not None:
         if len(x0) != n_parms:
             raise ValueError('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
@@ -371,8 +393,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         return anp.sum(general_chisqfunc_uncorr(p, y_f, p_f) ** 2)
 
     if kwargs.get('correlated_fit') is True:
-        if 'inv_chol_cov_matrix' in kwargs:
-            chol_inv = kwargs.get('inv_chol_cov_matrix')
+        chol_inv = kwargs.get('inv_chol_cov_matrix')
+        if chol_inv is not None:
             if (chol_inv[0].shape[0] != len(dy_f)):
                 raise TypeError('The number of columns of the inverse covariance matrix handed over needs to be equal to the number of y errors.')
             if (chol_inv[0].shape[0] != chol_inv[0].shape[1]):
@@ -403,17 +425,17 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     if output.method != 'Levenberg-Marquardt':
         if output.method == 'migrad':
-            tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
+            tolerance = kwargs.get('tol')
+            if tolerance is None:
+                tolerance = 1e-4  # default value of 1e-1 set by iminuit can be problematic
             fit_result = iminuit.minimize(chisqfunc_uncorr, x0, tol=tolerance)  # Stopping criterion 0.002 * tol * errordef
             if kwargs.get('correlated_fit') is True:
                 fit_result = iminuit.minimize(chisqfunc, fit_result.x, tol=tolerance)
             output.iterations = fit_result.nfev
         else:
-            tolerance = 1e-12
-            if 'tol' in kwargs:
-                tolerance = kwargs.get('tol')
+            tolerance = kwargs.get('tol')
+            if tolerance is None:
+                tolerance = 1e-12
             fit_result = scipy.optimize.minimize(chisqfunc_uncorr, x0, method=kwargs.get('method'), tol=tolerance)
             if kwargs.get('correlated_fit') is True:
                 fit_result = scipy.optimize.minimize(chisqfunc, fit_result.x, method=kwargs.get('method'), tol=tolerance)
@@ -443,8 +465,8 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if not fit_result.success:
         raise Exception('The minimization procedure did not converge.')
 
-    output.chisquare = chisquare
-    output.dof = y_all.shape[-1] - n_parms + len(loc_priors)
+    output.chisquare = float(chisquare)
+    output.dof = int(y_all.shape[-1] - n_parms + len(loc_priors))
     output.p_value = 1 - scipy.stats.chi2.cdf(output.chisquare, output.dof)
     if output.dof > 0:
         output.chisquare_by_dof = output.chisquare / output.dof
@@ -520,7 +542,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     return output
 
 
-def total_least_squares(x, y, func, silent=False, **kwargs):
+def total_least_squares(x: list[Obs], y: list[Obs], func: Callable, silent: bool=False, **kwargs) -> Fit_result:
     r'''Performs a non-linear fit to y = func(x) and returns a list of Obs corresponding to the fit parameters.
 
     Parameters
@@ -633,8 +655,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if np.any(np.asarray(dy_f) <= 0.0):
         raise Exception('No y errors available, run the gamma method first.')
 
-    if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+    x0 = kwargs.get('initial_guess')
+    if x0 is not None:
         if len(x0) != n_parms:
             raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
@@ -740,7 +762,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     return output
 
 
-def fit_lin(x, y, **kwargs):
+def fit_lin(x: Sequence[Union[Obs, int, float]], y: Sequence[Obs], **kwargs) -> list[Obs]:
     """Performs a linear fit to y = n + m * x and returns two Obs n, m.
 
     Parameters
@@ -754,7 +776,7 @@ def fit_lin(x, y, **kwargs):
     Returns
     -------
     fit_parameters : list[Obs]
-        LIist of fitted observables.
+        List of fitted observables.
     """
 
     def f(a, x):
@@ -771,7 +793,7 @@ def fit_lin(x, y, **kwargs):
         raise TypeError('Unsupported types for x')
 
 
-def qqplot(x, o_y, func, p, title=""):
+def qqplot(x: ndarray, o_y: list[Obs], func: Callable, p: list[Obs], title: str=""):
     """Generates a quantile-quantile plot of the fit result which can be used to
        check if the residuals of the fit are gaussian distributed.
 
@@ -801,7 +823,7 @@ def qqplot(x, o_y, func, p, title=""):
     plt.draw()
 
 
-def residual_plot(x, y, func, fit_res, title=""):
+def residual_plot(x: ndarray, y: list[Obs], func: Callable, fit_res: list[Obs], title: str=""):
     """Generates a plot which compares the fit to the data and displays the corresponding residuals
 
     For uncorrelated data the residuals are expected to be distributed ~N(0,1).
@@ -838,15 +860,29 @@ def residual_plot(x, y, func, fit_res, title=""):
     plt.draw()
 
 
-def error_band(x, func, beta):
+def error_band(x: list[int], func: Callable, beta: Union[Fit_result, list[Obs]]) -> ndarray:
     """Calculate the error band for an array of sample values x, for given fit function func with optimized parameters beta.
+
+    Parameters
+    ----------
+    x : list[int]
+        A list of sample points where the error band is evaluated.
+
+    func : Callable
+        The function representing the fit model.
+
+    beta : Union[Fit_result, list[Obs]]
+        Optimized fit parameters.
 
     Returns
     -------
     err : np.array(Obs)
         Error band for an array of sample values x
     """
-    cov = covariance(beta)
+    if isinstance(beta, Fit_result):
+        cov = covariance(np.array(beta.fit_parameters))
+    else:
+        cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
         warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
 
@@ -857,12 +893,12 @@ def error_band(x, func, beta):
     err = []
     for i, item in enumerate(x):
         err.append(np.sqrt(deriv[i] @ cov @ deriv[i]))
-    err = np.array(err)
+    err_array = np.array(err)
 
-    return err
+    return err_array
 
 
-def ks_test(objects=None):
+def ks_test(objects: Optional[list[Fit_result]]=None):
     """Performs a Kolmogorov–Smirnov test for the p-values of all fit object.
 
     Parameters
@@ -883,7 +919,7 @@ def ks_test(objects=None):
     else:
         obs_list = objects
 
-    p_values = [o.p_value for o in obs_list]
+    p_values = np.asarray([o.p_value for o in obs_list])
 
     bins = len(p_values)
     x = np.arange(0, 1.001, 0.001)
@@ -895,7 +931,7 @@ def ks_test(objects=None):
     plt.title(str(bins) + ' p-values')
 
     n = np.arange(1, bins + 1) / np.float64(bins)
-    Xs = np.sort(p_values)
+    Xs: ndarray[float] = np.sort(p_values)
     plt.step(Xs, n)
     diffs = n - Xs
     loc_max_diff = np.argmax(np.abs(diffs))
@@ -906,7 +942,7 @@ def ks_test(objects=None):
     print(scipy.stats.kstest(p_values, 'uniform'))
 
 
-def _extract_val_and_dval(string):
+def _extract_val_and_dval(string: str) -> tuple[float, float]:
     split_string = string.split('(')
     if '.' in split_string[0] and '.' not in split_string[1][:-1]:
         factor = 10 ** -len(split_string[0].partition('.')[2])
@@ -915,11 +951,13 @@ def _extract_val_and_dval(string):
     return float(split_string[0]), float(split_string[1][:-1]) * factor
 
 
-def _construct_prior_obs(i_prior, i_n):
+def _construct_prior_obs(i_prior: Union[Obs, str], i_n: int) -> Obs:
     if isinstance(i_prior, Obs):
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        prior_obs = cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        assert isinstance(prior_obs, Obs)
+        return prior_obs
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

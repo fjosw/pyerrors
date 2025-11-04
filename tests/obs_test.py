@@ -410,6 +410,7 @@ def test_cobs():
     obs2 = pe.pseudo_Obs(-0.2, 0.03, 't')
 
     my_cobs = pe.CObs(obs1, obs2)
+    my_cobs.gm()
     assert +my_cobs == my_cobs
     assert -my_cobs == 0 - my_cobs
     my_cobs == my_cobs

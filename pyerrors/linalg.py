@@ -1,9 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
 from .obs import derived_observable, CObs, Obs, import_jackknife
+from numpy import ndarray
+from typing import Callable, Union, Literal
 
 
-def matmul(*operands):
+def matmul(*operands) -> ndarray:
     """Matrix multiply all operands.
 
     Parameters
@@ -21,7 +24,7 @@ def matmul(*operands):
             extended_operands.append(tmp[0])
             extended_operands.append(tmp[1])
 
-        def multi_dot(operands, part):
+        def multi_dot(operands, part: Literal["Real", "Imag"]):
             stack_r = operands[0]
             stack_i = operands[1]
             for op_r, op_i in zip(operands[2::2], operands[3::2]):
@@ -45,6 +48,7 @@ def matmul(*operands):
         Nr = derived_observable(multi_dot_r, extended_operands, array_mode=True)
         Ni = derived_observable(multi_dot_i, extended_operands, array_mode=True)
 
+        assert isinstance(Nr, ndarray) and isinstance(Ni, ndarray)
         res = np.empty_like(Nr)
         for (n, m), entry in np.ndenumerate(Nr):
             res[n, m] = CObs(Nr[n, m], Ni[n, m])
@@ -59,7 +63,7 @@ def matmul(*operands):
         return derived_observable(multi_dot, operands, array_mode=True)
 
 
-def jack_matmul(*operands):
+def jack_matmul(*operands) -> ndarray:
     """Matrix multiply both operands making use of the jackknife approximation.
 
     Parameters
@@ -71,25 +75,25 @@ def jack_matmul(*operands):
     For large matrices this is considerably faster compared to matmul.
     """
 
-    def _exp_to_jack(matrix):
+    def _export_to_jack(matrix):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = entry.export_jackknife()
         return base_matrix
 
-    def _imp_from_jack(matrix, name, idl):
+    def _import_from_jack(matrix, name, idl):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = import_jackknife(entry, name, [idl])
         return base_matrix
 
-    def _exp_to_jack_c(matrix):
+    def _export_to_jack_c(matrix):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = entry.real.export_jackknife() + 1j * entry.imag.export_jackknife()
         return base_matrix
 
-    def _imp_from_jack_c(matrix, name, idl):
+    def _import_from_jack_c(matrix, name, idl):
         base_matrix = np.empty_like(matrix)
         for index, entry in np.ndenumerate(matrix):
             base_matrix[index] = CObs(import_jackknife(entry.real, name, [idl]),
@@ -100,27 +104,27 @@ def jack_matmul(*operands):
         name = operands[0].flat[0].real.names[0]
         idl = operands[0].flat[0].real.idl[name]
 
-        r = _exp_to_jack_c(operands[0])
+        r = _export_to_jack_c(operands[0])
         for op in operands[1:]:
             if isinstance(op.flat[0], CObs):
-                r = r @ _exp_to_jack_c(op)
+                r = r @ _export_to_jack_c(op)
             else:
                 r = r @ op
-        return _imp_from_jack_c(r, name, idl)
+        return _import_from_jack_c(r, name, idl)
     else:
         name = operands[0].flat[0].names[0]
         idl = operands[0].flat[0].idl[name]
 
-        r = _exp_to_jack(operands[0])
+        r = _export_to_jack(operands[0])
         for op in operands[1:]:
             if isinstance(op.flat[0], Obs):
-                r = r @ _exp_to_jack(op)
+                r = r @ _export_to_jack(op)
             else:
                 r = r @ op
-        return _imp_from_jack(r, name, idl)
+        return _import_from_jack(r, name, idl)
 
 
-def einsum(subscripts, *operands):
+def einsum(subscripts: str, *operands) -> Union[CObs, Obs, ndarray]:
     """Wrapper for numpy.einsum
 
     Parameters
@@ -132,25 +136,25 @@ def einsum(subscripts, *operands):
         Obs valued.
     """
 
-    def _exp_to_jack(matrix):
+    def _export_to_jack(matrix):
         base_matrix = []
         for index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
-    def _exp_to_jack_c(matrix):
+    def _export_to_jack_c(matrix):
         base_matrix = []
         for index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.real.export_jackknife() + 1j * entry.imag.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
-    def _imp_from_jack(matrix, name, idl):
+    def _import_from_jack(matrix, name, idl):
         base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
         for index in np.ndindex(matrix.shape[:-1]):
             base_matrix[index] = import_jackknife(matrix[index], name, [idl])
         return base_matrix
 
-    def _imp_from_jack_c(matrix, name, idl):
+    def _import_from_jack_c(matrix, name, idl):
         base_matrix = np.empty(shape=matrix.shape[:-1], dtype=object)
         for index in np.ndindex(matrix.shape[:-1]):
             base_matrix[index] = CObs(import_jackknife(matrix[index].real, name, [idl]),
@@ -170,9 +174,9 @@ def einsum(subscripts, *operands):
     conv_operands = []
     for op in operands:
         if isinstance(op.flat[0], CObs):
-            conv_operands.append(_exp_to_jack_c(op))
+            conv_operands.append(_export_to_jack_c(op))
         elif isinstance(op.flat[0], Obs):
-            conv_operands.append(_exp_to_jack(op))
+            conv_operands.append(_export_to_jack(op))
         else:
             conv_operands.append(op)
 
@@ -182,9 +186,9 @@ def einsum(subscripts, *operands):
     jack_einsum = np.einsum(extended_subscripts, *conv_operands, optimize=einsum_path)
 
     if jack_einsum.dtype == complex:
-        result = _imp_from_jack_c(jack_einsum, name, idl)
+        result = _import_from_jack_c(jack_einsum, name, idl)
     elif jack_einsum.dtype == float:
-        result = _imp_from_jack(jack_einsum, name, idl)
+        result = _import_from_jack(jack_einsum, name, idl)
     else:
         raise Exception("Result has unexpected datatype")
 
@@ -194,24 +198,24 @@ def einsum(subscripts, *operands):
         return result
 
 
-def inv(x):
+def inv(x: ndarray) -> ndarray:
     """Inverse of Obs or CObs valued matrices."""
     return _mat_mat_op(anp.linalg.inv, x)
 
 
-def cholesky(x):
+def cholesky(x: ndarray) -> ndarray:
     """Cholesky decomposition of Obs valued matrices."""
     if any(isinstance(o, CObs) for o in x.ravel()):
         raise Exception("Cholesky decomposition is not implemented for CObs.")
     return _mat_mat_op(anp.linalg.cholesky, x)
 
 
-def det(x):
+def det(x: Union[ndarray, int]) -> Obs:
     """Determinant of Obs valued matrices."""
     return _scalar_mat_op(anp.linalg.det, x)
 
 
-def _scalar_mat_op(op, obs, **kwargs):
+def _scalar_mat_op(op: Callable, obs: Union[ndarray, int], **kwargs) -> Obs:
     """Computes the matrix to scalar operation op to a given matrix of Obs."""
     def _mat(x, **kwargs):
         dim = int(np.sqrt(len(x)))
@@ -232,7 +236,7 @@ def _scalar_mat_op(op, obs, **kwargs):
     return derived_observable(_mat, raveled_obs, **kwargs)
 
 
-def _mat_mat_op(op, obs, **kwargs):
+def _mat_mat_op(op: Callable, obs: ndarray, **kwargs) -> ndarray:
     """Computes the matrix to matrix operation op to a given matrix of Obs."""
     # Use real representation to calculate matrix operations for complex matrices
     if any(isinstance(o, CObs) for o in obs.ravel()):
@@ -258,31 +262,31 @@ def _mat_mat_op(op, obs, **kwargs):
         return derived_observable(lambda x, **kwargs: op(x), [obs], array_mode=True)[0]
 
 
-def eigh(obs, **kwargs):
+def eigh(obs: ndarray, **kwargs) -> tuple[ndarray, ndarray]:
     """Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return w, v
 
 
-def eig(obs, **kwargs):
+def eig(obs: ndarray, **kwargs) -> ndarray:
     """Computes the eigenvalues of a given matrix of Obs according to np.linalg.eig."""
     w = derived_observable(lambda x, **kwargs: anp.real(anp.linalg.eig(x)[0]), obs)
     return w
 
 
-def eigv(obs, **kwargs):
+def eigv(obs: ndarray, **kwargs) -> ndarray:
     """Computes the eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return v
 
 
-def pinv(obs, **kwargs):
+def pinv(obs: ndarray, **kwargs) -> ndarray:
     """Computes the Moore-Penrose pseudoinverse of a matrix of Obs."""
     return derived_observable(lambda x, **kwargs: anp.linalg.pinv(x), obs)
 
 
-def svd(obs, **kwargs):
+def svd(obs: ndarray, **kwargs) -> tuple[ndarray, ndarray, ndarray]:
     """Computes the singular value decomposition of a matrix of Obs."""
     u = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[0], obs)
     s = derived_observable(lambda x, **kwargs: anp.linalg.svd(x, full_matrices=False)[1], obs)

@@ -5,6 +5,7 @@ import numpy as np  # Thinly-wrapped numpy
 from ..obs import Obs
 from .utils import sort_names, check_idl
 import itertools
+import warnings
 
 
 sep = "/"
@@ -603,42 +604,82 @@ def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
     return data
 
 
+def _check_append_rep(content, start_list):
+    data_len_list = []
+    header_len_list = []
+    has_regular_len_heads = True
+    for chunk_num in range(len(start_list)):
+        start = start_list[chunk_num]
+        if chunk_num == len(start_list)-1:
+            stop = len(content)
+        else:
+            stop = start_list[chunk_num+1]
+        chunk = content[start:stop]
+        for linenumber, line in enumerate(chunk):
+            if line.startswith("[correlator]"):
+                header_len = linenumber
+                break
+        header_len_list.append(header_len)
+        data_len_list.append(len(chunk) - header_len)
+    
+    if len(set(header_len_list)) > 1:
+        warnings.warn("Not all headers have the same length. Data parts do.")
+        has_regular_len_heads = False
+        
+    if len(set(data_len_list)) > 1:
+        raise Exception("Irregularities in file structure found, not all run data are of the same output length")
+    return has_regular_len_heads
+
+
+def _read_chunk_structure(chunk, pattern, b2b):
+    for linenumber, line in enumerate(chunk):
+        if line.startswith("gauge_name"):
+            gauge_line = linenumber
+        elif line.startswith("[correlator]"):
+            corr_line = linenumber
+            found_pat = ""
+            for li in chunk[corr_line + 1: corr_line + 6 + b2b]:
+                found_pat += li
+            if re.search(pattern, found_pat):
+                start_read = corr_line + 7 + b2b
+                break
+            else:
+                raise ValueError("Did not find pattern\n", pattern)
+    endline = corr_line + 6 + b2b
+    while not chunk[endline] == "\n":
+        endline += 1
+    T = endline - start_read
+    return gauge_line, corr_line, start_read, T
+
+
+
 def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args):
     with open(filename, 'r') as fp:
         content = fp.readlines()
-        data_starts = []
+        chunk_start_lines = []
         for linenumber, line in enumerate(content):
             if "[run]" in line:
-                data_starts.append(linenumber)
-        if len(set([data_starts[i] - data_starts[i - 1] for i in range(1, len(data_starts))])) > 1:
-            raise Exception("Irregularities in file structure found, not all runs have the same output length")
-        chunk = content[:data_starts[1]]
-        for linenumber, line in enumerate(chunk):
-            if line.startswith("gauge_name"):
-                gauge_line = linenumber
-            elif line.startswith("[correlator]"):
-                corr_line = linenumber
-                found_pat = ""
-                for li in chunk[corr_line + 1: corr_line + 6 + b2b]:
-                    found_pat += li
-                if re.search(pattern, found_pat):
-                    start_read = corr_line + 7 + b2b
-                    break
-                else:
-                    raise ValueError("Did not find pattern\n", pattern, "\nin\n", filename)
-        endline = corr_line + 6 + b2b
-        while not chunk[endline] == "\n":
-            endline += 1
-        T = endline - start_read
-
-        # all other chunks should follow the same structure
+                chunk_start_lines.append(linenumber)
+        has_regular_len_heads = _check_append_rep(content, chunk_start_lines)
+        if has_regular_len_heads:
+            chunk = content[:chunk_start_lines[1]]
+            try:
+                gauge_line, corr_line, start_read, T = _read_chunk_structure(chunk, pattern, b2b)
+            except ValueError:
+                raise ValueError("Did not find pattern\n", pattern, "\nin\n", filename, "lines", 1, "to", chunk_start_lines[1] + 1)
+        # if has_regular_len_heads is true, all other chunks should follow the same structure
         rep_idl = []
         rep_data = []
 
-        for cnfg in range(len(data_starts)):
-            start = data_starts[cnfg]
-            stop = start + data_starts[1]
+        for chunk_num in range(len(chunk_start_lines)):
+            start = chunk_start_lines[chunk_num]
+            if chunk_num == len(chunk_start_lines)-1:
+                stop = len(content)
+            else:
+                stop = chunk_start_lines[chunk_num+1]
             chunk = content[start:stop]
+            if not has_regular_len_heads:
+                gauge_line, corr_line, start_read, T = _read_chunk_structure(chunk, pattern, b2b)
             try:
                 idl = idl_func(chunk[gauge_line], *cfg_func_args)
             except Exception:

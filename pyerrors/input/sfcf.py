@@ -613,7 +613,7 @@ def _check_append_rep(content, start_list):
         if chunk_num == len(start_list) - 1:
             stop = len(content)
         else:
-            stop = start_list[chunk_num+1]
+            stop = start_list[chunk_num + 1]
         chunk = content[start:stop]
         for linenumber, line in enumerate(chunk):
             if line.startswith("[correlator]"):
@@ -625,7 +625,7 @@ def _check_append_rep(content, start_list):
     if len(set(header_len_list)) > 1:
         warnings.warn("Not all headers have the same length. Data parts do.")
         has_regular_len_heads = False
-        
+
     if len(set(data_len_list)) > 1:
         raise Exception("Irregularities in file structure found, not all run data are of the same output length")
     return has_regular_len_heads

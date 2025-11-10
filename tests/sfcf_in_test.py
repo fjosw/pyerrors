@@ -24,7 +24,7 @@ def build_test_environment(path, env_type, cfgs, reps):
             os.mkdir(path + "/data_c/data_c_r"+str(i))
             for j in range(1, cfgs+1):
                 shutil.copy(path + "/data_c/data_c_r0/data_c_r0_n1", path + "/data_c/data_c_r"+str(i)+"/data_c_r"+str(i)+"_n"+str(j))
-    elif env_type in ["a", "apf"]:
+    elif env_type in ["a", "apf", "ah"]:
         for i in range(1, reps):
             for corr in ["f_1", "f_A", "F_V0"]:
                 shutil.copy(path + "/data_" + env_type + "/data_" + env_type + "_r0." + corr, path + "/data_" + env_type + "/data_" + env_type + "_r" + str(i) + "." + corr)
@@ -387,6 +387,30 @@ def test_a_bib_external_idl_func_postfix(tmp_path):
     assert f_V0[0] == 683.6776090085115
     assert f_V0[1] == 661.3188585582334
     assert f_V0[2] == 683.6776090081005
+
+
+def test_a_bib_irreg_header(tmp_path):
+    build_test_environment(str(tmp_path), "ah", 5, 3)
+    with pytest.warns(UserWarning):
+        f_V0 = sfin.read_sfcf(str(tmp_path) + "/data_ah", "data_ah", "F_V0", quarks="lquark lquark", wf=0, wf2=0, version="2.0a", corr_type="bib")
+    print(f_V0)
+    assert len(f_V0) == 3
+    assert list(f_V0[0].shape.keys()) == ["data_ah_|r0", "data_ah_|r1", "data_ah_|r2"]
+    assert f_V0[0] == 683.6776090085115
+    assert f_V0[1] == 661.3188585582334
+    assert f_V0[2] == 683.6776090081005
+
+
+def test_a_bi_irreg_header(tmp_path):
+    build_test_environment(str(tmp_path), "ah", 5, 3)
+    with pytest.warns(UserWarning):
+        f_A = sfin.read_sfcf(str(tmp_path) + "/data_ah", "data_ah", "f_A", quarks="lquark lquark", wf=0, version="2.0a", corr_type="bi")
+    print(f_A)
+    assert len(f_A) == 3
+    assert list(f_A[0].shape.keys()) == ["data_ah_|r0", "data_ah_|r1", "data_ah_|r2"]
+    assert f_A[0].value == 65.4711887279723
+    assert f_A[1].value == 1.0447210336915187
+    assert f_A[2].value == -41.025094911185185
 
 
 def test_simple_multi_a(tmp_path):

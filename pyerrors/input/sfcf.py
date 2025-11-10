@@ -632,6 +632,7 @@ def _check_append_rep(content, start_list):
 
 
 def _read_chunk_structure(chunk, pattern, b2b):
+    start_read = 0
     for linenumber, line in enumerate(chunk):
         if line.startswith("gauge_name"):
             gauge_line = linenumber
@@ -643,8 +644,8 @@ def _read_chunk_structure(chunk, pattern, b2b):
             if re.search(pattern, found_pat):
                 start_read = corr_line + 7 + b2b
                 break
-            else:
-                raise ValueError("Did not find pattern\n", pattern)
+    if start_read == 0:
+        raise ValueError("Did not find pattern\n", pattern)
     endline = corr_line + 6 + b2b
     while not chunk[endline] == "\n":
         endline += 1

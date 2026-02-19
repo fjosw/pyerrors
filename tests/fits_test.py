@@ -468,6 +468,19 @@ def test_total_least_squares():
     assert((outc.fit_parameters[1] - betac[1]).is_zero())
 
 
+def test_total_least_squares_vanishing_chisquare():
+    """Test that a saturated fit (n_obs == n_parms) works without exception."""
+    def func(a, x):
+        return a[0] + a[1] * x
+
+    x = [pe.pseudo_Obs(1.0, 0.1, 'x0'), pe.pseudo_Obs(2.0, 0.1, 'x1')]
+    y = [pe.pseudo_Obs(1.0, 0.1, 'y0'), pe.pseudo_Obs(2.0, 0.1, 'y1')]
+
+    with pytest.warns(RuntimeWarning, match="rank deficient"):
+        out = pe.total_least_squares(x, y, func, silent=True)
+    assert len(out.fit_parameters) == 2
+
+
 def test_odr_derivatives():
     x = []
     y = []

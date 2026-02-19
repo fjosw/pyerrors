@@ -567,7 +567,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     Notes
     -----
-    Based on the orthogonal distance regression module of scipy.
+    Based on the odrpack orthogonal distance regression library.
 
     Returns
     -------
@@ -670,7 +670,17 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         print('Residual variance:', output.residual_variance)
 
     if not out.success:
-        raise Exception('The minimization procedure did not converge.')
+        # info % 5 gives the convergence status: 1=sum-of-sq, 2=param, 3=both
+        # If odrpack reports rank deficiency (e.g. vanishing chi-squared when
+        # n_obs == n_parms), convergence was still achieved – allow with a warning.
+        if out.info % 5 in [1, 2, 3]:
+            warnings.warn(
+                "ODR fit is rank deficient. This may indicate a vanishing "
+                "chi-squared (n_obs == n_parms). Results may be unreliable.",
+                RuntimeWarning
+            )
+        else:
+            raise Exception('The minimization procedure did not converge.')
 
     m = x_f.size
 

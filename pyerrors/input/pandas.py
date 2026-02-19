@@ -171,12 +171,12 @@ def _deserialize_df(df, auto_gamma=False):
     for column in df.select_dtypes(include=string_like_dtypes):
         if isinstance(df[column].iloc[0], bytes):
             if df[column].iloc[0].startswith(b"\x1f\x8b\x08\x00"):
-                df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8') if x else '')
+                df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8') if not pd.isna(x) else '')
 
         if df[column].notna().any():
             df[column] = df[column].replace({r'^$': None}, regex=True)
             i = 0
-            while pd.isna(df[column].iloc[i]):
+            while i < len(df[column]) and pd.isna(df[column].iloc[i]):
                 i += 1
             if isinstance(df[column].iloc[i], str):
                 if '"program":' in df[column].iloc[i][:20]:

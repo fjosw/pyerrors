@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.17.0] - 2026-03-29
+
+### Added
+- Added pandas 3 support.
+
 ## [2.16.0] - 2025-10-30
 
 ### Added

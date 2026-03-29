@@ -169,6 +169,8 @@ def _deserialize_df(df, auto_gamma=False):
     # In pandas 3+, string columns use 'str' dtype instead of 'object'
     string_like_dtypes = ["object", "str"] if int(pd.__version__.split(".")[0]) >= 3 else ["object"]
     for column in df.select_dtypes(include=string_like_dtypes):
+        if len(df[column]) == 0:
+            continue
         if isinstance(df[column].iloc[0], bytes):
             if df[column].iloc[0].startswith(b"\x1f\x8b\x08\x00"):
                 df[column] = df[column].transform(lambda x: gzip.decompress(x).decode('utf-8') if not pd.isna(x) else '')
@@ -178,14 +180,16 @@ def _deserialize_df(df, auto_gamma=False):
             i = 0
             while i < len(df[column]) and pd.isna(df[column].iloc[i]):
                 i += 1
+            if i == len(df[column]):
+                continue
             if isinstance(df[column].iloc[i], str):
                 if '"program":' in df[column].iloc[i][:20]:
                     df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if not pd.isna(x) else None)
                     if auto_gamma is True:
                         if isinstance(df[column].iloc[i], list):
-                            df[column].apply(lambda x: [o.gm() if not pd.isna(o) else x for o in x])
+                            df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
                         else:
-                            df[column].apply(lambda x: x.gm() if not pd.isna(x) else x)
+                            df[column].apply(lambda x: x.gm() if x is not None else x)
         # Convert NA values back to Python None for compatibility with `x is None` checks
         if df[column].isna().any():
             df[column] = df[column].astype(object).where(df[column].notna(), None)

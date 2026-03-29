@@ -244,6 +244,55 @@ def test_sql_if_exists_fail(tmp_path):
     pe.input.pandas.to_sql(pe_df, "My_table", my_db, if_exists='replace')
 
 
+def test_string_column_df_export_import(tmp_path):
+    my_dict = {"str_col": "hello",
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df["str_col"] = my_df["str_col"].astype("string")
+    for gz in [True, False]:
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), gz=gz)
+        assert np.all(reconstructed_df["Obs1"] == my_df["Obs1"])
+        assert list(reconstructed_df["str_col"]) == list(my_df["str_col"])
+
+
+def test_string_column_with_none_df_export_import(tmp_path):
+    my_dict = {"str_col": "hello",
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df["str_col"] = my_df["str_col"].astype("string")
+    my_df.loc[0, "str_col"] = None
+    my_df.loc[2, "str_col"] = None
+    for gz in [True, False]:
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        reconstructed_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), gz=gz)
+        assert reconstructed_df.loc[0, "str_col"] is None
+        assert reconstructed_df.loc[2, "str_col"] is None
+        assert reconstructed_df.loc[1, "str_col"] == "hello"
+        assert np.all(reconstructed_df["Obs1"] == my_df["Obs1"])
+
+
+def test_string_column_sql_export_import(tmp_path):
+    my_dict = {"str_col": "hello",
+               "Obs1": pe.pseudo_Obs(87, 21, "test_ensemble")}
+    my_df = pd.DataFrame([my_dict] * 4)
+    my_df["str_col"] = my_df["str_col"].astype("string")
+    my_df.loc[1, "str_col"] = None
+    my_db = (tmp_path / "test_db.sqlite").as_posix()
+    pe.input.pandas.to_sql(my_df, "test", my_db)
+    reconstructed_df = pe.input.pandas.read_sql("SELECT * FROM test", my_db)
+    assert reconstructed_df.loc[1, "str_col"] is None
+    assert reconstructed_df.loc[0, "str_col"] == "hello"
+    assert np.all(reconstructed_df["Obs1"] == my_df["Obs1"])
+
+
+def test_empty_df_deserialize():
+    empty_df = pd.DataFrame({"str_col": pd.Series(dtype="object"),
+                              "int_col": pd.Series(dtype="int64")})
+    result = pe.input.pandas._deserialize_df(empty_df)
+    assert len(result) == 0
+
+
 def test_Obs_list_sql(tmp_path):
     my_dict = {"int": 1,
                "Obs1": pe.pseudo_Obs(17, 11, "test_sql_if_exists_failnsemble"),

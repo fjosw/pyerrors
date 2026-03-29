@@ -1216,8 +1216,7 @@ extracted DistillationContration data</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>ndarray(shape, dtype=float, buffer=None, offset=0,
-        strides=None, order=None)</p>
+            <div class="docstring"><p>ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)</p>
 
 <p>An array object represents a multidimensional, homogeneous array
 of fixed-size items.  An associated data-type object describes the
@@ -1239,7 +1238,8 @@ methods and attributes of an array.</p>
 <li><strong>shape</strong> (tuple of ints):
 Shape of created array.</li>
 <li><strong>dtype</strong> (data-type, optional):
-Any object that can be interpreted as a numpy data type.</li>
+Any object that can be interpreted as a numpy data type.
+Default is <code>numpy.float64</code>.</li>
 <li><strong>buffer</strong> (object exposing buffer interface, optional):
 Used to fill the array with data.</li>
 <li><strong>offset</strong> (int, optional):

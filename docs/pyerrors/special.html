@@ -408,6 +408,8 @@ indeterminate when considering the simultaneous limit <code>(a, x) -&gt; (0+, 0+
 <p>This function wraps the <code>ibeta</code> routine from the
 Boost Math C++ library <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#betainc">betainc</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -424,7 +426,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -518,9 +521,7 @@ where \( F \) is the hypergeometric function <code>hyp2f1</code>:</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>betaln(x1, x2, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>betaln(a, b, out=None)</p>
+            <div class="docstring"><p>betaln(a, b, out=None)</p>
 
 <p>Natural logarithm of absolute value of beta function.</p>
 
@@ -543,9 +544,35 @@ Optional output array for function values</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#gamma">gamma</a></code>:  the gamma function<br />
-<code><a href="#betainc">betainc</a></code>:   the regularized incomplete beta function<br />
-<code><a href="#beta">beta</a></code>:  the beta function  </p>
+<p><code>gamma()`
+the`, `gamma`, `function`  
+</code>betainc()<code>
+the</code>, <code>regularized</code>, <code>incomplete</code>, <code><a href="#beta">beta</a></code>, <code>function</code><br />
+`<code><a href="#beta">beta()</a></code>
+the<code>,</code>beta<code>,</code>function`  </p>
+
+<h6 id="notes">Notes</h6>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#betaln">betaln</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="examples">Examples</h6>
 
@@ -644,7 +671,31 @@ Real valued input</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#digamma">digamma</a></code>  </p>
+<p>`<code><a href="#digamma">digamma()</a></code>
+..`  </p>
+
+<h6 id="notes">Notes</h6>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#polygamma">polygamma</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -695,9 +746,7 @@ Real valued input</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>psi(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>psi(z, out=None)</p>
+            <div class="docstring"><p>psi(z, out=None)</p>
 
 <p>The digamma function.</p>
 
@@ -724,16 +773,37 @@ Computed values of <code><a href="#psi">psi</a></code>.</li>
 <p>For large values not close to the negative real axis, <code><a href="#psi">psi</a></code> is
 computed using the asymptotic series (5.11.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>. For small
 arguments not close to the negative real axis, the recurrence
-relation (5.5.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">2</a></sup> is used until the argument is large
+relation (5.5.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> is used until the argument is large
 enough to use the asymptotic series. For values close to the
-negative real axis, the reflection formula (5.5.4) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">3</a></sup> is
+negative real axis, the reflection formula (5.5.4) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> is
 used first. Note that <code><a href="#psi">psi</a></code> has a family of zeros on the
 negative real axis which occur between the poles at nonpositive
 integers. Around the zeros the reflection formula suffers from
 cancellation and the implementation loses precision. The sole
 positive zero and the first negative zero, however, are handled
-separately by precomputing series expansions using <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">4</a></sup>, so the
+separately by precomputing series expansions using <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>, so the
 function should maintain full accuracy around the origin.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#psi">psi</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -763,20 +833,10 @@ function should maintain full accuracy around the origin.</p>
 <a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
 </li>
 
-<li id="fn-1">
-<p>NIST Digital Library of Mathematical Functions
-<a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 2 in the text.">&#8617;</a></p>
-</li>
-
-<li id="fn-1">
-<p>NIST Digital Library of Mathematical Functions
-<a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 3 in the text.">&#8617;</a></p>
-</li>
-
 <li id="fn-2">
 <p>Fredrik Johansson and others.
 "mpmath: a Python library for arbitrary-precision floating-point arithmetic"
-(Version 0.19) <a href="http://mpmath.org/">http://mpmath.org/</a>&#160;<a href="#fnref-2" class="footnoteBackLink" title="Jump back to footnote 4 in the text.">&#8617;</a></p>
+(Version 0.19) <a href="http://mpmath.org/">http://mpmath.org/</a>&#160;<a href="#fnref-2" class="footnoteBackLink" title="Jump back to footnote 2 in the text.">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -813,9 +873,7 @@ function should maintain full accuracy around the origin.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>psi(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>psi(z, out=None)</p>
+            <div class="docstring"><p>psi(z, out=None)</p>
 
 <p>The digamma function.</p>
 
@@ -842,16 +900,37 @@ Computed values of <code><a href="#psi">psi</a></code>.</li>
 <p>For large values not close to the negative real axis, <code><a href="#psi">psi</a></code> is
 computed using the asymptotic series (5.11.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>. For small
 arguments not close to the negative real axis, the recurrence
-relation (5.5.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">2</a></sup> is used until the argument is large
+relation (5.5.2) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> is used until the argument is large
 enough to use the asymptotic series. For values close to the
-negative real axis, the reflection formula (5.5.4) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">3</a></sup> is
+negative real axis, the reflection formula (5.5.4) from <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> is
 used first. Note that <code><a href="#psi">psi</a></code> has a family of zeros on the
 negative real axis which occur between the poles at nonpositive
 integers. Around the zeros the reflection formula suffers from
 cancellation and the implementation loses precision. The sole
 positive zero and the first negative zero, however, are handled
-separately by precomputing series expansions using <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">4</a></sup>, so the
+separately by precomputing series expansions using <sup class="footnote-ref" id="fnref-2"><a href="#fn-2">2</a></sup>, so the
 function should maintain full accuracy around the origin.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#psi">psi</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -881,20 +960,10 @@ function should maintain full accuracy around the origin.</p>
 <a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
 </li>
 
-<li id="fn-1">
-<p>NIST Digital Library of Mathematical Functions
-<a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 2 in the text.">&#8617;</a></p>
-</li>
-
-<li id="fn-1">
-<p>NIST Digital Library of Mathematical Functions
-<a href="https://dlmf.nist.gov/5">https://dlmf.nist.gov/5</a>&#160;<a href="#fnref-1" class="footnoteBackLink" title="Jump back to footnote 3 in the text.">&#8617;</a></p>
-</li>
-
 <li id="fn-2">
 <p>Fredrik Johansson and others.
 "mpmath: a Python library for arbitrary-precision floating-point arithmetic"
-(Version 0.19) <a href="http://mpmath.org/">http://mpmath.org/</a>&#160;<a href="#fnref-2" class="footnoteBackLink" title="Jump back to footnote 4 in the text.">&#8617;</a></p>
+(Version 0.19) <a href="http://mpmath.org/">http://mpmath.org/</a>&#160;<a href="#fnref-2" class="footnoteBackLink" title="Jump back to footnote 2 in the text.">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -931,9 +1000,7 @@ function should maintain full accuracy around the origin.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>gamma(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>gamma(z, out=None)</p>
+            <div class="docstring"><p>gamma(z, out=None)</p>
 
 <p>gamma function.</p>
 
@@ -991,6 +1058,27 @@ function in such cases. The above expression could for instance be written
 as</p>
 
 <p><code>gamma(u) * gamma(v) * (rgamma(w) * rgamma(x))</code></p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#gamma">gamma</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1128,6 +1216,8 @@ gammasgn(x) * gamma(x)</code>.</p>
 
 <p>For complex-valued log-gamma, use <code>loggamma</code> instead of <code><a href="#gammaln">gammaln</a></code>.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#gammaln">gammaln</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -1144,7 +1234,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1262,6 +1353,8 @@ incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#gammainc">gammainc</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -1278,7 +1371,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1390,6 +1484,8 @@ incomplete gamma function.</p>
 
 <p>The implementation largely follows that of [boost]_.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#gammaincc">gammaincc</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -1406,7 +1502,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1475,9 +1572,7 @@ starts at 1 and monotonically decreases to 0.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>gammasgn(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>gammasgn(x, out=None)</p>
+            <div class="docstring"><p>gammasgn(x, out=None)</p>
 
 <p>Sign of the gamma function.</p>
 
@@ -1510,14 +1605,38 @@ Optional output array for the function values</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#gamma">gamma</a></code>:  the gamma function<br />
-<code><a href="#gammaln">gammaln</a></code>:  log of the absolute value of the gamma function<br />
-<code>loggamma</code>:  analytic continuation of the log of the gamma function  </p>
+<p><code>gamma()`
+the`, `gamma`, `function`  
+</code>gammaln()<code>
+log</code>, <code>of</code>, <code>the</code>, <code>absolute</code>, <code>value</code>, <code>of</code>, <code>the</code>, <code><a href="#gamma">gamma</a></code>, <code>function</code><br />
+`<code>loggamma()</code>
+analytic<code>,</code>continuation<code>,</code>of<code>,</code>the<code>,</code>log<code>,</code>of<code>,</code>the<code>,</code>gamma<code>,</code>function`  </p>
 
 <h6 id="notes">Notes</h6>
 
 <p>The gamma function can be computed as <code>gammasgn(x) *
 np.exp(gammaln(x))</code>.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#gammasgn">gammasgn</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1591,9 +1710,7 @@ np.exp(gammaln(x))</code>.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>rgamma(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>rgamma(z, out=None)</p>
+            <div class="docstring"><p>rgamma(z, out=None)</p>
 
 <p>Reciprocal of the gamma function.</p>
 
@@ -1617,7 +1734,8 @@ Optional output array for the function results</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>gamma,</code>, <code>gammaln,</code>, <code>loggamma</code>  </p>
+<p><code>gamma()`,`,</code>gammaln()<code>,</code>, `<code>loggamma()</code>
+..`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1625,6 +1743,27 @@ Optional output array for the function results</li>
 nonpositive integers, so <code><a href="#rgamma">rgamma</a></code> is an entire function with zeros
 at the nonpositive integers. See the discussion in [dlmf]_ for
 more details.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#rgamma">rgamma</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1731,6 +1870,27 @@ function is defined over a subset of the real set).</p>
 
 <p>$$\Gamma_d(a) = \pi^{d(d-1)/4} \prod_{i=1}^{d} \Gamma(a - (i-1)/2).$$</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#multigammaln">multigammaln</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
+
 <h6 id="references">References</h6>
 
 <p>R. J. Muirhead, Aspects of multivariate statistical theory (Wiley Series in
@@ -1823,9 +1983,7 @@ shown above:</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>j0(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>j0(x, out=None)</p>
+            <div class="docstring"><p>j0(x, out=None)</p>
 
 <p>Bessel function of the first kind of order 0.</p>
 
@@ -1847,8 +2005,10 @@ Value of the Bessel function of the first kind of order 0 at <code>x</code>.</li
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>jv</code>:  Bessel function of real order and complex argument.<br />
-<code>spherical_jn</code>:  spherical Bessel functions.  </p>
+<p><code>jv()`
+Bessel`, `function`, `of`, `real`, `order`, `and`, `complex`, `argument.`  
+</code>spherical_jn()<code>
+spherical</code>, <code>Bessel</code>, <code>functions.</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1867,6 +2027,27 @@ two rational functions of degree 6/6 and 7/7.</p>
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#j0">j0</a></code>.
 It should not be confused with the spherical Bessel functions (see
 <code>spherical_jn</code>).</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#j0">j0</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -1944,9 +2125,7 @@ It should not be confused with the spherical Bessel functions (see
 </span></pre></div>
 
 
-            <div class="docstring"><p>y0(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>y0(x, out=None)</p>
+            <div class="docstring"><p>y0(x, out=None)</p>
 
 <p>Bessel function of the second kind of order 0.</p>
 
@@ -1968,8 +2147,10 @@ Value of the Bessel function of the second kind of order 0 at <code>x</code>.</l
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#j0">j0</a></code>:  Bessel function of the first kind of order 0<br />
-<code>yv</code>:  Bessel function of the first kind  </p>
+<p><code>j0()`
+Bessel`, `function`, `of`, `the`, `first`, `kind`, `of`, `order`, `0`  
+</code>yv()<code>
+Bessel</code>, <code>function</code>, <code>of</code>, <code>the</code>, <code>first</code>, <code>kind</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -1985,6 +2166,27 @@ compute,</p>
 two rational functions of degree 6/6 and 7/7.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#y0">y0</a></code>.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#y0">y0</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2062,9 +2264,7 @@ two rational functions of degree 6/6 and 7/7.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>j1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>j1(x, out=None)</p>
+            <div class="docstring"><p>j1(x, out=None)</p>
 
 <p>Bessel function of the first kind of order 1.</p>
 
@@ -2086,8 +2286,10 @@ Value of the Bessel function of the first kind of order 1 at <code>x</code>.</li
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>jv</code>:  Bessel function of the first kind<br />
-<code>spherical_jn</code>:  spherical Bessel functions.  </p>
+<p><code>jv()`
+Bessel`, `function`, `of`, `the`, `first`, `kind`  
+</code>spherical_jn()<code>
+spherical</code>, <code>Bessel</code>, <code>functions.</code>  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2099,6 +2301,27 @@ functions of degree 5/5.</p>
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#j1">j1</a></code>.
 It should not be confused with the spherical Bessel functions (see
 <code>spherical_jn</code>).</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#j1">j1</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2176,9 +2399,7 @@ It should not be confused with the spherical Bessel functions (see
 </span></pre></div>
 
 
-            <div class="docstring"><p>y1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>y1(x, out=None)</p>
+            <div class="docstring"><p>y1(x, out=None)</p>
 
 <p>Bessel function of the second kind of order 1.</p>
 
@@ -2200,9 +2421,12 @@ Value of the Bessel function of the second kind of order 1 at <code>x</code>.</l
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#j1">j1</a></code>:  Bessel function of the first kind of order 1<br />
-<code><a href="#yn">yn</a></code>:  Bessel function of the second kind<br />
-<code>yv</code>:  Bessel function of the second kind  </p>
+<p><code>j1()`
+Bessel`, `function`, `of`, `the`, `first`, `kind`, `of`, `order`, `1`  
+</code>yn()<code>
+Bessel</code>, <code>function</code>, <code>of</code>, <code>the</code>, <code>second</code>, <code>kind</code><br />
+`<code>yv()</code>
+Bessel<code>,</code>function<code>,</code>of<code>,</code>the<code>,</code>second<code>,</code>kind`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2213,6 +2437,27 @@ second, the asymptotic trigonometric representation is employed using two
 rational functions of degree 5/5.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#y1">y1</a></code>.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#y1">y1</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2385,7 +2630,7 @@ array for <code>z</code>.</p>
 
 <p>If <code>z</code> is an array, the order parameter <code>v</code> must be broadcastable to
 the correct shape if different orders shall be computed in one call.
-To calculate the orders 0 and 1 for an 1D array:</p>
+To calculate the orders 0 and 1 for a 1D array:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">orders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -2457,9 +2702,7 @@ of a Complex Argument and Nonnegative Order",
 </span></pre></div>
 
 
-            <div class="docstring"><p>yn(x1, x2, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>yn(n, x, out=None)</p>
+            <div class="docstring"><p>yn(n, x, out=None)</p>
 
 <p>Bessel function of the second kind of integer order and real argument.</p>
 
@@ -2483,9 +2726,12 @@ Value of the Bessel function, \( Y_n(x) \).</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code>yv</code>:  For real order and real or complex argument.<br />
-<code><a href="#y0">y0</a></code>:  faster implementation of this function for order 0<br />
-<code><a href="#y1">y1</a></code>:  faster implementation of this function for order 1  </p>
+<p><code>yv()`
+For`, `real`, `order`, `and`, `real`, `or`, `complex`, `argument.`  
+</code>y0()<code>
+faster</code>, <code>implementation</code>, <code>of</code>, <code>this</code>, <code>function</code>, <code>for</code>, <code>order</code>, <code>0</code><br />
+`<code><a href="#y1">y1()</a></code>
+faster<code>,</code>implementation<code>,</code>of<code>,</code>this<code>,</code>function<code>,</code>for<code>,</code>order<code>,</code>1`  </p>
 
 <h6 id="notes">Notes</h6>
 
@@ -2494,6 +2740,27 @@ Value of the Bessel function, \( Y_n(x) \).</li>
 <p>The function is evaluated by forward recurrence on <code>n</code>, starting with
 values computed by the Cephes routines <code><a href="#y0">y0</a></code> and <code><a href="#y1">y1</a></code>. If <code>n = 0</code> or 1,
 the routine for <code><a href="#y0">y0</a></code> or <code><a href="#y1">y1</a></code> is called directly.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#yn">yn</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ⛔<br />
+JAX                   ⚠️ no JIT             ⛔<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2538,7 +2805,7 @@ array for <code>z</code>.</p>
 
 <p>If <code>z</code> is an array, the order parameter <code>v</code> must be broadcastable to
 the correct shape if different orders shall be computed in one call.
-To calculate the orders 0 and 1 for an 1D array:</p>
+To calculate the orders 0 and 1 for a 1D array:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">orders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -2650,6 +2917,8 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i0">i0</a></code>.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#i0">i0</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -2666,7 +2935,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2785,6 +3055,8 @@ Chebyshev polynomial expansions are employed in each interval.</p>
 
 <p>This function is a wrapper for the Cephes <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup> routine <code><a href="#i1">i1</a></code>.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#i1">i1</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -2801,7 +3073,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -2979,7 +3252,7 @@ array for <code>z</code>.</p>
 
 <p>If <code>z</code> is an array, the order parameter <code>v</code> must be broadcastable to
 the correct shape if different orders shall be computed in one call.
-To calculate the orders 0 and 1 for an 1D array:</p>
+To calculate the orders 0 and 1 for a 1D array:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">orders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -3254,6 +3527,8 @@ The values of the error function at the given points <code>x</code>.</li>
 <p>The cumulative of the unit normal distribution is given by
 <code>Phi(z) = 1/2[1 + erf(z/sqrt(2))]</code>.</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#erf">erf</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -3270,7 +3545,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -3352,6 +3628,8 @@ Optional output array for the function results</li>
 
 <h6 id="notes">Notes</h6>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#erfc">erfc</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -3368,7 +3646,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -3424,9 +3703,7 @@ Dask                  ✅                     n/a<br />
 </span></pre></div>
 
 
-            <div class="docstring"><p>erfinv(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature])</p>
-
-<p>erfinv(y, out=None)</p>
+            <div class="docstring"><p>erfinv(y, out=None)</p>
 
 <p>Inverse of the error function.</p>
 
@@ -3455,14 +3732,38 @@ The inverse of erf of y, element-wise</li>
 
 <h6 id="see-also">See Also</h6>
 
-<p><code><a href="#erf">erf</a></code>:  Error function of a complex argument<br />
-<code><a href="#erfc">erfc</a></code>:  Complementary error function, <code>1 - erf(x)</code><br />
-<code><a href="#erfcinv">erfcinv</a></code>:  Inverse of the complementary error function  </p>
+<p><code>erf()`
+Error`, `function`, `of`, `a`, `complex`, `argument`  
+</code>erfc()<code>
+Complementary</code>, <code>error</code>, <code>function,</code>, <code>1`, `-`, `erf(x)</code><br />
+`<code><a href="#erfcinv">erfcinv()</a></code>
+Inverse<code>,</code>of<code>,</code>the<code>,</code>complementary<code>,</code>error<code>,</code>function`  </p>
 
 <h6 id="notes">Notes</h6>
 
 <p>This function wraps the <code>erf_inv</code> routine from the
 Boost Math C++ library <sup class="footnote-ref" id="fnref-1"><a href="#fn-1">1</a></sup>.</p>
+
+<p><strong>Array API Standard Support</strong></p>
+
+<p><code><a href="#erfinv">erfinv</a></code> has experimental support for Python Array API Standard compatible
+backends in addition to NumPy. Please consider testing these features
+by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
+CuPy, PyTorch, JAX, or Dask arrays as array arguments. The following
+combinations of backend and device (or other capability) are supported.</p>
+
+<p>====================  ====================  ====================
+Library               CPU                   GPU
+====================  ====================  ====================
+NumPy                 ✅                     n/a<br />
+CuPy                  n/a                   ✅<br />
+PyTorch               ✅                     ✅<br />
+JAX                   ✅                     ✅<br />
+Dask                  ✅                     n/a<br />
+====================  ====================  ====================</p>
+
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="references">References</h6>
 
@@ -3695,6 +3996,8 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 
 <p><em>New in version 0.10.0.</em></p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#logit">logit</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -3711,7 +4014,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="examples">Examples</h6>
 
@@ -3819,6 +4123,8 @@ see <a href="https://docs.scipy.org/doc/numpy/reference/ufuncs.html">ufuncs </a>
 
 <p><em>New in version 0.10.0.</em></p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#expit">expit</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -3835,7 +4141,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="examples">Examples</h6>
 
@@ -3971,6 +4278,8 @@ function, but may be less stable.</p>
 infinite number of \( z \) such that \( exp(z) = x \). The convention
 is to return the \( z \) whose imaginary part lies in \( (-pi, pi] \).</p>
 
+<p><strong>Array API Standard Support</strong></p>
+
 <p><code><a href="#logsumexp">logsumexp</a></code> has experimental support for Python Array API Standard compatible
 backends in addition to NumPy. Please consider testing these features
 by setting an environment variable <code>SCIPY_ARRAY_API=1</code> and providing
@@ -3987,7 +4296,8 @@ JAX                   ✅                     ✅<br />
 Dask                  ✅                     n/a<br />
 ====================  ====================  ====================</p>
 
-<p>See :ref:<code>dev-arrayapi</code> for more information.</p>
+<pre><code>See :ref:`dev-arrayapi` for more information.
+</code></pre>
 
 <h6 id="examples">Examples</h6>
 

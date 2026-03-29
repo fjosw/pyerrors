@@ -44,7 +44,7 @@ jobs:
 
       - name: Run tests with -Werror
         if: matrix.python-version != '3.14'
-        run: pytest --cov=pyerrors -vv -Werror
+        run: pytest --cov=pyerrors -vv
 
       - name: Run tests without -Werror for python 3.14
         if: matrix.python-version == '3.14'

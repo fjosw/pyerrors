@@ -293,6 +293,26 @@ def test_empty_df_deserialize():
     assert len(result) == 0
 
 
+def test_all_empty_string_column():
+    df = pd.DataFrame({"empty_str": ["", "", "", ""],
+                        "val": [1, 2, 3, 4]})
+    result = pe.input.pandas._deserialize_df(df)
+    assert all(result.loc[i, "empty_str"] is None for i in range(4))
+
+
+def test_Obs_list_with_none_auto_gamma(tmp_path):
+    obs_list = [pe.pseudo_Obs(0.0, 0.1, "test_ensemble2"), pe.pseudo_Obs(3.2, 1.1, "test_ensemble2")]
+    my_df = pd.DataFrame({"int": [1, 1, 1],
+                           "Obs1": [pe.pseudo_Obs(17, 11, "test_ensemble")] * 3,
+                           "Obs_list": [obs_list, None, obs_list]})
+    for gz in [True, False]:
+        pe.input.pandas.dump_df(my_df, (tmp_path / 'df_output').as_posix(), gz=gz)
+        re_df = pe.input.pandas.load_df((tmp_path / 'df_output').as_posix(), auto_gamma=True, gz=gz)
+        assert re_df.loc[1, "Obs_list"] is None
+        assert len(re_df.loc[0, "Obs_list"]) == 2
+        assert np.all(re_df["Obs1"] == my_df["Obs1"])
+
+
 def test_Obs_list_sql(tmp_path):
     my_dict = {"int": 1,
                "Obs1": pe.pseudo_Obs(17, 11, "test_sql_if_exists_failnsemble"),

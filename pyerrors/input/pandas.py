@@ -180,14 +180,12 @@ def _deserialize_df(df, auto_gamma=False):
             i = 0
             while i < len(df[column]) and pd.isna(df[column].iloc[i]):
                 i += 1
-            if i == len(df[column]):
-                continue
-            if isinstance(df[column].iloc[i], str):
+            if i < len(df[column]) and isinstance(df[column].iloc[i], str):
                 if '"program":' in df[column].iloc[i][:20]:
                     df[column] = df[column].transform(lambda x: import_json_string(x, verbose=False) if not pd.isna(x) else None)
                     if auto_gamma is True:
                         if isinstance(df[column].iloc[i], list):
-                            df[column].apply(lambda x: [o.gm() if o is not None else x for o in x])
+                            df[column].apply(lambda x: [o.gm() if o is not None else x for o in x] if x is not None else x)
                         else:
                             df[column].apply(lambda x: x.gm() if x is not None else x)
         # Convert NA values back to Python None for compatibility with `x is None` checks

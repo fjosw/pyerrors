@@ -670,13 +670,17 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         print('Residual variance:', output.residual_variance)
 
     if not out.success:
-        # info % 5 gives the convergence status: 1=sum-of-sq, 2=param, 3=both
-        # If odrpack reports rank deficiency (e.g. vanishing chi-squared when
-        # n_obs == n_parms), convergence was still achieved – allow with a warning.
-        if out.info % 5 in [1, 2, 3]:
+        # ODRPACK95 info code structure (see User Guide §4):
+        #   info % 10        -> convergence: 1=sum-of-sq, 2=param, 3=both
+        #   info // 10 % 10  -> 1 = problem not full rank at solution
+        convergence_status = out.info % 10
+        rank_deficient = (out.info // 10 % 10) == 1
+
+        if convergence_status in [1, 2, 3] and rank_deficient:
             warnings.warn(
-                "ODR fit is rank deficient. This may indicate a vanishing "
-                "chi-squared (n_obs == n_parms). Results may be unreliable.",
+                f"ODR fit is rank deficient (irank={out.irank}, inv_condnum={out.inv_condnum:.2e}). "
+                "This may indicate a vanishing chi-squared (n_obs == n_parms). "
+                "Results may be unreliable.",
                 RuntimeWarning
             )
         else:

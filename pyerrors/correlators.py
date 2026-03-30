@@ -151,6 +151,67 @@ class Corr:
 
     gm = gamma_method
 
+    def master_field_gamma_method(self, **kwargs):
+        """Estimate the error of the Corr using the master-field approach.
+
+        This method accounts for correlations across the Corr index
+        (e.g., source positions x0) in addition to the standard Monte Carlo
+        autocorrelation, following the master-field idea by Lüscher,
+        EPJ Web Conf. 175 (2018) 01002.
+
+        Currently a stub that sets all error attributes to zero.
+        """
+        if self.N != 1:
+            raise ValueError("master_field_gamma_method is only implemented for single-valued correlators (N=1).")
+
+        obs_list = [item[0] for item in self.content if item is not None]
+
+        if not obs_list:
+            return
+
+        ref = obs_list[0]
+        for o in obs_list[1:]:
+            if o.names != ref.names:
+                raise ValueError("All Obs in the Corr must share the same ensemble names.")
+
+        for o in obs_list:
+            o.e_dvalue = {}
+            o.e_ddvalue = {}
+            o.e_tauint = {}
+            o.e_dtauint = {}
+            o.e_windowsize = {}
+            o.e_n_tauint = {}
+            o.e_n_dtauint = {}
+            o.e_rho = {}
+            o.e_drho = {}
+            o.S = {}
+            o.tau_exp = {}
+            o.N_sigma = {}
+
+            for e_name in o.mc_names:
+                o.e_dvalue[e_name] = 0.0
+                o.e_ddvalue[e_name] = 0.0
+                o.e_tauint[e_name] = 0.5
+                o.e_dtauint[e_name] = 0.0
+                o.e_windowsize[e_name] = 0
+                o.e_rho[e_name] = np.zeros(1)
+                o.e_drho[e_name] = np.zeros(1)
+                o.e_n_tauint[e_name] = np.zeros(1)
+                o.e_n_dtauint[e_name] = np.zeros(1)
+                o.S[e_name] = Obs.S_global
+                o.tau_exp[e_name] = Obs.tau_exp_global
+                o.N_sigma[e_name] = Obs.N_sigma_global
+
+            for e_name in o.cov_names:
+                o.e_dvalue[e_name] = np.sqrt(o.covobs[e_name].errsq())
+                o.e_ddvalue[e_name] = 0
+
+            o._dvalue = 0.0
+            for e_name in o.cov_names:
+                o._dvalue += o.e_dvalue[e_name] ** 2
+            o._dvalue = np.sqrt(o._dvalue)
+            o.ddvalue = 0.0
+
     def projected(self, vector_l=None, vector_r=None, normalize=False):
         """We need to project the Correlator with a Vector to get a single value at each timeslice.
 

@@ -804,3 +804,32 @@ def test_prune_with_Nones():
 
     for t in range(T):
         assert np.all(pruned_then_padded.content[t] == padded_then_pruned.content[t])
+
+
+def test_master_field_gamma_method():
+    T = 8
+    N_cfg = 50
+    corr_content = []
+    for t in range(T):
+        data = np.random.normal(1.0, 0.1, N_cfg)
+        corr_content.append(pe.Obs([data], ['test_ens']))
+    corr = pe.Corr(corr_content)
+
+    corr.master_field_gamma_method()
+
+    for t in range(T):
+        assert corr[t].dvalue == 0.0
+        assert corr[t].ddvalue == 0.0
+        assert corr[t].e_tauint['test_ens'] == 0.5
+        assert corr[t].e_dvalue['test_ens'] == 0.0
+        assert corr[t].e_windowsize['test_ens'] == 0
+
+
+def test_master_field_gamma_method_matrix_raises():
+    N = 2
+    T = 4
+    corr_content = np.array([[[pe.pseudo_Obs(1.0, 0.1, 'test_ens') for _ in range(N)] for _ in range(N)] for _ in range(T)])
+    matrix_corr = pe.Corr(corr_content)
+
+    with pytest.raises(ValueError):
+        matrix_corr.master_field_gamma_method()

@@ -394,7 +394,7 @@ Direct visualizations of the performed fits can be triggered via `resplot=True` 
 For all available options including combined fits to multiple datasets see `pyerrors.fits.least_squares`.
 
 ## Total least squares fits
-`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to as orthogonal distance regression as implemented in [scipy](https://docs.scipy.org/doc/scipy/reference/odr.html), see `pyerrors.fits.least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.
+`pyerrors` can also fit data with errors on both the dependent and independent variables using the total least squares method also referred to as orthogonal distance regression as implemented in [odrpack](https://pypi.org/project/odrpack/), see `pyerrors.fits.total_least_squares`. The syntax is identical to the standard least squares case, the only difference being that `x` also has to be a `list` or `numpy.array` of `Obs`.
 
 For the full API see `pyerrors.fits` for fits and `pyerrors.roots` for finding roots of functions.
 

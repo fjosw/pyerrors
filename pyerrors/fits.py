@@ -7,7 +7,7 @@ import scipy.optimize
 import scipy.stats
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-from scipy.odr import ODR, Model, RealData
+from odrpack import odr_fit
 import iminuit
 from autograd import jacobian as auto_jacobian
 from autograd import hessian as auto_hessian
@@ -567,7 +567,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     Notes
     -----
-    Based on the orthogonal distance regression module of scipy.
+    Based on the odrpack orthogonal distance regression library.
 
     Returns
     -------
@@ -634,17 +634,27 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         raise Exception('No y errors available, run the gamma method first.')
 
     if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+        x0 = np.asarray(kwargs.get('initial_guess'), dtype=np.float64)
         if len(x0) != n_parms:
             raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
     else:
-        x0 = [1] * n_parms
+        x0 = np.ones(n_parms, dtype=np.float64)
 
-    data = RealData(x_f, y_f, sx=dx_f, sy=dy_f)
-    model = Model(func)
-    odr = ODR(data, model, x0, partol=np.finfo(np.float64).eps)
-    odr.set_job(fit_type=0, deriv=1)
-    out = odr.run()
+    # odrpack expects f(x, beta), but pyerrors convention is f(beta, x)
+    def wrapped_func(x, beta):
+        return func(beta, x)
+
+    out = odr_fit(
+        wrapped_func,
+        np.asarray(x_f, dtype=np.float64),
+        np.asarray(y_f, dtype=np.float64),
+        beta0=x0,
+        weight_x=1.0 / np.asarray(dx_f, dtype=np.float64) ** 2,
+        weight_y=1.0 / np.asarray(dy_f, dtype=np.float64) ** 2,
+        partol=np.finfo(np.float64).eps,
+        task='explicit-ODR',
+        diff_scheme='central'
+    )
 
     output.residual_variance = out.res_var
 
@@ -652,15 +662,29 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.message = out.stopreason
 
-    output.xplus = out.xplus
+    output.xplus = out.xplusd
 
     if not silent:
         print('Method: ODR')
-        print(*out.stopreason)
+        print(out.stopreason)
         print('Residual variance:', output.residual_variance)
 
-    if out.info > 3:
-        raise Exception('The minimization procedure did not converge.')
+    if not out.success:
+        # ODRPACK95 info code structure (see User Guide §4):
+        #   info % 10        -> convergence: 1=sum-of-sq, 2=param, 3=both
+        #   info // 10 % 10  -> 1 = problem not full rank at solution
+        convergence_status = out.info % 10
+        rank_deficient = (out.info // 10 % 10) == 1
+
+        if convergence_status in [1, 2, 3] and rank_deficient:
+            warnings.warn(
+                f"ODR fit is rank deficient (irank={out.irank}, inv_condnum={out.inv_condnum:.2e}). "
+                "This may indicate a vanishing chi-squared (n_obs == n_parms). "
+                "Results may be unreliable.",
+                RuntimeWarning
+            )
+        else:
+            raise Exception('The minimization procedure did not converge.')
 
     m = x_f.size
 
@@ -679,9 +703,9 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
         number_of_x_parameters = int(m / x_f.shape[-1])
 
-        old_jac = jacobian(func)(out.beta, out.xplus)
+        old_jac = jacobian(func)(out.beta, out.xplusd)
         fused_row1 = np.concatenate((old_jac, np.concatenate((number_of_x_parameters * [np.zeros(old_jac.shape)]), axis=0)))
-        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(out.xplus, out.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
+        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(out.xplusd, out.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
@@ -690,14 +714,14 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         if expected_chisquare <= 0.0:
             warnings.warn("Negative expected_chisquare.", RuntimeWarning)
             expected_chisquare = np.abs(expected_chisquare)
-        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel()))) / expected_chisquare
+        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplusd.ravel()))) / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
     try:
-        hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplus.ravel())))
+        hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplusd.ravel())))
     except TypeError:
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
@@ -706,7 +730,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_x = hessian(odr_chisquare_compact_x)(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
+    jac_jac_x = hessian(odr_chisquare_compact_x)(np.concatenate((fitp, out.xplusd.ravel(), x_f.ravel())))
 
     # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
@@ -719,7 +743,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_y = hessian(odr_chisquare_compact_y)(np.concatenate((fitp, out.xplus.ravel(), y_f)))
+    jac_jac_y = hessian(odr_chisquare_compact_y)(np.concatenate((fitp, out.xplusd.ravel(), y_f)))
 
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
@@ -733,7 +757,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.fit_parameters = result
 
-    output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
+    output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplusd.ravel())))
     output.dof = x.shape[-1] - n_parms
     output.p_value = 1 - scipy.stats.chi2.cdf(output.odr_chisquare, output.dof)
 

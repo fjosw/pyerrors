@@ -1,3 +1,4 @@
+import itertools
 import warnings
 from itertools import permutations
 
@@ -42,7 +43,7 @@ class Corr:
     the temporal extent of the correlator and N is the dimension of the matrix.
     """
 
-    __slots__ = ["content", "N", "T", "tag", "prange"]
+    __slots__ = ["N", "T", "content", "prange", "tag"]
 
     def __init__(self, data_input, padding=None, prange=None):
         """ Initialize a Corr object.
@@ -983,7 +984,7 @@ class Corr:
             ax1.set_ylabel(ylabel)
         ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])
 
-        handles, labels = ax1.get_legend_handles_labels()
+        _handles, labels = ax1.get_legend_handles_labels()
         if labels:
             ax1.legend()
 
@@ -1009,7 +1010,7 @@ class Corr:
         if self.N != 1:
             raise ValueError("Correlator needs to be projected first.")
 
-        mc_names = list(set([item for sublist in [sum(map(o[0].e_content.get, o[0].mc_names), []) for o in self.content if o is not None] for item in sublist]))
+        mc_names = list(set([item for sublist in [list(itertools.chain.from_iterable(map(o[0].e_content.get, o[0].mc_names))) for o in self.content if o is not None] for item in sublist]))
         x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content, strict=True) if o is not None]
 
         for name in mc_names:
@@ -1095,6 +1096,8 @@ class Corr:
         else:
             comp = np.asarray(y)
         return np.asarray(self.content, dtype=object) == comp
+
+    __hash__ = None
 
     def __add__(self, y):
         if isinstance(y, Corr):
@@ -1425,7 +1428,7 @@ def _sort_vectors(vec_set_in, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
     if isinstance(vec_set_in[ts][0][0], Obs):
-        vec_set = [anp.vectorize(lambda x: float(x))(vi) if vi is not None else vi for vi in vec_set_in]
+        vec_set = [anp.vectorize(float)(vi) if vi is not None else vi for vi in vec_set_in]
     else:
         vec_set = vec_set_in
     reference_sorting = np.array(vec_set[ts])

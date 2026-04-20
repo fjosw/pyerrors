@@ -34,10 +34,39 @@ from autograd.scipy.special import (
     yn,
 )
 
-__all__ = ["beta", "betainc", "betaln",
-           "polygamma", "psi", "digamma", "gamma", "gammaln", "gammainc", "gammaincc", "gammasgn", "rgamma", "multigammaln",
-           "kn", "j0", "y0", "j1", "y1", "jn", "yn", "i0", "i1", "iv", "ive",
-           "erf", "erfc", "erfinv", "erfcinv", "logit", "expit", "logsumexp"]
+__all__ = [
+    "beta",
+    "betainc",
+    "betaln",
+    "digamma",
+    "erf",
+    "erfc",
+    "erfcinv",
+    "erfinv",
+    "expit",
+    "gamma",
+    "gammainc",
+    "gammaincc",
+    "gammaln",
+    "gammasgn",
+    "i0",
+    "i1",
+    "iv",
+    "ive",
+    "j0",
+    "j1",
+    "jn",
+    "kn",
+    "logit",
+    "logsumexp",
+    "multigammaln",
+    "polygamma",
+    "psi",
+    "rgamma",
+    "y0",
+    "y1",
+    "yn",
+]
 
 
 @primitive

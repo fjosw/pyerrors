@@ -289,7 +289,7 @@ def _import_array(arr):
 
 
 def _import_rdata(rd):
-    name, idx, mask, deltas = _import_array(rd)
+    name, idx, _mask, deltas = _import_array(rd)
     return deltas, name, idx
 
 

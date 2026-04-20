@@ -10,6 +10,8 @@ import scipy
 from .obs import Obs
 from .version import __version__
 
+_rng = np.random.default_rng()
+
 
 def print_config():
     """Print information about version of python, pyerrors and dependencies."""
@@ -120,7 +122,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         return Obs([np.zeros(samples) + value], [name])
     else:
         for _ in range(100):
-            deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
+            deltas = [_rng.normal(0.0, dvalue * np.sqrt(samples), samples)]
             deltas -= np.mean(deltas)
             deltas *= dvalue / np.sqrt(np.var(deltas) / samples) / np.sqrt(1 + 3 / samples)
             deltas += value
@@ -163,7 +165,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
         raise Exception('All integrated autocorrelations have to be >= 0.5.')
 
     a = (2 * tau - 1) / (2 * tau + 1)
-    rand = np.random.multivariate_normal(np.zeros_like(means), cov * samples, samples)
+    rand = _rng.multivariate_normal(np.zeros_like(means), cov * samples, samples)
 
     # Normalize samples such that sample variance matches input
     norm = np.array([np.var(o, ddof=1) / samples for o in rand.T])

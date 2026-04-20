@@ -302,7 +302,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
                     if len(rep_name) > len(ens["id"]):
                         if rep_name[len(ens["id"])] != "|":
                             tmp_list = list(rep_name)
-                            tmp_list = tmp_list[:len(ens["id"])] + ["|"] + tmp_list[len(ens["id"]):]
+                            tmp_list = [*tmp_list[:len(ens["id"])], "|", *tmp_list[len(ens["id"]):]]
                             rep_name = ''.join(tmp_list)
                     retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])

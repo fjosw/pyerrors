@@ -219,7 +219,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
-    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    stepsizes = [next(iter(np.unique(np.diff(cl)))) for cl in configlist]
     if np.any([step != 1 for step in stepsizes]):
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 
@@ -408,7 +408,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
-    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    stepsizes = [next(iter(np.unique(np.diff(cl)))) for cl in configlist]
     if np.any([step != 1 for step in stepsizes]):
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 

@@ -6,5 +6,11 @@ build-backend = "setuptools.build_meta"
 target-version = "py310"
 
 [tool.ruff.lint]
-extend-select = ["I", "B", "PLE", "UP"]
-ignore = ["F403", "E501", "PLC0415"]
+extend-select = ["E", "W", "I", "B", "PIE", "PLE", "PLW", "UP", "NPY", "RUF"]
+ignore = [
+    "F403",     # star imports in __init__ files are intentional
+    "E501",     # line too long
+    "PLC0415",  # import outside top level
+    "PLW2901",  # redefined loop name (too noisy)
+    "RUF002",   # ambiguous unicode in docstrings (Greek letters)
+]

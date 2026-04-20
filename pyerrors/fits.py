@@ -18,6 +18,8 @@ from odrpack import odr_fit
 
 from .obs import Obs, cov_Obs, covariance, derived_observable, invert_corr_cov_cholesky
 
+_rng = np.random.default_rng()
+
 
 class Fit_result(Sequence):
     """Represents fit results.
@@ -946,6 +948,6 @@ def _construct_prior_obs(i_prior, i_n):
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{_rng.integers(2147483647):010d}")
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

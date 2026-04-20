@@ -506,7 +506,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
             else:
                 deltas = tmp_data[:, t]
             tmp_corr.append(Obs([deltas], [ensemble_name], idl=[idl_target]))
-        result[(corr_name[c], corr_source[c]) + tuple(corr_kappa[c])] = tmp_corr
+        result[(corr_name[c], corr_source[c], *corr_kappa[c])] = tmp_corr
 
     # Check that all data entries have the same number of configurations
     if len(set([o[0].N for o in list(result.values())])) != 1:

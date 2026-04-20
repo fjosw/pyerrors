@@ -2,6 +2,7 @@ import hashlib
 import pickle
 import warnings
 from itertools import groupby
+from typing import ClassVar
 
 import autograd.numpy as anp  # Thinly-wrapped numpy
 import matplotlib.pyplot as plt
@@ -14,7 +15,7 @@ from scipy.stats import kurtosis, kurtosistest, skew, skewtest
 from .covobs import Covobs
 
 # Improve print output of numpy.ndarrays containing Obs objects.
-np.set_printoptions(formatter={'object': lambda x: str(x)})
+np.set_printoptions(formatter={'object': str})
 
 
 class Obs:
@@ -46,18 +47,40 @@ class Obs:
         Dictionary for N_sigma values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
     """
-    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
-                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma',
-                 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-                 'e_windowsize', 'e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'tag', '_covobs', '__dict__']
+    __slots__ = [
+        'N',
+        'N_sigma',
+        'S',
+        '__dict__',
+        '_covobs',
+        '_dvalue',
+        '_value',
+        'ddvalue',
+        'deltas',
+        'e_ddvalue',
+        'e_drho',
+        'e_dtauint',
+        'e_dvalue',
+        'e_n_dtauint',
+        'e_n_tauint',
+        'e_rho',
+        'e_tauint',
+        'e_windowsize',
+        'idl',
+        'names',
+        'r_values',
+        'reweighted',
+        'shape',
+        'tag',
+        'tau_exp',
+    ]
 
     S_global = 2.0
-    S_dict = {}
+    S_dict: ClassVar[dict] = {}
     tau_exp_global = 0.0
-    tau_exp_dict = {}
+    tau_exp_dict: ClassVar[dict] = {}
     N_sigma_global = 1.0
-    N_sigma_dict = {}
+    N_sigma_dict: ClassVar[dict] = {}
 
     def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
@@ -502,7 +525,7 @@ class Obs:
             fig = plt.figure()
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
-            length = int(len(self.e_n_tauint[e_name]))
+            length = len(self.e_n_tauint[e_name])
             if self.tau_exp[e_name] > 0:
                 base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
                 x_help = np.arange(2 * self.tau_exp[e_name])
@@ -541,7 +564,7 @@ class Obs:
             fig = plt.figure()
             plt.xlabel('W')
             plt.ylabel('rho')
-            length = int(len(self.e_drho[e_name]))
+            length = len(self.e_drho[e_name])
             plt.errorbar(np.arange(length), self.e_rho[e_name][:length], yerr=self.e_drho[e_name][:], linewidth=1, capsize=2)
             plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, ls='--', marker=',')
             if self.tau_exp[e_name] > 0:
@@ -919,7 +942,7 @@ class Obs:
 
 class CObs:
     """Class for a complex valued observable."""
-    __slots__ = ['_real', '_imag', 'tag']
+    __slots__ = ['_imag', '_real', 'tag']
 
     def __init__(self, real, imag=0.0):
         self._real = real
@@ -1020,6 +1043,8 @@ class CObs:
 
     def __eq__(self, other):
         return self.real == other.real and self.imag == other.imag
+
+    __hash__ = None
 
     def __str__(self):
         return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
@@ -1305,12 +1330,12 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             d_extracted[name] = []
             ens_length = len(new_idl_d[name])
             for dat in data:
-                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name], _compute_scalefactor_missing_rep(o).get(name.split('|')[0], 1)) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name], _compute_scalefactor_missing_rep(o).get(name.split('|')[0], 1)) for o in dat.reshape(np.prod(dat.shape))]).reshape((*dat.shape, ens_length)))
         for name in new_cov_names:
             g_extracted[name] = []
             zero_grad = _Zero_grad(new_covobs_lengths[name])
             for dat in data:
-                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (new_covobs_lengths[name], 1)))
+                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape((*dat.shape, new_covobs_lengths[name], 1)))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
@@ -1320,11 +1345,11 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                 ens_length = d_extracted[name][0].shape[-1]
                 new_deltas[name] = np.zeros(ens_length)
                 for i_dat, dat in enumerate(d_extracted[name]):
-                    new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+                    new_deltas[name] += np.tensordot(deriv[(*i_val, i_dat)], dat)
             for name in new_cov_names:
                 new_grad[name] = 0
                 for i_dat, dat in enumerate(g_extracted[name]):
-                    new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+                    new_grad[name] += np.tensordot(deriv[(*i_val, i_dat)], dat)
         else:
             for j_obs, obs in np.ndenumerate(data):
                 scalef_d = _compute_scalefactor_missing_rep(obs)
@@ -1781,7 +1806,7 @@ def merge_obs(list_of_obs):
     """
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
-        raise ValueError(f'list_of_obs contains duplicate replica: {str(replist)}')
+        raise ValueError(f'list_of_obs contains duplicate replica: {replist!s}')
     if any([len(o.cov_names) for o in list_of_obs]):
         raise ValueError('Not possible to merge data that contains covobs!')
     new_dict = {}

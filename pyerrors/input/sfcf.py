@@ -276,9 +276,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
                 if isinstance(files, list):
                     if all(isinstance(f, list) for f in files):
                         files = files[i]
-                    elif all(isinstance(f, str) for f in files):
-                        files = files
-                    else:
+                    elif not all(isinstance(f, str) for f in files):
                         raise TypeError("files has to be of type list[list[str]] or list[str]!")
                 else:
                     raise TypeError("files has to be of type list[list[str]] or list[str]!")

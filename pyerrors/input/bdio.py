@@ -1,6 +1,8 @@
 import ctypes
 import hashlib
+
 import autograd.numpy as np  # Thinly-wrapped numpy
+
 from ..obs import Obs
 
 
@@ -100,39 +102,39 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         print('neid', neid)
 
         ndata = []
-        for index in range(neid):
+        for _ in range(neid):
             ndata.append(read_c_size_t())
         print('ndata', ndata)
 
         nrep = []
-        for index in range(neid):
+        for _ in range(neid):
             nrep.append(read_c_size_t())
         print('nrep', nrep)
 
         vrep = []
         for index in range(neid):
             vrep.append([])
-            for jndex in range(nrep[index]):
+            for _jndex in range(nrep[index]):
                 vrep[-1].append(read_c_size_t())
         print('vrep', vrep)
 
         ids = []
-        for index in range(neid):
+        for _ in range(neid):
             ids.append(read_c_size_t())
         print('ids', ids)
 
         nt = []
-        for index in range(neid):
+        for _ in range(neid):
             nt.append(read_c_size_t())
         print('nt', nt)
 
         zero = []
-        for index in range(neid):
+        for _ in range(neid):
             zero.append(read_c_double())
         print('zero', zero)
 
         four = []
-        for index in range(neid):
+        for _ in range(neid):
             four.append(read_c_double())
         print('four', four)
 
@@ -147,10 +149,10 @@ def read_ADerrors(file_path, bdio_path='./libbdio.so', **kwargs):
         assert len(ids) == len(no_reps)
         tmp_names = []
         ens_length = max([len(str(o)) for o in ids])
-        for loc_id, reps in zip(ids, no_reps):
+        for loc_id, reps in zip(ids, no_reps, strict=True):
             for index in range(reps):
                 missing_chars = ens_length - len(str(loc_id))
-                tmp_names.append(str(loc_id) + ' ' * missing_chars + '|r' + '{0:03d}'.format(index))
+                tmp_names.append(str(loc_id) + ' ' * missing_chars + '|r' + f'{index:03d}')
 
         return_list.append(Obs(samples, tmp_names))
 
@@ -237,7 +239,7 @@ def write_ADerrors(obs_list, file_path, bdio_path='./libbdio.so', **kwargs):
                 ids.append(int(hashlib.sha256(key.encode('utf-8')).hexdigest(), 16) % 10 ** 8)
         print('ids', ids)
         nt = []
-        for e, e_name in enumerate(obs.e_names):
+        for _e, e_name in enumerate(obs.e_names):
 
             r_length = []
             for r_name in obs.e_content[e_name]:
@@ -451,11 +453,11 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
                     if cnfg_no > kwargs.get('stop'):
                         break
                 idl.append(cnfg_no)
-                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
+                print(f'\rReading configuration {cnfg_no}', end='\r')
                 if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []
-                    for c in range(no_corrs):
+                    for _ in range(no_corrs):
                         data.append([])
 
                 corr_no = 0
@@ -490,7 +492,7 @@ def read_mesons(file_path, bdio_path='./libbdio.so', **kwargs):
         try:
             indices = [idl.index(i) for i in idl_target]
         except ValueError as err:
-            raise Exception('Configurations in file do no match target list!', err)
+            raise Exception('Configurations in file do no match target list!', err) from err
     else:
         indices = None
 
@@ -652,11 +654,11 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
                     if cnfg_no > kwargs.get('stop'):
                         break
                 idl.append(cnfg_no)
-                print('\r%s %i' % ('Reading configuration', cnfg_no), end='\r')
+                print(f'\rReading configuration {cnfg_no}', end='\r')
                 if len(idl) == 1:
                     no_corrs = len(corr_name)
                     data = []
-                    for c in range(no_corrs):
+                    for _ in range(no_corrs):
                         data.append([])
 
                 corr_no = 0
@@ -680,7 +682,7 @@ def read_dSdm(file_path, bdio_path='./libbdio.so', **kwargs):
     try:
         indices = [idl.index(i) for i in idl_target]
     except ValueError as err:
-        raise Exception('Configurations in file do no match target list!', err)
+        raise Exception('Configurations in file do no match target list!', err) from err
 
     result = {}
     for c in range(no_corrs):

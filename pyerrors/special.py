@@ -1,10 +1,38 @@
-import scipy
 import numpy as np
-from autograd.extend import primitive, defvjp
-from autograd.scipy.special import j0, y0, j1, y1, jn, yn, i0, i1, iv, ive, beta, betainc, betaln
-from autograd.scipy.special import polygamma, psi, digamma, gamma, gammaln, gammainc, gammaincc, gammasgn, rgamma, multigammaln
-from autograd.scipy.special import erf, erfc, erfinv, erfcinv, logit, expit, logsumexp
-
+import scipy
+from autograd.extend import defvjp, primitive
+from autograd.scipy.special import (
+    beta,
+    betainc,
+    betaln,
+    digamma,
+    erf,
+    erfc,
+    erfcinv,
+    erfinv,
+    expit,
+    gamma,
+    gammainc,
+    gammaincc,
+    gammaln,
+    gammasgn,
+    i0,
+    i1,
+    iv,
+    ive,
+    j0,
+    j1,
+    jn,
+    logit,
+    logsumexp,
+    multigammaln,
+    polygamma,
+    psi,
+    rgamma,
+    y0,
+    y1,
+    yn,
+)
 
 __all__ = ["beta", "betainc", "betaln",
            "polygamma", "psi", "digamma", "gamma", "gammaln", "gammainc", "gammaincc", "gammasgn", "rgamma", "multigammaln",

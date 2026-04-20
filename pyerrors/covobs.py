@@ -32,7 +32,7 @@ class Covobs:
                     raise Exception('Have to specify position of cov-element belonging to mean!')
             else:
                 if pos > self.N:
-                    raise Exception('pos %d too large for covariance matrix with dimension %dx%d!' % (pos, self.N, self.N))
+                    raise Exception(f'pos {pos} too large for covariance matrix with dimension {self.N}x{self.N}!')
             self._grad = np.zeros((self.N, 1))
             self._grad[pos] = 1.
         else:
@@ -72,7 +72,7 @@ class Covobs:
         for i in range(self.N):
             for j in range(i):
                 if not self._cov[i][j] == self._cov[j][i]:
-                    raise Exception('Covariance matrix is non-symmetric for (%d, %d' % (i, j))
+                    raise Exception(f'Covariance matrix is non-symmetric for ({i}, {j}')
 
         evals = np.linalg.eigvalsh(self._cov)
         for ev in evals:

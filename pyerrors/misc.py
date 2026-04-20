@@ -1,10 +1,12 @@
+import pickle
 import platform
-import numpy as np
-import scipy
+
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-import pickle
+import scipy
+
 from .obs import Obs
 from .version import __version__
 
@@ -37,7 +39,7 @@ def errorbar(x, y, axes=plt, **kwargs):
     """
     val = {}
     err = {}
-    for name, comp in zip(["x", "y"], [x, y]):
+    for name, comp in zip(["x", "y"], [x, y], strict=True):
         if all(isinstance(o, Obs) for o in comp):
             if not all(hasattr(o, 'e_dvalue') for o in comp):
                 [o.gamma_method() for o in comp]
@@ -120,7 +122,7 @@ def pseudo_Obs(value, dvalue, name, samples=1000):
         for _ in range(100):
             deltas = [np.random.normal(0.0, dvalue * np.sqrt(samples), samples)]
             deltas -= np.mean(deltas)
-            deltas *= dvalue / np.sqrt((np.var(deltas) / samples)) / np.sqrt(1 + 3 / samples)
+            deltas *= dvalue / np.sqrt(np.var(deltas) / samples) / np.sqrt(1 + 3 / samples)
             deltas += value
             res = Obs(deltas, [name])
             res.gamma_method(S=2, tau_exp=0)

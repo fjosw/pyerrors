@@ -1211,6 +1211,33 @@ def test_hash():
     assert hash(o1) != hash(o2)
 
 
+def test_Obs_mismatched_lengths():
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(100), np.random.rand(100)], ["a"])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(100)], ["a"], idl=[range(100), range(50)])
+    with pytest.raises(ValueError):
+        pe.Obs([np.random.rand(100), np.random.rand(100)], ["a", "b"],
+               idl=[range(100)])
+
+
+def test_details_fractional_Nsigma(capsys):
+    # N_sigma only appears in details() output when tau_exp > 0.
+    # Verifies the format change from '%1.0i' (integer truncation) to
+    # f'{:g}' preserves fractional digits.
+    o = pe.pseudo_Obs(1.0, 0.1, "e")
+    o.gamma_method(tau_exp=1.5, N_sigma=1.5)
+    o.details()
+    out = capsys.readouterr().out
+    assert "N_\N{GREEK SMALL LETTER SIGMA}=1.5" in out
+
+
+def test_CObs_unhashable():
+    c = pe.CObs(pe.pseudo_Obs(1.0, 0.1, "e"), pe.pseudo_Obs(0.0, 0.1, "e"))
+    with pytest.raises(TypeError):
+        hash(c)
+
+
 def test_gm_alias():
     samples = np.random.rand(500)
 

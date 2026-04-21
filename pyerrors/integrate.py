@@ -1,7 +1,8 @@
 import numpy as np
-from .obs import derived_observable, Obs
 from autograd import jacobian
 from scipy.integrate import quad as squad
+
+from .obs import Obs, derived_observable
 
 
 def quad(func, p, a, b, **kwargs):
@@ -72,7 +73,7 @@ def quad(func, p, a, b, **kwargs):
     derivint = []
     for i in range(Np):
         if isobs[i]:
-            ifunc = np.vectorize(lambda x: jac(pval, x)[i])
+            ifunc = np.vectorize(lambda x, i=i: jac(pval, x)[i])
             derivint.append(squad(ifunc, bounds[0], bounds[1], **ikwargs)[0])
 
     for i in range(2):

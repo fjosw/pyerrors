@@ -1,8 +1,8 @@
 """Utilities for the input"""
 
-import re
 import fnmatch
 import os
+import re
 
 
 def sort_names(ll):
@@ -104,7 +104,7 @@ def check_params(path, param_hash, prefix, param_prefix="parameters_"):
     """
 
     ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
+    for (_dirpath, dirnames, _filenames) in os.walk(path):
         ls.extend(dirnames)
         break
     if not ls:
@@ -120,7 +120,7 @@ def check_params(path, param_hash, prefix, param_prefix="parameters_"):
         rep_path = path + '/' + rep
         # files of replicum
         sub_ls = []
-        for (dirpath, dirnames, filenames) in os.walk(rep_path):
+        for (_dirpath, _dirnames, filenames) in os.walk(rep_path):
             sub_ls.extend(filenames)
 
         # filter
@@ -132,9 +132,9 @@ def check_params(path, param_hash, prefix, param_prefix="parameters_"):
         rep_nums = ''
         for file in param_files:
             with open(rep_path + '/' + file) as fp:
+                last_line = ''
                 for line in fp:
-                    pass
-                last_line = line
+                    last_line = line
                 if last_line.split()[2] != param_hash:
                     rep_nums += file.split("_")[1] + ','
         nums[rep_path] = rep_nums

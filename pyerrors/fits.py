@@ -1,20 +1,24 @@
 import gc
-from collections.abc import Sequence
 import warnings
-import numpy as np
+from collections.abc import Sequence
+
 import autograd.numpy as anp
+import iminuit
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy.optimize
 import scipy.stats
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
-from odrpack import odr_fit
-import iminuit
-from autograd import jacobian as auto_jacobian
-from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
-from numdifftools import Jacobian as num_jacobian
+from autograd import hessian as auto_hessian
+from autograd import jacobian as auto_jacobian
+from matplotlib import gridspec
 from numdifftools import Hessian as num_hessian
-from .obs import Obs, derived_observable, covariance, cov_Obs, invert_corr_cov_cholesky
+from numdifftools import Jacobian as num_jacobian
+from odrpack import odr_fit
+
+from .obs import Obs, cov_Obs, covariance, derived_observable, invert_corr_cov_cholesky
+
+_rng = np.random.default_rng()
 
 
 class Fit_result(Sequence):
@@ -354,7 +358,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
         if len(x0) != n_parms:
-            raise ValueError('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+            raise ValueError(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
     else:
         x0 = [0.1] * n_parms
 
@@ -494,12 +498,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all) + loc_priors, man_grad=list(deriv_y[i])))
+        result.append(derived_observable(lambda x_all, i=i, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all) + loc_priors, man_grad=list(deriv_y[i])))
 
     output.fit_parameters = result
 
@@ -636,7 +640,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = np.asarray(kwargs.get('initial_guess'), dtype=np.float64)
         if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+            raise Exception(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
     else:
         x0 = np.ones(n_parms, dtype=np.float64)
 
@@ -681,7 +685,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
                 f"ODR fit is rank deficient (irank={out.irank}, inv_condnum={out.inv_condnum:.2e}). "
                 "This may indicate a vanishing chi-squared (n_obs == n_parms). "
                 "Results may be unreliable.",
-                RuntimeWarning
+                RuntimeWarning, stacklevel=2
             )
         else:
             raise Exception('The minimization procedure did not converge.')
@@ -712,7 +716,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
-            warnings.warn("Negative expected_chisquare.", RuntimeWarning)
+            warnings.warn("Negative expected_chisquare.", RuntimeWarning, stacklevel=2)
             expected_chisquare = np.abs(expected_chisquare)
         output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplusd.ravel()))) / expected_chisquare
         if not silent:
@@ -735,8 +739,8 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_x = -scipy.linalg.solve(hess, jac_jac_x[:n_parms + m, n_parms + m:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     def odr_chisquare_compact_y(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
@@ -748,12 +752,12 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms + m, n_parms + m:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda my_var, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda my_var, i=i, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
 
     output.fit_parameters = result
 
@@ -805,7 +809,7 @@ def qqplot(x, o_y, func, p, title=""):
     """
 
     residuals = []
-    for i_x, i_y in zip(x, o_y):
+    for i_x, i_y in zip(x, o_y, strict=True):
         residuals.append((i_y - func(p, i_x)) / i_y.dvalue)
     residuals = sorted(residuals)
     my_y = [o.value for o in residuals]
@@ -872,14 +876,14 @@ def error_band(x, func, beta):
     """
     cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
-        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
+        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning, stacklevel=2)
 
     deriv = []
-    for i, item in enumerate(x):
+    for item in x:
         deriv.append(np.array(egrad(func)([o.value for o in beta], item)))
 
     err = []
-    for i, item in enumerate(x):
+    for i, _item in enumerate(x):
         err.append(np.sqrt(deriv[i] @ cov @ deriv[i]))
     err = np.array(err)
 
@@ -944,6 +948,6 @@ def _construct_prior_obs(i_prior, i_n):
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{_rng.integers(2147483647):010d}")
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

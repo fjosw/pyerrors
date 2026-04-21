@@ -1,14 +1,17 @@
+import itertools
 import warnings
 from itertools import permutations
-import numpy as np
+
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.linalg
-from .obs import Obs, reweight, correlate, CObs
-from .misc import dump_object, _assert_equal_properties
-from .fits import least_squares
-from .roots import find_root
+
 from . import linalg
+from .fits import least_squares
+from .misc import _assert_equal_properties, dump_object
+from .obs import CObs, Obs, correlate, reweight
+from .roots import find_root
 
 
 class Corr:
@@ -40,9 +43,9 @@ class Corr:
     the temporal extent of the correlator and N is the dimension of the matrix.
     """
 
-    __slots__ = ["content", "N", "T", "tag", "prange"]
+    __slots__ = ["N", "T", "content", "prange", "tag"]
 
-    def __init__(self, data_input, padding=[0, 0], prange=None):
+    def __init__(self, data_input, padding=None, prange=None):
         """ Initialize a Corr object.
 
         Parameters
@@ -57,6 +60,9 @@ class Corr:
             List containing the first and last timeslice of the plateau
             region identified for this correlator.
         """
+
+        if padding is None:
+            padding = [0, 0]
 
         if isinstance(data_input, np.ndarray):
             if data_input.ndim == 1:
@@ -77,7 +83,7 @@ class Corr:
                 for t in range(T):
                     if any([(item.content[t] is None) for item in data_input.flatten()]):
                         if not all([(item.content[t] is None) for item in data_input.flatten()]):
-                            warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss.!", RuntimeWarning)
+                            warnings.warn("Input ill-defined at different timeslices. Conversion leads to data loss.!", RuntimeWarning, stacklevel=2)
                         input_as_list.append(None)
                     else:
                         array_at_timeslace = np.empty([N, N], dtype="object")
@@ -178,14 +184,14 @@ class Corr:
             if not vector_l.shape == vector_r.shape == (self.N,):
                 raise ValueError("Vectors are of wrong shape!")
             if normalize:
-                vector_l, vector_r = vector_l / np.sqrt((vector_l @ vector_l)), vector_r / np.sqrt(vector_r @ vector_r)
+                vector_l, vector_r = vector_l / np.sqrt(vector_l @ vector_l), vector_r / np.sqrt(vector_r @ vector_r)
             newcontent = [None if _check_for_none(self, item) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
 
         else:
             # There are no checks here yet. There are so many possible scenarios, where this can go wrong.
             if normalize:
                 for t in range(self.T):
-                    vector_l[t], vector_r[t] = vector_l[t] / np.sqrt((vector_l[t] @ vector_l[t])), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
+                    vector_l[t], vector_r[t] = vector_l[t] / np.sqrt(vector_l[t] @ vector_l[t]), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
 
             newcontent = [None if (_check_for_none(self, self.content[t]) or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
@@ -228,7 +234,7 @@ class Corr:
 
         if self.content[0] is not None:
             if np.argmax(np.abs([o[0].value if o is not None else 0 for o in self.content])) != 0:
-                warnings.warn("Correlator does not seem to be symmetric around x0=0.", RuntimeWarning)
+                warnings.warn("Correlator does not seem to be symmetric around x0=0.", RuntimeWarning, stacklevel=2)
 
         newcontent = [self.content[0]]
         for t in range(1, self.T):
@@ -250,7 +256,7 @@ class Corr:
         test = 1 * self
         test.gamma_method()
         if not all([o.is_zero_within_error(3) for o in test.content[0]]):
-            warnings.warn("Correlator does not seem to be anti-symmetric around x0=0.", RuntimeWarning)
+            warnings.warn("Correlator does not seem to be anti-symmetric around x0=0.", RuntimeWarning, stacklevel=2)
 
         newcontent = [self.content[0]]
         for t in range(1, self.T):
@@ -342,7 +348,7 @@ class Corr:
                 raise ValueError("ts has to be larger than t0.")
 
         if "sorted_list" in kwargs:
-            warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning)
+            warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning, stacklevel=2)
             sort = kwargs.get("sorted_list")
 
         if self.is_matrix_symmetric():
@@ -381,7 +387,7 @@ class Corr:
 
         elif sort in ["Eigenvalue", "Eigenvector"]:
             if sort == "Eigenvalue" and ts is not None:
-                warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning)
+                warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning, stacklevel=2)
             all_vecs = [None] * (t0 + 1)
             for t in range(t0 + 1, self.T):
                 try:
@@ -439,7 +445,7 @@ class Corr:
 
         array = np.empty([N, N], dtype="object")
         new_content = []
-        for t in range(self.T):
+        for _t in range(self.T):
             new_content.append(array.copy())
 
         def wrap(i):
@@ -569,7 +575,7 @@ class Corr:
                 if not t_slice[0].is_zero_within_error(5):
                     t_slices.append(x0)
         if t_slices:
-            warnings.warn("T symmetry partners do not agree within 5 sigma on time slices " + str(t_slices) + ".", RuntimeWarning)
+            warnings.warn("T symmetry partners do not agree within 5 sigma on time slices " + str(t_slices) + ".", RuntimeWarning, stacklevel=2)
 
         return (self + T_partner) / 2
 
@@ -663,7 +669,7 @@ class Corr:
                 if (self.content[t - 1] is None) or (self.content[t + 1] is None):
                     newcontent.append(None)
                 else:
-                    newcontent.append((self.content[t + 1] - 2 * self.content[t] + self.content[t - 1]))
+                    newcontent.append(self.content[t + 1] - 2 * self.content[t] + self.content[t - 1])
             if (all([x is None for x in newcontent])):
                 raise ValueError("Derivative is undefined at all timeslices")
             return Corr(newcontent, padding=[1, 1])
@@ -978,7 +984,7 @@ class Corr:
             ax1.set_ylabel(ylabel)
         ax1.set_xlim([x_range[0] - 0.5, x_range[1] + 0.5])
 
-        handles, labels = ax1.get_legend_handles_labels()
+        _handles, labels = ax1.get_legend_handles_labels()
         if labels:
             ax1.legend()
 
@@ -1004,8 +1010,8 @@ class Corr:
         if self.N != 1:
             raise ValueError("Correlator needs to be projected first.")
 
-        mc_names = list(set([item for sublist in [sum(map(o[0].e_content.get, o[0].mc_names), []) for o in self.content if o is not None] for item in sublist]))
-        x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content) if o is not None]
+        mc_names = list(set([item for sublist in [list(itertools.chain.from_iterable(map(o[0].e_content.get, o[0].mc_names))) for o in self.content if o is not None] for item in sublist]))
+        x0_vals = [n for (n, o) in zip(np.arange(self.T), self.content, strict=True) if o is not None]
 
         for name in mc_names:
             data = np.array([o[0].deltas[name] + o[0].r_values[name] for o in self.content if o is not None]).T
@@ -1090,6 +1096,8 @@ class Corr:
         else:
             comp = np.asarray(y)
         return np.asarray(self.content, dtype=object) == comp
+
+    __hash__ = None
 
     def __add__(self, y):
         if isinstance(y, Corr):
@@ -1396,7 +1404,7 @@ class Corr:
         if basematrix is None:
             basematrix = self
         if Ntrunc >= basematrix.N:
-            raise ValueError('Cannot truncate using Ntrunc <= %d' % (basematrix.N))
+            raise ValueError(f'Cannot truncate using Ntrunc <= {basematrix.N}')
         if basematrix.N != self.N:
             raise ValueError('basematrix and targetmatrix have to be of the same size.')
 
@@ -1420,7 +1428,7 @@ def _sort_vectors(vec_set_in, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
     if isinstance(vec_set_in[ts][0][0], Obs):
-        vec_set = [anp.vectorize(lambda x: float(x))(vi) if vi is not None else vi for vi in vec_set_in]
+        vec_set = [anp.vectorize(float)(vi) if vi is not None else vi for vi in vec_set_in]
     else:
         vec_set = vec_set_in
     reference_sorting = np.array(vec_set[ts])

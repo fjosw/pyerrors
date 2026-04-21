@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.linalg
+
+from .linalg import eig, svd
 from .obs import Obs
-from .linalg import svd, eig
 
 
 def matrix_pencil_method(corrs, k=1, p=None, **kwargs):

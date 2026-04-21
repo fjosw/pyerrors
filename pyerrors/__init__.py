@@ -477,16 +477,15 @@ A JSON schema that may be used to verify the correctness of a file with respect 
 
 Julia I/O routines for the json.gz format, compatible with [ADerrors.jl](https://gitlab.ift.uam-csic.es/alberto/aderrors.jl), can be found [here](https://github.com/fjosw/ADjson.jl).
 '''
-from .obs import *
-from .correlators import *
-from .fits import *
-from .misc import *
 from . import dirac as dirac
 from . import input as input
+from . import integrate as integrate
 from . import linalg as linalg
 from . import mpm as mpm
 from . import roots as roots
-from . import integrate as integrate
 from . import special as special
-
+from .correlators import *
+from .fits import *
+from .misc import *
+from .obs import *
 from .version import __version__ as __version__

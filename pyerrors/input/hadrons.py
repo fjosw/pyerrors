@@ -1,11 +1,13 @@
 import os
 from collections import Counter
-import h5py
 from pathlib import Path
+
+import h5py
 import numpy as np
-from ..obs import Obs, CObs
+
 from ..correlators import Corr
 from ..dirac import epsilon_tensor_rank4
+from ..obs import CObs, Obs
 from .misc import fit_t0
 
 
@@ -239,13 +241,13 @@ def extract_t0_hd5(path, filestem, ens_id, obs='Clover energy density', fit_rang
         raise Exception("Not all flow times were equal.")
 
     t2E_dict = {}
-    for t2, dat in zip(corr_data["FlowObservables_0"][0], corr_data[obs_key].T):
+    for t2, dat in zip(corr_data["FlowObservables_0"][0], corr_data[obs_key].T, strict=True):
         t2E_dict[t2] = Obs([dat], [ens_id], idl=[idx]) - 0.3
 
     return fit_t0(t2E_dict, fit_range, plot_fit=kwargs.get('plot_fit'))
 
 
-def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None):
+def read_DistillationContraction_hd5(path, ens_id, diagrams=None, idl=None):
     """Read hadrons DistillationContraction hdf5 files in given directory structure
 
     Parameters
@@ -264,6 +266,9 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
     result : dict
         extracted DistillationContration data
     """
+
+    if diagrams is None:
+        diagrams = ["direct"]
 
     res_dict = {}
 
@@ -288,7 +293,7 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=["direct"], idl=None
             corr_data[diagram] = []
 
         try:
-            for n_file, (hd5_file, n_traj) in enumerate(zip(file_list, list(idx))):
+            for n_file, (hd5_file, _n_traj) in enumerate(zip(file_list, list(idx), strict=True)):
                 h5file = h5py.File(hd5_file)
 
                 if n_file == 0:
@@ -486,7 +491,7 @@ def read_Bilinear_hd5(path, filestem, ens_id, idl=None):
     return result_dict
 
 
-def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
+def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=None):
     """Read hadrons FourquarkFullyConnected hdf5 file and output an array of CObs
 
     Parameters
@@ -507,6 +512,9 @@ def read_Fourquark_hd5(path, filestem, ens_id, idl=None, vertices=["VA", "AV"]):
     result_dict : dict
         extracted fourquark matrizes
     """
+
+    if vertices is None:
+        vertices = ["VA", "AV"]
 
     files, idx = _get_files(path, filestem, idl)
 

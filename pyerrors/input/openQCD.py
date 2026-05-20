@@ -377,7 +377,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                             for current in range(0, len(item), tmax)])
 
         diffmeas = configlist[-1][-1] - configlist[-1][-2]
-        if not np.isclose(configlist[-1][0]/diffmeas, int(configlist[-1][0]/diffmeas), 1e-12):
+        if not np.isclose(configlist[-1][0] / diffmeas, int(configlist[-1][0] / diffmeas), 1e-12):
             raise ValueError("Spacing of the first configuration after thermalization is irregular.")
         configlist[-1] = [item // diffmeas for item in configlist[-1]]
         if kwargs.get('assume_thermalization', True) and configlist[-1][0] > 1:

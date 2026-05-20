@@ -250,7 +250,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     dtr_read : int
         Determines how many trajectories should be skipped
         when reading the ms.dat files.
-        Corresponds to dtr_ms (dnms) in the openQCD input file.
+        Corresponds to dtr_cnfg (dncnfg) in the openQCD input file.
     xmin : int
         First timeslice where the boundary
         effects have sufficiently decayed.
@@ -377,8 +377,8 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                             for current in range(0, len(item), tmax)])
 
         diffmeas = configlist[-1][-1] - configlist[-1][-2]
-        if not np.isclose(configlist[-1][0] / diffmeas, int(configlist[-1][0] / diffmeas), 1e-12):
-            raise ValueError("Spacing of the first configuration after thermalization is irregular.")
+        if not all(c % diffmeas == 0 for c in configlist[-1]):
+            raise ValueError(f"Irregular spacing of configurations in {ls[rep]}, determined stepsize does not divide all trajectory steps.")
         configlist[-1] = [item // diffmeas for item in configlist[-1]]
         if kwargs.get('assume_thermalization', True) and configlist[-1][0] > 1:
             warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')

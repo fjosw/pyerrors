@@ -238,8 +238,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------
@@ -435,8 +436,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------

@@ -65,6 +65,37 @@ def test_rwms():
 
     pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
 
+    # trajectories
+    t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=30, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"], assume_thermalization=False)
+    assert len(t0.idl['A|r1']) == 10
+    assert t0.idl['A|r1'][0] == 4
+    assert t0.idl['A|r1'][9] == 13
+
+    with pytest.warns(Warning):
+        t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=1, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"])
+    assert len(t0.idl['A|r1']) == 30
+    assert t0.idl['A|r1'][0] == 1
+    assert t0.idl['A|r1'][29] == 30
+
+    with pytest.warns(Warning):
+        t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=10, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"])
+    assert len(t0.idl['A|r1']) == 30
+    assert t0.idl['A|r1'][0] == 1
+    assert t0.idl['A|r1'][29] == 30
+
+    with pytest.warns(Warning):
+        t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=30, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"])
+    assert len(t0.idl['A|r1']) == 10
+    assert t0.idl['A|r1'][0] == 1
+    assert t0.idl['A|r1'][9] == 10
+
+    with pytest.warns(Warning):
+        t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=60, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"])
+    assert len(t0.idl['A|r1']) == 5
+    assert t0.idl['A|r1'][0] == 1
+    assert t0.idl['A|r1'][4] == 5
+
+
     with pytest.raises(Exception):
         pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, c=14)
     # w0

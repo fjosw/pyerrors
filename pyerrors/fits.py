@@ -946,6 +946,6 @@ def _construct_prior_obs(i_prior, i_n):
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")  # noqa: NPY002
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

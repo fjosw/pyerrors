@@ -1,4 +1,5 @@
 import numpy as np
+import autograd.numpy as anp
 import pyerrors as pe
 import pytest
 
@@ -37,11 +38,23 @@ def test_root_no_autograd():
     def root_function(x, d):
         return x - np.log(np.exp(d))
 
+    def root_function_autograd(x, d):
+        return x - anp.log(anp.exp(d))
+
     value = np.random.normal(0, 100)
     my_obs = pe.pseudo_Obs(value, 0.1, 't')
 
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers, so a root function using numpy now yields the same result as
+    # one using autograd.numpy.
+    assert pe.roots.find_root(my_obs, root_function) == pe.roots.find_root(my_obs, root_function_autograd)
+
+    # A function that genuinely cannot be traced by autograd must still raise.
+    def root_invalid(x, d):
+        return x - np.float64(d)
+
     with pytest.raises(Exception):
-        my_root = pe.roots.find_root(my_obs, root_function)
+        pe.roots.find_root(my_obs, root_invalid)
 
 
 def test_root_multi_parameter():

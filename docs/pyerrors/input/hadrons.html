@@ -1216,7 +1216,7 @@ extracted DistillationContration data</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>ndarray(shape, dtype=float, buffer=None, offset=0, strides=None, order=None)</p>
+            <div class="docstring"><p>ndarray(shape, dtype=np.float64, buffer=None, offset=0, strides=None, order=None)</p>
 
 <p>An array object represents a multidimensional, homogeneous array
 of fixed-size items.  An associated data-type object describes the
@@ -1331,7 +1331,7 @@ ndarray.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
 <span class="go">array([[0.0e+000, 0.0e+000], # random</span>
 <span class="go">       [     nan, 2.5e-323]])</span>
 </code></pre>
@@ -1342,7 +1342,7 @@ ndarray.</p>
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">2</span><span class="p">,),</span> <span class="n">buffer</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]),</span>
 <span class="gp">... </span>           <span class="n">offset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">()</span><span class="o">.</span><span class="n">itemsize</span><span class="p">,</span>
-<span class="gp">... </span>           <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># offset = 1*itemsize, i.e. skip first element</span>
+<span class="gp">... </span>           <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span> <span class="c1"># offset = 1*itemsize, i.e. skip first element</span>
 <span class="go">array([2, 3])</span>
 </code></pre>
 </div>

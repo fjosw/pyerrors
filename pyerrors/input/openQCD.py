@@ -238,8 +238,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------
@@ -250,7 +251,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     dtr_read : int
         Determines how many trajectories should be skipped
         when reading the ms.dat files.
-        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
+        Corresponds to dtr_cnfg (dncnfg) in the openQCD input file.
     xmin : int
         First timeslice where the boundary
         effects have sufficiently decayed.
@@ -358,8 +359,8 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 if (len(t) < 4):
                     break
                 nc = struct.unpack('i', t)[0]
-                configlist[-1].append(nc)
-
+                if nc % dtr_read == 0:
+                    configlist[-1].append(nc)
                 t = fp.read(8 * tmax * (nn + 1))
                 if kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
@@ -377,6 +378,8 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                             for current in range(0, len(item), tmax)])
 
         diffmeas = configlist[-1][-1] - configlist[-1][-2]
+        if not all(c % diffmeas == 0 for c in configlist[-1]):
+            raise ValueError(f"Irregular spacing of configurations in {ls[rep]}, determined stepsize does not divide all trajectory steps.")
         configlist[-1] = [item // diffmeas for item in configlist[-1]]
         if kwargs.get('assume_thermalization', True) and configlist[-1][0] > 1:
             warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')
@@ -433,8 +436,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------

@@ -1,6 +1,7 @@
-import numpy as np
 import autograd.numpy as anp  # Thinly-wrapped numpy
-from .obs import derived_observable, CObs, Obs, import_jackknife
+import numpy as np
+
+from .obs import CObs, Obs, derived_observable, import_jackknife
 
 
 def matmul(*operands):
@@ -24,7 +25,7 @@ def matmul(*operands):
         def multi_dot(operands, part):
             stack_r = operands[0]
             stack_i = operands[1]
-            for op_r, op_i in zip(operands[2::2], operands[3::2]):
+            for op_r, op_i in zip(operands[2::2], operands[3::2], strict=True):
                 tmp_r = stack_r @ op_r - stack_i @ op_i
                 tmp_i = stack_r @ op_i + stack_i @ op_r
 
@@ -46,7 +47,7 @@ def matmul(*operands):
         Ni = derived_observable(multi_dot_i, extended_operands, array_mode=True)
 
         res = np.empty_like(Nr)
-        for (n, m), entry in np.ndenumerate(Nr):
+        for (n, m), _entry in np.ndenumerate(Nr):
             res[n, m] = CObs(Nr[n, m], Ni[n, m])
 
         return res
@@ -134,13 +135,13 @@ def einsum(subscripts, *operands):
 
     def _exp_to_jack(matrix):
         base_matrix = []
-        for index, entry in np.ndenumerate(matrix):
+        for _index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
     def _exp_to_jack_c(matrix):
         base_matrix = []
-        for index, entry in np.ndenumerate(matrix):
+        for _index, entry in np.ndenumerate(matrix):
             base_matrix.append(entry.real.export_jackknife() + 1j * entry.imag.export_jackknife())
         return np.asarray(base_matrix).reshape(matrix.shape + base_matrix[0].shape)
 
@@ -251,7 +252,7 @@ def _mat_mat_op(op, obs, **kwargs):
         op_A = op_big_matrix[0: dim // 2, 0: dim // 2]
         op_B = op_big_matrix[dim // 2:, 0: dim // 2]
         res = np.empty_like(op_A)
-        for (n, m), entry in np.ndenumerate(op_A):
+        for (n, m), _entry in np.ndenumerate(op_A):
             res[n, m] = CObs(op_A[n, m], op_B[n, m])
         return res
     else:

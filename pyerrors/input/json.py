@@ -1,17 +1,19 @@
-import rapidjson as json
-import gzip
-import getpass
-import socket
 import datetime
+import getpass
+import gzip
 import platform
-import warnings
 import re
+import socket
+import warnings
+
 import numpy as np
-from ..obs import Obs
-from ..covobs import Covobs
-from ..correlators import Corr
-from ..misc import _assert_equal_properties
+import rapidjson as json
+
 from .. import version as pyerrorsversion
+from ..correlators import Corr
+from ..covobs import Covobs
+from ..misc import _assert_equal_properties
+from ..obs import Obs
 
 
 def create_json_string(ol, description='', indent=1):
@@ -93,7 +95,7 @@ def create_json_string(ol, description='', indent=1):
         _assert_equal_properties(ol)
         d = {}
         d['type'] = 'List'
-        d['layout'] = '%d' % len(ol)
+        d['layout'] = f'{len(ol)}'
         taglist = [o.tag for o in ol]
         if np.any([tag is not None for tag in taglist]):
             d['tag'] = taglist
@@ -167,7 +169,7 @@ def create_json_string(ol, description='', indent=1):
         ol = [ol]
 
     d = {}
-    d['program'] = 'pyerrors %s' % (pyerrorsversion.__version__)
+    d['program'] = f'pyerrors {pyerrorsversion.__version__}'
     d['version'] = '1.1'
     d['who'] = getpass.getuser()
     d['date'] = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %z')
@@ -209,7 +211,7 @@ def create_json_string(ol, description='', indent=1):
         elif isinstance(obj, np.floating):
             return float(obj)
         else:
-            raise ValueError('%r is not JSON serializable' % (obj,))
+            raise ValueError(f'{obj!r} is not JSON serializable')
 
     if indent:
         return json.dumps(d, indent=indent, ensure_ascii=False, default=_jsonifier, write_mode=json.WM_SINGLE_LINE_ARRAY)
@@ -300,7 +302,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
                     if len(rep_name) > len(ens["id"]):
                         if rep_name[len(ens["id"])] != "|":
                             tmp_list = list(rep_name)
-                            tmp_list = tmp_list[:len(ens["id"])] + ["|"] + tmp_list[len(ens["id"]):]
+                            tmp_list = [*tmp_list[:len(ens["id"])], "|", *tmp_list[len(ens["id"]):]]
                             rep_name = ''.join(tmp_list)
                     retd['names'].append(rep_name)
                     retd['idl'].append([di[0] for di in rep['deltas']])
@@ -325,7 +327,7 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
     def get_Obs_from_dict(o):
         layouts = o.get('layout', '1').strip()
         if layouts != '1':
-            raise Exception("layout is %s has to be 1 for type Obs." % (layouts), RuntimeWarning)
+            raise Exception(f"layout is {layouts} has to be 1 for type Obs.", RuntimeWarning)
 
         values = o['value']
         od = _gen_obsd_from_datad(o.get('data', {}))
@@ -433,11 +435,11 @@ def _parse_json_dict(json_dict, verbose=True, full_output=False):
     date = json_dict.get('date', '')
     host = json_dict.get('host', '')
     if prog and verbose:
-        print('Data has been written using %s.' % (prog))
+        print(f'Data has been written using {prog}.')
     if version and verbose:
-        print('Format version %s' % (version))
+        print(f'Format version {version}')
     if np.any([who, date, host] and verbose):
-        print('Written by %s on %s on host %s' % (who, date, host))
+        print(f'Written by {who} on {date} on host {host}')
     description = json_dict.get('description', '')
     if description and verbose:
         print()
@@ -542,8 +544,8 @@ def load_json(fname, verbose=True, gz=True, full_output=False):
             d = json.load(fin)
     else:
         if fname.endswith('.gz'):
-            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r', encoding='utf-8') as fin:
+            warnings.warn(f"Trying to read from {fname} without unzipping!", UserWarning, stacklevel=2)
+        with open(fname, encoding='utf-8') as fin:
             d = json.loads(fin.read())
 
     return _parse_json_dict(d, verbose, full_output)
@@ -582,11 +584,11 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 v = list_replace_obs(v)
             elif isinstance(v, obstypes):
                 ol.append(v)
-                v = reps + '%d' % (counter)
+                v = reps + f'{counter}'
                 counter += 1
             elif isinstance(v, str):
-                if bool(re.match(r'%s[0-9]+' % (reps), v)):
-                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be safely exported.' % (v, reps))
+                if bool(re.match(rf'{reps}[0-9]+', v)):
+                    raise Exception(f'Dict contains string {v} that matches the placeholder! {reps} Cannot be safely exported.')
             x[k] = v
         return x
 
@@ -602,11 +604,11 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 e = dict_replace_obs(e)
             elif isinstance(e, obstypes):
                 ol.append(e)
-                e = reps + '%d' % (counter)
+                e = reps + f'{counter}'
                 counter += 1
             elif isinstance(e, str):
-                if bool(re.match(r'%s[0-9]+' % (reps), e)):
-                    raise Exception('Dict contains string %s that matches the placeholder! %s Cannot be safely exported.' % (e, reps))
+                if bool(re.match(rf'{reps}[0-9]+', e)):
+                    raise Exception(f'Dict contains string {e} that matches the placeholder! {reps} Cannot be safely exported.')
             x.append(e)
         return x
 
@@ -617,7 +619,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
             il.append(e)
 
         ol.append(il)
-        x = reps + '%d' % (counter)
+        x = reps + f'{counter}'
         counter += 1
         return x
 
@@ -697,7 +699,7 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
                 v = dict_replace_string(v)
             elif isinstance(v, list):
                 v = list_replace_string(v)
-            elif isinstance(v, str) and bool(re.match(r'%s[0-9]+' % (reps), v)):
+            elif isinstance(v, str) and bool(re.match(rf'{reps}[0-9]+', v)):
                 index = int(v[len(reps):])
                 v = ol[index]
                 counter += 1
@@ -712,7 +714,7 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
                 e = list_replace_string(e)
             elif isinstance(e, dict):
                 e = dict_replace_string(e)
-            elif isinstance(e, str) and bool(re.match(r'%s[0-9]+' % (reps), e)):
+            elif isinstance(e, str) and bool(re.match(rf'{reps}[0-9]+', e)):
                 index = int(e[len(reps):])
                 e = ol[index]
                 counter += 1

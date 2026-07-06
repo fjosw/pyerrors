@@ -1,13 +1,15 @@
-import os
 import fnmatch
+import os
 import re
 import struct
 import warnings
-import numpy as np  # Thinly-wrapped numpy
+
 import matplotlib.pyplot as plt
+import numpy as np  # Thinly-wrapped numpy
 from matplotlib import gridspec
-from ..obs import Obs
+
 from ..fits import fit_lin
+from ..obs import Obs
 
 
 def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
@@ -54,7 +56,7 @@ def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):
     [o.gamma_method() for o in y]
 
     if len(x) < 2 * fit_range:
-        warnings.warn('Fit range smaller than expected! Fitting from %1.2e to %1.2e' % (x[0], x[-1]))
+        warnings.warn(f'Fit range smaller than expected! Fitting from {x[0]:1.2e} to {x[-1]:1.2e}', stacklevel=2)
 
     fit_result = fit_lin(x, y)
 
@@ -114,7 +116,7 @@ def read_pbp(path, prefix, **kwargs):
     """
 
     ls = []
-    for (dirpath, dirnames, filenames) in os.walk(path):
+    for (_dirpath, _dirnames, filenames) in os.walk(path):
         ls.extend(filenames)
         break
 
@@ -161,24 +163,24 @@ def read_pbp(path, prefix, **kwargs):
             t = fp.read(4)  # number of reweighting factors
             if rep == 0:
                 nrw = struct.unpack('i', t)[0]
-                for k in range(nrw):
+                for _ in range(nrw):
                     deltas.append([])
             else:
                 if nrw != struct.unpack('i', t)[0]:
                     raise Exception('Error: different number of factors for replicum', rep)
 
-            for k in range(nrw):
+            for _ in range(nrw):
                 tmp_array.append([])
 
             # This block is necessary for openQCD1.6 ms1 files
             nfct = []
-            for i in range(nrw):
+            for _ in range(nrw):
                 t = fp.read(4)
                 nfct.append(struct.unpack('i', t)[0])
             print('nfct: ', nfct)  # Hasenbusch factor, 1 for rat reweighting
 
             nsrc = []
-            for i in range(nrw):
+            for _ in range(nrw):
                 t = fp.read(4)
                 nsrc.append(struct.unpack('i', t)[0])
 

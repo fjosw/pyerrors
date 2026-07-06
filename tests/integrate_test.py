@@ -49,3 +49,24 @@ def test_integration():
     assert r1 == -r2
     iamzero, _ = pe.integrate.quad(F, pobs, 1, 1)
     assert iamzero == 0
+
+
+def test_integrate_per_parameter_derivatives():
+    # \int_0^1 p0*x + p1*x^2 dx = p0/2 + p1/3
+    # If the lambda closure in integrate.quad failed to bind `i` per-iteration,
+    # all per-parameter derivatives would collapse to a single value.
+    def f(p, x):
+        return p[0] * x + p[1] * x ** 2
+
+    p = [pe.cov_Obs(1.0, 0.1 ** 2, "p0"), pe.cov_Obs(2.0, 0.2 ** 2, "p1")]
+    res, _ = pe.integrate.quad(f, p, 0.0, 1.0)
+    res.gm()
+
+    ana_val = p[0].value / 2 + p[1].value / 3
+    assert np.isclose(res.value, ana_val)
+
+    grad0 = res.covobs["p0"].grad.item()
+    grad1 = res.covobs["p1"].grad.item()
+    assert np.isclose(grad0, 0.5)
+    assert np.isclose(grad1, 1.0 / 3.0)
+    assert not np.isclose(grad0, grad1)

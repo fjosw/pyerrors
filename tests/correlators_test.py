@@ -804,3 +804,18 @@ def test_prune_with_Nones():
 
     for t in range(T):
         assert np.all(pruned_then_padded.content[t] == padded_then_pruned.content[t])
+
+
+def test_Corr_padding_default_not_shared():
+    data = [pe.pseudo_Obs(i + 1, 0.1, "e") for i in range(5)]
+    c1 = pe.Corr(data)
+    c2 = pe.Corr(data)
+    assert c1 is not c2
+    assert len(c1.content) == len(c2.content) == 5
+    assert all(a[0] == b[0] for a, b in zip(c1.content, c2.content))
+
+
+def test_Corr_unhashable():
+    c = pe.Corr([pe.pseudo_Obs(i + 1, 0.1, "e") for i in range(5)])
+    with pytest.raises(TypeError):
+        hash(c)

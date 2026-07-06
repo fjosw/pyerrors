@@ -1,12 +1,14 @@
-import warnings
 import gzip
 import sqlite3
+import warnings
 from contextlib import closing
-import pandas as pd
-from ..obs import Obs
-from ..correlators import Corr
-from .json import create_json_string, import_json_string
+
 import numpy as np
+import pandas as pd
+
+from ..correlators import Corr
+from ..obs import Obs
+from .json import create_json_string, import_json_string
 
 
 def to_sql(df, table_name, db, if_exists='fail', gz=True, **kwargs):
@@ -81,7 +83,7 @@ def dump_df(df, fname, gz=True):
         if not serialize:
             if all(isinstance(entry, (int, np.integer, float, np.floating)) for entry in df[column]):
                 if any([np.isnan(entry) for entry in df[column]]):
-                    warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning)
+                    warnings.warn("nan value in column " + column + " will be replaced by None", UserWarning, stacklevel=2)
 
     out = _serialize_df(df, gz=False)
 
@@ -124,7 +126,7 @@ def load_df(fname, auto_gamma=False, gz=True):
             re_import = pd.read_csv(f, keep_default_na=False)
     else:
         if fname.endswith('.gz'):
-            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
+            warnings.warn(f"Trying to read from {fname} without unzipping!", UserWarning, stacklevel=2)
         re_import = pd.read_csv(fname, keep_default_na=False)
 
     return _deserialize_df(re_import, auto_gamma=auto_gamma)

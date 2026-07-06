@@ -1,12 +1,13 @@
-import os
 import fnmatch
-import re
-import numpy as np  # Thinly-wrapped numpy
-from ..obs import Obs
-from .utils import sort_names, check_idl
 import itertools
+import os
+import re
 import warnings
 
+import numpy as np  # Thinly-wrapped numpy
+
+from ..obs import Obs
+from .utils import check_idl, sort_names
 
 sep = "/"
 
@@ -76,7 +77,7 @@ def read_sfcf(path, prefix, name, quarks='.*', corr_type="bi", noffset=0, wf=0, 
     return ret[name][quarks][str(noffset)][str(wf)][str(wf2)]
 
 
-def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=['bi'], noffset_list=[0], wf_list=[0], wf2_list=[0], version="1.0c", cfg_separator="n", cfg_func=None, silent=False, keyed_out=False, **kwargs):
+def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=None, noffset_list=None, wf_list=None, wf2_list=None, version="1.0c", cfg_separator="n", cfg_func=None, silent=False, keyed_out=False, **kwargs):
     """Read sfcf files from given folder structure.
 
     Parameters
@@ -141,6 +142,17 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
             dict[name][quarks][offset][wf][wf2] = list[Obs]
     """
 
+    if quarks_list is None:
+        quarks_list = ['.*']
+    if corr_type_list is None:
+        corr_type_list = ['bi']
+    if noffset_list is None:
+        noffset_list = [0]
+    if wf_list is None:
+        wf_list = [0]
+    if wf2_list is None:
+        wf2_list = [0]
+
     if kwargs.get('im'):
         im = 1
         part = 'imaginary'
@@ -167,7 +179,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
     if "replica" in kwargs:
         ls = kwargs.get("replica")
     else:
-        for (dirpath, dirnames, filenames) in os.walk(path):
+        for (_dirpath, dirnames, filenames) in os.walk(path):
             if not appended:
                 ls.extend(dirnames)
             else:
@@ -214,7 +226,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     # setup dict structures
     intern = {}
-    for name, corr_type in zip(name_list, corr_type_list):
+    for name, corr_type in zip(name_list, corr_type_list, strict=True):
         intern[name] = {}
         b2b, single = _extract_corr_type(corr_type)
         intern[name]["b2b"] = b2b
@@ -236,7 +248,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
 
     internal_ret_dict = {}
     needed_keys = []
-    for name, corr_type in zip(name_list, corr_type_list):
+    for name, corr_type in zip(name_list, corr_type_list, strict=True):
         b2b, single = _extract_corr_type(corr_type)
         if b2b:
             needed_keys.extend(_lists2key([name], quarks_list, noffset_list, wf_list, wf2_list))
@@ -264,9 +276,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 if isinstance(files, list):
                     if all(isinstance(f, list) for f in files):
                         files = files[i]
-                    elif all(isinstance(f, str) for f in files):
-                        files = files
-                    else:
+                    elif not all(isinstance(f, str) for f in files):
                         raise TypeError("files has to be of type list[list[str]] or list[str]!")
                 else:
                     raise TypeError("files has to be of type list[list[str]] or list[str]!")
@@ -282,8 +292,8 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         rep_idl.append(cfg_func(cfg, *cfg_func_args))
                     else:
                         rep_idl.append(int(cfg[3:]))
-                except Exception:
-                    raise Exception("Couldn't parse idl from directory, problem with file " + cfg)
+                except Exception as err:
+                    raise Exception("Couldn't parse idl from directory, problem with file " + cfg) from err
             rep_idl.sort()
             # maybe there is a better way to print the idls
             if not silent:
@@ -316,7 +326,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                         # preparing the datastructure
                         # the correlators get parsed into...
                         deltas = []
-                        for j in range(intern[name]["T"]):
+                        for _j in range(intern[name]["T"]):
                             deltas.append([])
                         internal_ret_dict[sep.join([name, key])] = deltas
 
@@ -365,7 +375,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 T, rep_idl, rep_data = _read_append_rep(filename, pattern, intern[name]['b2b'], im, intern[name]['single'], cfg_func, cfg_func_args)
                 if rep == 0:
                     intern[name]['T'] = T
-                    for t in range(intern[name]['T']):
+                    for _ in range(intern[name]['T']):
                         deltas.append([])
                 for t in range(intern[name]['T']):
                     deltas[t].append(rep_data[t])
@@ -395,7 +405,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=['.*'], corr_type_list=
                 result.append(Obs(internal_ret_dict[key][t], new_names, idl=idl))
             result_dict[key] = result
     else:
-        for name, corr_type in zip(name_list, corr_type_list):
+        for name, corr_type in zip(name_list, corr_type_list, strict=True):
             result_dict[name] = {}
             for quarks in quarks_list:
                 result_dict[name][quarks] = {}
@@ -472,12 +482,14 @@ def _extract_corr_type(corr_type):
     return b2b, single
 
 
-def _find_files(rep_path, prefix, compact, files=[]):
+def _find_files(rep_path, prefix, compact, files=None):
+    if files is None:
+        files = []
     sub_ls = []
     if not files == []:
         files.sort(key=lambda x: int(re.findall(r'\d+', x)[-1]))
     else:
-        for (dirpath, dirnames, filenames) in os.walk(rep_path):
+        for (_dirpath, dirnames, filenames) in os.walk(rep_path):
             if compact:
                 sub_ls.extend(filenames)
             else:
@@ -516,7 +528,7 @@ def _make_pattern(version, name, noffset, wf, wf2, b2b, quarks):
 def _find_correlator(file_name, version, pattern, b2b, silent=False):
     T = 0
 
-    with open(file_name, "r") as my_file:
+    with open(file_name) as my_file:
 
         content = my_file.read()
         match = re.search(pattern, content)
@@ -578,7 +590,7 @@ def _read_compact_rep(path, rep, sub_ls, intern, needed_keys, im):
     for key in needed_keys:
         name = _key2specs(key)[0]
         deltas = []
-        for t in range(intern[name]["T"]):
+        for _ in range(intern[name]["T"]):
             deltas.append(np.zeros(no_cfg))
         return_vals[key] = deltas
 
@@ -598,7 +610,7 @@ def _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single):
     for li in chunk[corr_line + 1:corr_line + 6 + b2b]:
         found_pat += li
     if re.search(pattern, found_pat):
-        for t, line in enumerate(chunk[start_read:start_read + T]):
+        for _t, line in enumerate(chunk[start_read:start_read + T]):
             floats = list(map(float, line.split()))
             data.append(floats[im + 1 - single])
     return data
@@ -623,7 +635,7 @@ def _check_append_rep(content, start_list):
         data_len_list.append(len(chunk) - header_len)
 
     if len(set(header_len_list)) > 1:
-        warnings.warn("Not all headers have the same length. Data parts do.")
+        warnings.warn("Not all headers have the same length. Data parts do.", stacklevel=2)
         has_regular_len_heads = False
 
     if len(set(data_len_list)) > 1:
@@ -654,7 +666,7 @@ def _read_chunk_structure(chunk, pattern, b2b):
 
 
 def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args):
-    with open(filename, 'r') as fp:
+    with open(filename) as fp:
         content = fp.readlines()
         chunk_start_lines = []
         for linenumber, line in enumerate(content):
@@ -665,8 +677,8 @@ def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args
             chunk = content[:chunk_start_lines[1]]
             try:
                 gauge_line, corr_line, start_read, T = _read_chunk_structure(chunk, pattern, b2b)
-            except ValueError:
-                raise ValueError("Did not find pattern\n", pattern, "\nin\n", filename, "lines", 1, "to", chunk_start_lines[1] + 1)
+            except ValueError as err:
+                raise ValueError("Did not find pattern\n", pattern, "\nin\n", filename, "lines", 1, "to", chunk_start_lines[1] + 1) from err
         # if has_regular_len_heads is true, all other chunks should follow the same structure
         rep_idl = []
         rep_data = []
@@ -682,8 +694,8 @@ def _read_append_rep(filename, pattern, b2b, im, single, idl_func, cfg_func_args
                 gauge_line, corr_line, start_read, T = _read_chunk_structure(chunk, pattern, b2b)
             try:
                 idl = idl_func(chunk[gauge_line], *cfg_func_args)
-            except Exception:
-                raise Exception("Couldn't parse idl from file", filename, ", problem with chunk of lines", start + 1, "to", stop + 1)
+            except Exception as err:
+                raise Exception("Couldn't parse idl from file", filename, ", problem with chunk of lines", start + 1, "to", stop + 1) from err
             data = _read_chunk_data(chunk, start_read, T, corr_line, b2b, pattern, im, single)
             rep_idl.append(idl)
             rep_data.append(data)
@@ -702,8 +714,8 @@ def _get_rep_names(ls, ens_name=None, rep_sep='r'):
     for entry in ls:
         try:
             idx = entry.index(rep_sep)
-        except Exception:
-            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+        except Exception as err:
+            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.") from err
 
         if ens_name:
             new_names.append(ens_name + '|' + entry[idx:])
@@ -722,8 +734,8 @@ def _get_appended_rep_names(ls, prefix, name, ens_name=None, rep_sep='r'):
         myentry = entry[:-len(name) - 1]
         try:
             idx = myentry.index(rep_sep)
-        except Exception:
-            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+        except Exception as err:
+            raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.") from err
 
         if ens_name:
             new_names.append(ens_name + '|' + entry[idx:])

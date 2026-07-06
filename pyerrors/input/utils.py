@@ -108,7 +108,7 @@ def check_params(path, param_hash, prefix, param_prefix="parameters_"):
         ls.extend(dirnames)
         break
     if not ls:
-        raise Exception('Error, directory not found')
+        raise FileNotFoundError('Error, directory not found')
     # Exclude folders with different names
     for exc in ls:
         if not fnmatch.fnmatch(exc, prefix + '*'):

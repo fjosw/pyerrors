@@ -72,7 +72,7 @@ class Covobs:
         for i in range(self.N):
             for j in range(i):
                 if not self._cov[i][j] == self._cov[j][i]:
-                    raise Exception(f'Covariance matrix is non-symmetric for ({i}, {j}')
+                    raise Exception(f'Covariance matrix is non-symmetric for ({i}, {j})')
 
         evals = np.linalg.eigvalsh(self._cov)
         for ev in evals:

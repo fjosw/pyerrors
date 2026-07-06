@@ -1404,7 +1404,7 @@ class Corr:
         if basematrix is None:
             basematrix = self
         if Ntrunc >= basematrix.N:
-            raise ValueError(f'Cannot truncate using Ntrunc <= {basematrix.N}')
+            raise ValueError(f'Cannot truncate using Ntrunc >= {basematrix.N}')
         if basematrix.N != self.N:
             raise ValueError('basematrix and targetmatrix have to be of the same size.')
 

@@ -163,7 +163,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
     known_versions = ["0.0", "1.0", "2.0", "1.0c", "2.0c", "1.0a", "2.0a"]
 
     if version not in known_versions:
-        raise Exception("This version is not known!")
+        raise ValueError("This version is not known!")
     if (version[-1] == "c"):
         appended = False
         compact = True
@@ -186,7 +186,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
                 ls.extend(filenames)
             break
         if not ls:
-            raise Exception('Error, directory not found')
+            raise FileNotFoundError('Error, directory not found')
         # Exclude folders with different names
         for exc in ls:
             if not fnmatch.fnmatch(exc, prefix + '*'):
@@ -199,16 +199,16 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
     else:
         replica = len([file.split(".")[-1] for file in ls]) // len(set([file.split(".")[-1] for file in ls]))
     if replica == 0:
-        raise Exception('No replica found in directory')
+        raise FileNotFoundError('No replica found in directory')
     if not silent:
         print('Read', part, 'part of', name_list, 'from', prefix[:-1], ',', replica, 'replica')
 
     if 'names' in kwargs:
         new_names = kwargs.get('names')
         if len(new_names) != len(set(new_names)):
-            raise Exception("names are not unique!")
+            raise ValueError("names are not unique!")
         if len(new_names) != replica:
-            raise Exception('names should have the length', replica)
+            raise ValueError(f'names should have the length {replica}')
 
     else:
         ens_name = kwargs.get("ens_name")
@@ -388,7 +388,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
             print("Checking for missing configs...")
         che = kwargs.get("check_configs")
         if not (len(che) == len(idl)):
-            raise Exception("check_configs has to be the same length as replica!")
+            raise ValueError("check_configs has to be the same length as replica!")
         for r in range(len(idl)):
             if not silent:
                 print("checking " + new_names[r])

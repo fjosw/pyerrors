@@ -121,7 +121,7 @@ def read_pbp(path, prefix, **kwargs):
         break
 
     if not ls:
-        raise Exception('Error, directory not found')
+        raise FileNotFoundError('Error, directory not found')
 
     # Exclude files with different names
     for exc in ls:
@@ -134,7 +134,7 @@ def read_pbp(path, prefix, **kwargs):
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         # Adjust Configuration numbering to python index
         r_start = [o - 1 if o else None for o in r_start]
     else:
@@ -143,7 +143,7 @@ def read_pbp(path, prefix, **kwargs):
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * replica
 

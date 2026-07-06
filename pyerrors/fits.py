@@ -638,7 +638,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = np.asarray(kwargs.get('initial_guess'), dtype=np.float64)
         if len(x0) != n_parms:
-            raise Exception(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
+            raise ValueError(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
     else:
         x0 = np.ones(n_parms, dtype=np.float64)
 

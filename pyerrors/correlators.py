@@ -540,7 +540,7 @@ class Corr:
             on the configurations in obs[i].idl.
         """
         if self.N != 1:
-            raise Exception("Reweighting only implemented for one-dimensional correlators.")
+            raise ValueError("Reweighting only implemented for one-dimensional correlators.")
         new_content = []
         for t_slice in self.content:
             if _check_for_none(self, t_slice):
@@ -560,11 +560,11 @@ class Corr:
             Parity quantum number of the correlator, can be +1 or -1
         """
         if self.N != 1:
-            raise Exception("T_symmetry only implemented for one-dimensional correlators.")
+            raise ValueError("T_symmetry only implemented for one-dimensional correlators.")
         if not isinstance(partner, Corr):
-            raise Exception("T partner has to be a Corr object.")
+            raise TypeError("T partner has to be a Corr object.")
         if parity not in [+1, -1]:
-            raise Exception("Parity has to be +1 or -1.")
+            raise ValueError("Parity has to be +1 or -1.")
         T_partner = parity * partner.reverse()
 
         t_slices = []
@@ -723,7 +723,7 @@ class Corr:
             guess for the root finder, only relevant for the root variant
         """
         if self.N != 1:
-            raise Exception('Correlator must be projected before getting m_eff')
+            raise ValueError('Correlator must be projected before getting m_eff')
         if variant == 'log':
             newcontent = []
             for t in range(self.T - 1):
@@ -844,7 +844,7 @@ class Corr:
             if self.prange:
                 plateau_range = self.prange
             else:
-                raise Exception("no plateau range provided")
+                raise ValueError("no plateau range provided")
         if self.N != 1:
             raise ValueError("Correlator must be projected before getting a plateau.")
         if (all([self.content[t] is None for t in range(plateau_range[0], plateau_range[1] + 1)])):

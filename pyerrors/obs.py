@@ -1299,7 +1299,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             raise ValueError('Manual derivative does not have correct shape.')
     elif kwargs.get('num_grad') is True:
         if multi > 0:
-            raise Exception('Multi mode currently not supported for numerical derivative')
+            raise NotImplementedError('Multi mode currently not supported for numerical derivative')
         options = {
             'base_step': 0.1,
             'step_ratio': 2.5}

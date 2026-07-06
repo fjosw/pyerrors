@@ -568,7 +568,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
     obstypes = (Obs, Corr, np.ndarray)
 
     if not reps.isalnum():
-        raise Exception('Placeholder string has to be alphanumeric!')
+        raise ValueError('Placeholder string has to be alphanumeric!')
     ol = []
     counter = 0
 
@@ -588,7 +588,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 counter += 1
             elif isinstance(v, str):
                 if bool(re.match(rf'{reps}[0-9]+', v)):
-                    raise Exception(f'Dict contains string {v} that matches the placeholder! {reps} Cannot be safely exported.')
+                    raise ValueError(f'Dict contains string {v} that matches the placeholder! {reps} Cannot be safely exported.')
             x[k] = v
         return x
 
@@ -608,7 +608,7 @@ def _ol_from_dict(ind, reps='DICTOBS'):
                 counter += 1
             elif isinstance(e, str):
                 if bool(re.match(rf'{reps}[0-9]+', e)):
-                    raise Exception(f'Dict contains string {e} that matches the placeholder! {reps} Cannot be safely exported.')
+                    raise ValueError(f'Dict contains string {e} that matches the placeholder! {reps} Cannot be safely exported.')
             x.append(e)
         return x
 
@@ -655,7 +655,7 @@ def dump_dict_to_json(od, fname, description='', indent=1, reps='DICTOBS', gz=Tr
     """
 
     if not isinstance(od, dict):
-        raise Exception('od has to be a dictionary. Did you want to use dump_to_json?')
+        raise TypeError('od has to be a dictionary. Did you want to use dump_to_json?')
 
     infostring = ('This JSON file contains a python dictionary that has been parsed to a list of structures. '
                   'OBSDICT contains the dictionary, where Obs or other structures have been replaced by '
@@ -687,7 +687,7 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
         Specify the structure of the placeholder in imported dict to be reps[0-9]+.
     """
     if not reps.isalnum():
-        raise Exception('Placeholder string has to be alphanumeric!')
+        raise ValueError('Placeholder string has to be alphanumeric!')
 
     counter = 0
 
@@ -724,7 +724,7 @@ def _od_from_list_and_dict(ol, ind, reps='DICTOBS'):
     nd = dict_replace_string(ind)
 
     if counter == 0:
-        raise Exception('No placeholder has been replaced! Check if reps is set correctly.')
+        raise ValueError('No placeholder has been replaced! Check if reps is set correctly.')
 
     return nd
 

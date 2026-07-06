@@ -160,7 +160,7 @@ def gen_correlated_data(means, cov, name, tau=0.5, samples=1000):
     assert len(means) == cov.shape[-1]
     tau = np.asarray(tau)
     if np.min(tau) < 0.5:
-        raise Exception('All integrated autocorrelations have to be >= 0.5.')
+        raise ValueError('All integrated autocorrelations have to be >= 0.5.')
 
     a = (2 * tau - 1) / (2 * tau + 1)
     rand = np.random.multivariate_normal(np.zeros_like(means), cov * samples, samples)  # noqa: NPY002
@@ -180,8 +180,8 @@ def _assert_equal_properties(ol, otype=Obs):
     otype = type(ol[0])
     for o in ol[1:]:
         if not isinstance(o, otype):
-            raise Exception("Wrong data type in list.")
+            raise TypeError("Wrong data type in list.")
         for attr in ["reweighted", "e_content", "idl"]:
             if hasattr(ol[0], attr):
                 if not getattr(ol[0], attr) == getattr(o, attr):
-                    raise Exception(f"All Obs in list have to have the same state '{attr}'.")
+                    raise ValueError(f"All Obs in list have to have the same state '{attr}'.")

@@ -18,7 +18,7 @@ def _get_files(path, filestem, idl):
     files = list(filter(lambda x: x.startswith(filestem + "."), ls))
 
     if not files:
-        raise Exception('No files starting with', filestem, 'in folder', path)
+        raise FileNotFoundError(f'No files starting with {filestem} in folder {path}')
 
     def get_cnfg_number(n):
         return int(n.replace(".h5", "")[len(filestem) + 1:])  # From python 3.9 onward the safer 'removesuffix' method can be used.
@@ -298,7 +298,7 @@ def read_DistillationContraction_hd5(path, ens_id, diagrams=None, idl=None):
 
                 if n_file == 0:
                     if h5file["DistillationContraction/Metadata"].attrs.get("TimeSources")[0].decode() != "0...":
-                        raise Exception("Routine is only implemented for files containing inversions on all timeslices.")
+                        raise NotImplementedError("Routine is only implemented for files containing inversions on all timeslices.")
 
                     Nt = h5file["DistillationContraction/Metadata"].attrs.get("Nt")[0]
 

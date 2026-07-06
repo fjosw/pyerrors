@@ -49,7 +49,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if version not in known_oqcd_versions:
-        raise Exception('Unknown openQCD version defined!')
+        raise ValueError('Unknown openQCD version defined!')
     print("Working with openQCD version " + version)
     if 'postfix' in kwargs:
         postfix = kwargs.get('postfix')
@@ -68,7 +68,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
@@ -76,7 +76,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * replica
 
@@ -301,7 +301,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
@@ -309,7 +309,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * replica
 
@@ -641,7 +641,7 @@ def _find_files(path, prefix, postfix, ext, known_files=None):
             files.append(f)
 
     if files == []:
-        raise Exception("No files found after pattern filter!")
+        raise FileNotFoundError("No files found after pattern filter!")
 
     files = sort_names(files)
     return files
@@ -765,7 +765,7 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     """
 
     if c != 0.3:
-        raise Exception("The required lattice norm is only implemented for c=0.3 at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for c=0.3 at the moment.")
 
     plaq = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=6, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
     C2x1 = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=7, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
@@ -773,10 +773,10 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     T = plaq.tag["T"]
 
     if T != L:
-        raise Exception("The required lattice norm is only implemented for T=L at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for T=L at the moment.")
 
     if Zeuthen_flow is not True:
-        raise Exception("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
 
     t = (c * L) ** 2 / 8
 
@@ -854,7 +854,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     known_versions = ["openQCD", "sfqcd"]
 
     if version not in known_versions:
-        raise Exception("Unknown openQCD version.")
+        raise ValueError("Unknown openQCD version.")
     if "steps" in kwargs:
         steps = kwargs.get("steps")
     if version == "sfqcd":
@@ -865,7 +865,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         postfix = "gfms"
     else:
         if "L" not in kwargs:
-            raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
+            raise ValueError("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
         postfix = "ms"
@@ -883,7 +883,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != len(files):
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * len(files)
@@ -891,14 +891,14 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != len(files):
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * len(files)
     rep_names = []
 
     zeuthen = kwargs.get('Zeuthen_flow', False)
     if zeuthen and version not in ['sfqcd']:
-        raise Exception('Zeuthen flow can only be used for version==sfqcd')
+        raise ValueError('Zeuthen flow can only be used for version==sfqcd')
 
     r_start_index = []
     r_stop_index = []
@@ -1087,7 +1087,7 @@ def qtop_projection(qtop, target=0):
         projection to the topological charge sector defined by target
     """
     if qtop.reweighted:
-        raise Exception('You can not use a reweighted observable for reweighting!')
+        raise ValueError('You can not use a reweighted observable for reweighting!')
 
     proj_qtop = []
     for n in qtop.deltas:
@@ -1147,7 +1147,7 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     """
 
     if not isinstance(target, int):
-        raise Exception("'target' has to be an integer.")
+        raise TypeError("'target' has to be an integer.")
 
     kwargs['integer_charge'] = True
     qtop = read_qtop(path, prefix, c, **kwargs)
@@ -1203,10 +1203,10 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
 
     # test if the input is correct
     if qc not in ['dd', 'ud', 'du', 'uu']:
-        raise Exception("Unknown quark conbination!")
+        raise ValueError("Unknown quark conbination!")
 
     if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
-        raise Exception("Unknown correlator!")
+        raise ValueError("Unknown correlator!")
 
     if "files" in kwargs:
         known_files = kwargs.get("files")

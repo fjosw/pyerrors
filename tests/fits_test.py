@@ -698,13 +698,27 @@ def test_fit_no_autograd():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
-    with pytest.raises(Exception):
-        pe.least_squares(x, oy, func)
+    def func_autograd(a, x):
+        return a[0] * anp.exp(-a[1] * x)
 
-    pe.least_squares(x, oy, func, num_grad=True)
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers (ArrayBox.__array_ufunc__), so a function using numpy.exp now
+    # yields exactly the same result as one using autograd.numpy.exp.
+    for r_np, r_ag in zip(pe.least_squares(x, oy, func), pe.least_squares(x, oy, func_autograd)):
+        assert r_np == r_ag
+    for r_np, r_ag in zip(pe.total_least_squares(oy, oy, func), pe.total_least_squares(oy, oy, func_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise a
+    # clear error pointing the user to autograd.numpy.
+    def func_invalid(a, x):
+        return np.array(a[0] * np.exp(-a[1] * x), dtype=np.float64)
 
     with pytest.raises(Exception):
-        pe.total_least_squares(oy, oy, func)
+        pe.least_squares(x, oy, func_invalid)
+
+    with pytest.raises(Exception):
+        pe.total_least_squares(oy, oy, func_invalid)
 
 
 def test_invalid_fit_function():
@@ -818,7 +832,14 @@ def test_combined_fit_no_autograd():
     def func_b(a,x):
         return a[0]*np.exp(a[2]*x)
 
+    def func_a_autograd(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b_autograd(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
     funcs = {'a':func_a, 'b':func_b}
+    funcs_autograd = {'a':func_a_autograd, 'b':func_b_autograd}
     xs = {'a':xvals_a, 'b':xvals_b}
     ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
         'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
@@ -826,8 +847,17 @@ def test_combined_fit_no_autograd():
     for key in funcs.keys():
         [item.gamma_method() for item in ys[key]]
 
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers, so the fit using numpy now matches the one using autograd.numpy.
+    for r_np, r_ag in zip(pe.least_squares(xs, ys, funcs), pe.least_squares(xs, ys, funcs_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise.
+    def func_a_invalid(a, x):
+        return np.array(a[0] * np.exp(a[1] * x), dtype=np.float64)
+
     with pytest.raises(Exception):
-        pe.least_squares(xs, ys, funcs)
+        pe.least_squares(xs, ys, {'a': func_a_invalid, 'b': func_b})
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 
@@ -930,7 +960,14 @@ def test_combined_fit_no_autograd():
     def func_b(a,x):
         return a[0]*np.exp(a[2]*x)
 
+    def func_a_autograd(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b_autograd(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
     funcs = {'a':func_a, 'b':func_b}
+    funcs_autograd = {'a':func_a_autograd, 'b':func_b_autograd}
     xs = {'a':xvals_a, 'b':xvals_b}
     ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
         'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
@@ -938,8 +975,17 @@ def test_combined_fit_no_autograd():
     for key in funcs.keys():
         [item.gamma_method() for item in ys[key]]
 
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers, so the fit using numpy now matches the one using autograd.numpy.
+    for r_np, r_ag in zip(pe.least_squares(xs, ys, funcs), pe.least_squares(xs, ys, funcs_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise.
+    def func_a_invalid(a, x):
+        return np.array(a[0] * np.exp(a[1] * x), dtype=np.float64)
+
     with pytest.raises(Exception):
-        pe.least_squares(xs, ys, funcs)
+        pe.least_squares(xs, ys, {'a': func_a_invalid, 'b': func_b})
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 

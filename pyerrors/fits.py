@@ -483,7 +483,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     try:
         hess = hessian(chisqfunc)(fitp)
-    except TypeError:
+    except (TypeError, ValueError, np.linalg.LinAlgError):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     len_y = len(y_f)
@@ -724,7 +724,7 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     fitp = out.beta
     try:
         hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplusd.ravel())))
-    except TypeError:
+    except (TypeError, ValueError, np.linalg.LinAlgError):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     def odr_chisquare_compact_x(d):

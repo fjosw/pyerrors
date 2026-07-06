@@ -61,9 +61,9 @@ def _dict_to_xmlstring(d):
             elif not d[k]:
                 return '\n'
             else:
-                raise TypeError('Type', type(d[k]), 'not supported in export!')
+                raise TypeError(f'Type {type(d[k]).__name__} not supported in export!')
     else:
-        raise TypeError('Type', type(d), 'not supported in export!')
+        raise TypeError(f'Type {type(d).__name__} not supported in export!')
     return iters
 
 
@@ -153,7 +153,7 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=None, enstag=None)
     if not isinstance(symbol, list):
         raise TypeError('Symbol has to be a list!')
     if not (len(symbol) == 0 or len(symbol) == len(obsl)):
-        raise ValueError(f'Symbol has to be a list of lenght 0 or {len(obsl)}!')
+        raise ValueError(f'Symbol has to be a list of length 0 or {len(obsl)}!')
     for s in symbol:
         osymbol += f' {s}'
     for r in range(nr):
@@ -365,7 +365,7 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
         elif isinstance(separator_insertion, str):
             name = name.replace(separator_insertion, f"|{separator_insertion}")
         else:
-            raise TypeError("separator_insertion has to be string or int, is ", type(separator_insertion))
+            raise TypeError(f"separator_insertion has to be string or int, is {type(separator_insertion).__name__}")
         names.append(name)
         idl.append(idx)
     res = [Obs([d[i] for d in deltas], names, idl=idl) for i in range(len(deltas[0]))]
@@ -485,7 +485,7 @@ def import_dobs_string(content, full_output=False, separator_insertion=True):
                 elif isinstance(separator_insertion, str):
                     rname = rname.replace(separator_insertion, f"|{separator_insertion}")
                 else:
-                    raise TypeError("separator_insertion has to be string or int, is ", type(separator_insertion))
+                    raise TypeError(f"separator_insertion has to be string or int, is {type(separator_insertion).__name__}")
                 if '|' in rname:
                     new_ename = rname[:rname.index('|')]
                 else:
@@ -657,9 +657,9 @@ def _dobsdict_to_xmlstring(d):
             elif not d[k]:
                 return '\n'
             else:
-                raise TypeError('Type', type(d[k]), 'not supported in export!')
+                raise TypeError(f'Type {type(d[k]).__name__} not supported in export!')
     else:
-        raise TypeError('Type', type(d), 'not supported in export!')
+        raise TypeError(f'Type {type(d).__name__} not supported in export!')
     return iters
 
 
@@ -754,7 +754,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=None, who
         if not isinstance(symbol, list):
             raise TypeError('Symbol has to be a list!')
         if not (len(symbol) == 0 or len(symbol) == len(obsl)):
-            raise ValueError(f'Symbol has to be a list of lenght 0 or {len(obsl)}!')
+            raise ValueError(f'Symbol has to be a list of length 0 or {len(obsl)}!')
         osymbol = symbol[0]
         for s in symbol[1:]:
             osymbol += f' {s}'

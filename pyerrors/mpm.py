@@ -45,7 +45,7 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
     if n_data <= p:
         raise ValueError('The pencil p has to be smaller than the number of data samples.')
     if p < k or n_data - p < k:
-        raise ValueError('Cannot extract', k, 'energy levels with p=', p, 'and N-p=', n_data - p)
+        raise ValueError(f'Cannot extract {k} energy levels with p={p} and N-p={n_data - p}')
 
     # Construct the hankel matrices
     matrix = []

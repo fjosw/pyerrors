@@ -208,7 +208,7 @@ def read_sfcf_multi(path, prefix, name_list, quarks_list=None, corr_type_list=No
         if len(new_names) != len(set(new_names)):
             raise ValueError("names are not unique!")
         if len(new_names) != replica:
-            raise ValueError('names should have the length', replica)
+            raise ValueError(f'names should have the length {replica}')
 
     else:
         ens_name = kwargs.get("ens_name")

@@ -1203,7 +1203,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
 
     # test if the input is correct
     if qc not in ['dd', 'ud', 'du', 'uu']:
-        raise ValueError("Unknown quark conbination!")
+        raise ValueError("Unknown quark combination!")
 
     if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
         raise ValueError("Unknown correlator!")

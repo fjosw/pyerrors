@@ -1,6 +1,7 @@
 import autograd.numpy as np
 import pyerrors as pe
 import pytest
+from pyerrors.covobs import Covobs
 
 np.random.seed(0)
 
@@ -108,3 +109,15 @@ def test_covobs_exceptions():
         covobs = pe.cov_Obs([1.5, 0.1], [[1., .2,], [.3, .5]] , 'test')
     with pytest.raises(Exception):
         covobs = pe.cov_Obs([1.5, 0.1], [[8, 4,], [4, -2]] , 'test')
+
+
+def test_covobs_pos_too_large():
+    cov = [[1, 0], [0, 1]]
+    with pytest.raises(ValueError):
+        Covobs(1.0, cov, 'test', pos=2)
+
+
+def test_covobs_pos_negative():
+    cov = [[1, 0], [0, 1]]
+    with pytest.raises(ValueError):
+        Covobs(1.0, cov, 'test', pos=-1)

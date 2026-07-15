@@ -31,7 +31,7 @@ class Covobs:
                 else:
                     raise ValueError('Have to specify position of cov-element belonging to mean!')
             else:
-                if pos > self.N:
+                if pos >= self.N:
                     raise ValueError(f'pos {pos} too large for covariance matrix with dimension {self.N}x{self.N}!')
             self._grad = np.zeros((self.N, 1))
             self._grad[pos] = 1.

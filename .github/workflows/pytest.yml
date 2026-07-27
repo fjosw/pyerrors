@@ -13,6 +13,7 @@ on:
 jobs:
   pytest:
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.python-version == '3.14t' }}
     strategy:
       fail-fast: false
       matrix:

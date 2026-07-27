@@ -364,7 +364,6 @@ class Obs:
             self.ddvalue = 0.0
         else:
             self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
-        return
 
     gm = gamma_method
 
@@ -1303,7 +1302,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         options = {
             'base_step': 0.1,
             'step_ratio': 2.5}
-        for key in options.keys():
+        for key in options:
             kwarg = kwargs.get(key)
             if kwarg is not None:
                 options[key] = kwarg

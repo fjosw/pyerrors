@@ -727,9 +727,7 @@ class Corr:
         if variant == 'log':
             newcontent = []
             for t in range(self.T - 1):
-                if ((self.content[t] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
-                    newcontent.append(None)
-                elif self.content[t][0].value / self.content[t + 1][0].value < 0:
+                if ((self.content[t] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0) or self.content[t][0].value / self.content[t + 1][0].value < 0:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t] / self.content[t + 1])
@@ -741,9 +739,7 @@ class Corr:
         elif variant == 'logsym':
             newcontent = []
             for t in range(1, self.T - 1):
-                if ((self.content[t - 1] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0):
-                    newcontent.append(None)
-                elif self.content[t - 1][0].value / self.content[t + 1][0].value < 0:
+                if ((self.content[t - 1] is None) or (self.content[t + 1] is None)) or (self.content[t + 1][0].value == 0) or self.content[t - 1][0].value / self.content[t + 1][0].value < 0:
                     newcontent.append(None)
                 else:
                     newcontent.append(self.content[t - 1] / self.content[t + 1])
@@ -872,7 +868,6 @@ class Corr:
             raise ValueError("Start and end point must define a range in the interval 0,T")
 
         self.prange = prange
-        return
 
     def show(self, x_range=None, comp=None, y_range=None, logscale=False, plateau=None, fit_res=None, fit_key=None, ylabel=None, save=None, auto_gamma=False, hide_sigma=None, references=None, title=None):
         """Plots the correlator using the tag of the correlator as label if available.

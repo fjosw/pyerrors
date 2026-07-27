@@ -5,6 +5,10 @@ on:
       - master
       - develop
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   ruff:
     runs-on: ubuntu-latest

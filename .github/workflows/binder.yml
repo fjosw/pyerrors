@@ -4,6 +4,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   Create-MyBinderOrg-Cache:
     runs-on: ubuntu-latest

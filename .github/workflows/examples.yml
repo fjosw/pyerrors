@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '0 4 1 * *'
 
+permissions:
+  contents: read
+
 jobs:
   examples:
     runs-on: ${{ matrix.os }}
@@ -30,14 +33,20 @@ jobs:
       - name: uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Install
+      - name: Install LaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install dvipng texlive-latex-extra texlive-fonts-recommended cm-super
+          sudo apt-get install -y --no-install-recommends \
+            dvipng texlive-latex-extra texlive-fonts-recommended cm-super
+
+      - name: Install
+        run: |
           uv pip install wheel --system
           uv pip install . --system
-          uv pip install pytest nbmake --system
+          uv pip install pytest pytest-xdist nbmake --system
           uv pip install -U matplotlib!=3.7.0 --system # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.
 
+      # The notebooks are independent (only 07 writes to disk), so execute them in
+      # parallel instead of serially.
       - name: Run tests
-        run: pytest -vv --nbmake examples/*.ipynb
+        run: pytest -vv -n auto --nbmake examples/*.ipynb

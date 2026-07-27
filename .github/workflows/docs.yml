@@ -5,6 +5,9 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: write  # pushes the rendered docs to the documentation branch
+
 jobs:
   docs:
     runs-on: ubuntu-latest

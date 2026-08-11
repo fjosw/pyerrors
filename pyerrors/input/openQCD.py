@@ -7,7 +7,7 @@ import numpy as np  # Thinly-wrapped numpy
 
 from ..correlators import Corr
 from ..obs import CObs, Obs
-from .misc import fit_t0
+from .misc import fit_t0, plot_Ysl
 from .utils import sort_names
 
 
@@ -329,6 +329,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             idx = truncated_entry.index('r')
             rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
 
+    Ysl = []
     Ysum = []
 
     configlist = []
@@ -354,7 +355,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             elif eps != struct.unpack('d', t)[0]:
                 raise Exception('Values for eps do not match among replica.')
 
-            Ysl = []
+            Ysl_rep = []
 
             configlist.append([])
             while True:
@@ -367,15 +368,16 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 t = fp.read(8 * tmax * (nn + 1))
                 if kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
-                        Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
+                        Ysl_rep.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
                 if not kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
-                        Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
+                        Ysl_rep.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
+            Ysl.append(Ysl_rep)
 
         Ysum.append([])
-        for _i, item in enumerate(Ysl):
+        for _i, item in enumerate(Ysl_rep):
             Ysum[-1].append([np.mean(item[current + xmin:
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
@@ -408,6 +410,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 raise Exception(
                     f'Config {r_stop[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
                 ) from None
+
+    if kwargs.get("plot_Ysl", False):
+        plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent)
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])

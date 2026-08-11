@@ -93,7 +93,7 @@ def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spati
     range_max = min(len(t2expE_arr)-1, closest_item+5)
     range_min = max(0, closest_item-5)
     prange = [xmin, tmax-xmin]
-    print(range_min, range_max)
+
     for i in range(range_min, range_max):
         t = dn*eps*i
         t2expE_arr[i].gm()
@@ -104,6 +104,7 @@ def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spati
         plt.fill_between(prange, t2expE_arr[i].value - t2expE_arr[i].dvalue, t2expE_arr[i].value + t2expE_arr[i].dvalue, alpha = 0.3, color = f"C{i:02d}")
         plt.hlines(t2expE_arr[i], prange[0], prange[1], linestyle = "dashed", colors=f"C{i:02d}", label = r"$t^2\langle E(t)\rangle$")
 
+    plt.ylim([t2expE_arr[range_min].value-.03,t2expE_arr[range_max].value+.01])
     plt.ylabel(r"$t^2E(t)$")
     plt.xlabel("$x_{0}/a$")
     plt.xticks([i * tmax/4 for i in range(5)])

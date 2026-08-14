@@ -374,7 +374,8 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                     if nc % dtr_read == 0:
                         Ysl_rep.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
-            Ysl.append(Ysl_rep)
+            if kwargs.get("plot_Ysl", False):
+                Ysl.append(Ysl_rep)
 
         Ysum.append([])
         for _i, item in enumerate(Ysl_rep):
@@ -411,9 +412,6 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                     f'Config {r_stop[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
                 ) from None
 
-    if kwargs.get("plot_Ysl", False):
-        plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent)
-
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
     stepsizes = [next(iter(np.unique(np.diff(cl)))) for cl in configlist]
@@ -421,7 +419,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
-    E_dict = {}
+    expE_dict = {}
     for n in range(nn + 1):
         samples = []
         for nrep, rep in enumerate(Ysum):
@@ -430,9 +428,12 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep] + 1][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)
-        E_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
+        expE_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
 
-    return E_dict
+    if kwargs.get("plot_Ysl", False):
+        plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent)
+
+    return expE_dict
 
 
 def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):

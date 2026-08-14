@@ -13,11 +13,7 @@ from ..fits import fit_lin
 from ..obs import Obs
 
 
-def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent):
-    """
-    Plot the plateaus needed for the fit of t0.
-    """
-
+def _reorder_Ysl(Ysl, tmax, nn):
     Ysl_samples = []
     for rep in range(len(Ysl)):
         Ysl_array = []
@@ -30,10 +26,23 @@ def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spati
                     yarr[x0].append(Ysl[rep][cnfg][ind])
             Ysl_array.append(yarr)
         Ysl_samples.append(Ysl_array)
-    t2E_arr = []
+    return Ysl_samples
 
-    for t_flow in range(nn + 1):
-        corr_obs =[]
+
+def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent):
+    """
+    Plot the plateaus needed for the fit of t0.
+    """
+
+    prange = [xmin, tmax-xmin]
+
+    Ysl_samples = _reorder_Ysl(Ysl, tmax, nn)
+    ts = list(expE_dict.keys())
+
+    t2E_arr = []
+    t2expE_arr = []
+    for n, t in zip(range(nn + 1), ts, strict=True):
+        corr_obs = []
         for x0 in range(tmax):
             samples = []
             rep_idls = []
@@ -42,59 +51,22 @@ def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spati
                 rep_idls.append([])
                 for cnfg in range(len(Ysl_samples[rep])):
                     if cnfg>=r_start[rep] and cnfg<=r_stop[rep] and (cnfg-r_start[rep]) % r_step==0:
-                        samples[rep].append(Ysl_samples[rep][cnfg][x0][t_flow])
+                        samples[rep].append(Ysl_samples[rep][cnfg][x0][n])
                         rep_idls[rep].append(cnfg+1)
             o = Obs(samples, names, rep_idls)
             corr_obs.append(o)
         E = Corr(corr_obs)/(spatial_extent**3)
-        t = (dn*eps*t_flow)
         t2E = t**2*E
         t2E.gm()
         t2E_arr.append(t2E)
-
-    ts = []
-    t2expE_arr = []
-    for t_flow in range(nn + 1):
-        samples = []
-        rep_idls = []
-        for rep in range(len(Ysl)):
-            samples.append([])
-            rep_idls.append([])
-            for cnfg in range(len(Ysl_samples[rep])):
-                if cnfg>=r_start[rep] and cnfg<=r_stop[rep] and (cnfg-r_start[rep]) % r_step==0:
-                    myls = [Ysl_samples[rep][cnfg][x0][t_flow] for x0 in range(xmin, tmax - xmin)]
-                    samples[rep].append(np.mean(myls))
-                    rep_idls[rep].append(cnfg+1)
-        o = Obs(samples, names, rep_idls)
-        expE = o/(spatial_extent**3)
-        t = (dn*eps*t_flow)
-        ts.append(t)
-        t2expE = t**2*expE
+        t2expE = t**2*expE_dict[t]
         t2expE.gm()
         t2expE_arr.append(t2expE)
 
     exp_vals = []
     ts = []
 
-    def compat(val1, val2):
-        return bool(np.abs(val1.value - val2.value) < np.abs(val1.dvalue + val2.dvalue))
-
-    # find t2expE element closest to .3
-    closest_item = 0
-    closest_value = 10
-    for item, value in enumerate(t2expE_arr):
-        if abs(value.value-0.3) < abs(closest_value-0.3):
-            closest_item = item
-            closest_value = value
-
-    if closest_value < 0.3:
-        closest_item += 1
-
-    range_max = min(len(t2expE_arr)-1, closest_item+5)
-    range_min = max(0, closest_item-5)
-    prange = [xmin, tmax-xmin]
-
-    for i in range(range_min, range_max):
+    for i in range(len(t2expE_arr)):
         t = dn*eps*i
         t2expE_arr[i].gm()
         exp_vals.append(t2expE_arr[i])
@@ -104,7 +76,7 @@ def plot_Ysl(Ysl, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spati
         plt.fill_between(prange, t2expE_arr[i].value - t2expE_arr[i].dvalue, t2expE_arr[i].value + t2expE_arr[i].dvalue, alpha = 0.3, color = f"C{i:02d}")
         plt.hlines(t2expE_arr[i], prange[0], prange[1], linestyle = "dashed", colors=f"C{i:02d}", label = r"$t^2\langle E(t)\rangle$")
 
-    plt.ylim([t2expE_arr[range_min].value-.03,t2expE_arr[range_max].value+.01])
+    plt.ylim([t2expE_arr[0].value-.03,t2expE_arr[-1].value+.01])
     plt.ylabel(r"$t^2E(t)$")
     plt.xlabel("$x_{0}/a$")
     plt.xticks([i * tmax/4 for i in range(5)])

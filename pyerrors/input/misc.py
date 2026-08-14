@@ -29,7 +29,7 @@ def _reorder_Ysl(Ysl, tmax, nn):
     return Ysl_samples
 
 
-def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent):
+def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent, fit_range, c):
     """
     Plot the plateaus needed for the fit of t0.
     """
@@ -66,7 +66,9 @@ def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, n
     exp_vals = []
     ts = []
 
-    for i in range(len(t2expE_arr)):
+    zero_crossing = np.argmax(np.array([o.value - c for o in t2expE_arr]) > 0.0)
+
+    for i in range(zero_crossing-fit_range, zero_crossing+fit_range):
         t = dn*eps*i
         t2expE_arr[i].gm()
         exp_vals.append(t2expE_arr[i])
@@ -76,7 +78,7 @@ def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, n
         plt.fill_between(prange, t2expE_arr[i].value - t2expE_arr[i].dvalue, t2expE_arr[i].value + t2expE_arr[i].dvalue, alpha = 0.3, color = f"C{i:02d}")
         plt.hlines(t2expE_arr[i], prange[0], prange[1], linestyle = "dashed", colors=f"C{i:02d}", label = r"$t^2\langle E(t)\rangle$")
 
-    plt.ylim([t2expE_arr[0].value-.03,t2expE_arr[-1].value+.01])
+    plt.ylim([t2expE_arr[zero_crossing-fit_range].value-.03,t2expE_arr[zero_crossing+fit_range].value+.01])
     plt.ylabel(r"$t^2E(t)$")
     plt.xlabel("$x_{0}/a$")
     plt.xticks([i * tmax/4 for i in range(5)])

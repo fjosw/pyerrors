@@ -232,7 +232,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     return result
 
 
-def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, fit_range, c, postfix='ms', **kwargs):
+def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix='ms', **kwargs):
     """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 
@@ -431,7 +431,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
         expE_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
 
     if kwargs.get("plot_Ysl", False):
-        plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent, fit_range, c)
+        plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent)
 
     return expE_dict
 
@@ -502,7 +502,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         Extracted t0
     """
 
-    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, fit_range, c, postfix, **kwargs)
+    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix, **kwargs)
     t2E_dict = {}
     for t in sorted(E_dict.keys()):
         t2E_dict[t] = t ** 2 * E_dict[t] - c
@@ -575,7 +575,7 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         Extracted w0
     """
 
-    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, fit_range, c, postfix, **kwargs)
+    E_dict = _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix, **kwargs)
 
     ftimes = sorted(E_dict.keys())
 

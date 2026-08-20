@@ -13,40 +13,61 @@ from ..fits import fit_lin
 from ..obs import Obs
 
 
-def _reorder_Ysl(Ysl, tmax, nn):
-    Ysl_samples = []
-    for rep in range(len(Ysl)):
-        Ysl_array = []
-        for cnfg in range(len(Ysl[rep])):
-            yarr = []
-            for x0 in range(tmax):
-                yarr.append([])
-                for flow in range(nn + 1):
-                    ind = flow*tmax+x0
-                    yarr[x0].append(Ysl[rep][cnfg][ind])
-            Ysl_array.append(yarr)
-        Ysl_samples.append(Ysl_array)
-    return Ysl_samples
-
-
 def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent):
     """
-    Plot the plateaus needed for the fit of t0.
+    Plot the plateaux of 7 equidistant times in the flow time. Can be used to evaluate the quality of the plateau in x0 that is used
+    in a subsequent fit of t^2<E> to find t0.
+
+    Parameters
+    ----------
+    Ysl: list[list[list[float]]]
+        Array of read values, which are ordered as Ysl[rep][cnfg][flow*tmax+x0].
+    expE_dict: dict
+        Already transformed array of action densities.
+    nn: int
+        Number of measurements.
+    dn: int
+        Steps of the integrator in flow time that are taken between measurements.
+    eps: float
+        Integrator stepsize in flow time.
+    tmax: int
+        Time extent of the inspected lattice.
+    xmin: int
+        Start of the (symmetrically chosen) plateau in terms ofthe euclidean time.
+    r_start: list[int]
+        Minimum index of the configuration to consider per replica.
+    r_stop: list[int]
+        Maximum index of the configuration to consider per replica.
+    r_step: int
+        Stepsize of the configurations in each replica.
+    names: list[str]
+        Replica names for the construction of observables.
+    spatial_extent: int
+        Spatial extent L/a of the lattice in units of the lattice spacing.
     """
 
-    prange = [xmin, tmax-xmin]
+    def _disentangle_Ysl_inds(Ysl, tmax, ind_list):
+        Ysl_samples = []
+        for rep in range(len(Ysl)):
+            Ysl_array = []
+            for cnfg in range(len(Ysl[rep])):
+                yarr = []
+                for x0 in range(tmax):
+                    yarr.append([])
+                    for flow in ind_list:
+                        ind = flow*tmax+x0
+                        yarr[x0].append(Ysl[rep][cnfg][ind])
+                Ysl_array.append(yarr)
+            Ysl_samples.append(Ysl_array)
+        return Ysl_samples
 
-    Ysl_samples = _reorder_Ysl(Ysl, tmax, nn)
-    ts = list(expE_dict.keys())
 
-    t2E_arr = []
-    t2expE_arr = []
-    for n, t in zip(range(nn + 1), ts, strict=True):
+    def _Ecorr(Ysl_samples, tmax, n, r_start, r_stop, r_step, names, spatial_extent):
         corr_obs = []
         for x0 in range(tmax):
             samples = []
             rep_idls = []
-            for rep in range(len(Ysl)):
+            for rep in range(len(Ysl_samples)):
                 samples.append([])
                 rep_idls.append([])
                 for cnfg in range(len(Ysl_samples[rep])):
@@ -56,9 +77,25 @@ def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, n
             o = Obs(samples, names, rep_idls)
             corr_obs.append(o)
         E = Corr(corr_obs)/(spatial_extent**3)
+        return E
+
+    num_t_shown = 7
+    delta_n = int(nn/num_t_shown) # index stepsize in flow time
+    ind_list = [(i+1)*delta_n for i in range(num_t_shown)]
+    ts = [list(expE_dict.keys())[n] for n in ind_list]
+    prange = [xmin, tmax-xmin]
+
+    Ysl_samples = _disentangle_Ysl_inds(Ysl, tmax, ind_list)
+
+    t2E_arr = []
+    for n, t in zip(range(len(ind_list)), ts, strict=True):
+        E=_Ecorr(Ysl_samples, tmax, n, r_start, r_stop, r_step, names, spatial_extent)
         t2E = t**2*E
         t2E.gm()
         t2E_arr.append(t2E)
+
+    t2expE_arr = []
+    for t in ts:
         t2expE = t**2*expE_dict[t]
         t2expE.gm()
         t2expE_arr.append(t2expE)

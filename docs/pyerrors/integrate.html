@@ -84,7 +84,7 @@
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">def</span><span class="w"> </span><span class="nf">quad</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Performs a (one-dimensional) numeric integration of f(p, x) from a to b.</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">'''Performs a (one-dimensional) numeric integration of f(p, x) from a to b.</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    The integration is performed using scipy.integrate.quad().</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    All parameters that can be passed to scipy.integrate.quad may also be passed to this function.</span>
@@ -122,10 +122,10 @@
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    message</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">        A convergence message.</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">    explain</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">        Appended only with &#39;cos&#39; or &#39;sin&#39; weighting and infinite</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">        Appended only with 'cos' or 'sin' weighting and infinite</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">        integration limits, it contains an explanation of the codes in</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">        infodict[&#39;ierlst&#39;]</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">        infodict['ierlst']</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">    '''</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="n">Np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="n">isobs</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span>
@@ -180,7 +180,7 @@
     </div>
     <a class="headerlink" href="#quad"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="quad-9"><a href="#quad-9"><span class="linenos"> 9</span></a><span class="k">def</span><span class="w"> </span><span class="nf">quad</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="quad-10"><a href="#quad-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;Performs a (one-dimensional) numeric integration of f(p, x) from a to b.</span>
+</span><span id="quad-10"><a href="#quad-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">'''Performs a (one-dimensional) numeric integration of f(p, x) from a to b.</span>
 </span><span id="quad-11"><a href="#quad-11"><span class="linenos">11</span></a>
 </span><span id="quad-12"><a href="#quad-12"><span class="linenos">12</span></a><span class="sd">    The integration is performed using scipy.integrate.quad().</span>
 </span><span id="quad-13"><a href="#quad-13"><span class="linenos">13</span></a><span class="sd">    All parameters that can be passed to scipy.integrate.quad may also be passed to this function.</span>
@@ -218,10 +218,10 @@
 </span><span id="quad-45"><a href="#quad-45"><span class="linenos">45</span></a><span class="sd">    message</span>
 </span><span id="quad-46"><a href="#quad-46"><span class="linenos">46</span></a><span class="sd">        A convergence message.</span>
 </span><span id="quad-47"><a href="#quad-47"><span class="linenos">47</span></a><span class="sd">    explain</span>
-</span><span id="quad-48"><a href="#quad-48"><span class="linenos">48</span></a><span class="sd">        Appended only with &#39;cos&#39; or &#39;sin&#39; weighting and infinite</span>
+</span><span id="quad-48"><a href="#quad-48"><span class="linenos">48</span></a><span class="sd">        Appended only with 'cos' or 'sin' weighting and infinite</span>
 </span><span id="quad-49"><a href="#quad-49"><span class="linenos">49</span></a><span class="sd">        integration limits, it contains an explanation of the codes in</span>
-</span><span id="quad-50"><a href="#quad-50"><span class="linenos">50</span></a><span class="sd">        infodict[&#39;ierlst&#39;]</span>
-</span><span id="quad-51"><a href="#quad-51"><span class="linenos">51</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="quad-50"><a href="#quad-50"><span class="linenos">50</span></a><span class="sd">        infodict['ierlst']</span>
+</span><span id="quad-51"><a href="#quad-51"><span class="linenos">51</span></a><span class="sd">    '''</span>
 </span><span id="quad-52"><a href="#quad-52"><span class="linenos">52</span></a>
 </span><span id="quad-53"><a href="#quad-53"><span class="linenos">53</span></a>    <span class="n">Np</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </span><span id="quad-54"><a href="#quad-54"><span class="linenos">54</span></a>    <span class="n">isobs</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">Obs</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">pi</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span>

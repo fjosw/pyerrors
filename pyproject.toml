@@ -38,14 +38,21 @@ dependencies = [
     "odrpack>=0.5",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 test = [
     "pytest",
     "pytest-cov",
     "pytest-benchmark",
     "hypothesis",
-    "nbmake",
 ]
+examples = [
+    { include-group = "test" },
+    "nbmake",
+    "pytest-xdist",
+]
+docs = ["pdoc"]
+lint = ["ruff"]
+release = ["build"]
 
 [project.urls]
 Homepage = "https://github.com/fjosw/pyerrors"

@@ -12,6 +12,12 @@ and create your own branch for the feature or bug fix
 cd pyerrors
 git checkout -b feature/my_feature
 ```
+Create a virtual environment and install the development dependencies with [uv](https://docs.astral.sh/uv/):
+```
+uv venv
+source .venv/bin/activate
+uv pip install --editable . --group test --group examples --group lint
+```
 After committing your changes please send a pull requests to the `develop` branch. A guide on how to create a pull request can be found [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
 
 ### Documentation
@@ -26,7 +32,7 @@ pytest -vv -Werror
 pytest --nbmake examples/*.ipynb
 ruff check pyerrors
 ```
-The tests require `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis` and `nbmake`. To install the test dependencies one can run `pip install pyerrors[test]`. Linting is done with `ruff`, which can be installed via `pip install ruff` or run ad-hoc with `uvx ruff check pyerrors`.
+Development dependencies are organized into the `test`, `examples`, `docs`, `lint`, and `release` groups in `pyproject.toml`. They are resolved against the newest compatible releases whenever they are installed.
 Please make sure that all tests pass for a new pull requests.
 
 To get a coverage report in html run

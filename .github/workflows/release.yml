@@ -41,6 +41,7 @@ jobs:
         if-no-files-found: error
 
   publish:
+    if: github.event_name == 'release'
     needs: [build]
     name: Upload to PyPI
     runs-on: ubuntu-latest

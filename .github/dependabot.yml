@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      # Batch all action bumps into a single PR to keep the noise down.
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "[ci]"

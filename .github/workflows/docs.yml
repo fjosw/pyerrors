@@ -5,16 +5,19 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: write  # pushes the rendered docs to the documentation branch
+
 jobs:
   docs:
     runs-on: ubuntu-latest
 
     steps:
       - name: Set up Python environment
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Updated documentation
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
@@ -24,7 +27,6 @@ jobs:
           git pull
           git merge --allow-unrelated-histories -X theirs develop
           python -m pip install --upgrade pip
-          pip install wheel
           pip install .
           pip install pdoc
           echo $(ls -l docs)

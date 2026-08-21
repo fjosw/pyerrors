@@ -41,7 +41,6 @@ jobs:
 
       - name: Install
         run: |
-          uv pip install wheel --system
           uv pip install . --system
           uv pip install pytest pytest-xdist nbmake --system
           uv pip install -U matplotlib!=3.7.0 --system # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.

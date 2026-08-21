@@ -22,12 +22,13 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Install pypa/build
-      run: >-
-        python3 -m
-        pip install
-        build
-        --user
+    - name: uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+
+    - name: Install build tooling
+      run: uv pip install --group release --system
 
     - name: Build wheel and source tarball
       run: python3 -m build

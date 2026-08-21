@@ -15,8 +15,6 @@ jobs:
   package:
     name: Build and validate distributions
     runs-on: ubuntu-latest
-    env:
-      SMOKE_ENV: ${{ runner.temp }}/pyerrors-wheel-smoke
 
     steps:
       - name: Checkout source
@@ -38,11 +36,11 @@ jobs:
 
       - name: Install wheel in a clean environment
         run: |
-          python -m venv "$SMOKE_ENV"
-          "$SMOKE_ENV/bin/python" -m pip install dist/*.whl
-          "$SMOKE_ENV/bin/python" -m pip check
+          python -m venv "$RUNNER_TEMP/pyerrors-wheel-smoke"
+          "$RUNNER_TEMP/pyerrors-wheel-smoke/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/pyerrors-wheel-smoke/bin/python" -m pip check
 
       - name: Verify installed wheel
-        working-directory: ${{ runner.temp }}
         run: |
-          "$SMOKE_ENV/bin/python" -c 'import importlib.metadata as metadata; import os; from pathlib import Path; import pyerrors; assert pyerrors.__version__ == metadata.version("pyerrors"); assert not Path(pyerrors.__file__).resolve().is_relative_to(Path(os.environ["GITHUB_WORKSPACE"]).resolve()); print(f"validated {pyerrors.__version__} from {pyerrors.__file__}")'
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/pyerrors-wheel-smoke/bin/python" -c 'import importlib.metadata as metadata; import os; from pathlib import Path; import pyerrors; assert pyerrors.__version__ == metadata.version("pyerrors"); assert not Path(pyerrors.__file__).resolve().is_relative_to(Path(os.environ["GITHUB_WORKSPACE"]).resolve()); print(f"validated {pyerrors.__version__} from {pyerrors.__file__}")'

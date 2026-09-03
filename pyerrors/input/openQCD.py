@@ -1,11 +1,12 @@
-import os
 import fnmatch
+import os
 import struct
 import warnings
+
 import numpy as np  # Thinly-wrapped numpy
-from ..obs import Obs
-from ..obs import CObs
+
 from ..correlators import Corr
+from ..obs import CObs, Obs
 from .misc import fit_t0
 from .utils import sort_names
 
@@ -48,7 +49,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     """
     known_oqcd_versions = ['1.4', '1.6', '2.0']
     if version not in known_oqcd_versions:
-        raise Exception('Unknown openQCD version defined!')
+        raise ValueError('Unknown openQCD version defined!')
     print("Working with openQCD version " + version)
     if 'postfix' in kwargs:
         postfix = kwargs.get('postfix')
@@ -67,7 +68,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
@@ -75,7 +76,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * replica
 
@@ -122,27 +123,27 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 nrw = struct.unpack('i', t)[0]
                 if version == '2.0':
                     nrw = int(nrw / 2)
-                for k in range(nrw):
+                for _ in range(nrw):
                     deltas.append([])
             else:
                 if ((nrw != struct.unpack('i', t)[0] and (not version == '2.0')) or (nrw != struct.unpack('i', t)[0] / 2 and version == '2.0')):
                     raise Exception('Error: different number of reweighting factors for replicum', rep)
 
-            for k in range(nrw):
+            for _ in range(nrw):
                 tmp_array.append([])
 
             # This block is necessary for openQCD1.6 and openQCD2.0 ms1 files
             nfct = []
             if version in ['1.6', '2.0']:
-                for i in range(nrw):
+                for _ in range(nrw):
                     t = fp.read(4)
                     nfct.append(struct.unpack('i', t)[0])
             else:
-                for i in range(nrw):
+                for _ in range(nrw):
                     nfct.append(1)
 
             nsrc = []
-            for i in range(nrw):
+            for _ in range(nrw):
                 t = fp.read(4)
                 nsrc.append(struct.unpack('i', t)[0])
             if version == '2.0':
@@ -189,7 +190,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
             diffmeas = configlist[-1][-1] - configlist[-1][-2]
             configlist[-1] = [item // diffmeas for item in configlist[-1]]
             if configlist[-1][0] > 1 and diffmeas > 1:
-                warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')
+                warnings.warn('Assume thermalization and that the first measurement belongs to the first config.', stacklevel=2)
                 offset = configlist[-1][0] - 1
                 configlist[-1] = [item - offset for item in configlist[-1]]
 
@@ -199,8 +200,9 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 try:
                     r_start_index.append(configlist[-1].index(r_start[rep]))
                 except ValueError:
-                    raise Exception('Config %d not in file with range [%d, %d]' % (
-                        r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
+                    raise Exception(
+                        f'Config {r_start[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                    ) from None
 
             if r_stop[rep] is None:
                 r_stop_index.append(len(configlist[-1]) - 1)
@@ -208,17 +210,18 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
                 try:
                     r_stop_index.append(configlist[-1].index(r_stop[rep]))
                 except ValueError:
-                    raise Exception('Config %d not in file with range [%d, %d]' % (
-                        r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
+                    raise Exception(
+                        f'Config {r_stop[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                    ) from None
 
             for k in range(nrw):
                 deltas[k].append(tmp_array[k][r_start_index[rep]:r_stop_index[rep] + 1][::r_step])
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
-    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    stepsizes = [next(iter(np.unique(np.diff(cl)))) for cl in configlist]
     if np.any([step != 1 for step in stepsizes]):
-        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
+        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 
     print(',', nrw, 'reweighting factors with', nsrc, 'sources')
     result = []
@@ -238,8 +241,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------
@@ -250,7 +254,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     dtr_read : int
         Determines how many trajectories should be skipped
         when reading the ms.dat files.
-        Corresponds to dtr_cnfg / dtr_ms in the openQCD input file.
+        Corresponds to dtr_cnfg (dncnfg) in the openQCD input file.
     xmin : int
         First timeslice where the boundary
         effects have sufficiently decayed.
@@ -297,7 +301,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != replica:
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * replica
@@ -305,7 +309,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != replica:
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * replica
 
@@ -358,8 +362,8 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 if (len(t) < 4):
                     break
                 nc = struct.unpack('i', t)[0]
-                configlist[-1].append(nc)
-
+                if nc % dtr_read == 0:
+                    configlist[-1].append(nc)
                 t = fp.read(8 * tmax * (nn + 1))
                 if kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
@@ -371,15 +375,17 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 t = fp.read(8 * tmax * (nn + 1))
 
         Ysum.append([])
-        for i, item in enumerate(Ysl):
+        for _i, item in enumerate(Ysl):
             Ysum[-1].append([np.mean(item[current + xmin:
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
 
         diffmeas = configlist[-1][-1] - configlist[-1][-2]
+        if not all(c % diffmeas == 0 for c in configlist[-1]):
+            raise ValueError(f"Irregular spacing of configurations in {ls[rep]}, determined stepsize does not divide all trajectory steps.")
         configlist[-1] = [item // diffmeas for item in configlist[-1]]
         if kwargs.get('assume_thermalization', True) and configlist[-1][0] > 1:
-            warnings.warn('Assume thermalization and that the first measurement belongs to the first config.')
+            warnings.warn('Assume thermalization and that the first measurement belongs to the first config.', stacklevel=2)
             offset = configlist[-1][0] - 1
             configlist[-1] = [item - offset for item in configlist[-1]]
 
@@ -389,8 +395,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             try:
                 r_start_index.append(configlist[-1].index(r_start[rep]))
             except ValueError:
-                raise Exception('Config %d not in file with range [%d, %d]' % (
-                    r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
+                raise Exception(
+                    f'Config {r_start[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                ) from None
 
         if r_stop[rep] is None:
             r_stop_index.append(len(configlist[-1]) - 1)
@@ -398,14 +405,15 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             try:
                 r_stop_index.append(configlist[-1].index(r_stop[rep]))
             except ValueError:
-                raise Exception('Config %d not in file with range [%d, %d]' % (
-                    r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
+                raise Exception(
+                    f'Config {r_stop[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                ) from None
 
     if np.any([len(np.unique(np.diff(cl))) != 1 for cl in configlist]):
         raise Exception('Irregular spaced data in input file!', [len(np.unique(np.diff(cl))) for cl in configlist])
-    stepsizes = [list(np.unique(np.diff(cl)))[0] for cl in configlist]
+    stepsizes = [next(iter(np.unique(np.diff(cl)))) for cl in configlist]
     if np.any([step != 1 for step in stepsizes]):
-        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning)
+        warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
     E_dict = {}
@@ -433,8 +441,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
     It is assumed that one measurement is performed for each config.
     If this is not the case, the resulting idl, as well as the handling
-    of r_start, r_stop and r_step is wrong and the user has to correct
+    of `r_start`, `r_stop` and `r_step` is wrong and the user has to correct
     this in the resulting observable.
+    The function also assumes that `r_step` is the same across all replica.
 
     Parameters
     ----------
@@ -596,7 +605,9 @@ def _parse_array_openQCD2(d, n, size, wa, quadrupel=False):
     return arr
 
 
-def _find_files(path, prefix, postfix, ext, known_files=[]):
+def _find_files(path, prefix, postfix, ext, known_files=None):
+    if known_files is None:
+        known_files = []
     found = []
     files = []
 
@@ -611,7 +622,7 @@ def _find_files(path, prefix, postfix, ext, known_files=[]):
 
     pattern = prefix + "*" + postfix + ext
 
-    for (dirpath, dirnames, filenames) in os.walk(path + "/"):
+    for (_dirpath, _dirnames, filenames) in os.walk(path + "/"):
         found.extend(filenames)
         break
 
@@ -630,7 +641,7 @@ def _find_files(path, prefix, postfix, ext, known_files=[]):
             files.append(f)
 
     if files == []:
-        raise Exception("No files found after pattern filter!")
+        raise FileNotFoundError("No files found after pattern filter!")
 
     files = sort_names(files)
     return files
@@ -640,7 +651,7 @@ def _read_array_openQCD2(fp):
     t = fp.read(4)
     d = struct.unpack('i', t)[0]
     t = fp.read(4 * d)
-    n = struct.unpack('%di' % (d), t)
+    n = struct.unpack(f'{d}i', t)
     t = fp.read(4)
     size = struct.unpack('i', t)[0]
     if size == 4:
@@ -656,7 +667,7 @@ def _read_array_openQCD2(fp):
         m *= n[i]
 
     t = fp.read(m * size)
-    tmp = struct.unpack('%d%s' % (m, types), t)
+    tmp = struct.unpack(f'{m}{types}', t)
 
     arr = _parse_array_openQCD2(d, n, size, tmp, quadrupel=True)
     return {'d': d, 'n': n, 'size': size, 'arr': arr}
@@ -754,7 +765,7 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     """
 
     if c != 0.3:
-        raise Exception("The required lattice norm is only implemented for c=0.3 at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for c=0.3 at the moment.")
 
     plaq = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=6, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
     C2x1 = _read_flow_obs(path, prefix, c, dtr_cnfg=dtr_cnfg, version="sfqcd", obspos=7, sum_t=False, Zeuthen_flow=Zeuthen_flow, integer_charge=False, **kwargs)
@@ -762,10 +773,10 @@ def read_gf_coupling(path, prefix, c, dtr_cnfg=1, Zeuthen_flow=True, **kwargs):
     T = plaq.tag["T"]
 
     if T != L:
-        raise Exception("The required lattice norm is only implemented for T=L at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for T=L at the moment.")
 
     if Zeuthen_flow is not True:
-        raise Exception("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
+        raise NotImplementedError("The required lattice norm is only implemented for the Zeuthen flow at the moment.")
 
     t = (c * L) ** 2 / 8
 
@@ -843,7 +854,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     known_versions = ["openQCD", "sfqcd"]
 
     if version not in known_versions:
-        raise Exception("Unknown openQCD version.")
+        raise ValueError("Unknown openQCD version.")
     if "steps" in kwargs:
         steps = kwargs.get("steps")
     if version == "sfqcd":
@@ -854,7 +865,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         postfix = "gfms"
     else:
         if "L" not in kwargs:
-            raise Exception("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
+            raise ValueError("This version of openQCD needs you to provide the spatial length of the lattice as parameter 'L'.")
         else:
             L = kwargs.get("L")
         postfix = "ms"
@@ -872,7 +883,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     if 'r_start' in kwargs:
         r_start = kwargs.get('r_start')
         if len(r_start) != len(files):
-            raise Exception('r_start does not match number of replicas')
+            raise ValueError('r_start does not match number of replicas')
         r_start = [o if o else None for o in r_start]
     else:
         r_start = [None] * len(files)
@@ -880,14 +891,14 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
     if 'r_stop' in kwargs:
         r_stop = kwargs.get('r_stop')
         if len(r_stop) != len(files):
-            raise Exception('r_stop does not match number of replicas')
+            raise ValueError('r_stop does not match number of replicas')
     else:
         r_stop = [None] * len(files)
     rep_names = []
 
     zeuthen = kwargs.get('Zeuthen_flow', False)
     if zeuthen and version not in ['sfqcd']:
-        raise Exception('Zeuthen flow can only be used for version==sfqcd')
+        raise ValueError('Zeuthen flow can only be used for version==sfqcd')
 
     r_start_index = []
     r_stop_index = []
@@ -922,7 +933,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
                 cmax = header2[1]  # highest value of c used
 
                 if c > cmax:
-                    raise Exception('Flow has been determined between c=0 and c=%lf with tolerance %lf' % (cmax, tol))
+                    raise Exception(f'Flow has been determined between c=0 and c={cmax:f} with tolerance {tol:f}')
 
                 if (zthfl == 2):
                     nfl = 2  # number of flows
@@ -936,7 +947,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
                         break
                     traj_list.append(struct.unpack('i', t)[0])   # trajectory number when measurement was done
 
-                    for j in range(ncs + 1):
+                    for _j in range(ncs + 1):
                         for i in range(iobs):
                             t = fp.read(8 * tmax)
                             if (i == obspos):  # determines the flow observable -> i=0 <-> Zeuthen flow
@@ -984,8 +995,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         configlist.append([tr // steps // dtr_cnfg for tr in traj_list])
         if configlist[-1][0] > 1:
             offset = configlist[-1][0] - 1
-            warnings.warn('Assume thermalization and that the first measurement belongs to the first config. Offset = %d configs (%d trajectories / cycles)' % (
-                offset, offset * steps))
+            warnings.warn(f'Assume thermalization and that the first measurement belongs to the first config. Offset = {offset} configs ({offset * steps} trajectories / cycles)', stacklevel=2)
             configlist[-1] = [item - offset for item in configlist[-1]]
 
         if r_start[rep] is None:
@@ -994,8 +1004,9 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
             try:
                 r_start_index.append(configlist[-1].index(r_start[rep]))
             except ValueError:
-                raise Exception('Config %d not in file with range [%d, %d]' % (
-                    r_start[rep], configlist[-1][0], configlist[-1][-1])) from None
+                raise Exception(
+                    f'Config {r_start[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                ) from None
 
         if r_stop[rep] is None:
             r_stop_index.append(len(configlist[-1]) - 1)
@@ -1003,8 +1014,9 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
             try:
                 r_stop_index.append(configlist[-1].index(r_stop[rep]))
             except ValueError:
-                raise Exception('Config %d not in file with range [%d, %d]' % (
-                    r_stop[rep], configlist[-1][0], configlist[-1][-1])) from None
+                raise Exception(
+                    f'Config {r_stop[rep]} not in file with range [{configlist[-1][0]}, {configlist[-1][-1]}]'
+                ) from None
 
         if version in ['sfqcd']:
             cstepsize = cmax / ncs
@@ -1014,7 +1026,7 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
             index_aim = round(t_aim / eps / dn)
 
         Q_sum = []
-        for i, item in enumerate(Q):
+        for item in Q:
             if sum_t is True:
                 Q_sum.append([sum(item[current:current + tmax])
                              for current in range(0, len(item), tmax)])
@@ -1038,9 +1050,9 @@ def _read_flow_obs(path, prefix, c, dtr_cnfg=1, version="openQCD", obspos=0, sum
         if "names" not in kwargs:
             try:
                 idx = truncated_file.index('r')
-            except Exception:
+            except Exception as err:
                 if "names" not in kwargs:
-                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.")
+                    raise Exception("Automatic recognition of replicum failed, please enter the key word 'names'.") from err
             ens_name = truncated_file[:idx]
             rep_names.append(ens_name + '|' + truncated_file[idx:].split(".")[0])
         else:
@@ -1075,7 +1087,7 @@ def qtop_projection(qtop, target=0):
         projection to the topological charge sector defined by target
     """
     if qtop.reweighted:
-        raise Exception('You can not use a reweighted observable for reweighting!')
+        raise ValueError('You can not use a reweighted observable for reweighting!')
 
     proj_qtop = []
     for n in qtop.deltas:
@@ -1135,7 +1147,7 @@ def read_qtop_sector(path, prefix, c, target=0, **kwargs):
     """
 
     if not isinstance(target, int):
-        raise Exception("'target' has to be an integer.")
+        raise TypeError("'target' has to be an integer.")
 
     kwargs['integer_charge'] = True
     qtop = read_qtop(path, prefix, c, **kwargs)
@@ -1191,10 +1203,10 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
 
     # test if the input is correct
     if qc not in ['dd', 'ud', 'du', 'uu']:
-        raise Exception("Unknown quark conbination!")
+        raise ValueError("Unknown quark combination!")
 
     if corr not in ["gS", "gP", "gA", "gV", "gVt", "lA", "lV", "lVt", "lT", "lTt", "g1", "l1"]:
-        raise Exception("Unknown correlator!")
+        raise ValueError("Unknown correlator!")
 
     if "files" in kwargs:
         known_files = kwargs.get("files")
@@ -1254,7 +1266,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
             cnfgs.append([])
             realsamples.append([])
             imagsamples.append([])
-            for t in range(tmax):
+            for _ in range(tmax):
                 realsamples[repnum].append([])
                 imagsamples[repnum].append([])
             if 'idl' in kwargs:
@@ -1289,7 +1301,7 @@ def read_ms5_xsf(path, prefix, qc, corr, sep="r", **kwargs):
                 if expected_idl[repnum] == left_idl:
                     raise ValueError("None of the idls searched for were found in replikum of file " + file)
                 elif len(left_idl) > 0:
-                    warnings.warn('Could not find idls ' + str(left_idl) + ' in replikum of file ' + file, UserWarning)
+                    warnings.warn('Could not find idls ' + str(left_idl) + ' in replikum of file ' + file, UserWarning, stacklevel=2)
         repnum += 1
     s = "Read correlator " + corr + " from " + str(repnum) + " replika with idls" + str(realsamples[0][t])
     for rep in range(1, repnum):

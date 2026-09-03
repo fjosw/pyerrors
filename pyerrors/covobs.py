@@ -22,17 +22,17 @@ class Covobs:
         """
         self._set_cov(cov)
         if '|' in name:
-            raise Exception("Covobs name must not contain replica separator '|'.")
+            raise ValueError("Covobs name must not contain replica separator '|'.")
         self.name = name
         if grad is None:
             if pos is None:
                 if self.N == 1:
                     pos = 0
                 else:
-                    raise Exception('Have to specify position of cov-element belonging to mean!')
+                    raise ValueError('Have to specify position of cov-element belonging to mean!')
             else:
-                if pos > self.N:
-                    raise Exception('pos %d too large for covariance matrix with dimension %dx%d!' % (pos, self.N, self.N))
+                if pos < 0 or pos >= self.N:
+                    raise ValueError(f'pos {pos} not valid for covariance matrix with dimension {self.N}x{self.N}!')
             self._grad = np.zeros((self.N, 1))
             self._grad[pos] = 1.
         else:
@@ -65,19 +65,19 @@ class Covobs:
         elif self._cov.ndim == 2:
             self.N = self._cov.shape[0]
             if self._cov.shape[1] != self.N:
-                raise Exception('Covariance matrix has to be a square matrix!')
+                raise ValueError('Covariance matrix has to be a square matrix!')
         else:
-            raise Exception('Covariance matrix has to be a 2 dimensional square matrix!')
+            raise ValueError('Covariance matrix has to be a 2 dimensional square matrix!')
 
         for i in range(self.N):
             for j in range(i):
                 if not self._cov[i][j] == self._cov[j][i]:
-                    raise Exception('Covariance matrix is non-symmetric for (%d, %d' % (i, j))
+                    raise ValueError(f'Covariance matrix is non-symmetric for ({i}, {j})')
 
         evals = np.linalg.eigvalsh(self._cov)
         for ev in evals:
             if ev < 0:
-                raise Exception('Covariance matrix is not positive-semidefinite!')
+                raise ValueError('Covariance matrix is not positive-semidefinite!')
 
     def _set_grad(self, grad):
         """ Set the gradient of the covobs
@@ -93,7 +93,7 @@ class Covobs:
         if self._grad.ndim in [0, 1]:
             self._grad = np.reshape(self._grad, (self.N, 1))
         elif self._grad.ndim != 2:
-            raise Exception('Invalid dimension of grad!')
+            raise ValueError('Invalid dimension of grad!')
 
     @property
     def cov(self):

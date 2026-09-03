@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.optimize
 from autograd import jacobian
+
 from .obs import derived_observable
 
 
@@ -32,10 +33,10 @@ def find_root(d, func, guess=1.0, **kwargs):
     root = scipy.optimize.fsolve(func, guess, d_val)
 
     # Error propagation as detailed in arXiv:1809.01289
-    dx = jacobian(func)(root[0], d_val)
     try:
+        dx = jacobian(func)(root[0], d_val)
         da = jacobian(lambda u, v: func(v, u))(d_val, root[0])
-    except TypeError:
+    except (TypeError, ValueError, np.linalg.LinAlgError):
         raise Exception("It is required to use autograd.numpy instead of numpy within root functions, see the documentation for details.") from None
     deriv = - da / dx
     res = derived_observable(lambda x, **kwargs: (x[0] + np.finfo(np.float64).eps) / (np.array(d).reshape(-1)[0].value + np.finfo(np.float64).eps) * root[0],

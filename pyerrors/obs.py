@@ -1,18 +1,21 @@
-import warnings
 import hashlib
 import pickle
-import numpy as np
+import warnings
+from itertools import groupby
+from typing import ClassVar
+
 import autograd.numpy as anp  # Thinly-wrapped numpy
+import matplotlib.pyplot as plt
+import numdifftools as nd
+import numpy as np
 import scipy
 from autograd import jacobian
-import matplotlib.pyplot as plt
-from scipy.stats import skew, skewtest, kurtosis, kurtosistest
-import numdifftools as nd
-from itertools import groupby
+from scipy.stats import kurtosis, kurtosistest, skew, skewtest
+
 from .covobs import Covobs
 
 # Improve print output of numpy.ndarrays containing Obs objects.
-np.set_printoptions(formatter={'object': lambda x: str(x)})
+np.set_printoptions(formatter={'object': str})
 
 
 class Obs:
@@ -49,21 +52,45 @@ class Obs:
         Dictionary for autocorrelation bin sizes. If an entry for a given
         ensemble exists this overwrites the standard value for that ensemble.
     """
-    __slots__ = ['names', 'shape', 'r_values', 'deltas', 'N', '_value', '_dvalue',
-                 'ddvalue', 'reweighted', 'S', 'tau_exp', 'N_sigma', 'rho_bin',
-                 'e_dvalue', 'e_ddvalue', 'e_tauint', 'e_dtauint',
-                 'e_windowsize', 'e_rho', 'e_drho', 'e_rho_bins', 'e_drho_bins',
-                 'e_n_tauint', 'e_n_dtauint',
-                 'idl', 'tag', '_covobs', '__dict__']
+    __slots__ = [
+        'N',
+        'N_sigma',
+        'S',
+        '__dict__',
+        '_covobs',
+        '_dvalue',
+        '_value',
+        'ddvalue',
+        'deltas',
+        'e_ddvalue',
+        'e_drho',
+        'e_drho_bins',
+        'e_dtauint',
+        'e_dvalue',
+        'e_n_dtauint',
+        'e_n_tauint',
+        'e_rho',
+        'e_rho_bins',
+        'e_tauint',
+        'e_windowsize',
+        'idl',
+        'names',
+        'r_values',
+        'reweighted',
+        'rho_bin',
+        'shape',
+        'tag',
+        'tau_exp',
+    ]
 
     S_global = 2.0
-    S_dict = {}
+    S_dict: ClassVar[dict] = {}
     tau_exp_global = 0.0
-    tau_exp_dict = {}
+    tau_exp_dict: ClassVar[dict] = {}
     N_sigma_global = 1.0
-    N_sigma_dict = {}
+    N_sigma_dict: ClassVar[dict] = {}
     rho_bin_global = 1
-    rho_bin_dict = {}
+    rho_bin_dict: ClassVar[dict] = {}
 
     def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
@@ -108,37 +135,37 @@ class Obs:
         self.N = 0
         self.idl = {}
         if idl is not None:
-            for name, idx in sorted(zip(names, idl)):
+            for name, idx in sorted(zip(names, idl, strict=True)):
                 if isinstance(idx, range):
                     self.idl[name] = idx
                 elif isinstance(idx, (list, np.ndarray)):
                     dc = np.unique(np.diff(idx))
                     if np.any(dc < 0):
-                        raise ValueError("Unsorted idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) < 0)[0]])))
+                        raise ValueError("Unsorted idx for idl[{}] at position {}".format(name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) < 0)[0]])))
                     elif np.any(dc == 0):
-                        raise ValueError("Duplicate entries in idx for idl[%s] at position %s" % (name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) == 0)[0]])))
+                        raise ValueError("Duplicate entries in idx for idl[{}] at position {}".format(name, ' '.join(['%s' % (pos + 1) for pos in np.where(np.diff(idx) == 0)[0]])))
                     if len(dc) == 1:
                         self.idl[name] = range(idx[0], idx[-1] + dc[0], dc[0])
                     else:
                         self.idl[name] = list(idx)
                 else:
-                    raise TypeError('incompatible type for idl[%s].' % (name))
+                    raise TypeError(f'incompatible type for idl[{name}].')
         else:
-            for name, sample in sorted(zip(names, samples)):
+            for name, sample in sorted(zip(names, samples, strict=True)):
                 self.idl[name] = range(1, len(sample) + 1)
 
         if kwargs.get("means") is not None:
-            for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"))):
+            for name, sample, mean in sorted(zip(names, samples, kwargs.get("means"), strict=True)):
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 self.r_values[name] = mean
                 self.deltas[name] = sample
         else:
-            for name, sample in sorted(zip(names, samples)):
+            for name, sample in sorted(zip(names, samples, strict=True)):
                 self.shape[name] = len(self.idl[name])
                 self.N += self.shape[name]
                 if len(sample) != self.shape[name]:
-                    raise ValueError('Incompatible samples and idx for %s: %d vs. %d' % (name, len(sample), self.shape[name]))
+                    raise ValueError(f'Incompatible samples and idx for {name}: {len(sample)} vs. {self.shape[name]}')
                 self.r_values[name] = np.mean(sample)
                 self.deltas[name] = sample - self.r_values[name]
                 self._value += self.shape[name] * self.r_values[name]
@@ -173,7 +200,7 @@ class Obs:
     @property
     def e_content(self):
         res = {}
-        for e, e_name in enumerate(self.e_names):
+        for _e, e_name in enumerate(self.e_names):
             res[e_name] = sorted(filter(lambda x: x.startswith(e_name + '|'), self.names))
             if e_name in self.names:
                 res[e_name].append(e_name)
@@ -263,7 +290,7 @@ class Obs:
             if self.rho_bin[e_name] < 1:
                 raise ValueError('rho_bin has to be larger than zero.')
 
-        for e, e_name in enumerate(self.mc_names):
+        for _e, e_name in enumerate(self.mc_names):
             gapsize = _determine_gap(self, e_content, e_name)
 
             r_length = []
@@ -284,7 +311,7 @@ class Obs:
 
             gamma_div = np.zeros(w_max)
             for r_name in e_content[e_name]:
-                gamma_div += self._calc_gamma(np.ones((self.shape[r_name])), self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
+                gamma_div += self._calc_gamma(np.ones(self.shape[r_name]), self.idl[r_name], self.shape[r_name], w_max, fft, gapsize)
             gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
@@ -322,7 +349,7 @@ class Obs:
             self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(physical_windows + 0.5 - self.e_n_tauint[e_name]) / e_N)
             self.e_n_dtauint[e_name][0] = 0.0
 
-            def _compute_drho(i):
+            def _compute_drho(i, e_name=e_name, w_max=w_max, e_N=e_N, bin_size=bin_size, rho=rho, drho=drho):
                 if bin_size == 1:
                     lag = i + 1
                     tmp = (self.e_rho[e_name][lag + 1:w_max]
@@ -428,7 +455,6 @@ class Obs:
             self.ddvalue = 0.0
         else:
             self.ddvalue = np.sqrt(self.ddvalue) / self._dvalue
-        return
 
     gm = gamma_method
 
@@ -479,13 +505,13 @@ class Obs:
         if self.tag is not None:
             print("Description:", self.tag)
         if not hasattr(self, 'e_dvalue'):
-            print('Result\t %3.8e' % (self.value))
+            print(f'Result\t {self.value:3.8e}')
         else:
             if self.value == 0.0:
                 percentage = np.nan
             else:
                 percentage = np.abs(self._dvalue / self.value) * 100
-            print('Result\t %3.8e +/- %3.8e +/- %3.8e (%3.3f%%)' % (self.value, self._dvalue, self.ddvalue, percentage))
+            print(f'Result\t {self.value:3.8e} +/- {self._dvalue:3.8e} +/- {self.ddvalue:3.8e} ({percentage:3.3f}%)')
             if len(self.e_names) > 1:
                 print(' Ensemble errors:')
             e_content = self.e_content
@@ -493,18 +519,18 @@ class Obs:
                 gap = _determine_gap(self, e_content, e_name)
 
                 if len(self.e_names) > 1:
-                    print('', e_name, '\t %3.6e +/- %3.6e' % (self.e_dvalue[e_name], self.e_ddvalue[e_name]))
+                    print('', e_name, f'\t {self.e_dvalue[e_name]:3.6e} +/- {self.e_ddvalue[e_name]:3.6e}')
                 tau_string = " \N{GREEK SMALL LETTER TAU}_int\t " + _format_uncertainty(self.e_tauint[e_name], self.e_dtauint[e_name])
                 tau_string += f" in units of {gap} config"
                 if gap > 1:
                     tau_string += "s"
                 if self.tau_exp[e_name] > 0:
-                    tau_string = f"{tau_string: <45}" + '\t(\N{GREEK SMALL LETTER TAU}_exp=%3.2f, N_\N{GREEK SMALL LETTER SIGMA}=%1.0i)' % (self.tau_exp[e_name], self.N_sigma[e_name])
+                    tau_string = f"{tau_string: <45}" + f'\t(\N{GREEK SMALL LETTER TAU}_exp={self.tau_exp[e_name]:3.2f}, N_\N{GREEK SMALL LETTER SIGMA}={self.N_sigma[e_name]:g})'
                 else:
-                    tau_string = f"{tau_string: <45}" + '\t(S=%3.2f)' % (self.S[e_name])
+                    tau_string = f"{tau_string: <45}" + f'\t(S={self.S[e_name]:3.2f})'
                 print(tau_string)
             for e_name in self.cov_names:
-                print('', e_name, '\t %3.8e' % (self.e_dvalue[e_name]))
+                print('', e_name, f'\t {self.e_dvalue[e_name]:3.8e}')
         if ens_content is True:
             if len(self.e_names) == 1:
                 print(self.N, 'samples in', len(self.e_names), 'ensemble:')
@@ -589,7 +615,7 @@ class Obs:
             fig = plt.figure()
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
-            length = int(len(self.e_n_tauint[e_name]))
+            length = len(self.e_n_tauint[e_name])
             window_lags = self.rho_bin[e_name] * np.arange(length)
             if self.tau_exp[e_name] > 0:
                 if self.rho_bin[e_name] == 1:
@@ -676,13 +702,13 @@ class Obs:
         """Plot replica distribution for each ensemble with more than one replicum."""
         if not hasattr(self, 'e_dvalue'):
             raise Exception('Run the gamma method first.')
-        for e, e_name in enumerate(self.mc_names):
+        for _e, e_name in enumerate(self.mc_names):
             if len(self.e_content[e_name]) == 1:
                 print('No replica distribution for a single replicum (', e_name, ')')
                 continue
             r_length = []
             sub_r_mean = 0
-            for r, r_name in enumerate(self.e_content[e_name]):
+            for r_name in self.e_content[e_name]:
                 r_length.append(len(self.deltas[r_name]))
                 sub_r_mean += self.shape[r_name] * self.r_values[r_name]
             e_N = np.sum(r_length)
@@ -702,12 +728,12 @@ class Obs:
         expand : bool
             show expanded history for irregular Monte Carlo chains (default: True).
         """
-        for e, e_name in enumerate(self.mc_names):
+        for _e, e_name in enumerate(self.mc_names):
             plt.figure()
             r_length = []
             tmp = []
             tmp_expanded = []
-            for r, r_name in enumerate(self.e_content[e_name]):
+            for _r, r_name in enumerate(self.e_content[e_name]):
                 tmp.append(self.deltas[r_name] + self.r_values[r_name])
                 if expand:
                     tmp_expanded.append(_expand_deltas(self.deltas[r_name], list(self.idl[r_name]), self.shape[r_name], 1) + self.r_values[r_name])
@@ -748,7 +774,7 @@ class Obs:
         if save:
             fig1.savefig(save)
 
-        return dict(zip(labels, sizes))
+        return dict(zip(labels, sizes, strict=True))
 
     def dump(self, filename, datatype="json.gz", description="", **kwargs):
         """Dump the Obs to a file 'name' of chosen format.
@@ -1033,7 +1059,7 @@ class Obs:
 
 class CObs:
     """Class for a complex valued observable."""
-    __slots__ = ['_real', '_imag', 'tag']
+    __slots__ = ['_imag', '_real', 'tag']
 
     def __init__(self, real, imag=0.0):
         self._real = real
@@ -1134,6 +1160,8 @@ class CObs:
 
     def __eq__(self, other):
         return self.real == other.real and self.imag == other.imag
+
+    __hash__ = None
 
     def __str__(self):
         return '(' + str(self.real) + int(self.imag >= 0.0) * '+' + str(self.imag) + 'j)'
@@ -1328,7 +1356,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for name in o.cov_names:
             if name in allcov:
                 if not np.allclose(allcov[name], o.covobs[name].cov):
-                    raise Exception('Inconsistent covariance matrices for %s!' % (name))
+                    raise Exception(f'Inconsistent covariance matrices for {name}!')
             else:
                 allcov[name] = o.covobs[name].cov
 
@@ -1388,11 +1416,11 @@ def derived_observable(func, data, array_mode=False, **kwargs):
             raise ValueError('Manual derivative does not have correct shape.')
     elif kwargs.get('num_grad') is True:
         if multi > 0:
-            raise Exception('Multi mode currently not supported for numerical derivative')
+            raise NotImplementedError('Multi mode currently not supported for numerical derivative')
         options = {
             'base_step': 0.1,
             'step_ratio': 2.5}
-        for key in options.keys():
+        for key in options:
             kwarg = kwargs.get(key)
             if kwarg is not None:
                 options[key] = kwarg
@@ -1408,7 +1436,7 @@ def derived_observable(func, data, array_mode=False, **kwargs):
 
     if array_mode is True:
 
-        class _Zero_grad():
+        class _Zero_grad:
             def __init__(self, N):
                 self.grad = np.zeros((N, 1))
 
@@ -1418,13 +1446,13 @@ def derived_observable(func, data, array_mode=False, **kwargs):
         for name in new_sample_names:
             d_extracted[name] = []
             ens_length = len(new_idl_d[name])
-            for i_dat, dat in enumerate(data):
-                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name], _compute_scalefactor_missing_rep(o).get(name.split('|')[0], 1)) for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (ens_length, )))
+            for dat in data:
+                d_extracted[name].append(np.array([_expand_deltas_for_merge(o.deltas.get(name, np.zeros(ens_length)), o.idl.get(name, new_idl_d[name]), o.shape.get(name, ens_length), new_idl_d[name], _compute_scalefactor_missing_rep(o).get(name.split('|')[0], 1)) for o in dat.reshape(np.prod(dat.shape))]).reshape((*dat.shape, ens_length)))
         for name in new_cov_names:
             g_extracted[name] = []
             zero_grad = _Zero_grad(new_covobs_lengths[name])
-            for i_dat, dat in enumerate(data):
-                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape(dat.shape + (new_covobs_lengths[name], 1)))
+            for dat in data:
+                g_extracted[name].append(np.array([o.covobs.get(name, zero_grad).grad for o in dat.reshape(np.prod(dat.shape))]).reshape((*dat.shape, new_covobs_lengths[name], 1)))
 
     for i_val, new_val in np.ndenumerate(new_values):
         new_deltas = {}
@@ -1434,11 +1462,11 @@ def derived_observable(func, data, array_mode=False, **kwargs):
                 ens_length = d_extracted[name][0].shape[-1]
                 new_deltas[name] = np.zeros(ens_length)
                 for i_dat, dat in enumerate(d_extracted[name]):
-                    new_deltas[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+                    new_deltas[name] += np.tensordot(deriv[(*i_val, i_dat)], dat)
             for name in new_cov_names:
                 new_grad[name] = 0
                 for i_dat, dat in enumerate(g_extracted[name]):
-                    new_grad[name] += np.tensordot(deriv[i_val + (i_dat, )], dat)
+                    new_grad[name] += np.tensordot(deriv[(*i_val, i_dat)], dat)
         else:
             for j_obs, obs in np.ndenumerate(data):
                 scalef_d = _compute_scalefactor_missing_rep(obs)
@@ -1492,7 +1520,7 @@ def _reduce_deltas(deltas, idx_old, idx_new):
         Has to be a subset of idx_old.
     """
     if not len(deltas) == len(idx_old):
-        raise ValueError('Length of deltas and idx_old have to be the same: %d != %d' % (len(deltas), len(idx_old)))
+        raise ValueError(f'Length of deltas and idx_old have to be the same: {len(deltas)} != {len(idx_old)}')
     if type(idx_old) is range and type(idx_new) is range:
         if idx_old == idx_new:
             return deltas
@@ -1529,7 +1557,7 @@ def reweight(weight, obs, **kwargs):
             raise ValueError('Error: Cannot reweight an Obs that contains multiple ensembles.')
         for name in obs[i].names:
             if not set(obs[i].idl[name]).issubset(weight.idl[name]):
-                raise ValueError('obs[%d] has to be defined on a subset of the configs in weight.idl[%s]!' % (i, name))
+                raise ValueError(f'obs[{i}] has to be defined on a subset of the configs in weight.idl[{name}]!')
         new_samples = []
         w_deltas = {}
         for name in sorted(obs[i].names):
@@ -1579,9 +1607,9 @@ def correlate(obs_a, obs_b):
             raise ValueError('idl of ensemble', name, 'do not fit')
 
     if obs_a.reweighted is True:
-        warnings.warn("The first observable is already reweighted.", RuntimeWarning)
+        warnings.warn("The first observable is already reweighted.", RuntimeWarning, stacklevel=2)
     if obs_b.reweighted is True:
-        warnings.warn("The second observable is already reweighted.", RuntimeWarning)
+        warnings.warn("The second observable is already reweighted.", RuntimeWarning, stacklevel=2)
 
     new_samples = []
     new_idl = []
@@ -1632,7 +1660,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
 
     max_samples = np.max([o.N for o in obs])
     if max_samples <= length and not [item for sublist in [o.cov_names for o in obs] for item in sublist]:
-        warnings.warn(f"The dimension of the covariance matrix ({length}) is larger or equal to the number of samples ({max_samples}). This will result in a rank deficient matrix.", RuntimeWarning)
+        warnings.warn(f"The dimension of the covariance matrix ({length}) is larger or equal to the number of samples ({max_samples}). This will result in a rank deficient matrix.", RuntimeWarning, stacklevel=2)
 
     cov = np.zeros((length, length))
     for i in range(length):
@@ -1659,7 +1687,7 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
 
     eigenvalues = np.linalg.eigh(cov)[0]
     if not np.all(eigenvalues >= 0):
-        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning)
+        warnings.warn("Covariance matrix is not positive semi-definite (Eigenvalues: " + str(eigenvalues) + ")", RuntimeWarning, stacklevel=2)
 
     return cov
 
@@ -1680,7 +1708,7 @@ def invert_corr_cov_cholesky(corr, inverrdiag):
     if condn > 0.1 / np.finfo(float).eps:
         raise ValueError(f"Cannot invert correlation matrix as its condition number exceeds machine precision ({condn:1.2e})")
     if condn > 1e13:
-        warnings.warn("Correlation matrix may be ill-conditioned, condition number: {%1.2e}" % (condn), RuntimeWarning)
+        warnings.warn(f"Correlation matrix may be ill-conditioned, condition number: {{{condn:1.2e}}}", RuntimeWarning, stacklevel=2)
     chol = np.linalg.cholesky(corr)
     chol_inv = scipy.linalg.solve_triangular(chol, inverrdiag, lower=True)
 
@@ -1733,7 +1761,7 @@ def sort_corr(corr, kl, yd):
 
     posd = {}
     ofs = 0
-    for ki, k in enumerate(kl):
+    for _ki, k in enumerate(kl):
         posd[k] = [i + ofs for i in range(len(yd[k]))]
         ofs += len(posd[k])
 
@@ -1895,7 +1923,7 @@ def merge_obs(list_of_obs):
     """
     replist = [item for obs in list_of_obs for item in obs.names]
     if (len(replist) == len(set(replist))) is False:
-        raise ValueError('list_of_obs contains duplicate replica: %s' % (str(replist)))
+        raise ValueError(f'list_of_obs contains duplicate replica: {replist!s}')
     if any([len(o.cov_names) for o in list_of_obs]):
         raise ValueError('Not possible to merge data that contains covobs!')
     new_dict = {}
@@ -1948,7 +1976,7 @@ def cov_Obs(means, cov, name, grad=None):
     for i in range(len(means)):
         ol.append(covobs_to_obs(Covobs(means[i], cov, name, pos=i, grad=grad)))
     if ol[0].covobs[name].N != len(means):
-        raise ValueError('You have to provide %d mean values!' % (ol[0].N))
+        raise ValueError(f'You have to provide {ol[0].N} mean values!')
     if len(ol) == 1:
         return ol[0]
     return ol

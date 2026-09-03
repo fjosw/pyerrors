@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.linalg
+
+from .linalg import eig, svd
 from .obs import Obs
-from .linalg import svd, eig
 
 
 def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
@@ -34,7 +35,7 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
 
     lengths = [len(d) for d in data]
     if lengths.count(lengths[0]) != len(lengths):
-        raise Exception('All datasets have to have the same length.')
+        raise ValueError('All datasets have to have the same length.')
 
     data_sets = len(data)
     n_data = len(data[0])
@@ -42,9 +43,9 @@ def matrix_pencil_method(corrs, k=1, p=None, **kwargs):
     if p is None:
         p = max(n_data // 2, k)
     if n_data <= p:
-        raise Exception('The pencil p has to be smaller than the number of data samples.')
+        raise ValueError('The pencil p has to be smaller than the number of data samples.')
     if p < k or n_data - p < k:
-        raise Exception('Cannot extract', k, 'energy levels with p=', p, 'and N-p=', n_data - p)
+        raise ValueError(f'Cannot extract {k} energy levels with p={p} and N-p={n_data - p}')
 
     # Construct the hankel matrices
     matrix = []

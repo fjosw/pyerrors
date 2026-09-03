@@ -12,6 +12,12 @@ and create your own branch for the feature or bug fix
 cd pyerrors
 git checkout -b feature/my_feature
 ```
+Create a virtual environment and install the development dependencies with [uv](https://docs.astral.sh/uv/):
+```
+uv venv
+source .venv/bin/activate
+uv pip install --editable . --group test --group examples --group lint
+```
 After committing your changes please send a pull requests to the `develop` branch. A guide on how to create a pull request can be found [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
 
 ### Documentation
@@ -19,14 +25,14 @@ Please add docstrings to any new function, class or method you implement. The do
 
 ### Tests
 When implementing a new feature or fixing a bug please add meaningful tests to the files in the `tests` directory which cover the new code.
-We follow the [PEP8](https://peps.python.org/pep-0008/) code style which is checked by `flake8`.
+We follow the [PEP8](https://peps.python.org/pep-0008/) code style which is checked by `ruff`.
 For all pull requests tests are executed for the most recent python releases via
 ```
 pytest -vv -Werror
 pytest --nbmake examples/*.ipynb
-flake8 --ignore=E501,W503 --exclude=__init__.py pyerrors
+ruff check pyerrors
 ```
-The tests require `pytest`, `pytest-cov`, `pytest-benchmark`, `hypothesis`, `nbmake` and `flake8`. To install the test dependencies one can run `pip install pyerrors[test]`.
+Development dependencies are organized into the `test`, `examples`, `docs`, `lint`, and `release` groups in `pyproject.toml`. They are resolved against the newest compatible releases whenever they are installed.
 Please make sure that all tests pass for a new pull requests.
 
 To get a coverage report in html run

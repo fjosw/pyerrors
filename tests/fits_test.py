@@ -1,9 +1,10 @@
+import warnings
 import numpy as np
 import autograd.numpy as anp
 import matplotlib.pyplot as plt
 import math
 import scipy.optimize
-from scipy.odr import ODR, Model, RealData
+from odrpack import odr_fit
 from scipy.linalg import cholesky
 from scipy.stats import norm
 import iminuit
@@ -397,11 +398,21 @@ def test_total_least_squares():
         y = a[0] * anp.exp(-a[1] * x)
         return y
 
-    data = RealData([o.value for o in ox], [o.value for o in oy], sx=[o.dvalue for o in ox], sy=[o.dvalue for o in oy])
-    model = Model(func)
-    odr = ODR(data, model, [0, 0], partol=np.finfo(np.float64).eps)
-    odr.set_job(fit_type=0, deriv=1)
-    output = odr.run()
+    # odrpack expects f(x, beta), but pyerrors convention is f(beta, x)
+    def wrapped_func(x, beta):
+        return func(beta, x)
+
+    output = odr_fit(
+        wrapped_func,
+        np.array([o.value for o in ox]),
+        np.array([o.value for o in oy]),
+        beta0=np.array([0.0, 0.0]),
+        weight_x=1.0 / np.array([o.dvalue for o in ox]) ** 2,
+        weight_y=1.0 / np.array([o.dvalue for o in oy]) ** 2,
+        partol=np.finfo(np.float64).eps,
+        task='explicit-ODR',
+        diff_scheme='central'
+    )
 
     out = pe.total_least_squares(ox, oy, func, expected_chisquare=True)
     beta = out.fit_parameters
@@ -458,6 +469,21 @@ def test_total_least_squares():
     assert((outc.fit_parameters[1] - betac[1]).is_zero())
 
 
+def test_total_least_squares_vanishing_chisquare():
+    """Test that a saturated fit (n_obs == n_parms) works without exception."""
+    def func(a, x):
+        return a[0] + a[1] * x
+
+    x = [pe.pseudo_Obs(1.0, 0.1, 'x0'), pe.pseudo_Obs(2.0, 0.1, 'x1')]
+    y = [pe.pseudo_Obs(1.0, 0.1, 'y0'), pe.pseudo_Obs(2.0, 0.1, 'y1')]
+
+    # Rank-deficient warning may or may not fire depending on platform/solver numerics.
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="ODR fit is rank deficient", category=RuntimeWarning)
+        out = pe.total_least_squares(x, y, func, silent=True)
+    assert len(out.fit_parameters) == 2
+
+
 def test_odr_derivatives():
     x = []
     y = []
@@ -502,7 +528,10 @@ def test_r_value_persistence():
     assert np.isclose(fitp[1].value, fitp[1].r_values['a'])
     assert np.isclose(fitp[1].value, fitp[1].r_values['b'])
 
-    fitp = pe.fits.total_least_squares(y, y, f)
+    # Rank-deficient warning may or may not fire depending on platform/solver numerics.
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="ODR fit is rank deficient", category=RuntimeWarning)
+        fitp = pe.fits.total_least_squares(y, y, f)
 
     assert np.isclose(fitp[0].value, fitp[0].r_values['a'])
     assert np.isclose(fitp[0].value, fitp[0].r_values['b'])
@@ -669,13 +698,27 @@ def test_fit_no_autograd():
         y = a[0] * np.exp(-a[1] * x)
         return y
 
-    with pytest.raises(Exception):
-        pe.least_squares(x, oy, func)
+    def func_autograd(a, x):
+        return a[0] * anp.exp(-a[1] * x)
 
-    pe.least_squares(x, oy, func, num_grad=True)
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers (ArrayBox.__array_ufunc__), so a function using numpy.exp now
+    # yields exactly the same result as one using autograd.numpy.exp.
+    for r_np, r_ag in zip(pe.least_squares(x, oy, func), pe.least_squares(x, oy, func_autograd)):
+        assert r_np == r_ag
+    for r_np, r_ag in zip(pe.total_least_squares(oy, oy, func), pe.total_least_squares(oy, oy, func_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise a
+    # clear error pointing the user to autograd.numpy.
+    def func_invalid(a, x):
+        return np.array(a[0] * np.exp(-a[1] * x), dtype=np.float64)
 
     with pytest.raises(Exception):
-        pe.total_least_squares(oy, oy, func)
+        pe.least_squares(x, oy, func_invalid)
+
+    with pytest.raises(Exception):
+        pe.total_least_squares(oy, oy, func_invalid)
 
 
 def test_invalid_fit_function():
@@ -789,7 +832,14 @@ def test_combined_fit_no_autograd():
     def func_b(a,x):
         return a[0]*np.exp(a[2]*x)
 
+    def func_a_autograd(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b_autograd(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
     funcs = {'a':func_a, 'b':func_b}
+    funcs_autograd = {'a':func_a_autograd, 'b':func_b_autograd}
     xs = {'a':xvals_a, 'b':xvals_b}
     ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
         'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
@@ -797,8 +847,17 @@ def test_combined_fit_no_autograd():
     for key in funcs.keys():
         [item.gamma_method() for item in ys[key]]
 
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers, so the fit using numpy now matches the one using autograd.numpy.
+    for r_np, r_ag in zip(pe.least_squares(xs, ys, funcs), pe.least_squares(xs, ys, funcs_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise.
+    def func_a_invalid(a, x):
+        return np.array(a[0] * np.exp(a[1] * x), dtype=np.float64)
+
     with pytest.raises(Exception):
-        pe.least_squares(xs, ys, funcs)
+        pe.least_squares(xs, ys, {'a': func_a_invalid, 'b': func_b})
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 
@@ -901,7 +960,14 @@ def test_combined_fit_no_autograd():
     def func_b(a,x):
         return a[0]*np.exp(a[2]*x)
 
+    def func_a_autograd(a,x):
+        return a[0]*anp.exp(a[1]*x)
+
+    def func_b_autograd(a,x):
+        return a[0]*anp.exp(a[2]*x)
+
     funcs = {'a':func_a, 'b':func_b}
+    funcs_autograd = {'a':func_a_autograd, 'b':func_b_autograd}
     xs = {'a':xvals_a, 'b':xvals_b}
     ys = {'a':[pe.Obs([np.random.normal(item, item*1.5, 1000)],['ensemble1']) for item in func_exp1(xvals_a)],
         'b':[pe.Obs([np.random.normal(item, item*1.4, 1000)],['ensemble1']) for item in func_exp2(xvals_b)]}
@@ -909,8 +975,17 @@ def test_combined_fit_no_autograd():
     for key in funcs.keys():
         [item.gamma_method() for item in ys[key]]
 
+    # Since autograd 1.9.0 plain numpy ufuncs are dispatched to the autograd
+    # wrappers, so the fit using numpy now matches the one using autograd.numpy.
+    for r_np, r_ag in zip(pe.least_squares(xs, ys, funcs), pe.least_squares(xs, ys, funcs_autograd)):
+        assert r_np == r_ag
+
+    # A function that genuinely cannot be traced by autograd must still raise.
+    def func_a_invalid(a, x):
+        return np.array(a[0] * np.exp(a[1] * x), dtype=np.float64)
+
     with pytest.raises(Exception):
-        pe.least_squares(xs, ys, funcs)
+        pe.least_squares(xs, ys, {'a': func_a_invalid, 'b': func_b})
 
     pe.least_squares(xs, ys, funcs, num_grad=True)
 
@@ -1098,6 +1173,7 @@ def test_combined_fit_xerr():
     }
     xd = {k: np.transpose([[1 + .01 * np.random.uniform(), 2] for i in range(len(yd[k]))]) for k in fitd}
     pe.fits.least_squares(xd, yd, fitd)
+    pe.fits.least_squares(xd, yd, fitd, n_parms=4)
 
 
 def test_x_multidim_fit():
@@ -1340,6 +1416,54 @@ def test_combined_fit_constant_shape():
     funcs = {"a": lambda a, x: a[0] + a[1] * x,
              "": lambda a, x: a[1] + x * 0}
     pe.fits.least_squares(x, y, funcs, method='migrad')
+    pe.fits.least_squares(x, y, funcs, method='migrad', n_parms=2)
+
+def test_fit_n_parms():
+    # Function that fails if the number of parameters is not specified:
+    def fcn(p, x):                                                          
+        # Assumes first half of terms are A second half are E 
+        NTerms = int(len(p)/2)
+        A = anp.array(p[0:NTerms])[:, np.newaxis]   # shape (n, 1)                                                  
+        E_P = anp.array(p[NTerms:])[:, np.newaxis]    # shape (n, 1)
+        # This if statement handles the case where x is a single value rather than an array                                        
+        if isinstance(x, anp.float64) or isinstance(x, anp.int64) or isinstance(x, float)  or isinstance(x, int):
+            x = anp.array([x])[np.newaxis, :]             # shape (1, m)                                            
+        else:
+            x = anp.array(x)[np.newaxis, :]             # shape (1, m)                                              
+        exp_term = anp.exp(-E_P * x)                      
+        weighted_sum = A * exp_term                            # shape (n, m)                                      
+        return anp.mean(weighted_sum, axis=0)       # shape(m)
+
+    c = pe.Corr([pe.pseudo_Obs(2. * np.exp(-.2 * t) + .4 * np.exp(+.4 * t) + .4 * np.exp(-.6 * t), .1, 'corr') for t in range(12)])
+
+    c.fit(fcn, n_parms=2)
+    c.fit(fcn, n_parms=4)
+
+    xf = [pe.pseudo_Obs(t, .05, 'corr') for t in range(c.T)]
+    yf = [c[t] for t in range(c.T)]
+    pe.fits.total_least_squares(xf, yf, fcn, n_parms=2)
+    pe.fits.total_least_squares(xf, yf, fcn, n_parms=4)
+
+    # Is expected to fail, this is what is fixed with n_parms
+    with pytest.raises(RuntimeError):
+        c.fit(fcn, )
+    with pytest.raises(RuntimeError):
+        pe.fits.total_least_squares(xf, yf, fcn, )
+    # Test for positivity
+    with pytest.raises(ValueError):
+        c.fit(fcn, n_parms=-2)
+    with pytest.raises(ValueError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=-4)
+    # Have to pass an interger
+    with pytest.raises(TypeError):
+        c.fit(fcn, n_parms=2.)
+    with pytest.raises(TypeError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=1.2343)
+    # Improper number of parameters (function should fail)
+    with pytest.raises(ValueError):
+        c.fit(fcn, n_parms=7)
+    with pytest.raises(ValueError):
+        pe.fits.total_least_squares(xf, yf, fcn, n_parms=5)
 
 
 def fit_general(x, y, func, silent=False, **kwargs):
@@ -1382,11 +1506,11 @@ def fit_general(x, y, func, silent=False, **kwargs):
     global print_output, beta0
     print_output = 1
     if 'initial_guess' in kwargs:
-        beta0 = kwargs.get('initial_guess')
+        beta0 = np.asarray(kwargs.get('initial_guess'), dtype=np.float64)
         if len(beta0) != n_parms:
             raise Exception('Initial guess does not have the correct length.')
     else:
-        beta0 = np.arange(n_parms)
+        beta0 = np.arange(n_parms, dtype=np.float64)
 
     if len(x) != len(y):
         raise Exception('x and y have to have the same length')
@@ -1414,23 +1538,45 @@ def fit_general(x, y, func, silent=False, **kwargs):
 
         xerr = kwargs.get('xerr')
 
+        # odrpack expects f(x, beta), but pyerrors convention is f(beta, x)
+        def wrapped_func(x, beta):
+            return func(beta, x)
+
         if length == len(obs):
             assert 'x_constants' in kwargs
-            data = RealData(kwargs.get('x_constants'), obs, sy=yerr)
-            fit_type = 2
+            x_data = np.asarray(kwargs.get('x_constants'))
+            y_data = np.asarray(obs)
+            # Ordinary least squares (no x errors)
+            output = odr_fit(
+                wrapped_func,
+                x_data,
+                y_data,
+                beta0=beta0,
+                weight_y=1.0 / np.asarray(yerr) ** 2,
+                partol=np.finfo(np.float64).eps,
+                task='explicit-OLS',
+                diff_scheme='central'
+            )
         elif length == len(obs) // 2:
-            data = RealData(obs[:length], obs[length:], sx=xerr, sy=yerr)
-            fit_type = 0
+            x_data = np.asarray(obs[:length])
+            y_data = np.asarray(obs[length:])
+            # ODR with x errors
+            output = odr_fit(
+                wrapped_func,
+                x_data,
+                y_data,
+                beta0=beta0,
+                weight_x=1.0 / np.asarray(xerr) ** 2,
+                weight_y=1.0 / np.asarray(yerr) ** 2,
+                partol=np.finfo(np.float64).eps,
+                task='explicit-ODR',
+                diff_scheme='central'
+            )
         else:
             raise Exception('x and y do not fit together.')
 
-        model = Model(func)
-
-        odr = ODR(data, model, beta0, partol=np.finfo(np.float64).eps)
-        odr.set_job(fit_type=fit_type, deriv=1)
-        output = odr.run()
         if print_output and not silent:
-            print(*output.stopreason)
+            print(output.stopreason)
             print('chisquare/d.o.f.:', output.res_var)
             print_output = 0
         beta0 = output.beta
@@ -1562,3 +1708,81 @@ def old_prior_fit(x, y, func, priors, silent=False, **kwargs):
         qqplot(x, y, func, result)
 
     return output
+
+def test_dof_prior_fit():
+    """Performs an uncorrelated fit with a prior to uncorrelated data then
+    the expected chisquare and the usual dof need to agree"""
+    N = 5
+
+    def fitf(a, x):
+        return a[0] + 0 * x
+
+    x = [1. for i in range(N)]
+    y = [pe.cov_Obs(i, .1, '%d' % (i)) for i in range(N)]
+    [o.gm() for o in y]
+    res = pe.fits.least_squares(x, y, fitf, expected_chisquare=True, priors=[pe.cov_Obs(3, 1, 'p')])
+    assert res.chisquare_by_expected_chisquare == res.chisquare_by_dof
+    
+    num_samples = 400
+    N = 10
+
+    x = norm.rvs(size=(N, num_samples)) # generate random numbers
+
+    r = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            if(i==j):
+                r[i, j] = 1.0 # element in correlation matrix
+
+    errl = np.sqrt([3.4, 2.5, 3.6, 2.8, 4.2, 4.7, 4.9, 5.1, 3.2, 4.2]) # set y errors
+    for i in range(N):
+        for j in range(N):
+            if(i==j):
+                r[i, j] *= errl[i] * errl[j] # element in covariance matrix
+
+    c = cholesky(r, lower=True)
+    y = np.dot(c, x)
+    x = np.arange(N)
+    x_dict = {}
+    y_dict = {}
+    for i,item in enumerate(x):
+        x_dict[str(item)] = [x[i]]
+
+    for linear in [True, False]:
+        data = []
+        for i in range(N):
+            if linear:
+                data.append(pe.Obs([[i + 1 + o for o in y[i]]], ['ens'+str(i)]))
+            else:
+                data.append(pe.Obs([[np.exp(-(i + 1)) + np.exp(-(i + 1)) * o for o in y[i]]], ['ens'+str(i)]))
+
+        [o.gamma_method() for o in data]
+
+        data_dict = {}
+        for i,item in enumerate(x):
+            data_dict[str(item)] = [data[i]]
+
+        corr = pe.covariance(data, correlation=True)
+        chol = np.linalg.cholesky(corr)
+        covdiag = np.diag(1 / np.asarray([o.dvalue for o in data]))
+        chol_inv = scipy.linalg.solve_triangular(chol, covdiag, lower=True)
+        chol_inv_keys = [""]
+        chol_inv_keys_combined_fit = [str(item) for i,item in enumerate(x)]
+
+        if linear:
+            def fitf(p, x):
+                return p[1] + p[0] * x
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
+        else:
+            def fitf(p, x):
+                return p[1] * anp.exp(-p[0] * x)
+            fitf_dict = {}
+            for i,item in enumerate(x):
+                fitf_dict[str(item)] = fitf
+
+        fit_exp = pe.least_squares(x, data, fitf, expected_chisquare=True, priors = {0:pe.cov_Obs(1.0, 1, 'p')})
+        fit_cov = pe.least_squares(x, data, fitf,  correlated_fit = True, inv_chol_cov_matrix = [chol_inv,chol_inv_keys],  priors = {0:pe.cov_Obs(1.0, 1, 'p')})
+        assert np.isclose(fit_exp.chisquare_by_expected_chisquare,fit_exp.chisquare_by_dof,atol=1e-8)
+        assert np.isclose(fit_exp.chisquare_by_expected_chisquare,fit_cov.chisquare_by_dof,atol=1e-8)

@@ -1,6 +1,5 @@
 import numpy as np
 
-
 gammaX = np.array(
     [[0, 0, 0, 1j], [0, 0, 1j, 0], [0, -1j, 0, 0], [-1j, 0, 0, 0]],
     dtype=complex)

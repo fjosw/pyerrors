@@ -1,16 +1,17 @@
-from collections import defaultdict
-import gzip
-import lxml.etree as et
-import getpass
-import socket
 import datetime
+import getpass
+import gzip
 import json
+import socket
 import warnings
+from collections import defaultdict
+
+import lxml.etree as et
 import numpy as np
-from ..obs import Obs
-from ..obs import _merge_idx
-from ..covobs import Covobs
+
 from .. import version as pyerrorsversion
+from ..covobs import Covobs
+from ..obs import Obs, _merge_idx
 
 
 # Based on https://stackoverflow.com/a/10076823
@@ -45,24 +46,24 @@ def _dict_to_xmlstring(d):
             if k.startswith('#'):
                 for la in d[k]:
                     iters += la
-                iters = '<array>\n' + iters + '<%sarray>\n' % ('/')
+                iters = '<array>\n' + iters + '<{}array>\n'.format('/')
                 return iters
             if isinstance(d[k], dict):
-                iters += '<%s>\n' % (k) + _dict_to_xmlstring(d[k]) + '<%s%s>\n' % ('/', k)
+                iters += f'<{k}>\n' + _dict_to_xmlstring(d[k]) + '<{}{}>\n'.format('/', k)
             elif isinstance(d[k], str):
                 if len(d[k]) > 100:
-                    iters += '<%s>\n ' % (k) + d[k] + ' \n<%s%s>\n' % ('/', k)
+                    iters += f'<{k}>\n ' + d[k] + ' \n<{}{}>\n'.format('/', k)
                 else:
-                    iters += '<%s> ' % (k) + d[k] + ' <%s%s>\n' % ('/', k)
+                    iters += f'<{k}> ' + d[k] + ' <{}{}>\n'.format('/', k)
             elif isinstance(d[k], list):
                 for i in range(len(d[k])):
                     iters += _dict_to_xmlstring(d[k][i])
             elif not d[k]:
                 return '\n'
             else:
-                raise Exception('Type', type(d[k]), 'not supported in export!')
+                raise TypeError(f'Type {type(d[k]).__name__} not supported in export!')
     else:
-        raise Exception('Type', type(d), 'not supported in export!')
+        raise TypeError(f'Type {type(d).__name__} not supported in export!')
     return iters
 
 
@@ -72,20 +73,20 @@ def _dict_to_xmlstring_spaces(d, space='  '):
     c = 0
     cm = False
     for li in s.split('\n'):
-        if li.startswith('<%s' % ('/')):
+        if li.startswith('<{}'.format('/')):
             c -= 1
             cm = True
-        for i in range(c):
+        for _i in range(c):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if '<%s' % ('/') not in li:
+            if '<{}'.format('/') not in li:
                 c += 1
         cm = False
     return o
 
 
-def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
+def create_pobs_string(obsl, name, spec='', origin='', symbol=None, enstag=None):
     """Export a list of Obs or structures containing Obs to an xml string
     according to the Zeuthen pobs format.
 
@@ -113,6 +114,9 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
         XML formatted string of the input data
     """
 
+    if symbol is None:
+        symbol = []
+
     od = {}
     ename = obsl[0].e_names[0]
     names = list(obsl[0].deltas.keys())
@@ -120,11 +124,11 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
     onames = [name.replace('|', '') for name in names]
     for o in obsl:
         if len(o.e_names) != 1:
-            raise Exception('You try to export dobs to obs!')
+            raise ValueError('You try to export dobs to obs!')
         if o.e_names[0] != ename:
-            raise Exception('You try to export dobs to obs!')
+            raise ValueError('You try to export dobs to obs!')
         if len(o.deltas.keys()) != nr:
-            raise Exception('Incompatible obses in list')
+            raise ValueError('Incompatible obses in list')
     od['observables'] = {}
     od['observables']['schema'] = {'name': 'lattobs', 'version': '1.0'}
     od['observables']['origin'] = {
@@ -139,35 +143,35 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
     pd['name'] = name
     if enstag:
         if not isinstance(enstag, str):
-            raise Exception('enstag has to be a string!')
+            raise TypeError('enstag has to be a string!')
         pd['enstag'] = enstag
     else:
         pd['enstag'] = ename
-    pd['nr'] = '%d' % (nr)
+    pd['nr'] = f'{nr}'
     pd['array'] = []
     osymbol = 'cfg'
     if not isinstance(symbol, list):
-        raise Exception('Symbol has to be a list!')
+        raise TypeError('Symbol has to be a list!')
     if not (len(symbol) == 0 or len(symbol) == len(obsl)):
-        raise Exception('Symbol has to be a list of lenght 0 or %d!' % (len(obsl)))
+        raise ValueError(f'Symbol has to be a list of length 0 or {len(obsl)}!')
     for s in symbol:
-        osymbol += ' %s' % s
+        osymbol += f' {s}'
     for r in range(nr):
         ad = {}
         ad['id'] = onames[r]
         Nconf = len(obsl[0].deltas[names[r]])
-        layout = '%d i f%d' % (Nconf, len(obsl))
+        layout = f'{Nconf} i f{len(obsl)}'
         ad['layout'] = layout
         ad['symbol'] = osymbol
         data = ''
         for c in range(Nconf):
-            data += '%d ' % obsl[0].idl[names[r]][c]
+            data += f'{obsl[0].idl[names[r]][c]} '
             for o in obsl:
                 num = o.deltas[names[r]][c] + o.r_values[names[r]]
                 if num == 0:
                     data += '0 '
                 else:
-                    data += '%1.16e ' % (num)
+                    data += f'{num:1.16e} '
             data += '\n'
         ad['#data'] = data
         pd['array'].append(ad)
@@ -176,7 +180,7 @@ def create_pobs_string(obsl, name, spec='', origin='', symbol=[], enstag=None):
     return rs
 
 
-def write_pobs(obsl, fname, name, spec='', origin='', symbol=[], enstag=None, gz=True):
+def write_pobs(obsl, fname, name, spec='', origin='', symbol=None, enstag=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen pobs format.
 
@@ -236,7 +240,7 @@ class _NoTagInDataError(Exception):
     """Raised when tag is not in data"""
     def __init__(self, tag):
         self.tag = tag
-        super().__init__('Tag %s not in data!' % (self.tag))
+        super().__init__(f'Tag {self.tag} not in data!')
 
 
 def _find_tag(dat, tag):
@@ -285,7 +289,7 @@ def _import_array(arr):
 
 
 def _import_rdata(rd):
-    name, idx, mask, deltas = _import_array(rd)
+    name, idx, _mask, deltas = _import_array(rd)
     return deltas, name, idx
 
 
@@ -333,8 +337,8 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
             content = fin.read()
     else:
         if fname.endswith('.gz'):
-            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r') as fin:
+            warnings.warn(f"Trying to read from {fname} without unzipping!", UserWarning, stacklevel=2)
+        with open(fname) as fin:
             content = fin.read()
 
     # parse xml file content
@@ -359,9 +363,9 @@ def read_pobs(fname, full_output=False, gz=True, separator_insertion=None):
         elif isinstance(separator_insertion, int):
             name = name[:separator_insertion] + '|' + name[separator_insertion:]
         elif isinstance(separator_insertion, str):
-            name = name.replace(separator_insertion, "|%s" % (separator_insertion))
+            name = name.replace(separator_insertion, f"|{separator_insertion}")
         else:
-            raise Exception("separator_insertion has to be string or int, is ", type(separator_insertion))
+            raise TypeError(f"separator_insertion has to be string or int, is {type(separator_insertion).__name__}")
         names.append(name)
         idl.append(idx)
     res = [Obs([d[i] for d in deltas], names, idl=idl) for i in range(len(deltas[0]))]
@@ -479,9 +483,9 @@ def import_dobs_string(content, full_output=False, separator_insertion=True):
                 elif isinstance(separator_insertion, int):
                     rname = rname[:separator_insertion] + '|' + rname[separator_insertion:]
                 elif isinstance(separator_insertion, str):
-                    rname = rname.replace(separator_insertion, "|%s" % (separator_insertion))
+                    rname = rname.replace(separator_insertion, f"|{separator_insertion}")
                 else:
-                    raise Exception("separator_insertion has to be string or int, is ", type(separator_insertion))
+                    raise TypeError(f"separator_insertion has to be string or int, is {type(separator_insertion).__name__}")
                 if '|' in rname:
                     new_ename = rname[:rname.index('|')]
                 else:
@@ -612,8 +616,8 @@ def read_dobs(fname, full_output=False, gz=True, separator_insertion=True):
             content = fin.read()
     else:
         if fname.endswith('.gz'):
-            warnings.warn("Trying to read from %s without unzipping!" % fname, UserWarning)
-        with open(fname, 'r') as fin:
+            warnings.warn(f"Trying to read from {fname} without unzipping!", UserWarning, stacklevel=2)
+        with open(fname) as fin:
             content = fin.read()
 
     return import_dobs_string(content, full_output, separator_insertion=separator_insertion)
@@ -630,32 +634,32 @@ def _dobsdict_to_xmlstring(d):
             elif k.startswith('#'):
                 for li in d[k]:
                     iters += li
-                iters = '<array>\n' + iters + '<%sarray>\n' % ('/')
+                iters = '<array>\n' + iters + '<{}array>\n'.format('/')
                 return iters
             if isinstance(d[k], dict):
-                iters += '<%s>\n' % (k) + _dobsdict_to_xmlstring(d[k]) + '<%s%s>\n' % ('/', k)
+                iters += f'<{k}>\n' + _dobsdict_to_xmlstring(d[k]) + '<{}{}>\n'.format('/', k)
             elif isinstance(d[k], str):
                 if len(d[k]) > 100:
-                    iters += '<%s>\n ' % (k) + d[k] + ' \n<%s%s>\n' % ('/', k)
+                    iters += f'<{k}>\n ' + d[k] + ' \n<{}{}>\n'.format('/', k)
                 else:
-                    iters += '<%s> ' % (k) + d[k] + ' <%s%s>\n' % ('/', k)
+                    iters += f'<{k}> ' + d[k] + ' <{}{}>\n'.format('/', k)
             elif isinstance(d[k], list):
                 tmps = ''
                 if k in ['edata', 'cdata']:
                     for i in range(len(d[k])):
-                        tmps += '<%s>\n' % (k) + _dobsdict_to_xmlstring(d[k][i]) + '</%s>\n' % (k)
+                        tmps += f'<{k}>\n' + _dobsdict_to_xmlstring(d[k][i]) + f'</{k}>\n'
                 else:
                     for i in range(len(d[k])):
                         tmps += _dobsdict_to_xmlstring(d[k][i])
                 iters += tmps
             elif isinstance(d[k], (int, float)):
-                iters += '<%s> ' % (k) + str(d[k]) + ' <%s%s>\n' % ('/', k)
+                iters += f'<{k}> ' + str(d[k]) + ' <{}{}>\n'.format('/', k)
             elif not d[k]:
                 return '\n'
             else:
-                raise Exception('Type', type(d[k]), 'not supported in export!')
+                raise TypeError(f'Type {type(d[k]).__name__} not supported in export!')
     else:
-        raise Exception('Type', type(d), 'not supported in export!')
+        raise TypeError(f'Type {type(d).__name__} not supported in export!')
     return iters
 
 
@@ -665,20 +669,20 @@ def _dobsdict_to_xmlstring_spaces(d, space='  '):
     c = 0
     cm = False
     for li in s.split('\n'):
-        if li.startswith('<%s' % ('/')):
+        if li.startswith('<{}'.format('/')):
             c -= 1
             cm = True
-        for i in range(c):
+        for _i in range(c):
             o += space
         o += li + '\n'
         if li.startswith('<') and not cm:
-            if '<%s' % ('/') not in li:
+            if '<{}'.format('/') not in li:
                 c += 1
         cm = False
     return o
 
 
-def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None):
+def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=None, who=None, enstags=None):
     """Generate the string for the export of a list of Obs or structures containing Obs
     to a .xml.gz file according to the Zeuthen dobs format.
 
@@ -711,6 +715,8 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     """
     if enstags is None:
         enstags = {}
+    if symbol is None:
+        symbol = []
     od = {}
     r_names = []
     for o in obsl:
@@ -742,21 +748,21 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     pd['name'] = name
     pd['array'] = {}
     pd['array']['id'] = 'val'
-    pd['array']['layout'] = '1 f%d' % (len(obsl))
+    pd['array']['layout'] = f'1 f{len(obsl)}'
     osymbol = ''
     if symbol:
         if not isinstance(symbol, list):
-            raise Exception('Symbol has to be a list!')
+            raise TypeError('Symbol has to be a list!')
         if not (len(symbol) == 0 or len(symbol) == len(obsl)):
-            raise Exception('Symbol has to be a list of lenght 0 or %d!' % (len(obsl)))
+            raise ValueError(f'Symbol has to be a list of length 0 or {len(obsl)}!')
         osymbol = symbol[0]
         for s in symbol[1:]:
-            osymbol += ' %s' % s
+            osymbol += f' {s}'
         pd['array']['symbol'] = osymbol
 
-    pd['array']['#values'] = ['  '.join(['%1.16e' % o.value for o in obsl])]
-    pd['ne'] = '%d' % (ne)
-    pd['nc'] = '%d' % (nc)
+    pd['array']['#values'] = ['  '.join([f'{o.value:1.16e}' for o in obsl])]
+    pd['ne'] = f'{ne}'
+    pd['nc'] = f'{nc}'
     pd['edata'] = []
     for name in mc_names:
         ed = {}
@@ -772,13 +778,13 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             ad['id'] = repname.replace('|', '')
             idx = _merge_idx([o.idl.get(repname, []) for o in obsl])
             Nconf = len(idx)
-            layout = '%d i f%d' % (Nconf, len(obsl))
+            layout = f'{Nconf} i f{len(obsl)}'
             ad['layout'] = layout
             data = ''
             counters = [0 for o in obsl]
             offsets = [o.r_values[repname] - o.value if repname in o.r_values else 0 for o in obsl]
             for ci in idx:
-                data += '%d ' % ci
+                data += f'{ci} '
                 for oi in range(len(obsl)):
                     o = obsl[oi]
                     if repname in o.idl:
@@ -787,14 +793,14 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                             if num == 0:
                                 data += '0 '
                             else:
-                                data += '%1.16e ' % (num)
+                                data += f'{num:1.16e} '
                             continue
                         if o.idl[repname][counters[oi]] == ci:
                             num = o.deltas[repname][counters[oi]] + offsets[oi]
                             if num == 0:
                                 data += '0 '
                             else:
-                                data += '%1.16e ' % (num)
+                                data += f'{num:1.16e} '
                             counters[oi] += 1
                             if counters[oi] >= len(o.idl[repname]):
                                 counters[oi] = -1
@@ -803,7 +809,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                             if num == 0:
                                 data += '0 '
                             else:
-                                data += '%1.16e ' % (num)
+                                data += f'{num:1.16e} '
                     else:
                         data += '0 '
                 data += '\n'
@@ -816,7 +822,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             for cname in o.cov_names:
                 if cname in allcov:
                     if not np.array_equal(allcov[cname], o.covobs[cname].cov):
-                        raise Exception('Inconsistent covariance matrices for %s!' % (cname))
+                        raise Exception(f'Inconsistent covariance matrices for {cname}!')
                 else:
                     allcov[cname] = o.covobs[cname].cov
         pd['cdata'] = []
@@ -828,12 +834,12 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
             if allcov[cname].shape == ():
                 ncov = 1
                 covd['layout'] = '1 1 f'
-                covd['#data'] = '%1.14e' % (allcov[cname])
+                covd['#data'] = f'{allcov[cname]:1.14e}'
             else:
                 shape = allcov[cname].shape
                 assert (shape[0] == shape[1])
                 ncov = shape[0]
-                covd['layout'] = '%d %d f' % (ncov, ncov)
+                covd['layout'] = f'{ncov} {ncov} f'
                 ds = ''
                 for i in range(ncov):
                     for j in range(ncov):
@@ -841,19 +847,19 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
                         if val == 0:
                             ds += '0 '
                         else:
-                            ds += '%1.14e ' % (val)
+                            ds += f'{val:1.14e} '
                     ds += '\n'
                 covd['#data'] = ds
 
             gradd = {'id': 'grad'}
-            gradd['layout'] = '%d f%d' % (ncov, len(obsl))
+            gradd['layout'] = f'{ncov} f{len(obsl)}'
             ds = ''
             for i in range(ncov):
                 for o in obsl:
                     if cname in o.covobs:
                         val = o.covobs[cname].grad[i].item()
                         if val != 0:
-                            ds += '%1.14e ' % (val)
+                            ds += f'{val:1.14e} '
                         else:
                             ds += '0 '
                     else:
@@ -867,7 +873,7 @@ def create_dobs_string(obsl, name, spec='dobs v1.0', origin='', symbol=[], who=N
     return rs
 
 
-def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=[], who=None, enstags=None, gz=True):
+def write_dobs(obsl, fname, name, spec='dobs v1.0', origin='', symbol=None, who=None, enstags=None, gz=True):
     """Export a list of Obs or structures containing Obs to a .xml.gz file
     according to the Zeuthen dobs format.
 

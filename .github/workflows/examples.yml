@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '0 4 1 * *'
 
+permissions:
+  contents: read
+
 jobs:
   examples:
     runs-on: ${{ matrix.os }}
@@ -21,23 +24,27 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
-      - name: Install
+      - name: Install LaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install dvipng texlive-latex-extra texlive-fonts-recommended cm-super
-          uv pip install wheel --system
-          uv pip install . --system
-          uv pip install pytest nbmake --system
-          uv pip install -U matplotlib!=3.7.0 --system # Exclude version 3.7.0 of matplotlib as this breaks local imports of style files.
+          sudo apt-get install -y --no-install-recommends \
+            dvipng texlive-latex-extra texlive-fonts-recommended cm-super
 
+      - name: Install
+        run: uv pip install . --group examples --system
+
+      # The notebooks are independent (only 07 writes to disk), so execute them in
+      # parallel instead of serially.
       - name: Run tests
-        run: pytest -vv --nbmake examples/*.ipynb
+        run: pytest -vv -n auto --nbmake examples/*.ipynb

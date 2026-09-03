@@ -1,20 +1,22 @@
 import gc
-from collections.abc import Sequence
 import warnings
-import numpy as np
+from collections.abc import Sequence
+
 import autograd.numpy as anp
+import iminuit
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy.optimize
 import scipy.stats
-import matplotlib.pyplot as plt
-from matplotlib import gridspec
-from scipy.odr import ODR, Model, RealData
-import iminuit
-from autograd import jacobian as auto_jacobian
-from autograd import hessian as auto_hessian
 from autograd import elementwise_grad as egrad
-from numdifftools import Jacobian as num_jacobian
+from autograd import hessian as auto_hessian
+from autograd import jacobian as auto_jacobian
+from matplotlib import gridspec
 from numdifftools import Hessian as num_hessian
-from .obs import Obs, derived_observable, covariance, cov_Obs, invert_corr_cov_cholesky
+from numdifftools import Jacobian as num_jacobian
+from odrpack import odr_fit
+
+from .obs import Obs, cov_Obs, covariance, derived_observable, invert_corr_cov_cholesky
 
 
 class Fit_result(Sequence):
@@ -131,7 +133,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         Obs (e.g. results from a previous fit) or strings containing a value and an error formatted like
         0.548(23), 500(40) or 0.5(0.4)
     silent : bool, optional
-        If true all output to the console is omitted (default False).
+        If True all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for
         non-linear fits with many parameters. In case of correlated fits the guess is used to perform
@@ -139,10 +141,10 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     method : str, optional
         can be used to choose an alternative method for the minimization of chisquare.
         The possible methods are the ones which can be used for scipy.optimize.minimize and
-        migrad of iminuit. If no method is specified, Levenberg-Marquard is used.
+        migrad of iminuit. If no method is specified, Levenberg–Marquardt is used.
         Reliable alternatives are migrad, Powell and Nelder-Mead.
     tol: float, optional
-        can be used (only for combined fits and methods other than Levenberg-Marquard) to set the tolerance for convergence
+        can be used (only for combined fits and methods other than Levenberg–Marquardt) to set the tolerance for convergence
         to a different value to either speed up convergence at the cost of a larger error on the fitted parameters (and possibly
         invalid estimates for parameter uncertainties) or smaller values to get more accurate parameter values
         The stopping criterion depends on the method, e.g. migrad: edm_max = 0.002 * tol * errordef (EDM criterion: edm < edm_max)
@@ -152,7 +154,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         In practice the correlation matrix is Cholesky decomposed and inverted (instead of the covariance matrix).
         This procedure should be numerically more stable as the correlation matrix is typically better conditioned (Jacobi preconditioning).
     inv_chol_cov_matrix [array,list], optional
-        array: shape = (no of y values) X (no of y values)
+        array: shape = (number of y values) X (number of y values)
         list:   for an uncombined fit: [""]
                 for a combined fit: list of keys belonging to the corr_matrix saved in the array, must be the same as the keys of the y dict in alphabetical order
         If correlated_fit=True is set as well, can provide an inverse covariance matrix (y errors, dy_f included!) of your own choosing for a correlated fit.
@@ -168,6 +170,9 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         If True, a quantile-quantile plot of the fit result is generated (default False).
     num_grad : bool
         Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
+    n_parms : int, optional
+        Number of fit parameters. Overrides automatic detection of parameter count.
+        Useful when autodetection fails. Must match the length of initial_guess or priors (if provided).
 
     Returns
     -------
@@ -269,26 +274,38 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
         raise Exception("No y errors available, run the gamma method first.")
 
     # number of fit parameters
-    n_parms_ls = []
-    for key in key_ls:
-        if not callable(funcd[key]):
-            raise TypeError('func (key=' + key + ') is not a function.')
-        if np.asarray(xd[key]).shape[-1] != len(yd[key]):
-            raise ValueError('x and y input (key=' + key + ') do not have the same length')
-        for n_loc in range(100):
-            try:
-                funcd[key](np.arange(n_loc), x_all.T[0])
-            except TypeError:
-                continue
-            except IndexError:
-                continue
+    if 'n_parms' in kwargs:
+        n_parms = kwargs.get('n_parms')
+        if not isinstance(n_parms, int):
+            raise TypeError(
+                f"'n_parms' must be an integer, got {n_parms!r} "
+                f"of type {type(n_parms).__name__}."
+            )
+        if n_parms <= 0:
+            raise ValueError(
+                f"'n_parms' must be a positive integer, got {n_parms}."
+            )
+    else:
+        n_parms_ls = []
+        for key in key_ls:
+            if not callable(funcd[key]):
+                raise TypeError('func (key=' + key + ') is not a function.')
+            if np.asarray(xd[key]).shape[-1] != len(yd[key]):
+                raise ValueError('x and y input (key=' + key + ') do not have the same length')
+            for n_loc in range(100):
+                try:
+                    funcd[key](np.arange(n_loc), x_all.T[0])
+                except TypeError:
+                    continue
+                except IndexError:
+                    continue
+                else:
+                    break
             else:
-                break
-        else:
-            raise RuntimeError("Fit function (key=" + key + ") is not valid.")
-        n_parms_ls.append(n_loc)
+                raise RuntimeError("Fit function (key=" + key + ") is not valid.")
+            n_parms_ls.append(n_loc)
 
-    n_parms = max(n_parms_ls)
+        n_parms = max(n_parms_ls)
 
     if len(key_ls) > 1:
         for key in key_ls:
@@ -339,7 +356,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     if 'initial_guess' in kwargs:
         x0 = kwargs.get('initial_guess')
         if len(x0) != n_parms:
-            raise ValueError('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+            raise ValueError(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
     else:
         x0 = [0.1] * n_parms
 
@@ -457,7 +474,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
             hat_vector = prepare_hat_matrix()
             A = W @ hat_vector
             P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
-            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W)
+            expected_chisquare = np.trace((np.identity(y_all.shape[-1]) - P_phi) @ W @ cov @ W) + len(loc_priors)
             output.chisquare_by_expected_chisquare = output.chisquare / expected_chisquare
             if not silent:
                 print('chisquare/expected_chisquare:', output.chisquare_by_expected_chisquare)
@@ -466,7 +483,7 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
 
     try:
         hess = hessian(chisqfunc)(fitp)
-    except TypeError:
+    except (TypeError, ValueError, np.linalg.LinAlgError):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     len_y = len(y_f)
@@ -479,12 +496,12 @@ def least_squares(x, y, func, priors=None, silent=False, **kwargs):
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms, n_parms:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda x_all, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all) + loc_priors, man_grad=list(deriv_y[i])))
+        result.append(derived_observable(lambda x_all, i=i, **kwargs: (x_all[0] + np.finfo(np.float64).eps) / (y_all[0].value + np.finfo(np.float64).eps) * fitp[i], list(y_all) + loc_priors, man_grad=list(deriv_y[i])))
 
     output.fit_parameters = result
 
@@ -535,21 +552,24 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         It is important that all numpy functions refer to autograd.numpy, otherwise the differentiation
         will not work.
     silent : bool, optional
-        If true all output to the console is omitted (default False).
+        If True all output to the console is omitted (default False).
     initial_guess : list
         can provide an initial guess for the input parameters. Relevant for non-linear
         fits with many parameters.
     expected_chisquare : bool
-        If true prints the expected chisquare which is
+        If True prints the expected chisquare which is
         corrected by effects caused by correlated input data.
         This can take a while as the full correlation matrix
         has to be calculated (default False).
     num_grad : bool
-        Use numerical differentation instead of automatic differentiation to perform the error propagation (default False).
+        Use numerical differentiation instead of automatic differentiation to perform the error propagation (default False).
+    n_parms : int, optional
+        Number of fit parameters. Overrides automatic detection of parameter count.
+        Useful when autodetection fails. Must match the length of initial_guess (if provided).
 
     Notes
     -----
-    Based on the orthogonal distance regression module of scipy.
+    Based on the odrpack orthogonal distance regression library.
 
     Returns
     -------
@@ -575,19 +595,32 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
     if not callable(func):
         raise TypeError('func has to be a function.')
 
-    for i in range(42):
-        try:
-            func(np.arange(i), x.T[0])
-        except TypeError:
-            continue
-        except IndexError:
-            continue
-        else:
-            break
+    if 'n_parms' in kwargs:
+        n_parms = kwargs.get('n_parms')
+        if not isinstance(n_parms, int):
+            raise TypeError(
+                f"'n_parms' must be an integer, got {n_parms!r} "
+                f"of type {type(n_parms).__name__}."
+            )
+        if n_parms <= 0:
+            raise ValueError(
+                f"'n_parms' must be a positive integer, got {n_parms}."
+            )
     else:
-        raise RuntimeError("Fit function is not valid.")
+        for i in range(100):
+            try:
+                func(np.arange(i), x.T[0])
+            except TypeError:
+                continue
+            except IndexError:
+                continue
+            else:
+                break
+        else:
+            raise RuntimeError("Fit function is not valid.")
 
-    n_parms = i
+        n_parms = i
+
     if not silent:
         print('Fit with', n_parms, 'parameter' + 's' * (n_parms > 1))
 
@@ -603,17 +636,27 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         raise Exception('No y errors available, run the gamma method first.')
 
     if 'initial_guess' in kwargs:
-        x0 = kwargs.get('initial_guess')
+        x0 = np.asarray(kwargs.get('initial_guess'), dtype=np.float64)
         if len(x0) != n_parms:
-            raise Exception('Initial guess does not have the correct length: %d vs. %d' % (len(x0), n_parms))
+            raise ValueError(f'Initial guess does not have the correct length: {len(x0)} vs. {n_parms}')
     else:
-        x0 = [1] * n_parms
+        x0 = np.ones(n_parms, dtype=np.float64)
 
-    data = RealData(x_f, y_f, sx=dx_f, sy=dy_f)
-    model = Model(func)
-    odr = ODR(data, model, x0, partol=np.finfo(np.float64).eps)
-    odr.set_job(fit_type=0, deriv=1)
-    out = odr.run()
+    # odrpack expects f(x, beta), but pyerrors convention is f(beta, x)
+    def wrapped_func(x, beta):
+        return func(beta, x)
+
+    out = odr_fit(
+        wrapped_func,
+        np.asarray(x_f, dtype=np.float64),
+        np.asarray(y_f, dtype=np.float64),
+        beta0=x0,
+        weight_x=1.0 / np.asarray(dx_f, dtype=np.float64) ** 2,
+        weight_y=1.0 / np.asarray(dy_f, dtype=np.float64) ** 2,
+        partol=np.finfo(np.float64).eps,
+        task='explicit-ODR',
+        diff_scheme='central'
+    )
 
     output.residual_variance = out.res_var
 
@@ -621,15 +664,29 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
     output.message = out.stopreason
 
-    output.xplus = out.xplus
+    output.xplus = out.xplusd
 
     if not silent:
         print('Method: ODR')
-        print(*out.stopreason)
+        print(out.stopreason)
         print('Residual variance:', output.residual_variance)
 
-    if out.info > 3:
-        raise Exception('The minimization procedure did not converge.')
+    if not out.success:
+        # ODRPACK95 info code structure (see User Guide §4):
+        #   info % 10        -> convergence: 1=sum-of-sq, 2=param, 3=both
+        #   info // 10 % 10  -> 1 = problem not full rank at solution
+        convergence_status = out.info % 10
+        rank_deficient = (out.info // 10 % 10) == 1
+
+        if convergence_status in [1, 2, 3] and rank_deficient:
+            warnings.warn(
+                f"ODR fit is rank deficient (irank={out.irank}, inv_condnum={out.inv_condnum:.2e}). "
+                "This may indicate a vanishing chi-squared (n_obs == n_parms). "
+                "Results may be unreliable.",
+                RuntimeWarning, stacklevel=2
+            )
+        else:
+            raise Exception('The minimization procedure did not converge.')
 
     m = x_f.size
 
@@ -648,26 +705,26 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
 
         number_of_x_parameters = int(m / x_f.shape[-1])
 
-        old_jac = jacobian(func)(out.beta, out.xplus)
+        old_jac = jacobian(func)(out.beta, out.xplusd)
         fused_row1 = np.concatenate((old_jac, np.concatenate((number_of_x_parameters * [np.zeros(old_jac.shape)]), axis=0)))
-        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(out.xplus, out.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
+        fused_row2 = np.concatenate((jacobian(lambda x, y: func(y, x))(out.xplusd, out.beta).reshape(x_f.shape[-1], x_f.shape[-1] * number_of_x_parameters), np.identity(number_of_x_parameters * old_jac.shape[0])))
         new_jac = np.concatenate((fused_row1, fused_row2), axis=1)
 
         A = W @ new_jac
         P_phi = A @ np.linalg.pinv(A.T @ A) @ A.T
         expected_chisquare = np.trace((np.identity(P_phi.shape[0]) - P_phi) @ W @ cov @ W)
         if expected_chisquare <= 0.0:
-            warnings.warn("Negative expected_chisquare.", RuntimeWarning)
+            warnings.warn("Negative expected_chisquare.", RuntimeWarning, stacklevel=2)
             expected_chisquare = np.abs(expected_chisquare)
-        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel()))) / expected_chisquare
+        output.chisquare_by_expected_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplusd.ravel()))) / expected_chisquare
         if not silent:
             print('chisquare/expected_chisquare:',
                   output.chisquare_by_expected_chisquare)
 
     fitp = out.beta
     try:
-        hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplus.ravel())))
-    except TypeError:
+        hess = hessian(odr_chisquare)(np.concatenate((fitp, out.xplusd.ravel())))
+    except (TypeError, ValueError, np.linalg.LinAlgError):
         raise Exception("It is required to use autograd.numpy instead of numpy within fit functions, see the documentation for details.") from None
 
     def odr_chisquare_compact_x(d):
@@ -675,34 +732,34 @@ def total_least_squares(x, y, func, silent=False, **kwargs):
         chisq = anp.sum(((y_f - model) / dy_f) ** 2) + anp.sum(((d[n_parms + m:].reshape(x_shape) - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_x = hessian(odr_chisquare_compact_x)(np.concatenate((fitp, out.xplus.ravel(), x_f.ravel())))
+    jac_jac_x = hessian(odr_chisquare_compact_x)(np.concatenate((fitp, out.xplusd.ravel(), x_f.ravel())))
 
     # Compute hess^{-1} @ jac_jac_x[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_x = -scipy.linalg.solve(hess, jac_jac_x[:n_parms + m, n_parms + m:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     def odr_chisquare_compact_y(d):
         model = func(d[:n_parms], d[n_parms:n_parms + m].reshape(x_shape))
         chisq = anp.sum(((d[n_parms + m:] - model) / dy_f) ** 2) + anp.sum(((x_f - d[n_parms:n_parms + m].reshape(x_shape)) / dx_f) ** 2)
         return chisq
 
-    jac_jac_y = hessian(odr_chisquare_compact_y)(np.concatenate((fitp, out.xplus.ravel(), y_f)))
+    jac_jac_y = hessian(odr_chisquare_compact_y)(np.concatenate((fitp, out.xplusd.ravel(), y_f)))
 
     # Compute hess^{-1} @ jac_jac_y[:n_parms + m, n_parms + m:] using LAPACK dgesv
     try:
         deriv_y = -scipy.linalg.solve(hess, jac_jac_y[:n_parms + m, n_parms + m:])
-    except np.linalg.LinAlgError:
-        raise Exception("Cannot invert hessian matrix.")
+    except np.linalg.LinAlgError as err:
+        raise Exception("Cannot invert hessian matrix.") from err
 
     result = []
     for i in range(n_parms):
-        result.append(derived_observable(lambda my_var, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
+        result.append(derived_observable(lambda my_var, i=i, **kwargs: (my_var[0] + np.finfo(np.float64).eps) / (x.ravel()[0].value + np.finfo(np.float64).eps) * out.beta[i], list(x.ravel()) + list(y), man_grad=list(deriv_x[i]) + list(deriv_y[i])))
 
     output.fit_parameters = result
 
-    output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplus.ravel())))
+    output.odr_chisquare = odr_chisquare(np.concatenate((out.beta, out.xplusd.ravel())))
     output.dof = x.shape[-1] - n_parms
     output.p_value = 1 - scipy.stats.chi2.cdf(output.odr_chisquare, output.dof)
 
@@ -750,7 +807,7 @@ def qqplot(x, o_y, func, p, title=""):
     """
 
     residuals = []
-    for i_x, i_y in zip(x, o_y):
+    for i_x, i_y in zip(x, o_y, strict=True):
         residuals.append((i_y - func(p, i_x)) / i_y.dvalue)
     residuals = sorted(residuals)
     my_y = [o.value for o in residuals]
@@ -817,14 +874,14 @@ def error_band(x, func, beta):
     """
     cov = covariance(beta)
     if np.any(np.abs(cov - cov.T) > 1000 * np.finfo(np.float64).eps):
-        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning)
+        warnings.warn("Covariance matrix is not symmetric within floating point precision", RuntimeWarning, stacklevel=2)
 
     deriv = []
-    for i, item in enumerate(x):
+    for item in x:
         deriv.append(np.array(egrad(func)([o.value for o in beta], item)))
 
     err = []
-    for i, item in enumerate(x):
+    for i, _item in enumerate(x):
         err.append(np.sqrt(deriv[i] @ cov @ deriv[i]))
     err = np.array(err)
 
@@ -889,6 +946,6 @@ def _construct_prior_obs(i_prior, i_n):
         return i_prior
     elif isinstance(i_prior, str):
         loc_val, loc_dval = _extract_val_and_dval(i_prior)
-        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")
+        return cov_Obs(loc_val, loc_dval ** 2, '#prior' + str(i_n) + f"_{np.random.randint(2147483647):010d}")  # noqa: NPY002
     else:
         raise TypeError("Prior entries need to be 'Obs' or 'str'.")

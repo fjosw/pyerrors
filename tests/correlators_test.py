@@ -781,3 +781,41 @@ def test_complex_add_and_mul():
         cc += 2j
         cc = cc * 4j
         cc.real + cc.imag
+
+
+def test_prune_with_Nones():
+    N = 3
+    T = 10
+
+    front_padding = 1
+    back_padding = T // 2
+
+    Ntrunc = N - 1
+    t0proj = 2
+    tproj = 3
+
+    corr_content = np.array([[[pe.pseudo_Obs((i+j+1)**(-t), .01, "None_prune_test") for i in range(N)] for j in range(N)] for t in range(T // 2 - front_padding)])
+    unpadded_corr = pe.Corr(corr_content)
+    padded_corr = pe.Corr(corr_content, padding=[front_padding, back_padding])
+
+    tmp_corr = unpadded_corr.prune(Ntrunc, t0proj=t0proj-front_padding, tproj=tproj-front_padding)
+    pruned_then_padded = pe.Corr(tmp_corr.content, padding=[front_padding, back_padding])
+    padded_then_pruned = padded_corr.prune(Ntrunc, t0proj=t0proj, tproj=tproj)
+
+    for t in range(T):
+        assert np.all(pruned_then_padded.content[t] == padded_then_pruned.content[t])
+
+
+def test_Corr_padding_default_not_shared():
+    data = [pe.pseudo_Obs(i + 1, 0.1, "e") for i in range(5)]
+    c1 = pe.Corr(data)
+    c2 = pe.Corr(data)
+    assert c1 is not c2
+    assert len(c1.content) == len(c2.content) == 5
+    assert all(a[0] == b[0] for a, b in zip(c1.content, c2.content))
+
+
+def test_Corr_unhashable():
+    c = pe.Corr([pe.pseudo_Obs(i + 1, 0.1, "e") for i in range(5)])
+    with pytest.raises(TypeError):
+        hash(c)

@@ -315,23 +315,28 @@ class Obs:
             gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
+            bin_size = self.rho_bin[e_name]
+            if bin_size > 1:
+                n_bins = (w_max - 1) // bin_size
+                if n_bins < 1:
+                    raise ValueError(f'rho_bin={bin_size} is too large for ensemble {e_name}.')
+
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
                 self.e_tauint[e_name] = 0.5
                 self.e_dtauint[e_name] = 0.0
                 self.e_dvalue[e_name] = 0.0
                 self.e_ddvalue[e_name] = 0.0
                 self.e_windowsize[e_name] = 0
+                if bin_size > 1:
+                    self.e_rho_bins[e_name] = np.zeros(n_bins)
+                    self.e_drho_bins[e_name] = np.zeros(n_bins)
                 continue
 
             self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-            bin_size = self.rho_bin[e_name]
             if bin_size == 1:
                 rho = self.e_rho[e_name][1:]
                 drho = self.e_drho[e_name][1:]
             else:
-                n_bins = (w_max - 1) // bin_size
-                if n_bins < 1:
-                    raise ValueError(f'rho_bin={bin_size} is too large for ensemble {e_name}.')
                 binned_lags = self.e_rho[e_name][1:1 + n_bins * bin_size]
                 self.e_rho_bins[e_name] = binned_lags.reshape(n_bins, bin_size).sum(axis=1)
                 self.e_drho_bins[e_name] = np.zeros(n_bins)
@@ -413,7 +418,6 @@ class Obs:
                     window_tauint = self.e_n_tauint[e_name][1:]
                     window_lags = physical_windows[1:]
                     window_N = e_N
-                    normalized_blocks = False
                     if bin_size > 1:
                         _compute_drho(0)
                         if n_bins > 1 and rho[0] > drho[0]:
@@ -422,17 +426,14 @@ class Obs:
                             # so the original criterion applies in block units.
                             window_tauint = 0.5 + np.cumsum(rho[1:] / rho[0])
                             window_tauint[window_tauint <= 0.5] = 0.5 + np.finfo(np.float64).eps
-                            window_lags = np.arange(2, n_bins + 1)
+                            window_lags = np.arange(1, n_bins)
                             window_N /= bin_size
-                            normalized_blocks = True
                         # A noise-sized first block cannot safely normalize the
                         # envelope; the initialized physical-window inputs are kept.
                     tau = self.S[e_name] / np.log((2 * window_tauint + 1) / (2 * window_tauint - 1))
                     g_w = np.exp(-window_lags / tau) - tau / np.sqrt(window_lags * window_N)
-                    if normalized_blocks:
-                        g_w = np.concatenate(([np.inf], g_w))
                     for n in range(1, n_bins + 1):
-                        if g_w[n - 1] < 0 or n >= n_bins:
+                        if n >= n_bins or g_w[n - 1] < 0:
                             _compute_drho(n - 1)
                             physical_window = physical_windows[n]
                             self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * physical_window + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)

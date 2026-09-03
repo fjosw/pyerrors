@@ -352,6 +352,7 @@ def test_gamma_method_binned_autocorrelation_sum():
 
 
 def test_gamma_method_binned_autocorrelation_window():
+    rho_bin = 4
     rng = np.random.default_rng(42)
     data = np.empty(10000)
     noise = rng.normal(size=len(data))
@@ -362,27 +363,39 @@ def test_gamma_method_binned_autocorrelation_window():
     raw = pe.Obs([data], ['ens'], idl=[range(len(data))])
     raw.gamma_method()
     binned = pe.Obs([data], ['ens'], idl=[range(len(data))])
-    binned.gamma_method(rho_bin=4)
+    binned.gamma_method(rho_bin=rho_bin)
 
-    assert abs(binned.e_windowsize['ens'] - raw.e_windowsize['ens']) <= 4
+    assert abs(binned.e_windowsize['ens'] - raw.e_windowsize['ens']) <= 2 * rho_bin
+    assert np.isclose(binned.dvalue, raw.dvalue, rtol=0.01)
 
     sparse = pe.Obs([data[::4]], ['ens'], idl=[range(0, len(data), 4)])
     precise = pe.Obs([rng.normal(loc=1, scale=0.01, size=len(data))], ['ens'], idl=[range(len(data))])
     sparse.gamma_method()
     mixed = sparse * precise
-    mixed.gamma_method(rho_bin=4)
+    mixed.gamma_method(rho_bin=rho_bin)
 
-    sparse_window = 4 * sparse.e_windowsize['ens']
-    assert abs(mixed.e_windowsize['ens'] - sparse_window) <= 4
+    sparse_window = rho_bin * sparse.e_windowsize['ens']
+    assert abs(mixed.e_windowsize['ens'] - sparse_window) <= rho_bin
 
     sparse.gamma_method(tau_exp=5)
-    mixed.gamma_method(rho_bin=4, tau_exp=20)
-    assert abs(mixed.e_windowsize['ens'] - 4 * sparse.e_windowsize['ens']) <= 4
+    mixed.gamma_method(rho_bin=rho_bin, tau_exp=20)
+    assert abs(mixed.e_windowsize['ens'] - rho_bin * sparse.e_windowsize['ens']) <= rho_bin
     assert np.isclose(mixed.dvalue, sparse.dvalue, rtol=0.01)
 
     uncorrelated = pe.Obs([rng.normal(size=len(data))], ['ens'])
-    uncorrelated.gamma_method(rho_bin=4)
-    assert uncorrelated.e_windowsize['ens'] == 4
+    uncorrelated.gamma_method(rho_bin=rho_bin)
+    assert uncorrelated.e_windowsize['ens'] == rho_bin
+
+    short_rng = np.random.default_rng(1)
+    short_noise = short_rng.normal(size=4000)
+    short_data = np.empty_like(short_noise)
+    short_data[0] = short_noise[0]
+    for i in range(1, len(short_data)):
+        short_data[i] = 0.2 * short_data[i - 1] + np.sqrt(1 - 0.2 ** 2) * short_noise[i]
+    short = pe.Obs([short_data], ['ens'])
+    short.gamma_method(rho_bin=rho_bin)
+    assert short.e_rho_bins['ens'][0] > short.e_drho_bins['ens'][0]
+    assert short.e_windowsize['ens'] == rho_bin
 
 
 def test_gamma_method_binned_autocorrelation_error():
@@ -401,6 +414,16 @@ def test_gamma_method_binned_autocorrelation_error():
     expected = np.sqrt(np.ones(3) @ covariance @ np.ones(3))
 
     assert np.isclose(obs.e_drho_bins['ens'][0], expected)
+
+
+def test_gamma_method_binned_constant_observable():
+    obs = pe.Obs([np.ones(20)], ['ens'])
+    obs.gamma_method(rho_bin=2)
+
+    assert np.all(obs.e_rho_bins['ens'] == 0)
+    assert np.all(obs.e_drho_bins['ens'] == 0)
+    obs.plot_rho()
+    plt.close('all')
 
 
 def test_gamma_method_binned_autocorrelation_tail():

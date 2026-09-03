@@ -396,6 +396,7 @@ def test_gamma_method_binned_autocorrelation_window():
     short.gamma_method(rho_bin=rho_bin)
     assert short.e_rho_bins['ens'][0] > short.e_drho_bins['ens'][0]
     assert short.e_windowsize['ens'] == rho_bin
+    assert np.all(np.isnan(short.e_drho_bins['ens'][1:]))
 
 
 def test_gamma_method_binned_autocorrelation_error():
@@ -424,6 +425,12 @@ def test_gamma_method_binned_constant_observable():
     assert np.all(obs.e_drho_bins['ens'] == 0)
     obs.plot_rho()
     plt.close('all')
+
+
+def test_gamma_method_binned_autocorrelation_tail_too_short():
+    obs = pe.Obs([np.arange(20)], ['ens'])
+    with pytest.raises(ValueError, match='three complete autocorrelation bins.*rho_bin=4'):
+        obs.gamma_method(rho_bin=4, tau_exp=10)
 
 
 def test_gamma_method_binned_autocorrelation_tail():

@@ -339,7 +339,8 @@ class Obs:
             else:
                 binned_lags = self.e_rho[e_name][1:1 + n_bins * bin_size]
                 self.e_rho_bins[e_name] = binned_lags.reshape(n_bins, bin_size).sum(axis=1)
-                self.e_drho_bins[e_name] = np.zeros(n_bins)
+                # Uncertainties are computed only for bins used by the window analysis.
+                self.e_drho_bins[e_name] = np.full(n_bins, np.nan)
                 rho = self.e_rho_bins[e_name]
                 drho = self.e_drho_bins[e_name]
 
@@ -371,15 +372,20 @@ class Obs:
                     m = np.arange(1, max_m + 1)
                     # Propagate eq. (A.8) of arXiv:1009.5228 to
                     # R_i = sum_t rho(t), keeping all covariance terms.
-                    kernel = np.sum(self.e_rho[e_name][m[:, None] + lags]
-                                    + self.e_rho[e_name][np.abs(m[:, None] - lags)]
-                                    - 2 * self.e_rho[e_name][m[:, None]] * self.e_rho[e_name][lags], axis=1)
+                    kernel = np.zeros(max_m)
+                    rho_m = self.e_rho[e_name][m]
+                    for lag in lags:
+                        kernel += (self.e_rho[e_name][m + lag]
+                                   + self.e_rho[e_name][np.abs(m - lag)]
+                                   - 2 * rho_m * self.e_rho[e_name][lag])
                     drho[i] = np.sqrt(np.sum(kernel ** 2) / e_N)
 
             if self.tau_exp[e_name] > 0:
                 # Critical slowing down analysis
                 tail_search_end = (n_bins + 1) // 2
                 if tail_search_end <= 1:
+                    if bin_size > 1:
+                        raise ValueError(f'Need at least three complete autocorrelation bins for tau_exp error analysis with rho_bin={bin_size}.')
                     raise ValueError("Need at least 8 samples for tau_exp error analysis")
                 _compute_drho(0)
                 for n in range(1, tail_search_end):

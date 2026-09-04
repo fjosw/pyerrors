@@ -118,7 +118,7 @@ def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, n
     plt.xlabel("$x_{0}/a$")
     plt.xticks([i * tmax/4 for i in range(5)])
     plt.xlim(0,tmax)
-    plt.show()
+    plt.draw()
 
 
 def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):

@@ -7,7 +7,7 @@ import numpy as np  # Thinly-wrapped numpy
 
 from ..correlators import Corr
 from ..obs import CObs, Obs
-from .misc import fit_t0
+from .misc import fit_t0, plot_Ysl
 from .utils import sort_names
 
 
@@ -233,7 +233,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
 
 def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix='ms', **kwargs):
-    """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
+    r"""Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 
     It is assumed that all boundary effects have
@@ -282,6 +282,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------
@@ -329,6 +332,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             idx = truncated_entry.index('r')
             rep_names.append(truncated_entry[:idx] + '|' + truncated_entry[idx:])
 
+    Ysl = []
     Ysum = []
 
     configlist = []
@@ -354,7 +358,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
             elif eps != struct.unpack('d', t)[0]:
                 raise Exception('Values for eps do not match among replica.')
 
-            Ysl = []
+            Ysl_rep = []
 
             configlist.append([])
             while True:
@@ -367,15 +371,17 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 t = fp.read(8 * tmax * (nn + 1))
                 if kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
-                        Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
+                        Ysl_rep.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
                 if not kwargs.get('plaquette'):
                     if nc % dtr_read == 0:
-                        Ysl.append(struct.unpack('d' * tmax * (nn + 1), t))
+                        Ysl_rep.append(struct.unpack('d' * tmax * (nn + 1), t))
                 t = fp.read(8 * tmax * (nn + 1))
+            if kwargs.get("plot_Ysl", False):
+                Ysl.append(Ysl_rep)
 
         Ysum.append([])
-        for _i, item in enumerate(Ysl):
+        for _i, item in enumerate(Ysl_rep):
             Ysum[-1].append([np.mean(item[current + xmin:
                              current + tmax - xmin])
                             for current in range(0, len(item), tmax)])
@@ -416,7 +422,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
         warnings.warn('Stepsize between configurations is greater than one!' + str(stepsizes), RuntimeWarning, stacklevel=2)
 
     idl = [range(configlist[rep][r_start_index[rep]], configlist[rep][r_stop_index[rep]] + 1, r_step) for rep in range(replica)]
-    E_dict = {}
+    expE_dict = {}
     for n in range(nn + 1):
         samples = []
         for nrep, rep in enumerate(Ysum):
@@ -425,13 +431,16 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
                 samples[-1].append(cnfg[n])
             samples[-1] = samples[-1][r_start_index[nrep]:r_stop_index[nrep] + 1][::r_step]
         new_obs = Obs(samples, rep_names, idl=idl)
-        E_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
+        expE_dict[n * dn * eps] = new_obs / (spatial_extent ** 3)
 
-    return E_dict
+    if kwargs.get("plot_Ysl", False):
+        plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start_index, r_stop_index, r_step, rep_names, spatial_extent)
+
+    return expE_dict
 
 
 def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
-    """Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
+    r"""Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
@@ -489,6 +498,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------
@@ -505,7 +517,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
 
 def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
-    """Extract w0/a from given .ms.dat files. Returns w0 as Obs.
+    r"""Extract w0/a from given .ms.dat files. Returns w0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
@@ -562,6 +574,9 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------

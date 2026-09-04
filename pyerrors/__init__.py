@@ -128,6 +128,14 @@ my_sum.details()
 
 The integrated autocorrelation time $\tau_\mathrm{int}$ and the autocorrelation function $\rho(W)$ can be monitored via the methods `pyerrors.obs.Obs.plot_tauint` and `pyerrors.obs.Obs.plot_rho`.
 
+For histories whose autocorrelation function has a short-scale sawtooth pattern, the window analysis can be coarse grained without binning the history itself. Passing an integer `rho_bin=b` forms sums over consecutive positive lags,
+$$R_k=\sum_{t=(k-1)b+1}^{kb}\rho(t),$$
+and restricts the candidate windows to $W_k=kb$. The truncated sum is unchanged at those physical windows,
+$$\tau_\mathrm{int}(W_k)=\frac{1}{2}+\sum_{j=1}^{k}R_j=\frac{1}{2}+\sum_{t=1}^{kb}\rho(t),$$
+so `rho_bin` changes the resolution and stability of window selection, not the error estimator at an equivalent window. The raw autocorrelation remains available in `e_rho`, while the block sums and uncertainties (including covariance among the constituent raw lags) are stored in `e_rho_bins` and `e_drho_bins`. Incomplete final bins are discarded. With `rho_bin > 1`, `plot_rho` displays the block sums $R_k$ and all plot and window axes remain in the original lag units.
+
+For automatic windowing, the block envelope is normalized by its first block and analyzed in block units, with effective history length $N/b$. This leaves the physical window invariant for a pure exponential, up to the block resolution, and prevents regularly missing measurements from shortening the apparent decay scale. If the first block is not significantly positive, normalization would be unstable and the direct physical-window criterion is used instead.
+
 If the parameter $S$ is set to zero it is assumed that the dataset does not exhibit any autocorrelation and the window size is chosen to be zero.
 In this case the error estimate is identical to the sample standard error.
 

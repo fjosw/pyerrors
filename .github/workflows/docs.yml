@@ -18,6 +18,10 @@ jobs:
         with:
           python-version: "3.12"
       - uses: actions/checkout@v7
+      - name: uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
       - name: Updated documentation
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
@@ -26,9 +30,7 @@ jobs:
           git checkout documentation
           git pull
           git merge --allow-unrelated-histories -X theirs develop
-          python -m pip install --upgrade pip
-          pip install .
-          pip install pdoc
+          uv pip install . --group docs --system
           echo $(ls -l docs)
           pdoc --docformat numpy --math -o ./docs ./pyerrors
           echo $(ls -l docs)

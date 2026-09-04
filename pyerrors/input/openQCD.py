@@ -233,7 +233,7 @@ def read_rwms(path, prefix, version='2.0', names=None, **kwargs):
 
 
 def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent, postfix='ms', **kwargs):
-    """Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
+    r"""Extract a dictionary with the flowed Yang-Mills action density from given .ms.dat files.
     Returns a dictionary with Obs as values and flow times as keys.
 
     It is assumed that all boundary effects have
@@ -282,6 +282,9 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------
@@ -437,7 +440,7 @@ def _extract_flowed_energy_density(path, prefix, dtr_read, xmin, spatial_extent,
 
 
 def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
-    """Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
+    r"""Extract t0/a^2 from given .ms.dat files. Returns t0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
@@ -495,6 +498,9 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------
@@ -511,7 +517,7 @@ def extract_t0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
 
 
 def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfix='ms', c=0.3, **kwargs):
-    """Extract w0/a from given .ms.dat files. Returns w0 as Obs.
+    r"""Extract w0/a from given .ms.dat files. Returns w0 as Obs.
 
     It is assumed that all boundary effects have
     sufficiently decayed at x0=xmin.
@@ -568,6 +574,9 @@ def extract_w0(path, prefix, dtr_read, xmin, spatial_extent, fit_range=5, postfi
         1, it is assumed that this is due to thermalization and the first measurement belongs
         to the first config (default).
         If False: The config numbers are assumed to be traj_number // difference
+    plot_Ysl: bool
+        If true, the method addidtionally produces a plot of the plateaux of $\langle E\rangle t^2$
+        (see `misc.py::plot_Ysl()`).
 
     Returns
     -------

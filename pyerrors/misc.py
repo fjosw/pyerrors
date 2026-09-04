@@ -22,8 +22,7 @@ def _extract_plot_data(data):
     """Extract central values and errors from a sequence of Obs."""
     obs = [o for o in data if isinstance(o, Obs)]
     if obs:
-        if not all(hasattr(o, 'e_dvalue') for o in obs):
-            [o.gamma_method() for o in obs]
+        [o.gamma_method() for o in obs if not hasattr(o, 'e_dvalue')]
         return _extract_plot_values(data), [o.dvalue if isinstance(o, Obs) else 0 for o in data]
     return data, None
 

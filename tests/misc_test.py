@@ -21,6 +21,13 @@ def test_obs_errorbar():
     pe.errorbar([0, mixed_obs], [0, mixed_obs])
     assert hasattr(mixed_obs, 'e_dvalue')
 
+    analyzed_obs = pe.Obs([np.arange(10)], ["analyzed"])
+    unanalyzed_obs = pe.Obs([np.arange(10)], ["unanalyzed"])
+    analyzed_obs.gamma_method(S=0)
+    pe.errorbar([0, 1], [analyzed_obs, unanalyzed_obs])
+    assert analyzed_obs.S["analyzed"] == 0
+    assert hasattr(unanalyzed_obs, 'e_dvalue')
+
     plt.close('all')
 
 

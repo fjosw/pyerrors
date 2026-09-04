@@ -11,12 +11,20 @@ from .obs import Obs
 from .version import __version__
 
 
+def _extract_plot_values(data):
+    """Extract central values from a sequence of Obs."""
+    if any(isinstance(o, Obs) for o in data):
+        return [float(o) if isinstance(o, Obs) else o for o in data]
+    return data
+
+
 def _extract_plot_data(data):
     """Extract central values and errors from a sequence of Obs."""
-    if all(isinstance(o, Obs) for o in data):
-        if not all(hasattr(o, 'e_dvalue') for o in data):
-            [o.gamma_method() for o in data]
-        return [o.value for o in data], [o.dvalue for o in data]
+    obs = [o for o in data if isinstance(o, Obs)]
+    if obs:
+        if not all(hasattr(o, 'e_dvalue') for o in obs):
+            [o.gamma_method() for o in obs]
+        return _extract_plot_values(data), [o.dvalue if isinstance(o, Obs) else 0 for o in data]
     return data, None
 
 
@@ -78,7 +86,7 @@ def fill_between(x, y, axes=plt, **kwargs):
     matplotlib.collections.FillBetweenPolyCollection
         The plotted uncertainty band.
     """
-    x_val, _x_err = _extract_plot_data(x)
+    x_val = _extract_plot_values(x)
     y_val, y_err = _extract_plot_data(y)
     if "yerr" in kwargs:
         y_err = kwargs.pop("yerr")
@@ -88,6 +96,38 @@ def fill_between(x, y, axes=plt, **kwargs):
     y_val = np.asarray(y_val)
     y_err = np.asarray(y_err)
     return axes.fill_between(x_val, y_val - y_err, y_val + y_err, **kwargs)
+
+
+def fill_betweenx(y, x, axes=plt, **kwargs):
+    """Plot the horizontal uncertainty band of a sequence of Obs.
+
+    Parameters
+    ----------
+    y : list
+        A list of y-values which can be Obs.
+    x : list
+        A list of x-values which can be Obs. Numeric values without ``xerr``
+        produce a zero-width band.
+    axes : matplotlib.pyplot or matplotlib.axes.Axes
+        The axes to plot on. Default is ``matplotlib.pyplot``.
+    xerr : array-like, optional
+        Errors used instead of the uncertainties of ``x``.
+
+    Returns
+    -------
+    matplotlib.collections.FillBetweenPolyCollection
+        The plotted uncertainty band.
+    """
+    y_val = _extract_plot_values(y)
+    x_val, x_err = _extract_plot_data(x)
+    if "xerr" in kwargs:
+        x_err = kwargs.pop("xerr")
+    if x_err is None:
+        x_err = 0
+
+    x_val = np.asarray(x_val)
+    x_err = np.asarray(x_err)
+    return axes.fill_betweenx(y_val, x_val - x_err, x_val + x_err, **kwargs)
 
 
 def dump_object(obj, name, **kwargs):

@@ -17,6 +17,10 @@ def test_obs_errorbar():
             pe.errorbar(x_float, y_obs, marker="x", ms=2, xerr=xerr, yerr=yerr)
             pe.errorbar(x_obs, y_obs, marker="x", ms=2, xerr=xerr, yerr=yerr)
 
+    mixed_obs = pe.Obs([np.arange(10)], ["mixed"])
+    pe.errorbar([0, mixed_obs], [0, mixed_obs])
+    assert hasattr(mixed_obs, 'e_dvalue')
+
     plt.close('all')
 
 
@@ -30,6 +34,24 @@ def test_obs_fill_between():
 
     pe.fill_between(x, x, yerr=0.2)
     pe.fill_between(x, x)
+
+    x_without_error = [pe.Obs([np.arange(10) + value], [f"test{value}"]) for value in x]
+    pe.fill_between(x_without_error, y_obs)
+    assert not any(hasattr(value, 'e_dvalue') for value in x_without_error)
+
+    plt.close('all')
+
+
+def test_obs_fill_betweenx():
+    y = np.arange(5)
+    x_obs = [pe.pseudo_Obs(value, 0.1, "test") for value in y]
+
+    fig, ax = plt.subplots()
+    band = pe.fill_betweenx(y, x_obs, axes=ax, alpha=0.3)
+    assert band.axes is ax
+
+    pe.fill_betweenx(y, y, xerr=0.2)
+    pe.fill_betweenx(y, y)
 
     plt.close('all')
 

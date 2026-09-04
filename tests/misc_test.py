@@ -20,5 +20,19 @@ def test_obs_errorbar():
     plt.close('all')
 
 
+def test_obs_fill_between():
+    x = np.arange(5)
+    y_obs = [pe.pseudo_Obs(value, 0.1, "test") for value in x]
+
+    fig, ax = plt.subplots()
+    band = pe.fill_between(x, y_obs, axes=ax, alpha=0.3)
+    assert band.axes is ax
+
+    pe.fill_between(x, x, yerr=0.2)
+    pe.fill_between(x, x)
+
+    plt.close('all')
+
+
 def test_print_config():
     pe.print_config()

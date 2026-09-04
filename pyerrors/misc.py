@@ -11,6 +11,15 @@ from .obs import Obs
 from .version import __version__
 
 
+def _extract_plot_data(data):
+    """Extract central values and errors from a sequence of Obs."""
+    if all(isinstance(o, Obs) for o in data):
+        if not all(hasattr(o, 'e_dvalue') for o in data):
+            [o.gamma_method() for o in data]
+        return [o.value for o in data], [o.dvalue for o in data]
+    return data, None
+
+
 def print_config():
     """Print information about version of python, pyerrors and dependencies."""
     config = {"system": platform.system(),
@@ -40,20 +49,45 @@ def errorbar(x, y, axes=plt, **kwargs):
     val = {}
     err = {}
     for name, comp in zip(["x", "y"], [x, y], strict=True):
-        if all(isinstance(o, Obs) for o in comp):
-            if not all(hasattr(o, 'e_dvalue') for o in comp):
-                [o.gamma_method() for o in comp]
-            val[name] = [o.value for o in comp]
-            err[name] = [o.dvalue for o in comp]
-        else:
-            val[name] = comp
-            err[name] = None
+        val[name], err[name] = _extract_plot_data(comp)
 
         if f"{name}err" in kwargs:
             err[name] = kwargs.get(f"{name}err")
             kwargs.pop(f"{name}err", None)
 
     axes.errorbar(val["x"], val["y"], xerr=err["x"], yerr=err["y"], **kwargs)
+
+
+def fill_between(x, y, axes=plt, **kwargs):
+    """Plot the uncertainty band of a sequence of Obs.
+
+    Parameters
+    ----------
+    x : list
+        A list of x-values which can be Obs.
+    y : list
+        A list of y-values which can be Obs. Numeric values without ``yerr``
+        produce a zero-width band.
+    axes : matplotlib.pyplot or matplotlib.axes.Axes
+        The axes to plot on. Default is ``matplotlib.pyplot``.
+    yerr : array-like, optional
+        Errors used instead of the uncertainties of ``y``.
+
+    Returns
+    -------
+    matplotlib.collections.FillBetweenPolyCollection
+        The plotted uncertainty band.
+    """
+    x_val, _x_err = _extract_plot_data(x)
+    y_val, y_err = _extract_plot_data(y)
+    if "yerr" in kwargs:
+        y_err = kwargs.pop("yerr")
+    if y_err is None:
+        y_err = 0
+
+    y_val = np.asarray(y_val)
+    y_err = np.asarray(y_err)
+    return axes.fill_between(x_val, y_val - y_err, y_val + y_err, **kwargs)
 
 
 def dump_object(obj, name, **kwargs):

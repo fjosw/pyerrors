@@ -880,6 +880,110 @@ def test_covariance_vs_numpy():
         assert np.allclose(pe_cov, np_cov, atol=1e-14)
 
 
+def test_covariance_weights_independent_ensembles():
+    samples = np.arange(100, dtype=float)
+    x1 = pe.Obs([samples], ['ens1'])
+    x2 = pe.Obs([samples], ['ens2'])
+    y1 = x1 + 0.1 * x2
+    y2 = x1 - 0.1 * x2
+    y1.gamma_method(S=0)
+    y2.gamma_method(S=0)
+
+    corr = pe.covariance([y1, y2], correlation=True)
+    assert np.isclose(corr[0, 1], (1 - 0.1 ** 2) / (1 + 0.1 ** 2))
+
+
+def test_covariance_preserves_shared_covobs():
+    rng = np.random.default_rng(14)
+    x1 = pe.Obs([np.repeat(rng.normal(size=100), 5)], ['ens1'])
+    x2 = pe.Obs([rng.normal(size=500)], ['ens2'])
+    shared = pe.cov_Obs(0.0, 0.01, 'shared')
+    y1 = x1 + shared
+    y2 = x2 + shared
+    y1.gamma_method()
+    y2.gamma_method()
+
+    assert np.isclose(pe.covariance([y1, y2])[0, 1], 0.01)
+
+
+def test_covariance_rejects_inconsistent_shared_covobs():
+    cov = [[1.0, 0.9], [0.9, 1.0]]
+    other_cov = [[1.0, -0.9], [-0.9, 1.0]]
+    first = pe.cov_Obs([0.0, 0.0], cov, 'shared')
+    same = pe.cov_Obs([0.0, 0.0], cov, 'shared')
+    different = pe.cov_Obs([0.0, 0.0], other_cov, 'shared')
+    for obs in first + same + different:
+        obs.gamma_method()
+
+    assert np.isclose(pe.covariance([first[0], same[1]])[0, 1], 0.9)
+    with pytest.raises(ValueError, match='Inconsistent covariance matrices for shared'):
+        pe.covariance([first[0], different[1]])
+    with pytest.raises(ValueError, match='Inconsistent covariance matrices for shared'):
+        pe.covariance([different[1], first[0]])
+
+
+def test_covariance_rescales_autocorrelations_by_ensemble():
+    rng = np.random.default_rng(15)
+    data1 = np.repeat(rng.normal(size=100), 5)
+    data2 = rng.normal(size=500)
+    x1 = pe.Obs([data1], ['ens1'])
+    x2 = pe.Obs([data2], ['ens2'])
+    y1 = x1 + x2
+    y2 = x1 - x2
+    y1.gamma_method()
+    y2.gamma_method()
+
+    expected = y1.e_dvalue['ens1'] ** 2 - y1.e_dvalue['ens2'] ** 2
+    cov = pe.covariance([y1, y2])
+    assert np.isclose(cov[0, 1], expected)
+    assert np.all(np.linalg.eigvalsh(cov) >= -1e-14)
+
+
+def test_covariance_unequal_replica_support():
+    rng = np.random.default_rng(16)
+    data1 = rng.normal(size=100)
+    data2 = rng.normal(size=200)
+    x1 = pe.Obs([data1, data2], ['ens|r1', 'ens|r2'])
+    x2 = pe.Obs([2 * data1], ['ens|r1'])
+    x1.gamma_method(S=0)
+    x2.gamma_method(S=0)
+
+    expected = np.dot(x1.deltas['ens|r1'], x2.deltas['ens|r1'])
+    expected /= np.sqrt(300 * 299 * 100 * 99)
+    assert np.isclose(pe.covariance([x1, x2])[0, 1], expected)
+
+
+def test_covariance_psd_with_different_overlaps():
+    data = np.array([1.0, -1.0] * 5)
+    a = pe.Obs([data], ['ens'], idl=[range(1, 11)])
+    b = pe.Obs([np.tile(data, 2)], ['ens'], idl=[range(1, 21)])
+    c = pe.Obs([data], ['ens'], idl=[range(11, 21)])
+    for obs in (a, b, c):
+        obs.gamma_method(S=0)
+
+    corr = pe.covariance([a, b, c], correlation=True)
+    expected = np.array([[1.0, 1 / np.sqrt(2), 0.0],
+                         [1 / np.sqrt(2), 1.0, 1 / np.sqrt(2)],
+                         [0.0, 1 / np.sqrt(2), 1.0]])
+    assert np.allclose(corr, expected)
+    assert np.min(np.linalg.eigvalsh(corr)) >= -1e-14
+
+
+def test_covariance_linear_propagation_across_sources():
+    samples = np.arange(100, dtype=float)
+    x1 = pe.Obs([samples], ['ens1'])
+    x2 = pe.Obs([samples], ['ens2'])
+    shared = pe.cov_Obs(0.0, 0.01, 'shared')
+    base = [x1, x2, shared]
+    matrix = np.array([[1.0, 0.1, 0.3], [1.0, -0.1, -0.2], [-0.3, 0.7, 1.0]])
+    derived = [sum(matrix[i, j] * base[j] for j in range(3)) for i in range(3)]
+    for o in base + derived:
+        o.gamma_method(S=0)
+
+    expected = matrix @ pe.covariance(base) @ matrix.T
+    assert np.allclose(pe.covariance(derived), expected)
+
+
 def test_covariance_symmetry():
     value1 = np.random.normal(5, 10)
     dvalue1 = np.abs(np.random.normal(0, 1))
@@ -1014,20 +1118,20 @@ def test_correlation_intersection_of_idls():
 
     obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
     obs2_a = 0.4 * pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1]) + 0.6 * obs1
-    obs1.gamma_method()
-    obs2_a.gamma_method()
+    obs1.gamma_method(S=0)
+    obs2_a.gamma_method(S=0)
 
     cov1 = pe.covariance([obs1, obs2_a])
     corr1 = pe.covariance([obs1, obs2_a], correlation=True)
 
     obs2_b = (obs2_a + pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])) / 2
-    obs2_b.gamma_method()
+    obs2_b.gamma_method(S=0)
 
     cov2 = pe.covariance([obs1, obs2_b])
     corr2 = pe.covariance([obs1, obs2_b], correlation=True)
 
-    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
-    assert cov1[0, 1] > cov2[0, 1]
+    assert np.isclose(cov2[0, 1], cov1[0, 1] / 2, rtol=1e-3)
+    assert 0 < corr2[0, 1] < corr1[0, 1]
 
     obs2_c = pe.Obs([np.random.normal(1.0, 0.1, len(range2))], ["ens"], idl=[range2])
     obs2_c.gamma_method()
@@ -1051,21 +1155,22 @@ def test_covariance_additional_non_overlapping_data():
 
     obs1 = pe.Obs([np.random.normal(1.0, 0.1, len(range1))], ["ens"], idl=[range1])
     obs2_a = pe.Obs([data2], ["ens"], idl=[range1])
-    obs1.gamma_method()
-    obs2_a.gamma_method()
+    obs1.gamma_method(S=0)
+    obs2_a.gamma_method(S=0)
 
     corr1 = pe.covariance([obs1, obs2_a], correlation=True)
 
-    added_data = np.random.normal(0.0, 0.1, len(range1))
-    added_data -= np.mean(added_data) - np.mean(data2)
+    # The second half has the same variance, but no configurations in common
+    # with obs1. It therefore dilutes the correlation by sqrt(2).
+    added_data = data2[::-1]
     data2_extended = np.ravel([data2, added_data], 'F')
 
     obs2_b = pe.Obs([data2_extended], ["ens"])
-    obs2_b.gamma_method()
+    obs2_b.gamma_method(S=0)
 
     corr2 = pe.covariance([obs1, obs2_b], correlation=True)
 
-    assert np.isclose(corr1[0, 1], corr2[0, 1], atol=1e-14)
+    assert np.isclose(corr1[0, 1] / np.sqrt(2), corr2[0, 1], atol=1e-14)
 
 
 def test_covariance_reorder_non_overlapping_data():

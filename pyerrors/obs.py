@@ -1507,8 +1507,8 @@ def correlate(obs_a, obs_b):
 def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     r'''Calculates the error covariance matrix of a set of observables.
 
-    WARNING: This function should be used with care, especially for observables with support on multiple
-             ensembles with differing autocorrelations. See the notes below for details.
+    WARNING: Off-diagonal autocorrelations are approximated using zero-lag correlations.
+             See the notes below for details.
 
     The gamma method has to be applied first to all observables.
 
@@ -1529,13 +1529,14 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     Notes
     -----
     The error covariance is defined such that it agrees with the squared standard error for two identical observables
-    $$\operatorname{cov}(a,a)=\sum_{s=1}^N\delta_a^s\delta_a^s/N^2=\Gamma_{aa}(0)/N=\operatorname{var}(a)/N=\sigma_a^2$$
+    $$\operatorname{cov}(a,a)=\sum_{s=1}^N\delta_a^s\delta_a^s/[N(N-1)]=\sigma_a^2$$
     in the absence of autocorrelation.
-    The error covariance is estimated by calculating the correlation matrix assuming no autocorrelation and then rescaling the correlation matrix by the full errors including the previous gamma method estimate for the autocorrelation of the observables. The covariance at windowsize 0 is guaranteed to be positive semi-definite
-    $$\sum_{i,j}v_i\Gamma_{ij}(0)v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i,j}v_i\delta_i^s\delta_j^s v_j=\frac{1}{N}\sum_{s=1}^N\sum_{i}|v_i\delta_i^s|^2\geq 0\,,$$ for every $v\in\mathbb{R}^M$, while such an identity does not hold for larger windows/lags.
-    For observables defined on a single ensemble our approximation is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
+    Each Monte Carlo ensemble's zero-lag covariance matrix is normalized to a correlation matrix and rescaled by that ensemble's gamma-method errors. The resulting covariance matrices are added, followed by the exact covariance of shared Covobs inputs. For each ensemble, the zero-lag covariance matrix is positive semi-definite:
+    $$\sum_{i,j}v_i C^{(0)}_{ij}v_j=\sum_s\left(\sum_i\frac{v_i\delta_i^s}{\sqrt{N_i(N_i-1)}}\right)^2\geq 0\,,$$
+    where $i$ runs over observables supported on that ensemble, $N_i$ is their full sample count on the ensemble, and $\delta_i^s=0$ on configurations where observable $i$ was not measured. Such an identity does not hold for larger windows/lags.
+    For each ensemble, this approximation is equivalent to assuming that the integrated autocorrelation time of an off-diagonal element is equal to the geometric mean of the integrated autocorrelation times of the corresponding diagonal elements.
     $$\tau_{\mathrm{int}, ij}=\sqrt{\tau_{\mathrm{int}, i}\times \tau_{\mathrm{int}, j}}$$
-    This construction ensures that the estimated covariance matrix is positive semi-definite (up to numerical rounding errors).
+    Normalization and diagonal rescaling preserve positive semidefiniteness, as does adding the independent source covariance matrices (up to numerical rounding errors).
     '''
 
     length = len(obs)
@@ -1544,11 +1545,31 @@ def covariance(obs, visualize=False, correlation=False, smooth=None, **kwargs):
     if max_samples <= length and not [item for sublist in [o.cov_names for o in obs] for item in sublist]:
         warnings.warn(f"The dimension of the covariance matrix ({length}) is larger or equal to the number of samples ({max_samples}). This will result in a rank deficient matrix.", RuntimeWarning, stacklevel=2)
 
+    if any(not hasattr(o, 'e_dvalue') for o in obs):
+        raise Exception('The gamma method has to be applied to all Obs first.')
+
     cov = np.zeros((length, length))
-    for i in range(length):
-        for j in range(i, length):
-            cov[i, j] = _covariance_element(obs[i], obs[j])
-    cov = cov + cov.T - np.diag(np.diag(cov))
+    for e_name in sorted(set().union(*(o.mc_names for o in obs))):
+        source_cov = np.zeros((length, length))
+        supported = [i for i, o in enumerate(obs) if e_name in o.mc_names]
+        for pos, i in enumerate(supported):
+            for j in supported[pos:]:
+                source_cov[i, j] = _covariance_element(obs[i], obs[j], e_name)
+        source_cov = source_cov + source_cov.T - np.diag(np.diag(source_cov))
+
+        zero_lag_errors = np.sqrt(np.diag(source_cov))
+        normalization = np.outer(zero_lag_errors, zero_lag_errors)
+        source_corr = np.divide(source_cov, normalization, out=np.zeros_like(source_cov), where=normalization > 0)
+        source_errors = np.array([o.e_dvalue.get(e_name, 0.0) for o in obs])
+        cov += np.outer(source_errors, source_errors) * source_corr
+
+    for c_name in sorted(set().union(*(o.cov_names for o in obs))):
+        source_covobs = [o.covobs[c_name] for o in obs if c_name in o.cov_names]
+        reference = source_covobs[0]
+        if any(co.N != reference.N or not np.allclose(co.cov, reference.cov) for co in source_covobs[1:]):
+            raise ValueError(f'Inconsistent covariance matrices for {c_name}!')
+        gradients = np.array([o.covobs[c_name].grad.ravel() if c_name in o.cov_names else np.zeros(reference.N) for o in obs])
+        cov += gradients @ reference.cov @ gradients.T
 
     corr = np.diag(1 / np.sqrt(np.diag(cov))) @ cov @ np.diag(1 / np.sqrt(np.diag(cov)))
 
@@ -1677,64 +1698,30 @@ def _smooth_eigenvalues(corr, E):
     return vec @ np.diag(vals) @ vec.T
 
 
-def _covariance_element(obs1, obs2):
-    """Estimates the covariance of two Obs objects, neglecting autocorrelations."""
+def _covariance_element(obs1, obs2, e_name):
+    """Estimate the zero-lag error covariance from one Monte Carlo ensemble.
 
-    def calc_gamma(deltas1, deltas2, idx1, idx2, new_idx):
-        deltas1 = _reduce_deltas(deltas1, idx1, new_idx)
-        deltas2 = _reduce_deltas(deltas2, idx2, new_idx)
-        return np.sum(deltas1 * deltas2)
-
-    if set(obs1.names).isdisjoint(set(obs2.names)):
+    The fluctuations of each observable are normalized by its full sample
+    count on the ensemble, including replica with no common configurations.
+    """
+    if e_name not in obs1.mc_names or e_name not in obs2.mc_names:
         return 0.0
 
-    if not hasattr(obs1, 'e_dvalue') or not hasattr(obs2, 'e_dvalue'):
-        raise Exception('The gamma method has to be applied to both Obs first.')
+    replicas1 = obs1.e_content[e_name]
+    replicas2 = obs2.e_content[e_name]
+    n1 = sum(obs1.shape[r_name] for r_name in replicas1)
+    n2 = sum(obs2.shape[r_name] for r_name in replicas2)
 
-    dvalue = 0.0
-
-    for e_name in obs1.mc_names:
-
-        if e_name not in obs2.mc_names:
+    gamma = 0.0
+    for r_name in set(replicas1).intersection(replicas2):
+        idx = _intersection_idx([obs1.idl[r_name], obs2.idl[r_name]])
+        if len(idx) == 0:
             continue
+        deltas1 = _reduce_deltas(obs1.deltas[r_name], obs1.idl[r_name], idx)
+        deltas2 = _reduce_deltas(obs2.deltas[r_name], obs2.idl[r_name], idx)
+        gamma += np.dot(deltas1, deltas2)
 
-        idl_d = {}
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-            idl_d[r_name] = _intersection_idx([obs1.idl[r_name], obs2.idl[r_name]])
-
-        gamma = 0.0
-
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-            if len(idl_d[r_name]) == 0:
-                continue
-            gamma += calc_gamma(obs1.deltas[r_name], obs2.deltas[r_name], obs1.idl[r_name], obs2.idl[r_name], idl_d[r_name])
-
-        if gamma == 0.0:
-            continue
-
-        gamma_div = 0.0
-        for r_name in obs1.e_content[e_name]:
-            if r_name not in obs2.e_content[e_name]:
-                continue
-            if len(idl_d[r_name]) == 0:
-                continue
-            gamma_div += np.sqrt(calc_gamma(obs1.deltas[r_name], obs1.deltas[r_name], obs1.idl[r_name], obs1.idl[r_name], idl_d[r_name]) * calc_gamma(obs2.deltas[r_name], obs2.deltas[r_name], obs2.idl[r_name], obs2.idl[r_name], idl_d[r_name]))
-        gamma /= gamma_div
-
-        dvalue += gamma
-
-    for e_name in obs1.cov_names:
-
-        if e_name not in obs2.cov_names:
-            continue
-
-        dvalue += np.dot(np.transpose(obs1.covobs[e_name].grad), np.dot(obs1.covobs[e_name].cov, obs2.covobs[e_name].grad)).item()
-
-    return dvalue
+    return gamma / np.sqrt(n1 * (n1 - 1) * n2 * (n2 - 1))
 
 
 def import_jackknife(jacks, name, idl=None):

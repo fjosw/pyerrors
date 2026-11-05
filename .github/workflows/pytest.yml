@@ -40,10 +40,14 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install
+      - name: Install hdf5 dependencies (python 3.15 only)
+        if: runner.os == 'Linux' && matrix.python-version == '3.15'
         run: |
           sudo apt update
           sudo apt install -y build-essential pkg-config libhdf5-dev
+
+      - name: Install
+        run: |
           uv pip install . --group test --system
           uv pip freeze --system
 

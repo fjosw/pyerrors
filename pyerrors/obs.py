@@ -1721,7 +1721,7 @@ def _covariance_element(obs1, obs2, e_name):
         deltas2 = _reduce_deltas(obs2.deltas[r_name], obs2.idl[r_name], idx)
         gamma += np.dot(deltas1, deltas2)
 
-    return gamma / np.sqrt(n1 * (n1 - 1) * n2 * (n2 - 1))
+    return gamma / np.sqrt(float(n1) * (n1 - 1) * n2 * (n2 - 1))
 
 
 def import_jackknife(jacks, name, idl=None):

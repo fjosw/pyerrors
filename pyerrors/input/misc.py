@@ -8,8 +8,117 @@ import matplotlib.pyplot as plt
 import numpy as np  # Thinly-wrapped numpy
 from matplotlib import gridspec
 
+from ..correlators import Corr
 from ..fits import fit_lin
 from ..obs import Obs
+
+
+def plot_Ysl(Ysl, expE_dict, nn, dn, eps, tmax, xmin, r_start, r_stop, r_step, names, spatial_extent):
+    """
+    Plot the plateaux of 7 equidistant times in the flow time. Can be used to evaluate the quality of the plateau in x0 that is used
+    in a subsequent fit of t^2<E> to find t0.
+
+    Parameters
+    ----------
+    Ysl: list[list[list[float]]]
+        Array of read values, which are ordered as Ysl[rep][cnfg][flow*tmax+x0].
+    expE_dict: dict
+        Already transformed array of action densities.
+    nn: int
+        Number of measurements.
+    dn: int
+        Steps of the integrator in flow time that are taken between measurements.
+    eps: float
+        Integrator stepsize in flow time.
+    tmax: int
+        Time extent of the inspected lattice.
+    xmin: int
+        Start of the (symmetrically chosen) plateau in terms ofthe euclidean time.
+    r_start: list[int]
+        Minimum index of the configuration to consider per replica.
+    r_stop: list[int]
+        Maximum index of the configuration to consider per replica.
+    r_step: int
+        Stepsize of the configurations in each replica.
+    names: list[str]
+        Replica names for the construction of observables.
+    spatial_extent: int
+        Spatial extent L/a of the lattice in units of the lattice spacing.
+    """
+
+    def _disentangle_Ysl_inds(Ysl, tmax, ind_list):
+        Ysl_samples = []
+        for rep in range(len(Ysl)):
+            Ysl_array = []
+            for cnfg in range(len(Ysl[rep])):
+                yarr = []
+                for x0 in range(tmax):
+                    yarr.append([])
+                    for flow in ind_list:
+                        ind = flow*tmax+x0
+                        yarr[x0].append(Ysl[rep][cnfg][ind])
+                Ysl_array.append(yarr)
+            Ysl_samples.append(Ysl_array)
+        return Ysl_samples
+
+
+    def _Ecorr(Ysl_samples, tmax, n, r_start, r_stop, r_step, names, spatial_extent):
+        corr_obs = []
+        for x0 in range(tmax):
+            samples = []
+            rep_idls = []
+            for rep in range(len(Ysl_samples)):
+                samples.append([])
+                rep_idls.append([])
+                for cnfg in range(len(Ysl_samples[rep])):
+                    if cnfg>=r_start[rep] and cnfg<=r_stop[rep] and (cnfg-r_start[rep]) % r_step==0:
+                        samples[rep].append(Ysl_samples[rep][cnfg][x0][n])
+                        rep_idls[rep].append(cnfg+1)
+            o = Obs(samples, names, rep_idls)
+            corr_obs.append(o)
+        E = Corr(corr_obs)/(spatial_extent**3)
+        return E
+
+    num_t_shown = 7
+    delta_n = int(nn/num_t_shown) # index stepsize in flow time
+    ind_list = [(i+1)*delta_n for i in range(num_t_shown)]
+    ts = [list(expE_dict.keys())[n] for n in ind_list]
+    prange = [xmin, tmax-xmin]
+
+    Ysl_samples = _disentangle_Ysl_inds(Ysl, tmax, ind_list)
+
+    t2E_arr = []
+    for n, t in zip(range(len(ind_list)), ts, strict=True):
+        E=_Ecorr(Ysl_samples, tmax, n, r_start, r_stop, r_step, names, spatial_extent)
+        t2E = t**2*E
+        t2E.gm()
+        t2E_arr.append(t2E)
+
+    t2expE_arr = []
+    for t in ts:
+        t2expE = t**2*expE_dict[t]
+        t2expE.gm()
+        t2expE_arr.append(t2expE)
+
+    exp_vals = []
+    ts = []
+
+    for i in range(len(t2expE_arr)):
+        t = dn*eps*i
+        t2expE_arr[i].gm()
+        exp_vals.append(t2expE_arr[i])
+        ts.append(t)
+        x,y,yerr = t2E_arr[i].plottable()
+        plt.errorbar(x, y, yerr, alpha = 0.7, color = f"C{i:02d}", linestyle="None", marker=".")
+        plt.fill_between(prange, t2expE_arr[i].value - t2expE_arr[i].dvalue, t2expE_arr[i].value + t2expE_arr[i].dvalue, alpha = 0.3, color = f"C{i:02d}")
+        plt.hlines(t2expE_arr[i], prange[0], prange[1], linestyle = "dashed", colors=f"C{i:02d}", label = r"$t^2\langle E(t)\rangle$")
+
+    plt.ylim([t2expE_arr[0].value-.03,t2expE_arr[-1].value+.01])
+    plt.ylabel(r"$t^2E(t)$")
+    plt.xlabel("$x_{0}/a$")
+    plt.xticks([i * tmax/4 for i in range(5)])
+    plt.xlim(0,tmax)
+    plt.draw()
 
 
 def fit_t0(t2E_dict, fit_range, plot_fit=False, observable='t0'):

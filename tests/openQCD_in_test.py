@@ -64,6 +64,7 @@ def test_rwms():
     t0 = pe.input.openQCD.extract_t0(path, prefix, dtr_read=3, xmin=0, spatial_extent=4, fit_range=2, plaquette=True, assume_thermalization=True)
 
     pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_fit=True)
+    pe.input.openQCD.extract_t0(path, '', dtr_read=3, xmin=0, spatial_extent=4, files=files, names=names, fit_range=2, plot_Ysl=True)
 
     # trajectories
     t0 = pe.input.openQCD.extract_t0(path, 'oqcd2_traj', dtr_read=30, xmin=16, spatial_extent=48, fit_range=2, plot_fit=True, names = ["A|r1"], assume_thermalization=False)

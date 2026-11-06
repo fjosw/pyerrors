@@ -46,6 +46,11 @@ class Obs:
     N_sigma_dict : dict
         Dictionary for N_sigma values. If an entry for a given ensemble exists
         this overwrites the standard value for that ensemble.
+    rho_bin_global : int
+        Standard bin size for the autocorrelation analysis (default 1).
+    rho_bin_dict : dict
+        Dictionary for autocorrelation bin sizes. If an entry for a given
+        ensemble exists this overwrites the standard value for that ensemble.
     """
     __slots__ = [
         'N',
@@ -59,17 +64,20 @@ class Obs:
         'deltas',
         'e_ddvalue',
         'e_drho',
+        'e_drho_bins',
         'e_dtauint',
         'e_dvalue',
         'e_n_dtauint',
         'e_n_tauint',
         'e_rho',
+        'e_rho_bins',
         'e_tauint',
         'e_windowsize',
         'idl',
         'names',
         'r_values',
         'reweighted',
+        'rho_bin',
         'shape',
         'tag',
         'tau_exp',
@@ -81,6 +89,8 @@ class Obs:
     tau_exp_dict: ClassVar[dict] = {}
     N_sigma_global = 1.0
     N_sigma_dict: ClassVar[dict] = {}
+    rho_bin_global = 1
+    rho_bin_dict: ClassVar[dict] = {}
 
     def __init__(self, samples, names, idl=None, **kwargs):
         """ Initialize Obs object.
@@ -216,12 +226,18 @@ class Obs:
         N_sigma : float
             number of standard deviations from zero until the tail is
             attached to the autocorrelation function (default 1).
+        rho_bin : int
+            number of consecutive positive autocorrelation lags summed before
+            windowing (default 1). This coarse grains the window selection,
+            but not the Monte Carlo history or the truncated autocorrelation
+            sum. Incomplete final bins are discarded.
         fft : bool
             determines whether the fft algorithm is used for the computation
             of the autocorrelation function (default True)
         """
 
         e_content = self.e_content
+        e_names = list(e_content)
         self.e_dvalue = {}
         self.e_ddvalue = {}
         self.e_tauint = {}
@@ -232,12 +248,15 @@ class Obs:
         e_gamma = {}
         self.e_rho = {}
         self.e_drho = {}
+        self.e_rho_bins = {}
+        self.e_drho_bins = {}
         self._dvalue = 0
         self.ddvalue = 0
 
         self.S = {}
         self.tau_exp = {}
         self.N_sigma = {}
+        self.rho_bin = {}
 
         if kwargs.get('fft') is False:
             fft = False
@@ -250,12 +269,12 @@ class Obs:
                 if isinstance(tmp, (int, float)):
                     if tmp < 0:
                         raise ValueError(kwarg_name + ' has to be larger or equal to 0.')
-                    for _e, e_name in enumerate(self.e_names):
+                    for e_name in e_names:
                         getattr(self, kwarg_name)[e_name] = tmp
                 else:
                     raise TypeError(kwarg_name + ' is not in proper format.')
             else:
-                for _e, e_name in enumerate(self.e_names):
+                for e_name in e_names:
                     if e_name in getattr(Obs, kwarg_name + '_dict'):
                         getattr(self, kwarg_name)[e_name] = getattr(Obs, kwarg_name + '_dict')[e_name]
                     else:
@@ -264,6 +283,12 @@ class Obs:
         _parse_kwarg('S')
         _parse_kwarg('tau_exp')
         _parse_kwarg('N_sigma')
+        _parse_kwarg('rho_bin')
+        for e_name in e_names:
+            if isinstance(self.rho_bin[e_name], bool) or not isinstance(self.rho_bin[e_name], int):
+                raise TypeError('rho_bin has to be an integer.')
+            if self.rho_bin[e_name] < 1:
+                raise ValueError('rho_bin has to be larger than zero.')
 
         for _e, e_name in enumerate(self.mc_names):
             gapsize = _determine_gap(self, e_content, e_name)
@@ -290,45 +315,102 @@ class Obs:
             gamma_div[gamma_div < 1] = 1.0
             e_gamma[e_name] /= gamma_div[:w_max]
 
+            bin_size = self.rho_bin[e_name]
+            if bin_size > 1:
+                n_bins = (w_max - 1) // bin_size
+                if n_bins < 1:
+                    raise ValueError(f'rho_bin={bin_size} is too large for ensemble {e_name}.')
+
             if np.abs(e_gamma[e_name][0]) < 10 * np.finfo(float).tiny:  # Prevent division by zero
                 self.e_tauint[e_name] = 0.5
                 self.e_dtauint[e_name] = 0.0
                 self.e_dvalue[e_name] = 0.0
                 self.e_ddvalue[e_name] = 0.0
                 self.e_windowsize[e_name] = 0
+                if bin_size > 1:
+                    self.e_rho_bins[e_name] = np.zeros(n_bins)
+                    self.e_drho_bins[e_name] = np.zeros(n_bins)
                 continue
 
             self.e_rho[e_name] = e_gamma[e_name][:w_max] / e_gamma[e_name][0]
-            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], self.e_rho[e_name][1:])))
+            if bin_size == 1:
+                rho = self.e_rho[e_name][1:]
+                drho = self.e_drho[e_name][1:]
+            else:
+                binned_lags = self.e_rho[e_name][1:1 + n_bins * bin_size]
+                self.e_rho_bins[e_name] = binned_lags.reshape(n_bins, bin_size).sum(axis=1)
+                # Uncertainties are computed only for bins used by the window analysis.
+                self.e_drho_bins[e_name] = np.full(n_bins, np.nan)
+                rho = self.e_rho_bins[e_name]
+                drho = self.e_drho_bins[e_name]
+
+            n_bins = len(rho)
+            physical_windows = np.arange(n_bins + 1)
+            if bin_size > 1:
+                physical_windows *= bin_size
+            self.e_n_tauint[e_name] = np.cumsum(np.concatenate(([0.5], rho)))
             # Make sure no entry of tauint is smaller than 0.5
             self.e_n_tauint[e_name][self.e_n_tauint[e_name] <= 0.5] = 0.5 + np.finfo(np.float64).eps
-            # hep-lat/0306017 eq. (42)
-            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(np.arange(w_max) + 0.5 - self.e_n_tauint[e_name]) / e_N)
+            # hep-lat/0306017 eq. (42), with physical window W = n * bin_size
+            self.e_n_dtauint[e_name] = self.e_n_tauint[e_name] * 2 * np.sqrt(np.abs(physical_windows + 0.5 - self.e_n_tauint[e_name]) / e_N)
             self.e_n_dtauint[e_name][0] = 0.0
 
-            def _compute_drho(i, e_name=e_name, w_max=w_max, e_N=e_N):
-                tmp = (self.e_rho[e_name][i + 1:w_max]
-                       + np.concatenate([self.e_rho[e_name][i - 1:None if i - (w_max - 1) // 2 <= 0 else (2 * i - (2 * w_max) // 2):-1],
-                                         self.e_rho[e_name][1:max(1, w_max - 2 * i)]])
-                       - 2 * self.e_rho[e_name][i] * self.e_rho[e_name][1:w_max - i])
-                self.e_drho[e_name][i] = np.sqrt(np.sum(tmp ** 2) / e_N)
+            def _compute_drho(i, e_name=e_name, w_max=w_max, e_N=e_N, bin_size=bin_size, rho=rho, drho=drho):
+                if bin_size == 1:
+                    lag = i + 1
+                    tmp = (self.e_rho[e_name][lag + 1:w_max]
+                           + np.concatenate([self.e_rho[e_name][lag - 1:None if lag - (w_max - 1) // 2 <= 0 else (2 * lag - (2 * w_max) // 2):-1],
+                                             self.e_rho[e_name][1:max(1, w_max - 2 * lag)]])
+                           - 2 * self.e_rho[e_name][lag] * self.e_rho[e_name][1:w_max - lag])
+                    drho[i] = np.sqrt(np.sum(tmp ** 2) / e_N)
+                else:
+                    first_lag = i * bin_size + 1
+                    lags = np.arange(first_lag, first_lag + bin_size)
+                    max_m = w_max - 1 - lags[-1]
+                    if max_m < 1:
+                        return
+                    m = np.arange(1, max_m + 1)
+                    # Propagate eq. (A.8) of arXiv:1009.5228 to
+                    # R_i = sum_t rho(t), keeping all covariance terms.
+                    kernel = np.zeros(max_m)
+                    rho_m = self.e_rho[e_name][m]
+                    for lag in lags:
+                        kernel += (self.e_rho[e_name][m + lag]
+                                   + self.e_rho[e_name][np.abs(m - lag)]
+                                   - 2 * rho_m * self.e_rho[e_name][lag])
+                    drho[i] = np.sqrt(np.sum(kernel ** 2) / e_N)
 
             if self.tau_exp[e_name] > 0:
-                _compute_drho(1)
-                texp = self.tau_exp[e_name]
                 # Critical slowing down analysis
-                if w_max // 2 <= 1:
+                tail_search_end = (n_bins + 1) // 2
+                if tail_search_end <= 1:
+                    if bin_size > 1:
+                        raise ValueError(f'Need at least three complete autocorrelation bins for tau_exp error analysis with rho_bin={bin_size}.')
                     raise ValueError("Need at least 8 samples for tau_exp error analysis")
-                for n in range(1, w_max // 2):
-                    _compute_drho(n + 1)
-                    if (self.e_rho[e_name][n] - self.N_sigma[e_name] * self.e_drho[e_name][n]) < 0 or n >= w_max // 2 - 2:
+                _compute_drho(0)
+                for n in range(1, tail_search_end):
+                    _compute_drho(n)
+                    # n bins are included: rho[n - 1] is the last included
+                    # bin, while rho[n] is the first omitted bin used for the tail.
+                    if (rho[n - 1] - self.N_sigma[e_name] * drho[n - 1]) < 0 or n >= tail_search_end - 2:
+                        physical_window = physical_windows[n]
+                        if bin_size == 1:
+                            tail_factor = self.tau_exp[e_name]
+                        else:
+                            # Convert the next-bin sum to rho(W + 1) for a
+                            # discrete exponential before applying the usual tail.
+                            tail_factor = self.tau_exp[e_name] * np.expm1(-1 / self.tau_exp[e_name]) / np.expm1(-bin_size / self.tau_exp[e_name])
+                        tail = tail_factor * np.abs(rho[n])
                         # Bias correction hep-lat/0306017 eq. (49) included
-                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N) + texp * np.abs(self.e_rho[e_name][n + 1])  # The absolute makes sure, that the tail contribution is always positive
-                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + texp ** 2 * self.e_drho[e_name][n + 1] ** 2)
-                        # Error of tau_exp neglected so far, missing term: self.e_rho[e_name][n + 1] ** 2 * d_tau_exp ** 2
+                        self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * physical_window + 1) / e_N) / (1 + 1 / e_N) + tail
+                        self.e_dtauint[e_name] = np.sqrt(self.e_n_dtauint[e_name][n] ** 2 + tail_factor ** 2 * drho[n] ** 2)
+                        # The error d_tau_exp is neglected. Its missing contribution is
+                        # (rho[n] * d(tail_factor)/d(tau_exp) * d_tau_exp) ** 2,
+                        # which reduces to rho[n] ** 2 * d_tau_exp ** 2 for bin_size == 1.
+                        # Covariances between the truncated sum and the tail are neglected.
                         self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
-                        self.e_windowsize[e_name] = n
+                        self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((physical_window + 0.5) / e_N)
+                        self.e_windowsize[e_name] = physical_window
                         break
             else:
                 if self.S[e_name] == 0.0:
@@ -339,16 +421,32 @@ class Obs:
                     self.e_windowsize[e_name] = 0
                 else:
                     # Standard automatic windowing procedure
-                    tau = self.S[e_name] / np.log((2 * self.e_n_tauint[e_name][1:] + 1) / (2 * self.e_n_tauint[e_name][1:] - 1))
-                    g_w = np.exp(- np.arange(1, len(tau) + 1) / tau) - tau / np.sqrt(np.arange(1, len(tau) + 1) * e_N)
-                    for n in range(1, w_max):
-                        if g_w[n - 1] < 0 or n >= w_max - 1:
-                            _compute_drho(n)
-                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * n + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
+                    window_tauint = self.e_n_tauint[e_name][1:]
+                    window_lags = physical_windows[1:]
+                    window_N = e_N
+                    if bin_size > 1:
+                        _compute_drho(0)
+                        if n_bins > 1 and rho[0] > drho[0]:
+                            # Normalize the block envelope for window selection only.
+                            # For rho(t) = q**t, rho[k] / rho[0] = q**(k*b),
+                            # so the original criterion applies in block units.
+                            window_tauint = 0.5 + np.cumsum(rho[1:] / rho[0])
+                            window_tauint[window_tauint <= 0.5] = 0.5 + np.finfo(np.float64).eps
+                            window_lags = np.arange(1, n_bins)
+                            window_N /= bin_size
+                        # A noise-sized first block cannot safely normalize the
+                        # envelope; the initialized physical-window inputs are kept.
+                    tau = self.S[e_name] / np.log((2 * window_tauint + 1) / (2 * window_tauint - 1))
+                    g_w = np.exp(-window_lags / tau) - tau / np.sqrt(window_lags * window_N)
+                    for n in range(1, n_bins + 1):
+                        if n >= n_bins or g_w[n - 1] < 0:
+                            _compute_drho(n - 1)
+                            physical_window = physical_windows[n]
+                            self.e_tauint[e_name] = self.e_n_tauint[e_name][n] * (1 + (2 * physical_window + 1) / e_N) / (1 + 1 / e_N)  # Bias correction hep-lat/0306017 eq. (49)
                             self.e_dtauint[e_name] = self.e_n_dtauint[e_name][n]
                             self.e_dvalue[e_name] = np.sqrt(2 * self.e_tauint[e_name] * e_gamma[e_name][0] * (1 + 1 / e_N) / e_N)
-                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((n + 0.5) / e_N)
-                            self.e_windowsize[e_name] = n
+                            self.e_ddvalue[e_name] = self.e_dvalue[e_name] * np.sqrt((physical_window + 0.5) / e_N)
+                            self.e_windowsize[e_name] = physical_window
                             break
 
             self._dvalue += self.e_dvalue[e_name] ** 2
@@ -525,12 +623,19 @@ class Obs:
             plt.xlabel(r'$W$')
             plt.ylabel(r'$\tau_\mathrm{int}$')
             length = len(self.e_n_tauint[e_name])
+            window_lags = self.rho_bin[e_name] * np.arange(length)
             if self.tau_exp[e_name] > 0:
-                base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
-                x_help = np.arange(2 * self.tau_exp[e_name])
-                y_help = (x_help + 1) * np.abs(self.e_rho[e_name][self.e_windowsize[e_name] + 1]) * (1 - x_help / (2 * (2 * self.tau_exp[e_name] - 1))) + base
-                x_arr = np.arange(self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name])
-                plt.plot(x_arr, y_help, 'C' + str(e), linewidth=1, ls='--', marker=',')
+                if self.rho_bin[e_name] == 1:
+                    base = self.e_n_tauint[e_name][self.e_windowsize[e_name]]
+                    x_help = np.arange(2 * self.tau_exp[e_name])
+                    y_help = (x_help + 1) * np.abs(self.e_rho[e_name][self.e_windowsize[e_name] + 1]) * (1 - x_help / (2 * (2 * self.tau_exp[e_name] - 1))) + base
+                    x_arr = np.arange(self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name])
+                    plt.plot(x_arr, y_help, 'C' + str(e), linewidth=1, ls='--', marker=',')
+                else:
+                    window_index = self.e_windowsize[e_name] // self.rho_bin[e_name]
+                    base = self.e_n_tauint[e_name][window_index]
+                    plt.plot([self.e_windowsize[e_name], self.e_windowsize[e_name] + 2 * self.tau_exp[e_name]], [base, self.e_tauint[e_name]],
+                             'C' + str(e), linewidth=1, ls='--', marker=',')
                 plt.errorbar([self.e_windowsize[e_name] + 2 * self.tau_exp[e_name]], [self.e_tauint[e_name]],
                              yerr=[self.e_dtauint[e_name]], fmt='C' + str(e), linewidth=1, capsize=2, marker='o', mfc=plt.rcParams['axes.facecolor'])
                 xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
@@ -539,7 +644,11 @@ class Obs:
                 label = e_name + ', S=' + str(np.around(self.S[e_name], decimals=2))
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)
 
-            plt.errorbar(np.arange(length)[:int(xmax) + 1], self.e_n_tauint[e_name][:int(xmax) + 1], yerr=self.e_n_dtauint[e_name][:int(xmax) + 1], linewidth=1, capsize=2, label=label)
+            if self.rho_bin[e_name] == 1:
+                plt.errorbar(np.arange(length)[:int(xmax) + 1], self.e_n_tauint[e_name][:int(xmax) + 1], yerr=self.e_n_dtauint[e_name][:int(xmax) + 1], linewidth=1, capsize=2, label=label)
+            else:
+                plot_range = window_lags <= xmax
+                plt.errorbar(window_lags[plot_range], self.e_n_tauint[e_name][plot_range], yerr=self.e_n_dtauint[e_name][plot_range], linewidth=1, capsize=2, label=label)
             plt.axvline(x=self.e_windowsize[e_name], color='C' + str(e), alpha=0.5, marker=',', ls='--')
             plt.legend()
             plt.xlim(-0.5, xmax)
@@ -550,7 +659,10 @@ class Obs:
                 fig.savefig(save + "_" + str(e))
 
     def plot_rho(self, save=None):
-        """Plot normalized autocorrelation function time for each ensemble.
+        """Plot the autocorrelation analysis for each ensemble.
+
+        Shows the normalized autocorrelation function for ``rho_bin == 1``
+        and the summed autocorrelation blocks for ``rho_bin > 1``.
 
         Parameters
         ----------
@@ -562,14 +674,27 @@ class Obs:
         for e, e_name in enumerate(self.mc_names):
             fig = plt.figure()
             plt.xlabel('W')
-            plt.ylabel('rho')
-            length = len(self.e_drho[e_name])
-            plt.errorbar(np.arange(length), self.e_rho[e_name][:length], yerr=self.e_drho[e_name][:], linewidth=1, capsize=2)
+            if self.rho_bin[e_name] > 1:
+                plt.ylabel(r'$R_k = \sum_{t \in B_k} \rho(t)$')
+                x_values = self.rho_bin[e_name] * np.arange(1, len(self.e_rho_bins[e_name]) + 1)
+                rho_values = self.e_rho_bins[e_name]
+                drho_values = self.e_drho_bins[e_name]
+            else:
+                plt.ylabel('rho')
+                x_values = np.arange(len(self.e_rho[e_name]))
+                rho_values = self.e_rho[e_name]
+                drho_values = self.e_drho[e_name]
+            plt.errorbar(x_values, rho_values, yerr=drho_values, linewidth=1, capsize=2)
             plt.axvline(x=self.e_windowsize[e_name], color='r', alpha=0.25, ls='--', marker=',')
             if self.tau_exp[e_name] > 0:
-                plt.plot([self.e_windowsize[e_name] + 1, self.e_windowsize[e_name] + 1 + 2 * self.tau_exp[e_name]],
-                         [self.e_rho[e_name][self.e_windowsize[e_name] + 1], 0], 'k-', lw=1)
-                xmax = self.e_windowsize[e_name] + 2 * self.tau_exp[e_name] + 1.5
+                if self.rho_bin[e_name] == 1:
+                    next_rho = self.e_rho[e_name][self.e_windowsize[e_name] + 1]
+                else:
+                    window_index = self.e_windowsize[e_name] // self.rho_bin[e_name]
+                    next_rho = self.e_rho_bins[e_name][window_index]
+                tail_start = self.e_windowsize[e_name] + self.rho_bin[e_name]
+                plt.plot([tail_start, tail_start + 2 * self.tau_exp[e_name]], [next_rho, 0], 'k-', lw=1)
+                xmax = tail_start + 2 * self.tau_exp[e_name] + 0.5
                 plt.title('Rho ' + e_name + r', tau\_exp=' + str(np.around(self.tau_exp[e_name], decimals=2)))
             else:
                 xmax = max(10.5, 2 * self.e_windowsize[e_name] - 0.5)

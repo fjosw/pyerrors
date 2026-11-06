@@ -235,6 +235,7 @@ def test_gamma_method_kwargs():
     assert my_obs.S['ens'] == pe.Obs.S_global
     assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
     assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+    assert my_obs.rho_bin['ens'] == pe.Obs.rho_bin_global
 
     my_obs.gamma_method(S=3.71)
     assert my_obs.S['ens'] == 3.71
@@ -272,9 +273,14 @@ def test_gamma_method_kwargs():
     assert my_obs.tau_exp['ens'] == 1.2
     assert my_obs.N_sigma['ens'] == 1.3
 
+    pe.Obs.rho_bin_dict['ens'] = 2
+    my_obs.gamma_method()
+    assert my_obs.rho_bin['ens'] == pe.Obs.rho_bin_dict['ens'] == 2
+
     pe.Obs.S_dict = {}
     pe.Obs.tau_exp_dict = {}
     pe.Obs.N_sigma_dict = {}
+    pe.Obs.rho_bin_dict = {}
 
     my_obs = pe.Obs([np.random.normal(1, 0.8, 5)], ['ens'])
 
@@ -282,6 +288,168 @@ def test_gamma_method_kwargs():
     assert my_obs.S['ens'] == pe.Obs.S_global
     assert my_obs.tau_exp['ens'] == pe.Obs.tau_exp_global
     assert my_obs.N_sigma['ens'] == pe.Obs.N_sigma_global
+
+    for rho_bin in [0, -1]:
+        with pytest.raises(ValueError):
+            my_obs.gamma_method(rho_bin=rho_bin)
+    for rho_bin in [True, 1.5, '2']:
+        with pytest.raises(TypeError):
+            my_obs.gamma_method(rho_bin=rho_bin)
+    with pytest.raises(ValueError, match='too large'):
+        pe.Obs([np.arange(20)], ['ens']).gamma_method(rho_bin=10)
+
+
+def test_gamma_method_rho_bin_one_is_default():
+    data = np.random.default_rng(5).normal(size=2000)
+    # Results from the rho_bin-agnostic implementation at the parent commit.
+    expected = [
+        ({}, [2, 0.5009995002498753, 0.031622776601683805, 0.021961211824551786, 0.0007764460902107379]),
+        ({'tau_exp': 10}, [2, 0.7471525316465029, 0.3302398212098993, 0.02681898212082712, 0.0009481942061078816])]
+    scalar_attributes = ['e_windowsize', 'e_tauint', 'e_dtauint', 'e_dvalue', 'e_ddvalue']
+    for (kwargs, reference) in expected:
+        default = pe.Obs([data], ['ens'])
+        explicit = pe.Obs([data], ['ens'])
+        default.gamma_method(**kwargs)
+        explicit.gamma_method(rho_bin=1, **kwargs)
+
+        for attribute in ['e_rho', 'e_drho', 'e_n_tauint', 'e_n_dtauint']:
+            assert np.array_equal(getattr(default, attribute)['ens'], getattr(explicit, attribute)['ens'])
+        for attribute in scalar_attributes:
+            assert getattr(default, attribute)['ens'] == getattr(explicit, attribute)['ens']
+        assert default.e_windowsize['ens'] == reference[0]
+        for attribute, expected_value in zip(scalar_attributes[1:], reference[1:], strict=True):
+            assert np.isclose(getattr(default, attribute)['ens'], expected_value, rtol=1e-12, atol=1e-15)
+
+
+def test_gamma_method_binned_autocorrelation_sum():
+    rng = np.random.default_rng(7)
+    data = np.empty(4000)
+    noise = rng.normal(size=len(data))
+    data[0] = noise[0]
+    for i in range(1, len(data)):
+        data[i] = 0.8 * data[i - 1] + 0.6 * noise[i]
+
+    idl = [range(1, 2 * len(data) + 1, 2)]
+    raw = pe.Obs([data], ['ens'], idl=idl)
+    raw.gamma_method(rho_bin=1)
+    binned = pe.Obs([data], ['ens'], idl=idl)
+    binned.gamma_method(rho_bin=4)
+
+    n_bins = len(binned.e_rho_bins['ens'])
+    assert np.allclose(binned.e_rho['ens'], raw.e_rho['ens'])
+    assert np.allclose(binned.e_rho_bins['ens'], raw.e_rho['ens'][1:1 + 4 * n_bins].reshape(n_bins, 4).sum(axis=1))
+    assert np.allclose(binned.e_n_tauint['ens'], raw.e_n_tauint['ens'][0:4 * n_bins + 1:4])
+    assert np.allclose(binned.e_n_dtauint['ens'], raw.e_n_dtauint['ens'][0:4 * n_bins + 1:4])
+
+    window = binned.e_windowsize['ens']
+    gamma_zero = np.mean(binned.deltas['ens'] ** 2)
+    expected_tauint = raw.e_n_tauint['ens'][window] * (1 + (2 * window + 1) / len(data)) / (1 + 1 / len(data))
+    expected_dvalue = np.sqrt(2 * expected_tauint * gamma_zero * (1 + 1 / len(data)) / len(data))
+    assert window % 4 == 0
+    assert np.isclose(binned.e_tauint['ens'], expected_tauint)
+    assert np.isclose(binned.dvalue, expected_dvalue)
+    assert np.isclose(binned.ddvalue, binned.dvalue * np.sqrt((window + 0.5) / len(data)))
+
+
+def test_gamma_method_binned_autocorrelation_window():
+    rho_bin = 4
+    rng = np.random.default_rng(42)
+    data = np.empty(10000)
+    noise = rng.normal(size=len(data))
+    data[0] = noise[0]
+    for i in range(1, len(data)):
+        data[i] = 0.95 * data[i - 1] + np.sqrt(1 - 0.95 ** 2) * noise[i]
+
+    raw = pe.Obs([data], ['ens'], idl=[range(len(data))])
+    raw.gamma_method()
+    binned = pe.Obs([data], ['ens'], idl=[range(len(data))])
+    binned.gamma_method(rho_bin=rho_bin)
+
+    assert abs(binned.e_windowsize['ens'] - raw.e_windowsize['ens']) <= 2 * rho_bin
+    assert np.isclose(binned.dvalue, raw.dvalue, rtol=0.01)
+
+    sparse = pe.Obs([data[::4]], ['ens'], idl=[range(0, len(data), 4)])
+    precise = pe.Obs([rng.normal(loc=1, scale=0.01, size=len(data))], ['ens'], idl=[range(len(data))])
+    sparse.gamma_method()
+    mixed = sparse * precise
+    mixed.gamma_method(rho_bin=rho_bin)
+
+    sparse_window = rho_bin * sparse.e_windowsize['ens']
+    assert abs(mixed.e_windowsize['ens'] - sparse_window) <= rho_bin
+
+    sparse.gamma_method(tau_exp=5)
+    mixed.gamma_method(rho_bin=rho_bin, tau_exp=20)
+    assert abs(mixed.e_windowsize['ens'] - rho_bin * sparse.e_windowsize['ens']) <= rho_bin
+    assert np.isclose(mixed.dvalue, sparse.dvalue, rtol=0.01)
+
+    uncorrelated = pe.Obs([rng.normal(size=len(data))], ['ens'])
+    uncorrelated.gamma_method(rho_bin=rho_bin)
+    assert uncorrelated.e_windowsize['ens'] == rho_bin
+
+    short_rng = np.random.default_rng(1)
+    short_noise = short_rng.normal(size=4000)
+    short_data = np.empty_like(short_noise)
+    short_data[0] = short_noise[0]
+    for i in range(1, len(short_data)):
+        short_data[i] = 0.2 * short_data[i - 1] + np.sqrt(1 - 0.2 ** 2) * short_noise[i]
+    short = pe.Obs([short_data], ['ens'])
+    short.gamma_method(rho_bin=rho_bin)
+    assert short.e_rho_bins['ens'][0] > short.e_drho_bins['ens'][0]
+    assert short.e_windowsize['ens'] == rho_bin
+    assert np.all(np.isnan(short.e_drho_bins['ens'][1:]))
+
+
+def test_gamma_method_binned_autocorrelation_error():
+    rng = np.random.default_rng(11)
+    data = rng.normal(size=4000)
+    obs = pe.Obs([data], ['ens'])
+    obs.gamma_method(rho_bin=3, tau_exp=10)
+
+    rho = obs.e_rho['ens']
+    lags = np.arange(1, 4)
+    m = np.arange(1, len(rho) - lags[-1])
+    kernels = (rho[m[:, None] + lags]
+               + rho[np.abs(m[:, None] - lags)]
+               - 2 * rho[m[:, None]] * rho[lags])
+    covariance = kernels.T @ kernels / len(data)
+    expected = np.sqrt(np.ones(3) @ covariance @ np.ones(3))
+
+    assert np.isclose(obs.e_drho_bins['ens'][0], expected)
+
+
+def test_gamma_method_binned_constant_observable():
+    obs = pe.Obs([np.ones(20)], ['ens'])
+    obs.gamma_method(rho_bin=2)
+
+    assert np.all(obs.e_rho_bins['ens'] == 0)
+    assert np.all(obs.e_drho_bins['ens'] == 0)
+    obs.plot_rho()
+    plt.close('all')
+
+
+def test_gamma_method_binned_autocorrelation_tail_too_short():
+    obs = pe.Obs([np.arange(20)], ['ens'])
+    with pytest.raises(ValueError, match='three complete autocorrelation bins.*rho_bin=4'):
+        obs.gamma_method(rho_bin=4, tau_exp=10)
+
+
+def test_gamma_method_binned_autocorrelation_tail():
+    rng = np.random.default_rng(13)
+    data = rng.normal(size=4000)
+    obs = pe.Obs([data], ['ens'])
+    obs.gamma_method(rho_bin=4, tau_exp=10)
+
+    window = obs.e_windowsize['ens']
+    window_index = window // 4
+    tail_factor = 10 * np.expm1(-1 / 10) / np.expm1(-4 / 10)
+    expected = obs.e_n_tauint['ens'][window_index]
+    expected *= (1 + (2 * window + 1) / len(data)) / (1 + 1 / len(data))
+    expected += tail_factor * np.abs(obs.e_rho_bins['ens'][window_index])
+
+    assert np.isclose(obs.e_tauint['ens'], expected)
+    obs.plot_tauint()
+    obs.plot_rho()
+    plt.close('all')
 
 
 def test_fft():

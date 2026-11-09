@@ -819,3 +819,514 @@ def test_Corr_unhashable():
     c = pe.Corr([pe.pseudo_Obs(i + 1, 0.1, "e") for i in range(5)])
     with pytest.raises(TypeError):
         hash(c)
+
+
+def _value(x):
+    if isinstance(x, pe.CObs):
+        return complex(_value(x.real), _value(x.imag))
+    return x.value if isinstance(x, pe.Obs) else x
+
+
+
+def _values(matrix):
+    matrix = np.asarray(matrix)
+    return np.array([_value(x) for x in matrix.flat], dtype=complex).reshape(matrix.shape)
+
+
+
+def _aligned_vectors(a, b, reference, reference_b):
+    _, v = scipy.linalg.eigh(a, b)
+    overlap = np.diag(reference.conj().T @ reference_b @ v)
+    return v * np.exp(-1j * np.angle(overlap))[None, :]
+
+
+
+@pytest.fixture
+def complex_corr():
+    rng = np.random.default_rng(255)
+    n, samples = 3, 80
+    z = rng.normal(size=(n, n)) + 1j * rng.normal(size=(n, n)) + 2 * np.eye(n)
+    energies = np.array([0.2, 0.5, 0.9])
+    noise = rng.normal(size=(samples, 6))
+    noise -= noise.mean(axis=0)
+    patterns = rng.normal(size=(6, n, n)) + 1j * rng.normal(size=(6, n, n))
+    patterns = (patterns + patterns.conj().transpose(0, 2, 1)) / 2
+    content = []
+    for t in range(8):
+        if t in (0, 5):
+            content.append(None)
+            continue
+        mean = z @ np.diag(np.exp(-energies * t)) @ z.conj().T
+        raw = mean + 1e-3 * np.exp(-0.3 * t) * np.einsum('sk,kij->sij', noise, patterns)
+        matrix = np.empty((n, n), dtype=object)
+        for i in range(n):
+            for j in range(i, n):
+                real = pe.Obs([raw[:, i, j].real], ['complex|r1'], idl=[range(10, 170, 2)])
+                if i == j:
+                    matrix[i, j] = real  # Deliberately mix real Obs and CObs.
+                else:
+                    imag = pe.Obs([raw[:, i, j].imag], ['complex|r1'], idl=[range(10, 170, 2)])
+                    matrix[i, j] = pe.CObs(real, imag)
+                    matrix[j, i] = matrix[i, j].conjugate()
+        content.append(matrix)
+    return pe.Corr(content), energies
+
+
+
+@pytest.mark.parametrize('method', ['eigh', 'cholesky'])
+@pytest.mark.parametrize('sort', ['Eigenvalue', 'Eigenvector', None])
+@pytest.mark.parametrize('vector_obs', [False, True])
+def test_complex_gevp_modes(complex_corr, method, sort, vector_obs):
+    corr, energies = complex_corr
+    kwargs = dict(t0=1, sort=sort, method=method, vector_obs=vector_obs)
+    if sort != 'Eigenvalue':
+        kwargs['ts'] = 3
+    vectors = corr.GEVP(**kwargs)
+    b = _values(corr[1])
+    for state in range(3):
+        vec = vectors[state] if sort is None else vectors[state][3]
+        numeric = _values(vec)
+        np.testing.assert_allclose(numeric.conj() @ b @ numeric, 1, atol=2e-13)
+        lam = np.exp(-energies[state] * 2)
+        np.testing.assert_allclose(_values(corr[3]) @ numeric, lam * b @ numeric, atol=2e-13)
+        eigenvalue = corr.Eigenvalue(state=state, **kwargs)
+        assert eigenvalue[0] is None and eigenvalue[5] is None
+        assert isinstance(eigenvalue[3], pe.Obs)
+        np.testing.assert_allclose(eigenvalue[3].value, lam, atol=2e-13)
+        normalized = corr.projected(vectors[state], normalize=True)
+        assert normalized[0] is None and normalized[5] is None
+        if vector_obs:
+            assert all(isinstance(x, pe.CObs) for x in vec)
+            norm = vec.conjugate() @ corr[1] @ vec
+            assert (norm.real - 1).is_zero() and norm.imag.is_zero()
+    if sort is not None:
+        assert vectors[0][0] is None and vectors[0][5] is None
+    selected = corr.GEVP(state=1, **kwargs)
+    assert len(selected) == (3 if sort is None else corr.T)
+
+
+
+@pytest.mark.parametrize('method', ['eigh', 'cholesky'])
+@pytest.mark.parametrize('vector_obs', [False, True])
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+def test_fixed_gevp_solver_failure(complex_corr, monkeypatch, method, vector_obs, complex_input):
+    """A failed fixed-time solve must not return C_00 via projected(None)."""
+    corr, _ = complex_corr
+    if not complex_input:
+        corr = corr.real
+    kwargs = dict(t0=1, ts=3, sort=None, method=method, vector_obs=vector_obs)
+    assert corr.Eigenvalue(**kwargs)[3] is not None  # The unmodified input is valid.
+
+    def failed_solver(*args, **kwargs):
+        raise np.linalg.LinAlgError('injected convergence failure')
+
+    if vector_obs and not complex_input:
+        monkeypatch.setattr(pe.linalg, 'eigv', failed_solver)
+    elif vector_obs or method == 'eigh':
+        monkeypatch.setattr(scipy.linalg, 'eigh', failed_solver)
+    else:
+        monkeypatch.setattr(np.linalg, 'eigh', failed_solver)
+    for operation in (corr.GEVP, corr.Eigenvalue):
+        with pytest.raises(np.linalg.LinAlgError, match='injected convergence failure'):
+            operation(**kwargs)
+
+
+
+def test_eigenvalue_rejects_failed_vector(complex_corr, monkeypatch):
+    """Keep explicit default projections valid, but reject missing GEVP vectors."""
+    corr, _ = complex_corr
+    np.testing.assert_allclose(_value(corr.projected()[3]), _value(corr[3][0, 0]))
+    monkeypatch.setattr(pe.Corr, 'GEVP', lambda self, *args, **kwargs: [None] * self.N)
+    with pytest.raises(ValueError, match='did not return an eigenvector'):
+        corr.Eigenvalue(t0=1, ts=3, sort=None)
+
+
+
+@pytest.mark.parametrize('method', ['eigh', 'cholesky'])
+@pytest.mark.parametrize('sort', ['Eigenvalue', 'Eigenvector'])
+@pytest.mark.parametrize('vector_obs', [False, True])
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+def test_time_dependent_gevp_solver_failure(complex_corr, monkeypatch, method, sort, vector_obs, complex_input):
+    """An unusable separation must not discard the other separations."""
+    corr, _ = complex_corr
+    if not complex_input:
+        corr = corr.real
+    kwargs = dict(t0=1, sort=sort, method=method, vector_obs=vector_obs)
+    if sort == 'Eigenvector':
+        kwargs['ts'] = 3
+    baseline = corr.Eigenvalue(**kwargs)
+    failed_mean = _values(corr[6])
+    original_solver = pe.correlators._GEVP_solver
+
+    def fail_one_separation(gt, *args, **kwargs):
+        if np.allclose(_values(gt), failed_mean):
+            raise np.linalg.LinAlgError('injected convergence failure')
+        return original_solver(gt, *args, **kwargs)
+
+    monkeypatch.setattr(pe.correlators, '_GEVP_solver', fail_one_separation)
+    vectors = corr.GEVP(**kwargs)
+    assert all(state[6] is None for state in vectors)
+    projected = corr.Eigenvalue(**kwargs)
+    assert projected[6] is None and projected[5] is None
+    # Check both earlier and later successful solves, including their errors.
+    _assert_same_observables([projected[2], projected[7]], [baseline[2], baseline[7]])
+
+
+
+@pytest.mark.parametrize('error', [TypeError, ValueError, AttributeError])
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+def test_time_dependent_gevp_unexpected_error(complex_corr, monkeypatch, error, complex_input):
+    """Do not hide invalid inputs or programming errors as failed solves."""
+    corr, _ = complex_corr
+    if not complex_input:
+        corr = corr.real
+
+    def broken_solver(*args, **kwargs):
+        raise error('unexpected solver error')
+
+    monkeypatch.setattr(pe.correlators, '_GEVP_solver', broken_solver)
+    with pytest.raises(error, match='unexpected solver error'):
+        corr.GEVP(t0=1)
+
+
+
+def test_complex_frozen_projection_and_distinct_vectors(complex_corr):
+    corr, _ = complex_corr
+    v = corr.GEVP(t0=1, ts=3, sort=None)[0]
+    projected = corr.Eigenvalue(t0=1, ts=3, sort=None)
+    # Independent contraction of the input fluctuations: no d v terms.
+    delta = np.zeros(80)
+    for i in range(3):
+        delta += abs(v[i])**2 * corr[4][i, i].deltas['complex|r1']
+        for j in range(i + 1, 3):
+            weight = v[i].conjugate() * v[j]
+            entry = corr[4][i, j]
+            delta += 2 * (weight.real * entry.real.deltas['complex|r1']
+                          - weight.imag * entry.imag.deltas['complex|r1'])
+    np.testing.assert_allclose(projected[4].deltas['complex|r1'], delta, atol=1e-14)
+    assert projected[4].idl['complex|r1'] == range(10, 170, 2)
+    right = np.array([1 + 2j, 0.3j, -0.2])
+    left = np.array([0.4, 1j, 0.8 - 0.5j])
+    for vl, vr in [(left, right), ([left] * corr.T, right),
+                   (left, [right] * corr.T), ([left] * corr.T, [right] * corr.T)]:
+        result = corr.projected(vl, vr)
+        np.testing.assert_allclose(_value(result[4]), left.conj() @ _values(corr[4]) @ right)
+        assert abs(_value(result[4]).imag) > 0.01
+
+
+
+def test_complex_hermitian_helpers_and_components(complex_corr):
+    corr, _ = complex_corr
+    assert corr.is_matrix_hermitian()
+    assert all(isinstance(x, pe.Obs) for x in corr.real[3].flat)
+    assert all(isinstance(x, pe.Obs) for x in corr.imag[3].flat)
+    modified = pe.Corr([None if m is None else m.copy() for m in corr.content])
+    modified[3][0, 1] += 0.2j
+    assert not modified.is_matrix_hermitian()
+    averaged = modified.matrix_hermitian()
+    assert averaged.is_matrix_hermitian()
+    assert averaged[0] is None and averaged[5] is None
+    # The imaginary diagonal must also be checked and removed when averaging.
+    modified[3][0, 0] = pe.CObs(modified[3][0, 0], 0.1)
+    assert not modified.is_matrix_hermitian()
+    assert modified.matrix_hermitian().is_matrix_hermitian()
+    modified.GEVP(t0=1, ts=3, sort=None)
+    with pytest.raises(TypeError):
+        corr.item(0, 0).is_matrix_hermitian()
+    with pytest.raises(ValueError):
+        corr.item(0, 0).matrix_hermitian()
+
+
+
+def test_complex_prune(complex_corr):
+    corr, energies = complex_corr
+    reference = pe.Corr(corr.content)
+    reduced = corr.prune(2, tproj=3, t0proj=1, basematrix=reference)
+    assert reduced.N == 2 and reduced[0] is None and reduced[5] is None
+    assert reduced.is_matrix_hermitian()
+    for state in range(2):
+        result = reduced.Eigenvalue(t0=1, state=state)
+        np.testing.assert_allclose(result[4].value, np.exp(-energies[state] * 3), atol=2e-13)
+
+
+
+def test_complex_sorting_phase_invariance(complex_corr):
+    corr, _ = complex_corr
+    # Use a complete sequence with undefined t <= t0.
+    vectors = [None, None] + [corr.GEVP(t0=1, ts=t, sort=None) if corr[t] is not None else None
+                              for t in range(2, corr.T)]
+    rng = np.random.default_rng(22)
+    phased = [None if v is None else v * np.exp(1j * rng.uniform(-3, 3, (3, 1)))
+              for v in vectors]
+    original = pe.correlators._sort_vectors(vectors, 3)
+    changed = pe.correlators._sort_vectors(phased, 3)
+    for a, b in zip(original, changed, strict=True):
+        if a is not None:
+            for u, v in zip(a, b, strict=True):
+                np.testing.assert_allclose(np.outer(u, u.conj()), np.outer(v, v.conj()), atol=2e-13)
+
+
+
+def test_complex_vector_mc_derivative_and_auto_gamma(complex_corr):
+    corr, _ = complex_corr
+    t, t0 = 3, 1
+    a, b = _values(corr[t]), _values(corr[t0])
+    _, reference = scipy.linalg.eigh(a, b)
+    vectors = corr.GEVP(t0=t0, ts=t, sort=None, vector_obs=True, auto_gamma=True)
+    source = 'complex|r1'
+
+    def fluctuations(matrix):
+        delta = np.empty((3, 3, 80), dtype=complex)
+        for ij, entry in np.ndenumerate(matrix):
+            if isinstance(entry, pe.CObs):
+                delta[ij] = entry.real.deltas[source] + 1j * entry.imag.deltas[source]
+            else:
+                delta[ij] = entry.deltas[source]
+        return delta
+
+    da, db = fluctuations(corr[t]), fluctuations(corr[t0])
+    h = 1e-3
+    for sample in range(80):
+        plus = _aligned_vectors(a + h * da[:, :, sample], b + h * db[:, :, sample], reference, b)
+        minus = _aligned_vectors(a - h * da[:, :, sample], b - h * db[:, :, sample], reference, b)
+        expected = (plus - minus) / (2 * h)
+        for state, vec in enumerate(vectors):
+            actual = np.array([x.real.deltas[source][sample] + 1j * x.imag.deltas[source][sample] for x in vec])
+            np.testing.assert_allclose(actual, expected[:, -state - 1], atol=2e-11)
+    assert all(hasattr(x.imag, 'dvalue') for vec in vectors for x in vec)
+    assert all(hasattr(x.real, 'dvalue') for vec in vectors for x in vec)
+    # The list-valued auto_gamma path and determinant sorting must handle CObs.
+    corr.GEVP(t0=1, ts=3, sort='Eigenvector', vector_obs=True, auto_gamma=True)
+
+
+
+@pytest.mark.filterwarnings('ignore:Covariance matrix is not positive semi-definite:RuntimeWarning')
+def test_complex_generalized_covariance():
+    rng = np.random.default_rng(91)
+    z = rng.normal(size=(8, 8))
+    covariance = z @ z.T * 1e-6
+    mean = np.array([2., 3., 0.2, 0.4, 1.2, 1.7, 0.1, -0.15])
+    p = pe.cov_Obs(mean, covariance, 'both-times')
+
+    def matrices(x):
+        return tuple(np.array([[x[k], x[k + 2] + 1j * x[k + 3]],
+                               [x[k + 2] - 1j * x[k + 3], x[k + 1]]]) for k in (0, 4))
+
+    obs = tuple(np.array([[p[k], pe.CObs(p[k + 2], p[k + 3])],
+                          [pe.CObs(p[k + 2], -p[k + 3]), p[k + 1]]]) for k in (0, 4))
+    corr = pe.Corr([obs[1], obs[0]])
+    vectors = corr.GEVP(t0=0, ts=1, sort=None, vector_obs=True)
+    eigenvalues = [corr.Eigenvalue(t0=0, ts=1, sort=None, state=s, vector_obs=True)[1] for s in (1, 0)]
+    columns = np.array(vectors).T[:, ::-1]
+    outputs = eigenvalues + [x.real for x in columns.flat] + [x.imag for x in columns.flat]
+    pe.gm(outputs)
+    a, b = matrices(mean)
+    _, reference = scipy.linalg.eigh(a, b)
+    h = 1e-5
+    jac = np.empty((len(outputs), 8))
+    for k in range(8):
+        delta = np.zeros(8)
+        delta[k] = h
+        packed = []
+        for sign in (1, -1):
+            aa, bb = matrices(mean + sign * delta)
+            ww = scipy.linalg.eigh(aa, bb)[0]
+            vv = _aligned_vectors(aa, bb, reference, b)
+            packed.append(np.concatenate((ww, vv.real.ravel(), vv.imag.ravel())))
+        jac[:, k] = (packed[0] - packed[1]) / (2 * h)
+    np.testing.assert_allclose(pe.covariance(outputs), jac @ covariance @ jac.T, atol=1e-13, rtol=2e-7)
+    for state in range(2):
+        v = vectors[state]
+        lam = eigenvalues[1 - state]
+        residual = obs[0] @ v - (obs[1] @ v) * lam
+        assert all(entry.is_zero() for entry in residual)
+
+
+
+@pytest.mark.parametrize('sort', ['Eigenvalue', 'Eigenvector', None])
+def test_complex_degeneracy_and_missing_reference(sort):
+    unit = pe.cov_Obs(1., 0., 'constant')
+    identity = np.array([[pe.CObs(unit), pe.CObs(0 * unit)], [pe.CObs(0 * unit), pe.CObs(unit)]])
+    corr = pe.Corr([identity, identity * 2, identity * 3])
+    kwargs = dict(t0=0, sort=sort)
+    if sort != 'Eigenvalue':
+        kwargs['ts'] = 1
+    # Zero determinant candidates are expected for this exactly degenerate
+    # sorting problem; NumPy 1.26 can issue spurious divide/invalid warnings.
+    with np.errstate(divide='ignore', invalid='ignore'):
+        corr.GEVP(**kwargs)  # A numerical choice of basis is still valid.
+    if sort is None:
+        with pytest.raises(np.linalg.LinAlgError, match='degenerate'):
+            corr.GEVP(vector_obs=True, **kwargs)
+    elif sort == 'Eigenvector':
+        # State tracking needs a usable sorting reference even if other
+        # time separations can individually be marked as failed.
+        with pytest.raises(np.linalg.LinAlgError, match='sorting reference'):
+            corr.GEVP(vector_obs=True, **kwargs)
+    else:
+        assert all(v is None for state in corr.GEVP(vector_obs=True, **kwargs) for v in state)
+    corr.content[0] = None
+    for propagate in (False, True):
+        with pytest.raises(ValueError, match='not defined'):
+            corr.GEVP(vector_obs=propagate, **kwargs)
+
+
+
+def test_complex_numeric_zeros_are_defined():
+    a = pe.cov_Obs(1., 1e-5, 'diagonal')
+    b = pe.cov_Obs(0.2, 2e-6, 'off-diagonal')
+    metric = np.array([[a, pe.CObs(0, b), 0],
+                       [pe.CObs(0, -b), 2 * a, 0j], [0, 0, 3 * a]])
+    target = metric + np.diag([0.1, 0.4, 0.9])
+    corr = pe.Corr([metric, target])
+    for propagate in (False, True):
+        v = corr.GEVP(t0=0, ts=1, sort=None, vector_obs=propagate)[0]
+        assert v is not None
+        assert corr.Eigenvalue(t0=0, ts=1, sort=None, vector_obs=propagate)[1] is not None
+    assert corr.matrix_hermitian()[1] is not None
+
+
+
+def test_complex_and_real_timeslices():
+    a = pe.cov_Obs(1., 1e-5, 'shared')
+    reference = np.array([[a, 0], [0, 2 * a]])
+    complex_time = np.array([[2 * a, pe.CObs(0, 0.1 * a)],
+                             [pe.CObs(0, -0.1 * a), 3 * a]])
+    real_time = np.array([[1.5 * a, 0.2 * a], [0.2 * a, 2 * a]])
+    corr = pe.Corr([reference, complex_time, real_time])
+    vectors = corr.GEVP(t0=0, vector_obs=True, auto_gamma=True)
+    for state in range(2):
+        vec = vectors[state][2]
+        assert all(isinstance(x, pe.CObs) and x.imag.is_zero() for x in vec)
+        norm = vec.conjugate() @ reference @ vec
+        assert (norm.real - 1).is_zero() and norm.imag.is_zero()
+
+
+
+def _align_observable_vector(vector, reference, metric):
+    """Align to prescribed input vectors, without calling an eigensolver."""
+    vector = [x if isinstance(x, pe.CObs) else pe.CObs(x) for x in vector]
+    overlap = sum(weight * x for weight, x in zip(reference.conj() @ metric, vector, strict=True))
+    phase = overlap.conjugate() / abs(overlap)
+    return np.array([x * phase for x in vector])
+
+
+
+def _assert_same_observables(actual, expected):
+    """Check means, errors and source fluctuations/gradients, not just overlap."""
+    pe.gm(actual)
+    pe.gm(expected)
+    np.testing.assert_allclose([x.value for x in actual], [x.value for x in expected], atol=2e-12)
+    np.testing.assert_allclose([x.dvalue for x in actual], [x.dvalue for x in expected],
+                               rtol=2e-9, atol=2e-13)
+    for result, original in zip(actual, expected, strict=True):
+        for name in set(result.deltas) | set(original.deltas):
+            np.testing.assert_allclose(result.deltas.get(name, 0), original.deltas.get(name, 0),
+                                       rtol=2e-9, atol=2e-12)
+        for name in set(result.cov_names) | set(original.cov_names):
+            # derived_observable may introduce a zero-variance dummy source for
+            # constants. Only the physical source gradients carry information.
+            if name == '###dummy_covobs###':
+                continue
+            np.testing.assert_allclose(result.covobs[name].grad, original.covobs[name].grad,
+                                       rtol=2e-9, atol=2e-12)
+    # covariance() normalizes by component errors internally. Exact constants
+    # (e.g. real-vector imaginary parts) were checked above; omit their zero
+    # rows/columns from this additional covariance comparison.
+    active = [i for i, x in enumerate(expected) if x.dvalue > 1e-14]
+    if active:
+        np.testing.assert_allclose(pe.covariance([actual[i] for i in active]),
+                                   pe.covariance([expected[i] for i in active]),
+                                   rtol=2e-8, atol=2e-13)
+
+
+
+@pytest.mark.parametrize('generalized', [False, True], ids=['EVP', 'GEVP'])
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+@pytest.mark.parametrize('source', ['MC', 'covariance'])
+@pytest.mark.filterwarnings('ignore:Covariance matrix is not positive semi-definite:RuntimeWarning')
+def test_prescribed_uncertain_eigensystem(generalized, complex_input, source):
+    """Construct A=D U Lambda U^H D, B=D^2 from known uncertain inputs.
+
+    The exact eigenvalues are Lambda and the B-normalized vector columns are
+    V=D^-1 U. U is an elementary rotation with an optional complex phase.
+    Neither the expected eigensystem nor its errors uses a numerical eigensolver
+    or the new eigenvector Jacobian. The errors come from elementary Obs algebra.
+    """
+    rng = np.random.default_rng(1021)
+    means = np.array([0.7, 2.2, 0.41, 0.63, 1.1, 1.4])
+    factor = rng.normal(size=(6, 6))
+    covariance = factor @ factor.T * 1e-6
+    if source == 'covariance':
+        parameters = pe.cov_Obs(means, covariance, 'prescribed')
+    else:
+        noise = rng.multivariate_normal(np.zeros(6), covariance * 120, size=120)
+        noise -= noise.mean(axis=0)
+        parameters = [pe.Obs([mean + noise[:, k]], ['prescribed|r1'], idl=[range(5, 245, 2)])
+                      for k, mean in enumerate(means)]
+    eigenvalues = parameters[:2]
+    theta, phi = parameters[2:4]
+    cosine, sine = np.cos(theta), np.sin(theta)
+    if complex_input:
+        phase = pe.CObs(np.cos(phi), np.sin(phi))
+        unitary = np.array([[pe.CObs(cosine), -sine * phase.conjugate()],
+                            [sine * phase, pe.CObs(cosine)]])
+        unitary_h = unitary.conjugate().T
+    else:
+        unitary = np.array([[cosine, -sine], [sine, cosine]])
+        unitary_h = unitary.T
+    scales = parameters[4:6] if generalized else [1., 1.]
+    diagonal = np.diag(scales)
+    metric = diagonal @ diagonal
+    matrix = diagonal @ unitary @ np.diag(eigenvalues) @ unitary_h @ diagonal
+    prescribed_vectors = unitary / np.asarray(scales)[:, None]
+    reference = _values(prescribed_vectors)
+    metric_mean = _values(metric)
+
+    if generalized:
+        corr = pe.Corr([metric, matrix])
+        rows = corr.GEVP(t0=0, ts=1, sort=None, vector_obs=True)
+        recovered_vectors = np.asarray(rows)[::-1].T
+        recovered_values = [corr.Eigenvalue(t0=0, ts=1, sort=None, state=state,
+                                            vector_obs=True)[1] for state in (1, 0)]
+        # Also check the numerical routes against the prescribed vectors. For
+        # frozen coefficients, compare errors to that fixed projection, rather
+        # than to the fluctuating generalized eigenvalue.
+        for method in ('eigh', 'cholesky'):
+            numeric = corr.GEVP(t0=0, ts=1, sort=None, method=method)[::-1].T
+            for k in range(2):
+                np.testing.assert_allclose(np.outer(numeric[:, k], numeric[:, k].conj()),
+                                           np.outer(reference[:, k], reference[:, k].conj()), atol=2e-12)
+                expected_fixed = reference[:, k].conj() @ matrix @ reference[:, k]
+                if isinstance(expected_fixed, pe.CObs):
+                    expected_fixed = expected_fixed.real
+                actual_fixed = corr.Eigenvalue(t0=0, ts=1, sort=None, state=1 - k, method=method)[1]
+                _assert_same_observables([actual_fixed], [expected_fixed])
+    else:
+        recovered_values, recovered_vectors = pe.linalg.eigh(matrix)
+
+    # Compare in the same fixed-reference phase convention. This removes only
+    # eigenvector phase freedom, not normalization or component fluctuations.
+    actual_columns, expected_columns = [], []
+    for k in range(2):
+        actual_columns.append(_align_observable_vector(recovered_vectors[:, k], reference[:, k], metric_mean))
+        expected_columns.append(_align_observable_vector(prescribed_vectors[:, k], reference[:, k], metric_mean))
+    actual_columns = np.array(actual_columns).T
+    expected_columns = np.array(expected_columns).T
+    actual = list(recovered_values) + [x.real for x in actual_columns.flat] + [x.imag for x in actual_columns.flat]
+    expected = list(eigenvalues) + [x.real for x in expected_columns.flat] + [x.imag for x in expected_columns.flat]
+    _assert_same_observables(actual, expected)
+
+    # Independently reconstruct the original uncertain matrix. This checks that
+    # the recovered values and vectors together retain the input correlations.
+    reconstruction = metric @ actual_columns @ np.diag(recovered_values) @ actual_columns.conjugate().T @ metric
+    original_parts, reconstructed_parts = [], []
+    for original, recovered in zip(matrix.flat, reconstruction.flat, strict=True):
+        original = original if isinstance(original, pe.CObs) else pe.CObs(original)
+        original_parts.extend([original.real, original.imag])
+        reconstructed_parts.extend([recovered.real, recovered.imag])
+    # Imaginary components of purely real input can be numeric constants.
+    for i, entry in enumerate(original_parts):
+        if not isinstance(entry, pe.Obs):
+            original_parts[i] = 0 * eigenvalues[0] + entry
+    _assert_same_observables(reconstructed_parts, original_parts)

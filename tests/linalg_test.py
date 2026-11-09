@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.linalg
 import autograd.numpy as anp
 import math
 import pyerrors as pe
@@ -359,3 +360,57 @@ def test_complex_matrix_real_entries():
     my_mat[2, 0] = pe.Obs([np.random.normal(1.0, 0.1, 100)], ['t'])
     assert np.all((my_mat @ pe.linalg.inv(my_mat) - np.identity(4)) == 0)
 
+
+def _value(x):
+    if isinstance(x, pe.CObs):
+        return complex(_value(x.real), _value(x.imag))
+    return x.value if isinstance(x, pe.Obs) else x
+
+
+
+def _values(matrix):
+    matrix = np.asarray(matrix)
+    return np.array([_value(x) for x in matrix.flat], dtype=complex).reshape(matrix.shape)
+
+
+
+def _aligned_vectors(a, b, reference, reference_b):
+    _, v = scipy.linalg.eigh(a, b)
+    overlap = np.diag(reference.conj().T @ reference_b @ v)
+    return v * np.exp(-1j * np.angle(overlap))[None, :]
+
+
+
+@pytest.mark.filterwarnings('ignore:Covariance matrix is not positive semi-definite:RuntimeWarning')
+def test_complex_eigh_covariance_and_ordinary_vectors():
+    rng = np.random.default_rng(16)
+    z = rng.normal(size=(4, 4))
+    cov = z @ z.T * 1e-5
+    mean = np.array([2., 3., 0.2, 0.4])
+    p = pe.cov_Obs(mean, cov, 'complex-cov')
+
+    def matrix(x):
+        return np.array([[x[0], x[2] + 1j * x[3]], [x[2] - 1j * x[3], x[1]]])
+
+    obs = np.array([[p[0], pe.CObs(p[2], p[3])], [pe.CObs(p[2], -p[3]), p[1]]])
+    eigenvalues, vectors = pe.linalg.eigh(obs)
+    other_vectors = pe.linalg.eigv(obs)
+    a = matrix(mean)
+    _, reference = scipy.linalg.eigh(a)
+    outputs = list(eigenvalues) + [x.real for x in vectors.flat] + [x.imag for x in vectors.flat]
+    pe.gm(outputs)
+    jac = np.empty((len(outputs), 4))
+    h = 1e-5
+    for k in range(4):
+        dx = np.zeros(4)
+        dx[k] = h
+        packed = []
+        for sign in (1, -1):
+            aa = matrix(mean + sign * dx)
+            ww = scipy.linalg.eigh(aa)[0]
+            vv = _aligned_vectors(aa, np.eye(2), reference, np.eye(2))
+            packed.append(np.concatenate((ww, vv.real.ravel(), vv.imag.ravel())))
+        jac[:, k] = (packed[0] - packed[1]) / (2 * h)
+    np.testing.assert_allclose(pe.covariance(outputs), jac @ cov @ jac.T, atol=1e-13, rtol=2e-8)
+    np.testing.assert_allclose(_values(other_vectors), _values(vectors))
+    np.testing.assert_allclose(_values(vectors).conj().T @ _values(vectors), np.eye(2), atol=2e-14)

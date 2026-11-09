@@ -1,5 +1,6 @@
 import autograd.numpy as anp  # Thinly-wrapped numpy
 import numpy as np
+import scipy.linalg
 
 from .obs import CObs, Obs, derived_observable, import_jackknife
 
@@ -260,7 +261,14 @@ def _mat_mat_op(op, obs, **kwargs):
 
 
 def eigh(obs, **kwargs):
-    """Computes the eigenvalues and eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
+    """Eigenvalues and eigenvector columns of a Hermitian Obs or CObs matrix.
+
+    For complex input, eigenvector errors use a local phase convention in which
+    the overlap with the central vector is real and positive. Individual vector
+    derivatives are undefined at degenerate eigenvalues.
+    """
+    if _is_complex(obs):
+        return _eigh_complex(obs)
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return w, v
@@ -274,8 +282,175 @@ def eig(obs, **kwargs):
 
 def eigv(obs, **kwargs):
     """Computes the eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
+    if _is_complex(obs):
+        return _eigh_complex(obs)[1]
     v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
     return v
+
+
+def _is_complex(matrix):
+    """Whether any entry requires complex observable handling."""
+    return any(isinstance(entry, (CObs, complex, np.complexfloating)) for entry in np.asarray(matrix).flat)
+
+
+def _central_value(entry):
+    """Central value of a numeric scalar, Obs or CObs."""
+    if isinstance(entry, CObs):
+        return complex(_central_value(entry.real), _central_value(entry.imag))
+    return entry.value if isinstance(entry, Obs) else entry
+
+
+def _matrix_values(matrix):
+    """Extract means without dropping imaginary parts in mixed Obs/CObs arrays."""
+    matrix = np.asarray(matrix)
+    return np.array([_central_value(entry) for entry in matrix.flat],
+                    dtype=complex if _is_complex(matrix) else float).reshape(matrix.shape)
+
+
+def _conjugate(array):
+    """Conjugate numeric/Obs/CObs arrays, including real Obs without conjugate()."""
+    array = np.asarray(array)
+    return np.array([entry.conjugate() if hasattr(entry, 'conjugate') else entry
+                     for entry in array.flat]).reshape(array.shape)
+
+
+def _eigh_complex(obs, metric=None):
+    r"""Propagate a Hermitian definite eigensystem using real-coordinate Jacobians.
+
+    Parameters
+    ----------
+    obs : array_like, shape (N, N)
+        Hermitian matrix A, with Obs, CObs or numeric entries.
+    metric : array_like, shape (N, N), optional
+        Hermitian reference matrix B in A v = lambda B v. It must have the
+        same shape as obs and a positive-definite central value. In a correlator
+        GEVP this is C(t0). If None, B is the identity and an ordinary Hermitian
+        eigenproblem is solved. Uncertainties in B and their correlations with
+        A are included in the error propagation.
+
+    Returns
+    -------
+    eigenvalues : numpy.ndarray of Obs, shape (N,)
+        Real eigenvalues in ascending order.
+    eigenvectors : numpy.ndarray of CObs, shape (N, N)
+        Eigenvectors as columns, normalized with respect to B: V^H B V = I.
+        Thus B defines the inner product used for orthonormality.
+
+    Notes
+    -----
+    Let A and B denote the central matrices, with a nondegenerate eigensystem
+
+    $$
+    A v_k = \lambda_k B v_k, \qquad v_m^\dagger B v_k = \delta_{mk}.
+    $$
+
+    All derivatives below are evaluated at these central values, for Hermitian
+    perturbations dA and dB. Differentiating the eigenvalue equation and
+    multiplying by the corresponding left eigenvector cancels the dv terms:
+
+    $$
+    d\lambda_k = v_k^\dagger(dA - \lambda_k dB)v_k.
+    $$
+
+    Expand the vector variation as $dv_k = \sum_m v_m c_m$. Projection of the
+    differentiated equation onto v_m gives, for m != k,
+
+    $$
+    c_m = \frac{v_m^\dagger(dA - \lambda_k dB)v_k}{\lambda_k - \lambda_m}.
+    $$
+
+    The coefficient along v_k is fixed by differentiating its normalization,
+    together with a choice of local phase:
+
+    $$
+    2\operatorname{Re}(v_k^\dagger B\,dv_k) + v_k^\dagger dB v_k = 0,
+    \qquad \operatorname{Im}(v_k^\dagger B\,dv_k) = 0.
+    $$
+
+    Hence the complete phase-fixed vector derivative is
+
+    $$
+    dv_k = \sum_{m\ne k} v_m
+    \frac{v_m^\dagger(dA - \lambda_k dB)v_k}{\lambda_k - \lambda_m}
+    - \frac12 v_k(v_k^\dagger dB v_k).
+    $$
+
+    The numerical vectors are aligned to the fixed central vectors by making
+    their overlaps, evaluated with the central B, real and positive.
+
+    Degeneracies prevent unique individual vector derivatives.
+    Numerically unresolved eigenvalue gaps raise LinAlgError; larger gaps can
+    still require care if they are small compared with the input fluctuations.
+    """
+    obs = np.asarray(obs, dtype=object)
+    if obs.ndim != 2 or obs.shape[0] != obs.shape[1]:
+        raise ValueError('Expected a square Hermitian matrix.')
+    if metric is None:
+        metric = np.eye(obs.shape[0])
+    metric = np.asarray(metric, dtype=object)
+    if metric.shape != obs.shape:
+        raise ValueError('Matrix and metric must have the same shape.')
+
+    data = np.empty((4, *obs.shape), dtype=object)
+    for k, matrix in enumerate((obs, metric)):
+        for ij, entry in np.ndenumerate(matrix):
+            data[(2 * k, *ij)] = entry if isinstance(entry, Obs) else entry.real
+            data[(2 * k + 1, *ij)] = 0.0 if isinstance(entry, Obs) else entry.imag
+
+    def unpack(x):
+        """Hermitian matrices from unrestricted real/imaginary coordinates."""
+        a, b = x[0] + 1j * x[1], x[2] + 1j * x[3]
+        # Extend to unconstrained real coordinates for the manual Jacobian.
+        return (a + a.conj().T) / 2, (b + b.conj().T) / 2
+
+    a = np.asarray(_matrix_values(obs), dtype=complex)
+    b = np.asarray(_matrix_values(metric), dtype=complex)
+    for matrix in (a, b):
+        if not np.allclose(matrix, matrix.conj().T):
+            raise ValueError('Expected Hermitian matrix and metric.')
+    a, b = (a + a.conj().T) / 2, (b + b.conj().T) / 2
+    w, v = scipy.linalg.eigh(a, b)
+    n = len(w)
+    if n > 1 and np.any(np.diff(w) <= 100 * n * np.finfo(float).eps * np.max(np.abs(w))):
+        raise np.linalg.LinAlgError('Eigenvector derivatives are undefined for degenerate eigenvalues.')
+
+    # d lambda_n = v_n^H (dA - lambda_n dB) v_n.
+    q = np.einsum('in,jn->nij', v.conj(), v)
+    jac = np.empty((n + 2 * n * n, *data.shape))
+    jac[:n] = np.stack((q.real, -q.imag, -w[:, None, None] * q.real,
+                       w[:, None, None] * q.imag), axis=1)
+    for index in np.ndindex(data.shape):
+        dx = np.zeros(data.shape)
+        dx[index] = 1
+        da, db = unpack(dx)
+        dv = np.empty_like(v)
+        for k in range(n):
+            coeff = v.conj().T @ (da - w[k] * db) @ v[:, k]
+            for m in range(n):
+                if m != k:
+                    coeff[m] /= w[k] - w[m]
+                else:
+                    coeff[m] = -0.5 * (v[:, k].conj() @ db @ v[:, k]).real
+            dv[:, k] = v @ coeff
+        jac[(slice(n, n + n * n), *index)] = dv.real.ravel()
+        jac[(slice(n + n * n, None), *index)] = dv.imag.ravel()
+
+    def eigensystem(x, **kwargs):
+        """Pack real outputs after alignment to the fixed central phase."""
+        aa, bb = unpack(x)
+        ww, vv = scipy.linalg.eigh(aa, bb)
+        # Align to a fixed central reference, also for per-replica means.
+        overlap = np.diag(v.conj().T @ b @ vv)
+        vv = vv * np.exp(-1j * np.angle(overlap))[None, :]
+        return np.concatenate((ww, vv.real.ravel(), vv.imag.ravel()))
+
+    result = derived_observable(eigensystem, data, man_grad=jac)
+    vr = result[n:n + n * n].reshape(obs.shape)
+    vi = result[n + n * n:].reshape(obs.shape)
+    vectors = np.empty(obs.shape, dtype=object)
+    for ij in np.ndindex(obs.shape):
+        vectors[ij] = CObs(vr[ij], vi[ij])
+    return result[:n], vectors
 
 
 def pinv(obs, **kwargs):

@@ -161,7 +161,9 @@ class Corr:
         """We need to project the Correlator with a Vector to get a single value at each timeslice.
 
         The method can use one or two vectors.
-        If two are specified it returns v1@G@v2 (the order might be very important.)
+        If two are specified it returns v1.conj()@G@v2. In particular, the left
+        argument is a vector, not an already conjugated bra. Distinct left and
+        right vectors can produce a complex correlator.
         By default it will return the lowest source, which usually means unsmeared-unsmeared (0,0), but it does not have to
         """
         if self.N == 1:
@@ -180,20 +182,31 @@ class Corr:
                 raise ValueError("Length of vector list must be equal to T")
             vector_l = [vector_l] * self.T
 
+        def normalized(vector):
+            """Normalize with the Hermitian Euclidean norm."""
+            normsq = linalg._conjugate(vector) @ vector
+            if isinstance(normsq, CObs):
+                normsq = normsq.real
+            elif np.iscomplexobj(normsq):
+                normsq = normsq.real
+            return vector / np.sqrt(normsq)
+
         if not isinstance(vector_l, list):
             if not vector_l.shape == vector_r.shape == (self.N,):
                 raise ValueError("Vectors are of wrong shape!")
             if normalize:
-                vector_l, vector_r = vector_l / np.sqrt(vector_l @ vector_l), vector_r / np.sqrt(vector_r @ vector_r)
-            newcontent = [None if _check_for_none(self, item) else np.asarray([vector_l.T @ item @ vector_r]) for item in self.content]
+                vector_l, vector_r = normalized(vector_l), normalized(vector_r)
+            newcontent = [None if _check_for_none(self, item) else np.asarray([linalg._conjugate(vector_l) @ item @ vector_r]) for item in self.content]
 
         else:
             # There are no checks here yet. There are so many possible scenarios, where this can go wrong.
             if normalize:
                 for t in range(self.T):
-                    vector_l[t], vector_r[t] = vector_l[t] / np.sqrt(vector_l[t] @ vector_l[t]), vector_r[t] / np.sqrt(vector_r[t] @ vector_r[t])
+                    if vector_l[t] is None or vector_r[t] is None:
+                        continue
+                    vector_l[t], vector_r[t] = normalized(vector_l[t]), normalized(vector_r[t])
 
-            newcontent = [None if (_check_for_none(self, self.content[t]) or vector_l[t] is None or vector_r[t] is None) else np.asarray([vector_l[t].T @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
+            newcontent = [None if (_check_for_none(self, self.content[t]) or vector_l[t] is None or vector_r[t] is None) else np.asarray([linalg._conjugate(vector_l[t]) @ self.content[t] @ vector_r[t]]) for t in range(self.T)]
         return Corr(newcontent)
 
     def item(self, i, j):
@@ -305,6 +318,30 @@ class Corr:
             transposed = [None if _check_for_none(self, G) else G.T for G in self.content]
             return 0.5 * (Corr(transposed) + self)
 
+    def is_matrix_hermitian(self):
+        """Check Hermiticity of the observables, including their fluctuations."""
+        if self.N == 1:
+            raise TypeError('Only works for correlator matrices.')
+        for matrix in self.content:
+            if _check_for_none(self, matrix):
+                continue
+            residual = matrix - linalg._conjugate(matrix).T
+            for entry in residual.flat:
+                if isinstance(entry, (Obs, CObs)):
+                    if not entry.is_zero():
+                        return False
+                elif not np.isclose(entry, 0, rtol=0, atol=1e-10):
+                    return False
+        return True
+
+    def matrix_hermitian(self):
+        """Return (C + C^H)/2 on each defined timeslice."""
+        if self.N == 1:
+            raise ValueError('Trying to hermitize a single-channel correlator.')
+        return Corr([None if _check_for_none(self, matrix) else
+                     (matrix + linalg._conjugate(matrix).T) * 0.5
+                     for matrix in self.content], prange=self.prange)
+
     def GEVP(self, t0, ts=None, sort="Eigenvalue", vector_obs=False, **kwargs):
         r'''Solve the generalized eigenvalue problem on the correlator matrix and returns the corresponding eigenvectors.
 
@@ -330,6 +367,9 @@ class Corr:
             - None: The GEVP is solved only at ts, no sorting is necessary
         vector_obs : bool
             If True, uncertainties are propagated in the eigenvector computation (default False).
+            Complex matrices use a direct Hermitian GEVP derivative, with the
+            local phase Im(v_n^H C(t0) d v_n)=0 at the central point. Individual
+            vector derivatives are undefined at degenerate eigenvalues.
 
         Other Parameters
         ----------------
@@ -338,7 +378,16 @@ class Corr:
         method : str
            Method used to solve the GEVP.
            - "eigh": Use scipy.linalg.eigh to solve the GEVP. (default for vector_obs=False)
-           - "cholesky": Use manually implemented solution via the Cholesky decomposition. Automatically chosen if vector_obs==True.
+           - "cholesky": Use manually implemented solution via the Cholesky decomposition.
+             Automatically chosen for real vector_obs=True. Complex vector_obs=True
+             uses the direct derivative irrespective of method.
+
+        Notes
+        -----
+        For time-dependent solves, missing matrices and numerical solver failures
+        (LinAlgError) give None at that separation, for both real and complex
+        input. Other exceptions propagate. A fixed-time solve (sort=None) must
+        succeed; sorting by eigenvector also requires a successful solve at ts.
         '''
 
         if self.N == 1:
@@ -351,25 +400,37 @@ class Corr:
             warnings.warn("Argument 'sorted_list' is deprecated, use 'sort' instead.", DeprecationWarning, stacklevel=2)
             sort = kwargs.get("sorted_list")
 
-        if self.is_matrix_symmetric():
+        complex_corr = any(linalg._is_complex(matrix) for matrix in self.content
+                           if not _check_for_none(self, matrix))
+        if complex_corr:
+            symmetric_corr = self if self.is_matrix_hermitian() else self.matrix_hermitian()
+        elif self.is_matrix_symmetric():
             symmetric_corr = self
         else:
             symmetric_corr = self.matrix_symmetric()
 
         def _get_mat_at_t(t, vector_obs=vector_obs):
+            matrix = symmetric_corr[t]
+            if _check_for_none(self, matrix):
+                raise ValueError('Correlator not defined at requested timeslice.')
             if vector_obs:
-                return symmetric_corr[t]
+                return matrix
             else:
-                return np.vectorize(lambda x: x.value)(symmetric_corr[t])
+                return linalg._matrix_values(matrix)
         G0 = _get_mat_at_t(t0)
 
         method = kwargs.get('method', 'eigh')
-        if vector_obs:
+        if vector_obs and complex_corr:
+            # Check positive definiteness of the mean reference matrix.
+            np.linalg.cholesky(_get_mat_at_t(t0, vector_obs=False))
+            chol_inv = None
+            method = 'complex'
+        elif vector_obs:
             chol = linalg.cholesky(G0)
             chol_inv = linalg.inv(chol)
             method = 'cholesky'
         else:
-            chol = np.linalg.cholesky(_get_mat_at_t(t0, vector_obs=False))  # Check if matrix G0 is positive-semidefinite.
+            chol = np.linalg.cholesky(_get_mat_at_t(t0, vector_obs=False))  # Check positive definiteness.
             if method == 'cholesky':
                 chol_inv = np.linalg.inv(chol)
             else:
@@ -383,26 +444,33 @@ class Corr:
             Gt = _get_mat_at_t(ts)
             reordered_vecs = _GEVP_solver(Gt, G0, method=method, chol_inv=chol_inv)
             if kwargs.get('auto_gamma', False) and vector_obs:
-                [[o.gm() for o in ev if isinstance(o, Obs)] for ev in reordered_vecs]
+                [[o.gamma_method() for o in ev if isinstance(o, (Obs, CObs))] for ev in reordered_vecs]
 
         elif sort in ["Eigenvalue", "Eigenvector"]:
             if sort == "Eigenvalue" and ts is not None:
                 warnings.warn("ts has no effect when sorting by eigenvalue is chosen.", RuntimeWarning, stacklevel=2)
             all_vecs = [None] * (t0 + 1)
             for t in range(t0 + 1, self.T):
+                if _check_for_none(self, symmetric_corr[t]):
+                    all_vecs.append(None)
+                    continue
                 try:
                     Gt = _get_mat_at_t(t)
                     all_vecs.append(_GEVP_solver(Gt, G0, method=method, chol_inv=chol_inv))
-                except Exception:
+                except np.linalg.LinAlgError:
                     all_vecs.append(None)
             if sort == "Eigenvector":
                 if ts is None:
                     raise ValueError("ts is required for the Eigenvector sorting method.")
+                if _check_for_none(self, symmetric_corr[ts]):
+                    raise ValueError('Correlator not defined at sorting reference timeslice.')
+                if all_vecs[ts] is None:
+                    raise np.linalg.LinAlgError('GEVP failed at sorting reference timeslice.')
                 all_vecs = _sort_vectors(all_vecs, ts)
 
             reordered_vecs = [[v[s] if v is not None else None for v in all_vecs] for s in range(self.N)]
             if kwargs.get('auto_gamma', False) and vector_obs:
-                [[[o.gm() for o in evn] for evn in ev if evn is not None] for ev in reordered_vecs]
+                [[[o.gamma_method() for o in evn] for evn in ev if evn is not None] for ev in reordered_vecs]
         else:
             raise ValueError("Unknown value for 'sort'. Choose 'Eigenvalue', 'Eigenvector' or None.")
 
@@ -419,10 +487,23 @@ class Corr:
         state : int
             The state one is interested in ordered by energy. The lowest state is zero.
 
-        All other parameters are identical to the ones of Corr.GEVP.
+        All other parameters are identical to the ones of Corr.GEVP. By default
+        the vectors are numerical fixed operator coefficients; their uncertainty
+        is included only with vector_obs=True. For complex input this returns
+        the real part of the equal-vector Hermitian projection.
+
+        Raises
+        ------
+        numpy.linalg.LinAlgError
+            If the fixed-time eigensolver fails.
+        ValueError
+            If the GEVP returns no vector for the selected state.
         """
         vec = self.GEVP(t0, ts=ts, sort=sort, **kwargs)[state]
-        return self.projected(vec)
+        if vec is None:
+            raise ValueError('GEVP did not return an eigenvector for the selected state.')
+        result = self.projected(vec)
+        return result.real
 
     def Hankel(self, N, periodic=False):
         """Constructs an NxN Hankel matrix
@@ -1342,20 +1423,16 @@ class Corr:
     @property
     def real(self):
         def return_real(obs_OR_cobs):
-            if isinstance(obs_OR_cobs.flatten()[0], CObs):
-                return np.vectorize(lambda x: x.real)(obs_OR_cobs)
-            else:
-                return obs_OR_cobs
+            return np.vectorize(lambda x: x.real if isinstance(x, (CObs, complex, np.complexfloating)) else x,
+                                otypes=[object])(obs_OR_cobs)
 
         return self._apply_func_to_corr(return_real)
 
     @property
     def imag(self):
         def return_imag(obs_OR_cobs):
-            if isinstance(obs_OR_cobs.flatten()[0], CObs):
-                return np.vectorize(lambda x: x.imag)(obs_OR_cobs)
-            else:
-                return obs_OR_cobs * 0  # So it stays the right type
+            return np.vectorize(lambda x: x.imag if isinstance(x, (CObs, complex, np.complexfloating)) else x * 0,
+                                otypes=[object])(obs_OR_cobs)
 
         return self._apply_func_to_corr(return_imag)
 
@@ -1413,7 +1490,7 @@ class Corr:
             else:
                 for i in range(Ntrunc):
                     for j in range(Ntrunc):
-                        tmpmat[i][j] = evecs[i].T @ self[t] @ evecs[j]
+                        tmpmat[i][j] = linalg._conjugate(evecs[i]) @ self[t] @ evecs[j]
                 rmat.append(np.copy(tmpmat))
 
         return Corr(rmat)
@@ -1422,10 +1499,7 @@ class Corr:
 def _sort_vectors(vec_set_in, ts):
     """Helper function used to find a set of Eigenvectors consistent over all timeslices"""
 
-    if isinstance(vec_set_in[ts][0][0], Obs):
-        vec_set = [anp.vectorize(float)(vi) if vi is not None else vi for vi in vec_set_in]
-    else:
-        vec_set = vec_set_in
+    vec_set = [linalg._matrix_values(vi) if vi is not None else vi for vi in vec_set_in]
     reference_sorting = np.array(vec_set[ts])
     N = reference_sorting.shape[0]
     sorted_vec_set = []
@@ -1453,7 +1527,7 @@ def _sort_vectors(vec_set_in, ts):
 
 def _check_for_none(corr, entry):
     """Checks if entry for correlator corr is None"""
-    return len(list(filter(None, np.asarray(entry).flatten()))) < corr.N ** 2
+    return any(item is None for item in np.asarray(entry, dtype=object).flat)
 
 
 def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
@@ -1461,9 +1535,9 @@ def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
 
     Solves $G(t)v_i=\lambda_i G(t_0)v_i$ and returns the eigenvectors v_i
 
-    The helper function assumes that both provided matrices are symmetric and
-    only processes the lower triangular part of both matrices. In case the matrices
-    are not symmetric the upper triangular parts are effectively discarded.
+    The matrices must be real symmetric or complex Hermitian. The numerical
+    backends process their lower triangles. The complex observable backend
+    differentiates the Hermitian parts in unrestricted real coordinates.
 
     Parameters
     ----------
@@ -1474,11 +1548,15 @@ def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
     Method used to solve the GEVP.
        - "eigh": Use scipy.linalg.eigh to solve the GEVP.
        - "cholesky": Use manually implemented solution via the Cholesky decomposition.
+       - "complex": Internal backend for propagated complex eigenvectors.
     chol_inv : array, optional
         Inverse of the Cholesky decomposition of G0. May be provided to
         speed up the computation in the case of method=='cholesky'
 
     """
+    if method == 'complex':
+        return linalg._eigh_complex(Gt, G0)[1].T[::-1]
+
     if isinstance(G0[0][0], Obs):
         vector_obs = True
     else:
@@ -1499,20 +1577,14 @@ def _GEVP_solver(Gt, G0, method='eigh', chol_inv=None):
 
             def matmul(*operands):
                 return np.linalg.multi_dot(operands)
-        N = Gt.shape[0]
-        output = [[] for j in range(N)]
         if chol_inv is None:
             chol = cholesky(G0)  # This will automatically report if the matrix is not pos-def
             chol_inv = inv(chol)
 
-        try:
-            new_matrix = matmul(chol_inv, Gt, chol_inv.T)
-            ev = eigv(new_matrix)
-            ev = matmul(chol_inv.T, ev)
-            output = np.flip(ev, axis=1).T
-        except (np.linalg.LinAlgError, TypeError, ValueError):  # The above code can fail because of linalg-errors or because the entry of the corr is None
-            for s in range(N):
-                output[s] = None
-        return output
+        chol_inv_h = linalg._conjugate(chol_inv).T
+        new_matrix = matmul(chol_inv, Gt, chol_inv_h)
+        ev = eigv(new_matrix)
+        ev = matmul(chol_inv_h, ev)
+        return np.flip(ev, axis=1).T
     elif method == 'eigh':
         return scipy.linalg.eigh(Gt, G0, lower=True)[1].T[::-1]

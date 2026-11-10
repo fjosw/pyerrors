@@ -1423,7 +1423,7 @@ class Corr:
     @property
     def real(self):
         def return_real(obs_OR_cobs):
-            return np.vectorize(lambda x: x.real if isinstance(x, CObs) else x,
+            return np.vectorize(lambda x: x.real if isinstance(x, (CObs, complex, np.complexfloating)) else x,
                                 otypes=[object])(obs_OR_cobs)
 
         return self._apply_func_to_corr(return_real)
@@ -1431,7 +1431,7 @@ class Corr:
     @property
     def imag(self):
         def return_imag(obs_OR_cobs):
-            return np.vectorize(lambda x: x.imag if isinstance(x, CObs) else x * 0,
+            return np.vectorize(lambda x: x.imag if isinstance(x, (CObs, complex, np.complexfloating)) else x * 0,
                                 otypes=[object])(obs_OR_cobs)
 
         return self._apply_func_to_corr(return_imag)

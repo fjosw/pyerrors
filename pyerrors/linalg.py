@@ -1,6 +1,7 @@
 import autograd.numpy as anp  # Thinly-wrapped numpy
 import numpy as np
 import scipy.linalg
+from autograd.extend import Box, notrace_primitive
 
 from .obs import CObs, Obs, derived_observable, import_jackknife
 
@@ -270,7 +271,7 @@ def eigh(obs, **kwargs):
     if _is_complex(obs):
         return _eigh_complex(obs)
     w = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[0], obs)
-    v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
+    v = eigv(obs)
     return w, v
 
 
@@ -281,11 +282,22 @@ def eig(obs, **kwargs):
 
 
 def eigv(obs, **kwargs):
-    """Computes the eigenvectors of a given hermitian matrix of Obs according to np.linalg.eigh."""
+    """Eigenvectors of a Hermitian matrix, with propagated uncertainties.
+
+    Numerically unresolved eigenvalue gaps at the central matrix raise
+    LinAlgError because individual eigenvector derivatives are undefined at
+    degeneracy.
+    """
     if _is_complex(obs):
         return _eigh_complex(obs)[1]
-    v = derived_observable(lambda x, **kwargs: anp.linalg.eigh(x)[1], obs)
-    return v
+
+    def eigenvectors(x, **kwargs):
+        w, v = anp.linalg.eigh(x)
+        if isinstance(x, Box):  # Only the central Jacobian needs this check.
+            _check_eigenvalue_gaps(w)
+        return v
+
+    return derived_observable(eigenvectors, obs)
 
 
 def _is_complex(matrix):
@@ -312,6 +324,14 @@ def _conjugate(array):
     array = np.asarray(array)
     return np.array([entry.conjugate() if hasattr(entry, 'conjugate') else entry
                      for entry in array.flat]).reshape(array.shape)
+
+
+@notrace_primitive
+def _check_eigenvalue_gaps(eigenvalues):
+    """Reject unresolved gaps before differentiating individual eigenvectors."""
+    n = len(eigenvalues)
+    if n > 1 and np.any(np.diff(eigenvalues) <= 100 * n * np.finfo(float).eps * np.max(np.abs(eigenvalues))):
+        raise np.linalg.LinAlgError('Eigenvector derivatives are undefined for degenerate eigenvalues.')
 
 
 def _eigh_complex(obs, metric=None):
@@ -411,8 +431,7 @@ def _eigh_complex(obs, metric=None):
     a, b = (a + a.conj().T) / 2, (b + b.conj().T) / 2
     w, v = scipy.linalg.eigh(a, b)
     n = len(w)
-    if n > 1 and np.any(np.diff(w) <= 100 * n * np.finfo(float).eps * np.max(np.abs(w))):
-        raise np.linalg.LinAlgError('Eigenvector derivatives are undefined for degenerate eigenvalues.')
+    _check_eigenvalue_gaps(w)
 
     # d lambda_n = v_n^H (dA - lambda_n dB) v_n.
     q = np.einsum('in,jn->nij', v.conj(), v)

@@ -361,6 +361,32 @@ def test_complex_matrix_real_entries():
     assert np.all((my_mat @ pe.linalg.inv(my_mat) - np.identity(4)) == 0)
 
 
+def test_real_eigv_with_degenerate_replica():
+    noise = np.tile([-0.125, 0.125], 40)
+    names = ['eigenvectors|r1', 'eigenvectors|r2']
+    # The central spectrum is (1.5, 3), but replica r1 has spectrum (2, 2).
+    a = pe.Obs([2 + noise, 1 + noise], names)
+    b = pe.Obs([2 - noise, 4 - noise], names)
+    c = pe.Obs([noise, noise], names)
+    matrix = np.array([[a, c], [c, b]])
+    vectors = pe.linalg.eigv(matrix)
+    # With zero off-diagonal mean, a and b are the eigenvalues to first order.
+    assert all(entry.is_zero() for entry in (matrix @ vectors - vectors @ np.diag([a, b])).flat)
+    assert all(entry.is_zero() for entry in (vectors.T @ vectors - np.eye(2)).flat)
+
+
+@pytest.mark.parametrize('operation', [pe.linalg.eigh, pe.linalg.eigv])
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+@pytest.mark.parametrize('gap', [0., 4 * np.finfo(float).eps], ids=['exact', 'unresolved'])
+def test_hermitian_vector_derivatives_reject_degenerate_spectrum(operation, complex_input, gap):
+    unit = pe.cov_Obs(1., 1e-4, 'degenerate')
+    matrix = np.diag([unit, (1 + gap) * unit, 3 * unit])
+    if complex_input:
+        matrix = np.vectorize(pe.CObs, otypes=[object])(matrix)
+    with pytest.raises(np.linalg.LinAlgError, match='degenerate'):
+        operation(matrix)
+
+
 def _value(x):
     if isinstance(x, pe.CObs):
         return complex(_value(x.real), _value(x.imag))

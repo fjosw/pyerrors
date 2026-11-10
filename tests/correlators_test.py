@@ -969,7 +969,10 @@ def test_time_dependent_gevp_solver_failure(complex_corr, monkeypatch, method, s
     projected = corr.Eigenvalue(**kwargs)
     assert projected[6] is None and projected[5] is None
     # Check both earlier and later successful solves, including their errors.
-    _assert_same_observables([projected[2], projected[7]], [baseline[2], baseline[7]])
+    # Their fluctuations are proportional, so a joint covariance check would
+    # introduce a singular matrix with a roundoff-dependent positivity warning.
+    for t in (2, 7):
+        _assert_same_observables([projected[t]], [baseline[t]])
 
 
 
@@ -1036,6 +1039,24 @@ def test_complex_hermitian_helpers_and_components(complex_corr):
     with pytest.raises(ValueError):
         corr.item(0, 0).matrix_hermitian()
 
+
+
+@pytest.mark.parametrize('complex_type', [complex, np.complex64, np.complex128])
+def test_complex_components_with_numeric_entries(complex_type):
+    a, b = pe.cov_Obs([2., 0.3], [[1e-4, 2e-5], [2e-5, 3e-4]], 'components')
+    matrix = np.array([[a, complex_type(1 + 2j), pe.CObs(a, b)],
+                       [complex_type(1 - 2j), 2 * a, complex_type(-0.4j)],
+                       [pe.CObs(a, -b), complex_type(0.4j), 3 * a]], dtype=object)
+    corr = pe.Corr([None, matrix, None])
+    real, imag = corr.real, corr.imag
+    assert real[0] is None and real[2] is None
+    assert imag[0] is None and imag[2] is None
+    np.testing.assert_allclose(_values(real[1]), _values(matrix).real)
+    np.testing.assert_allclose(_values(imag[1]), _values(matrix).imag)
+    assert real[1][0, 0] is a and real[1][0, 2] is a
+    assert imag[1][0, 2] is b and imag[1][0, 0].is_zero()
+    for entry in np.concatenate((real[1].ravel(), imag[1].ravel())):
+        assert not isinstance(entry, (pe.CObs, complex, np.complexfloating))
 
 
 def test_complex_prune(complex_corr):
@@ -1144,9 +1165,12 @@ def test_complex_generalized_covariance():
 
 
 @pytest.mark.parametrize('sort', ['Eigenvalue', 'Eigenvector', None])
-def test_complex_degeneracy_and_missing_reference(sort):
+@pytest.mark.parametrize('complex_input', [False, True], ids=['real', 'complex'])
+def test_gevp_degeneracy_and_missing_reference(sort, complex_input):
     unit = pe.cov_Obs(1., 0., 'constant')
-    identity = np.array([[pe.CObs(unit), pe.CObs(0 * unit)], [pe.CObs(0 * unit), pe.CObs(unit)]])
+    identity = np.array([[unit, 0 * unit], [0 * unit, unit]])
+    if complex_input:
+        identity = np.vectorize(pe.CObs, otypes=[object])(identity)
     corr = pe.Corr([identity, identity * 2, identity * 3])
     kwargs = dict(t0=0, sort=sort)
     if sort != 'Eigenvalue':
